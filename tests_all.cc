@@ -32,7 +32,7 @@ int PsychometricValues ( TestSuite* T ) {
 	}
 
 	// Test likelihood
-	failures += T->isequal ( pmf->negllikeli(prm,*data), 11.996474658154325, "PsychometricValues likelihood");
+	failures += T->isequal ( pmf->negllikeli(prm,data), 11.996474658154325, "PsychometricValues likelihood");
 
 	return failures;
 }
@@ -60,7 +60,7 @@ int OptimizerSolution ( TestSuite * T ) {
 	prm[0] = 4; prm[1] = 0.8; prm[2] = 0.02;
 	pmf->setPrior( 2, new UniformPrior(0.,0.1));
 	std::vector<double> start (4);
-	start = pmf->getStart( *data );
+	start = pmf->getStart( data );
 
 	// Optimizer
 	PsiOptimizer *opt = new PsiOptimizer (pmf, data);
@@ -99,7 +99,7 @@ def model(prm,x,k,n):
 
 al,bt,lm = fmin(model,prm0,args=(x,k,n))
 	*/
-	std::vector<double> devianceresiduals (pmf->getDevianceResiduals ( solution, *data ));
+	std::vector<double> devianceresiduals (pmf->getDevianceResiduals ( solution, data ));
 	for ( i=0; i<devianceresiduals.size(); i++ ) {
 		deviance += devianceresiduals[i]*devianceresiduals[i];
 	}
@@ -111,10 +111,10 @@ al,bt,lm = fmin(model,prm0,args=(x,k,n))
 	failures += T->isequal(solution[1],0.95916747050675411,"OptimizerSolution 2AFC beta",1e-4);
 	failures += T->isequal(solution[2],0.019132769792808153,"OptimizerSolution 2AFC lambda",1e-4);
 
-	failures += T->isequal(pmf->deviance(solution,*data),3.98476,"OptimizerSolution 2AFC deviance",1e-4);
-	failures += T->isequal(pmf->deviance(solution,*data),deviance,"OptimizerSolution 2AFC deviance sum", 1e-7);
+	failures += T->isequal(pmf->deviance(solution,data),3.98476,"OptimizerSolution 2AFC deviance",1e-4);
+	failures += T->isequal(pmf->deviance(solution,data),deviance,"OptimizerSolution 2AFC deviance sum", 1e-7);
 
-	failures += T->isequal(pmf->getRpd(devianceresiduals,solution,*data),0.155395,"OptimizerSolution 2AFC Rpd",1e-2);
+	failures += T->isequal(pmf->getRpd(devianceresiduals,solution,data),0.155395,"OptimizerSolution 2AFC Rpd",1e-2);
 	// The following test fails for some reason.
 	// Why is that? Python gives the same correlation between index and deviance residuals.
 	// The number used here is from psignifit.
@@ -139,7 +139,7 @@ al,bt,lm = fmin(model,prm0,args=(x,k,n))
 	prm[0] = 4; prm[1] = 0.8; prm[2] = 0.02; prm[3] = 0.1;
 	pmf->setPrior( 2, new UniformPrior(0.,0.1));
 	// pmf->setPrior( 3, new UniformPrior(0.,1.));
-	start = pmf->getStart( *data );
+	start = pmf->getStart( data );
 
 	// Optimizer
 	opt = new PsiOptimizer (pmf, data);
@@ -176,7 +176,7 @@ def model(prm,x,k,n):
 
 al,bt,lm,gm = fmin(model,prm0,args=(x,k,n))
 	*/
-	devianceresiduals = pmf->getDevianceResiduals ( solution, *data );
+	devianceresiduals = pmf->getDevianceResiduals ( solution, data );
 	deviance = 0;
 	for ( i=0; i<devianceresiduals.size(); i++ ) {
 		deviance += devianceresiduals[i]*devianceresiduals[i];
@@ -190,10 +190,10 @@ al,bt,lm,gm = fmin(model,prm0,args=(x,k,n))
 	failures += T->isequal(solution[2],8.4692705817775732e-09,"OptimizerSolution Y/N lambda",1e-2);
 	failures += T->isequal(solution[3],0.029071443401547103,"OptimizerSolution Y/N gamma",1e-2);
 
-	failures += T->isequal(pmf->deviance(solution,*data),2.08172,"OptimizerSolution Y/N deviance",2*1e-1);
-	failures += T->isequal(pmf->deviance(solution,*data),deviance,"OptimizerSolution Y/N deviance sum", 1e-7);
+	failures += T->isequal(pmf->deviance(solution,data),2.08172,"OptimizerSolution Y/N deviance",2*1e-1);
+	failures += T->isequal(pmf->deviance(solution,data),deviance,"OptimizerSolution Y/N deviance sum", 1e-7);
 
-	failures += T->isequal(pmf->getRpd(devianceresiduals,solution,*data),0.217146,"OptimizerSolution Y/N Rpd",1e-1);
+	failures += T->isequal(pmf->getRpd(devianceresiduals,solution,data),0.217146,"OptimizerSolution Y/N Rpd",1e-1);
 	failures += T->isequal(pmf->getRkd(devianceresiduals,solution),-0.477967,"OptimizerSolution Y/N Rkd",1e-2);
 
 	delete pmf;
@@ -228,7 +228,7 @@ int BootstrapTest ( TestSuite * T ) {
 	pmf->setPrior( 2, new UniformPrior(0.,0.1));
 
 	std::vector<double> cuts (1, 0.5);
-	BootstrapList boots = parametricbootstrap ( 9999, *data, pmf, cuts );
+	BootstrapList boots = parametricbootstrap ( 9999, data, pmf, cuts );
 
 	// Check against psignifit results
 	// These values are subject to statistical variation. "equality" is defined relatively coarse
@@ -243,7 +243,7 @@ int BootstrapTest ( TestSuite * T ) {
 	failures += T->isequal(boots.percRkd(.975), 0.612778, "Rkd(97.5%)",  .1);
 
 	// Check for influential observations and outliers
-	JackKnifeList jackknife = jackknifedata (*data, pmf);
+	JackKnifeList jackknife = jackknifedata (data, pmf);
 
 	std::vector<double> ci_lower ( pmf->getNparams() ), ci_upper ( pmf->getNparams() );
 	for ( i=0; i<pmf->getNparams(); i++ ) {
@@ -359,10 +359,10 @@ int CoreTests ( TestSuite * T ) {
 
 int main ( int argc, char ** argv ) {
 	TestSuite Tests ( "tests_all.log" );
-	// Tests.addTest(&PsychometricValues,"Values of the psychometric function");
+	Tests.addTest(&PsychometricValues,"Values of the psychometric function");
 	Tests.addTest(&OptimizerSolution, "Solutions of optimizer");
-	// Tests.addTest(&BootstrapTest,     "Bootstrap properties");
-	// Tests.addTest(&SigmoidTests,      "Properties of sigmoids");
-	// Tests.addTest(&CoreTests,         "Tests of core objects");
+	Tests.addTest(&BootstrapTest,     "Bootstrap properties");
+	Tests.addTest(&SigmoidTests,      "Properties of sigmoids");
+	Tests.addTest(&CoreTests,         "Tests of core objects");
 	Tests.runTests();
 }

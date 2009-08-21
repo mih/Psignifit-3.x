@@ -29,7 +29,7 @@ double testfunction(const std::vector<double>& x) {
 
 std::vector<double> PsiOptimizer::optimize ( const PsiPsychometric * model, const PsiData * data )
 {
-	start = model->getStart(*data);
+	start = model->getStart(data);
 
 	int k, l, reoptimization;
 
@@ -61,7 +61,7 @@ std::vector<double> PsiOptimizer::optimize ( const PsiPsychometric * model, cons
 		maxind = minind = 0;
 		for (k=0; k<nparameters+1; k++) {
 			if (modified[k]) {
-				fx[k] = model->neglpost(simplex[k], *data );
+				fx[k] = model->neglpost(simplex[k], data );
 				modified[k] = false;
 			}
 			// fx[k] = testfunction(simplex[k]);
@@ -108,7 +108,7 @@ std::vector<double> PsiOptimizer::optimize ( const PsiPsychometric * model, cons
 		for (k=0; k<nparameters; k++) xx[k] = x[k] - (simplex[maxind][k]-x[k]);
 
 		// Now check what to do
-		ffx = model->neglpost(xx,*data);
+		ffx = model->neglpost(xx,data);
 		// ffx = testfunction(xx);
 		if (ffx<fx[minind]) {
 			// The reflected point is better than the previous worst point ~> Expand
@@ -140,7 +140,7 @@ std::vector<double> PsiOptimizer::optimize ( const PsiPsychometric * model, cons
 	minind = 0;
 	for (k=0; k<nparameters+1; k++) {
 		if (modified[k]) {
-			fx[k] = model->neglpost(simplex[k], *data );
+			fx[k] = model->neglpost(simplex[k], data );
 			modified[k] = false;
 		}
 		// fx[k] = testfunction(simplex[k]);

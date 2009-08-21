@@ -43,18 +43,18 @@ double PsiPsychometric::evaluate ( double x, const std::vector<double>& prm ) co
 	return gamma + (1-gamma-prm[2]) * Sigmoid->f(Core->g(x,prm));
 }
 
-double PsiPsychometric::negllikeli ( const std::vector<double>& prm, const PsiData& data ) const
+double PsiPsychometric::negllikeli ( const std::vector<double>& prm, const PsiData* data ) const
 {
 	int i,n,k;
 	double l(0);
 	double x,p,lognoverk;
 
-	for (i=0; i<data.getNblocks(); i++)
+	for (i=0; i<data->getNblocks(); i++)
 	{
-		n = data.getNtrials(i);
-		k = data.getNcorrect(i);
-		x = data.getIntensity(i);
-		lognoverk = data.getNoverK(i);
+		n = data->getNtrials(i);
+		k = data->getNcorrect(i);
+		x = data->getIntensity(i);
+		lognoverk = data->getNoverK(i);
 		p = evaluate(x, prm);
 		l -= lognoverk;
 		if (p>0)
@@ -70,7 +70,7 @@ double PsiPsychometric::negllikeli ( const std::vector<double>& prm, const PsiDa
 	return l;
 }
 
-double PsiPsychometric::leastfavourable ( const std::vector<double>& prm, const PsiData& data, double cut, bool threshold ) const
+double PsiPsychometric::leastfavourable ( const std::vector<double>& prm, const PsiData* data, double cut, bool threshold ) const
 {
 	if (!threshold) throw NotImplementedError();  // So far we only have this for the threshold
 
@@ -87,10 +87,10 @@ double PsiPsychometric::leastfavourable ( const std::vector<double>& prm, const 
 	du[1] = Core->dinv(ythres,prm,1);
 
 	// Fill I
-	for (z=0; z<data.getNblocks(); z++) {
-		rz = data.getNcorrect(z);
-		nz = data.getNtrials(z);
-		xz = data.getIntensity(z);
+	for (z=0; z<data->getNblocks(); z++) {
+		rz = data->getNcorrect(z);
+		nz = data->getNtrials(z);
+		xz = data->getIntensity(z);
 		pz = evaluate(xz,prm);
 		fac1 = rz/pz - (nz-rz)/(1-pz);
 		fac2 = rz/(pz*pz) + (nz-rz)/((1-pz)*(1-pz));
@@ -112,7 +112,7 @@ double PsiPsychometric::leastfavourable ( const std::vector<double>& prm, const 
 	// TODO: Do we really need this step?
 	for (i=0; i<prm.size(); i++)
 		for (j=i; j<prm.size(); j++)
-			I[i][j] /= data.getNblocks();
+			I[i][j] /= data->getNblocks();
 
 	// The remaining parts of I can be copied
 	for (i=1; i<prm.size(); i++)
@@ -153,10 +153,10 @@ double PsiPsychometric::leastfavourable ( const std::vector<double>& prm, const 
 	    delta[i] /= s;
 
 	// The result has to be multiplied by the gradient of the likelihood
-	for (z=0; z<data.getNblocks(); z++) {
-		rz = data.getNcorrect(z);
-		nz = data.getNtrials(z);
-		xz = data.getIntensity(z);
+	for (z=0; z<data->getNblocks(); z++) {
+		rz = data->getNcorrect(z);
+		nz = data->getNtrials(z);
+		xz = data->getIntensity(z);
 		pz = evaluate(xz,prm);
 		fac1 = rz/pz - (nz-rz)/(1-pz);
 		for (i=0; i<2; i++)
@@ -169,17 +169,17 @@ double PsiPsychometric::leastfavourable ( const std::vector<double>& prm, const 
 	return l_LF;
 }
 
-double PsiPsychometric::deviance ( const std::vector<double>& prm, const PsiData& data ) const
+double PsiPsychometric::deviance ( const std::vector<double>& prm, const PsiData* data ) const
 {
 	int i,n;
 	double D(0);
 	double x,y,p;
 
-	for ( i=0; i<data.getNblocks(); i++ )
+	for ( i=0; i<data->getNblocks(); i++ )
 	{
-		n = data.getNtrials(i);
-		y = data.getPcorrect(i);
-		x = data.getIntensity(i);
+		n = data->getNtrials(i);
+		y = data->getPcorrect(i);
+		x = data->getIntensity(i);
 		p = evaluate( x, prm );
 		if (y>0)
 			D += n*y*log(y/p);
@@ -197,7 +197,7 @@ void PsiPsychometric::setPrior ( int index, PsiPrior* prior )
 	priors[index] = prior;
 }
 
-double PsiPsychometric::neglpost ( const std::vector<double>& prm, const PsiData& data ) const
+double PsiPsychometric::neglpost ( const std::vector<double>& prm, const PsiData* data ) const
 {
 	int i;
 	double l;
@@ -210,12 +210,12 @@ double PsiPsychometric::neglpost ( const std::vector<double>& prm, const PsiData
 	return l;
 }
 
-std::vector<double> PsiPsychometric::getStart ( const PsiData& data ) const
+std::vector<double> PsiPsychometric::getStart ( const PsiData* data ) const
 {
 	int i;
 	double a,b;
-	std::vector<double> x (data.getIntensities());
-	std::vector<double> p (data.getPcorrect());
+	std::vector<double> x (data->getIntensities());
+	std::vector<double> p (data->getPcorrect());
 	double minp(1000), maxp(-1000);
 	double meanx(0), meanp(0);
 	double varx(0),covxp(0);
@@ -279,17 +279,17 @@ std::vector<double> PsiPsychometric::getStart ( const PsiData& data ) const
 	return out;
 }
 
-std::vector<double> PsiPsychometric::getDevianceResiduals ( const std::vector<double>& prm, const PsiData& data ) const
+std::vector<double> PsiPsychometric::getDevianceResiduals ( const std::vector<double>& prm, const PsiData* data ) const
 {
 	int i, n;
 	double x,y,p;
-	std::vector<double> out (data.getNblocks());
+	std::vector<double> out (data->getNblocks());
 
-	for ( i=0; i<data.getNblocks(); i++ )
+	for ( i=0; i<data->getNblocks(); i++ )
 	{
-		n = data.getNtrials(i);
-		y = data.getPcorrect(i);
-		x = data.getIntensity(i);
+		n = data->getNtrials(i);
+		y = data->getPcorrect(i);
+		x = data->getIntensity(i);
 		p = evaluate(x,prm);
 		out[i] = 0;
 		if (y>0)
@@ -302,18 +302,18 @@ std::vector<double> PsiPsychometric::getDevianceResiduals ( const std::vector<do
 	return out;
 }
 
-double PsiPsychometric::getRpd ( const std::vector<double>& devianceresiduals, const std::vector<double>& prm, const PsiData& data ) const {
-	int k,N(data.getNblocks());
+double PsiPsychometric::getRpd ( const std::vector<double>& devianceresiduals, const std::vector<double>& prm, const PsiData* data ) const {
+	int k,N(data->getNblocks());
 	double Ed(0),Ep(0),vard(0),varp(0),R(0);
-	std::vector<double> p ( data.getPcorrect() );
+	std::vector<double> p ( data->getPcorrect() );
 
 	// Evaluate p values in advance
-	for ( k=0; k<data.getNblocks(); k++ ) {
-		p[k] = evaluate(data.getIntensity(k),prm);
+	for ( k=0; k<data->getNblocks(); k++ ) {
+		p[k] = evaluate(data->getIntensity(k),prm);
 	}
 
 	// Calculate averages
-	for ( k=0; k<data.getNblocks(); k++ ) {
+	for ( k=0; k<data->getNblocks(); k++ ) {
 		Ed += devianceresiduals[k];
 		Ep += p[k];
 	}
@@ -321,7 +321,7 @@ double PsiPsychometric::getRpd ( const std::vector<double>& devianceresiduals, c
 	Ep /= N;
 
 	// Calculate unnormalized variances and covariances
-	for ( k=0; k<data.getNblocks(); k++ ) {
+	for ( k=0; k<data->getNblocks(); k++ ) {
 		vard += pow(devianceresiduals[k]-Ed,2);
 		varp += pow(p[k]-Ep,2);
 		R    += (devianceresiduals[k]-Ed)*(p[k]-Ep);

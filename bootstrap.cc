@@ -5,26 +5,26 @@
 #endif
 
 
-BootstrapList parametricbootstrap ( int B, const PsiData& data, const PsiPsychometric* model, std::vector<double> cuts, bool BCa )
+BootstrapList parametricbootstrap ( int B, const PsiData * data, const PsiPsychometric* model, std::vector<double> cuts, bool BCa )
 {
 #ifdef DEBUG_BOOTSTRAP
 	std::cerr << "Starting bootstrap\n Cuts size=" << cuts.size() << " "; std::cerr.flush();
 #endif
-	BootstrapList bootstrapsamples ( B, model->getNparams(), data.getNblocks(), cuts );
+	BootstrapList bootstrapsamples ( B, model->getNparams(), data->getNblocks(), cuts );
 	int b,k,l,cut;
 	std::vector< std::vector<double> > l_LF (B, std::vector<double>(cuts.size()));
 	std::vector< std::vector<double> > u_i (B, std::vector<double>(cuts.size()));
-	PsiOptimizer opt ( model, &data );
-	PsiData localdataset ( data.getIntensities(),
-			data.getNtrials(),
-			data.getNcorrect(),
-			data.getNalternatives() );
+	PsiOptimizer opt ( model, data );
+	PsiData * localdataset = new PsiData ( data->getIntensities(),
+			data->getNtrials(),
+			data->getNcorrect(),
+			data->getNalternatives() );
 
-	std::vector<double> initialfit ( opt.optimize( model, &data ) );
+	std::vector<double> initialfit ( opt.optimize( model, data ) );
 	std::vector<double> localfit   ( model->getNparams() );
-	std::vector<int>    sample     ( data.getNblocks() );
+	std::vector<int>    sample     ( data->getNblocks() );
 	std::vector<double> initialthresholds ( cuts.size() );
-	std::vector<double> devianceresiduals ( data.getNblocks() );
+	std::vector<double> devianceresiduals ( data->getNblocks() );
 	double p,deviance;
 
 	for (cut=0; cut<cuts.size(); cut++)
@@ -32,18 +32,18 @@ BootstrapList parametricbootstrap ( int B, const PsiData& data, const PsiPsychom
 
 	for ( b=0; b<B; b++ ) {
 		// Resampling
-		for ( k=0; k<data.getNblocks(); k++ ) {
-			p = model->evaluate( data.getIntensity(k), initialfit );
+		for ( k=0; k<data->getNblocks(); k++ ) {
+			p = model->evaluate( data->getIntensity(k), initialfit );
 			sample[k] = 0;
 			// TODO: use a better random number generator here
-			for ( l=0; l<data.getNtrials(k); l++ )
+			for ( l=0; l<data->getNtrials(k); l++ )
 				sample[k] += int( drand48() < p );
 		}
-		localdataset.setNcorrect ( sample );
+		localdataset->setNcorrect ( sample );
 		bootstrapsamples.setData ( b, sample );
 
 		// Fit
-		localfit = opt.optimize (model, &localdataset );
+		localfit = opt.optimize (model, localdataset );
 #ifdef DEBUG_BOOTSTRAP
 		std::cerr << localfit[0] << " " << localfit[1] << " " << localfit[2] << "\n";
 #endif
@@ -91,38 +91,40 @@ BootstrapList parametricbootstrap ( int B, const PsiData& data, const PsiPsychom
 		bootstrapsamples.setBCa(cut, invPhi(w/(B+1)), E_l3/(6*var_l*var_l*var_l));
 	}
 
+	delete localdataset;
+
 	return bootstrapsamples;
 }
 
-JackKnifeList jackknifedata ( const PsiData& data, const PsiPsychometric* model )
+JackKnifeList jackknifedata ( const PsiData * data, const PsiPsychometric* model )
 {
-	PsiOptimizer *opt = new PsiOptimizer( model, &data );
-	std::vector<double> mlestimate ( opt->optimize( model, &data ) );
+	PsiOptimizer *opt = new PsiOptimizer( model, data );
+	std::vector<double> mlestimate ( opt->optimize( model, data ) );
 	delete opt;
-	JackKnifeList jackknife ( data.getNblocks(), model->getNparams(), model->deviance(mlestimate, data) );
+	JackKnifeList jackknife ( data->getNblocks(), model->getNparams(), model->deviance(mlestimate, data) );
 	PsiData * localdata;
 
-	std::vector<double> x ( data.getNblocks()-1 );
-	std::vector<int> k ( data.getNblocks()-1 );
-	std::vector<int> n ( data.getNblocks()-1 );
+	std::vector<double> x ( data->getNblocks()-1 );
+	std::vector<int> k ( data->getNblocks()-1 );
+	std::vector<int> n ( data->getNblocks()-1 );
 	int i,j,l,exclude(0);
 
-	for ( i=0; i<data.getNblocks(); i++ ) {
+	for ( i=0; i<data->getNblocks(); i++ ) {
 		j=0;
-		for (l=0; l<data.getNblocks(); l++) {
+		for (l=0; l<data->getNblocks(); l++) {
 			if (l!=exclude) {
-				x[j] = data.getIntensity(l);
-				k[j] = data.getNcorrect(l);
-				n[j] = data.getNtrials(l);
+				x[j] = data->getIntensity(l);
+				k[j] = data->getNcorrect(l);
+				n[j] = data->getNtrials(l);
 				j++;
 			}
 		}
 
-		localdata = new PsiData ( x,n,k,data.getNalternatives() );
+		localdata = new PsiData ( x,n,k,data->getNalternatives() );
 		opt       = new PsiOptimizer ( model, localdata );
 
 		mlestimate = opt->optimize( model, localdata );
-		jackknife.setEst ( i, mlestimate, model->deviance(mlestimate,*localdata) );
+		jackknife.setEst ( i, mlestimate, model->deviance(mlestimate,localdata) );
 
 		delete localdata;
 		delete opt;
