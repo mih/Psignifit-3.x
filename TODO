@@ -1,0 +1,10 @@
+- Goodness of fit (Correlations?)
++ Outliers and Influential observations                   [OK]
+- Sensitivity analysis
+- Unit test with gamma as a free parameter                [OK] but only very rough correspondence to psignifit should be stricter
++ Unit test for mwCore                                    [OK]
+- More Sigmoids (gumbel, weibull, gauss, ...)
+- BCa confidence limits for slope and widths
+- MCMC
+- Implement alternative SimplexAlgorithm
+- Documentation
