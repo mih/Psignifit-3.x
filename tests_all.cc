@@ -211,11 +211,6 @@ int BootstrapTest ( TestSuite * T ) {
 	std::vector<int>    k ( 6 );
 	char testname[40];
 
-	failures += T->isequal(Phi(0),.5,"Phi(0)",1e-5);
-	failures += T->isequal(invPhi(0.5),0.,"invPhi(0.5)",1e-5);
-	failures += T->isequal(invPhi(Phi(.3)),.3,"invPhi(Phi(0.3))",1e-5);
-	failures += T->isequal(Phi(invPhi(0.3)),.3,"Phi(invPhi(0.3))",1e-5);
-
 	// Set up data
 	x[0] =  0.; x[1] =  2.; x[2] =  4.; x[3] =  6.; x[4] =  8.; x[5] = 10.;
 	k[0] = 24;  k[1] = 32;  k[2] = 40;  k[3] = 48;  k[4] = 50;  k[5] = 48;
@@ -264,6 +259,12 @@ int BootstrapTest ( TestSuite * T ) {
 int SigmoidTests ( TestSuite * T ) {
 	int failures(0);
 	PsiSigmoid * sigmoid;
+
+	// Check gaussian cdf themselves
+	failures += T->isequal(Phi(0),.5,"Phi(0)",1e-5);
+	failures += T->isequal(invPhi(0.5),0.,"invPhi(0.5)",1e-5);
+	failures += T->isequal(invPhi(Phi(.3)),.3,"invPhi(Phi(0.3))",1e-5);
+	failures += T->isequal(Phi(invPhi(0.3)),.3,"Phi(invPhi(0.3))",1e-5);
 
 	sigmoid = new PsiLogistic ();
 	// Check specific function values
