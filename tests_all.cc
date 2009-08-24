@@ -118,7 +118,7 @@ al,bt,lm = fmin(model,prm0,args=(x,k,n))
 	// The following test fails for some reason.
 	// Why is that? Python gives the same correlation between index and deviance residuals.
 	// The number used here is from psignifit.
-	failures += T->isequal(pmf->getRkd(devianceresiduals,solution),-0.320889,"OptimizerSolution 2AFC Rkd",1e-2);
+	failures += T->isequal(pmf->getRkd(devianceresiduals),-0.320889,"OptimizerSolution 2AFC Rkd",1e-2);
 
 	delete pmf;
 	delete data;
@@ -194,7 +194,7 @@ al,bt,lm,gm = fmin(model,prm0,args=(x,k,n))
 	failures += T->isequal(pmf->deviance(solution,data),deviance,"OptimizerSolution Y/N deviance sum", 1e-7);
 
 	failures += T->isequal(pmf->getRpd(devianceresiduals,solution,data),0.217146,"OptimizerSolution Y/N Rpd",1e-1);
-	failures += T->isequal(pmf->getRkd(devianceresiduals,solution),-0.477967,"OptimizerSolution Y/N Rkd",1e-2);
+	failures += T->isequal(pmf->getRkd(devianceresiduals),-0.477967,"OptimizerSolution Y/N Rkd",1e-2);
 
 	delete pmf;
 	delete data;

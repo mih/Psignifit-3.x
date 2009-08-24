@@ -51,7 +51,7 @@ BootstrapList parametricbootstrap ( int B, const PsiData * data, const PsiPsycho
 		devianceresiduals = model->getDevianceResiduals ( localfit, localdataset );
 		bootstrapsamples.setEst ( b, localfit, deviance );
 		bootstrapsamples.setRpd ( b, model->getRpd( devianceresiduals, localfit, localdataset ) );
-		bootstrapsamples.setRkd ( b, model->getRkd( devianceresiduals, localfit ) );
+		bootstrapsamples.setRkd ( b, model->getRkd( devianceresiduals ) );
 
 		// Store what we need for the BCa stuff
 		for (cut=0; cut<cuts.size(); cut++) {
