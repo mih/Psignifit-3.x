@@ -5,6 +5,7 @@
 #include "psychometric.h"
 #include "data.h"
 
+/** \brief Simplex optimization */
 class PsiOptimizer
 {
 	private:
@@ -17,9 +18,15 @@ class PsiOptimizer
 		std::vector<double> start;                   // starting values
 		std::vector<bool>   modified;                // bookkeeping vector to indicate which simplex nodes have changed, i.e. which function values need to be updated
 	public:
-		PsiOptimizer ( const PsiPsychometric * model, const PsiData * data ); ///< set up everything
+		PsiOptimizer (
+			const PsiPsychometric * model,           ///< model to be fitted (this is needed at this point only to determine the amount of internal memory that is required)
+			const PsiData * data                     ///< data to be fitted (this is needed at this point only to determine the amount of internal memory that is required)
+			); ///< set up everything
 		~PsiOptimizer ( void );                                   ///< clean up everything
-		std::vector<double> optimize ( const PsiPsychometric * model, const PsiData * data ); ///< Start the optimization process
+		std::vector<double> optimize (
+			const PsiPsychometric * model,           ///< model to be fitted
+			const PsiData * data                     ///< data to be fitted
+			); ///< Start the optimization process
 };
 
 #endif

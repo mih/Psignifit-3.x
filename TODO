@@ -7,5 +7,6 @@
 - BCa confidence limits for slope and widths
 - MCMC
 - Implement alternative SimplexAlgorithm
-- Documentation
++ Documentation                                           [OK]
 + pointer arithmetic for datasets                         [OK]
+- beta binomial models

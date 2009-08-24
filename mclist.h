@@ -8,28 +8,51 @@
 #include <iostream>
 #include "special.h"
 
+/** \brief basic monte carlo samples list
+ *
+ * This list stores monte carlo samples and deviances, nothing else.
+ */
 class PsiMClist
 {
 	private:
 		std::vector< std::vector<double> > mcestimates;
 		std::vector<double> deviances;
 	public:
-		PsiMClist ( int N, int nprm )
-			: mcestimates(nprm, std::vector<double>(N) ),
-				deviances(N)
-			{ };   ///< Initialize the list to take N samples of nprm parameters
-		PsiMClist ( ) {}
-		std::vector<double> getEst ( int i ) const;                                                 ///< get a single parameter estimate
-		double getEst ( int i, int prm ) const;                                                           ///< get a single sample of a single parameter
-		void setEst ( int i, const std::vector<double> est, double deviance );                                             ///< set a sample of parameters
-		virtual void setdeviance ( int i, double deviance );                         ///< set the deviance separately
-		virtual double getPercentile ( double p, int prm );                                               ///< get a percentile for parameter prm
-		double getdeviance ( int i ) const; ///< get the log likelihood of sample i
-		int getNsamples ( void ) const { return mcestimates[0].size(); }
-		int getNparams ( void ) const { return mcestimates.size(); }
-		double getDeviancePercentile ( double p );
+		PsiMClist (
+			int N,                      ///< number of samples to be drawn
+			int nprm                    ///< number of parameters in the model that is analyzed
+			) : mcestimates(nprm, std::vector<double>(N) ), deviances(N) {};   ///< Initialize the list to take N samples of nprm parameters
+		PsiMClist ( ) {} ///< destructor
+		std::vector<double> getEst ( int i ) const;       ///< get a single parameter estimate at sample i
+		double getEst (
+			int i,                                        ///< sample index
+			int prm                                       ///< parameter index
+			) const;                                                           ///< get a single sample of a single parameter
+		void setEst (
+			int i,                                        ///< index of the sample to be set
+			const std::vector<double> est,                ///< parameter vector to be set at index
+			double deviance                               ///< deviance associated with the sample
+			);                                                                 ///< set a sample of parameters
+		virtual void setdeviance ( int i, double deviance );                   ///< set the deviance separately for sample i
+		virtual double getPercentile (
+			double p,                                     ///< desired percentile (in the range (0,1))
+			int prm                                       ///< index of the paramter of interest
+			);                                                                 ///< get a percentile for parameter prm
+		double getdeviance ( int i ) const;                                    ///< get the deviance of sample i
+		int getNsamples ( void ) const { return mcestimates[0].size(); }       ///< get the total number of samples
+		int getNparams ( void ) const { return mcestimates.size(); }           ///< get the number of parameters
+		double getDeviancePercentile ( double p );                             ///< get the p-percentile of the deviance (p in the range (0,1) )
 };
 
+/** \brief list of bootstrap samples
+ *
+ * Bootstrap samples support some special operations that regular monte carlo samples don't. In particular bootstrap
+ * samples from a psychometric function should incorporate information about
+ *
+ * 1. The thresholds that are associated with each parameter vector
+ * 2. the bootstrap samples themselves and not only the resulting parameter estimates
+ * 3. correlations of the psychometric function with the bootstrap samples "sequence"
+ */
 class BootstrapList : public PsiMClist
 {
 	private:
@@ -42,8 +65,12 @@ class BootstrapList : public PsiMClist
 		std::vector<double> Rpd;
 		std::vector<double> Rkd;
 	public:
-		BootstrapList ( unsigned int N, unsigned int nprm, unsigned int nblocks, std::vector<double> Cuts )
-			: PsiMClist (N,nprm),
+		BootstrapList (
+			unsigned int N,                                              ///< number of samples to be drawn
+			unsigned int nprm,                                           ///< number of parameters in the model
+			unsigned int nblocks,                                        ///< number of blocks in the experiment
+			std::vector<double> Cuts                                     ///< performance levels at which thresholds should be determined
+			) : PsiMClist (N,nprm),
 				BCa(false),
 				acceleration(Cuts.size()),
 				bias(Cuts.size()),
@@ -53,31 +80,67 @@ class BootstrapList : public PsiMClist
 				Rpd(N),
 				Rkd(N)
 			{ }; ///< set up the list
-		void setBCa ( unsigned int i, double Bias, double Acceleration ) { BCa=true; bias[i] = Bias; acceleration[i] = Acceleration; }  ///< set bias and acceleration to get BCa confidence intervals
-		void setData ( unsigned int i, const std::vector<int> newdata );   ///< store a simulated data set
-		std::vector<int> getData ( unsigned int i ) const;                 ///< get a simulated data set
+		// TODO: should setBCa be private and friend of parametric bootstrap?
+		void setBCa (
+			unsigned int i,                                               ///< index of the cut for which Bias and Acceleration should be set
+			double Bias,                                                  ///< Bias to be set
+			double Acceleration                                           ///< Acceleration to be set
+			) { BCa=true; bias[i] = Bias; acceleration[i] = Acceleration; }  ///< set bias and acceleration to get BCa confidence intervals
+		void setData (
+			unsigned int i,                                               ///< index of the bootstrap sample to be set
+			const std::vector<int> newdata                                ///< responses in the new bootstrap sample
+			);   ///< store a simulated data set
+		std::vector<int> getData ( unsigned int i ) const;                 ///< get a simulated data set at posititon i
 		double getThres ( double p, unsigned int cut );                    ///< get the p-th percentile associated with the threshold at cut
 		void setThres ( double thres, unsigned int i, unsigned int cut );  ///< set the value of a threshold associated with the threshold at cut
 		int getNblocks ( void ) const { return data[0].size(); }           ///< get the number of blocks in the underlying dataset
-		double getCut ( unsigned int i ) const;                            ///< get the value of a cut
-		double getAcc ( unsigned int i ) const { return acceleration[i]; };///< get the acceleration constant
-		double getBias ( unsigned int i ) const { return bias[i]; };       ///< get the bias
+		double getCut ( unsigned int i ) const;                            ///< get the value of cut i
+		double getAcc ( unsigned int i ) const { return acceleration[i]; };///< get the acceleration constant for cut i
+		double getBias ( unsigned int i ) const { return bias[i]; };       ///< get the bias for cut i
+		// TODO: should setRpd be private and friend of parametricbootstrap?
 		void setRpd ( unsigned int i, double r_pd );                       ///< set correlation between predicted values and deviance residuals for a simulated dataset
 		double getRpd ( unsigned int i ) const;                            ///< get correlation between predicted values and deviance residuals for simulated dataset i
 		double percRpd ( double p );                                       ///< get the p-th percentile of the correlations between predicted values and deviance residuals
+		// TODO: should setRkd be private and friend of parametric bootstrap?
 		void setRkd ( unsigned int i, double r_kd );                       ///< set correlation between block index and deviance residuals for a simulated dataset
 		double getRkd ( unsigned int i ) const;                            ///< get correlation between block index and deviance residuals for simulated dataset i
 		double percRkd ( double p );                                       ///< get the p-th percentile of the correlations between block index and deviance residuals
 };
 
+/** \brief list of JackKnive data
+ *
+ * JackKnifeing is not suggested for the assessment of confidence intervals or variability. Instead the close link between jackknife samples
+ * and individual data points is useful to determine influential data points and outliers.
+ */
 class JackKnifeList : public PsiMClist
 {
 	private:
 		double maxdeviance;
 	public:
-		JackKnifeList ( unsigned int nblocks, unsigned int nprm, double maxlest ) : PsiMClist ( nblocks, nprm ), maxdeviance(maxlest) {}
-		unsigned int getNblocks ( void ) const { return getNsamples(); }
-		bool influential ( unsigned int block, const std::vector<double>& ci_lower, const std::vector<double>& ci_upper ) const ;            ///< is block an influential observation?
+		JackKnifeList (
+			unsigned int nblocks,                                             ///< number of blocks in the experiment
+			unsigned int nprm,                                                ///< number of parameters in the model
+			double maxlest                                                    ///< deviance of the maximum likelihood estimate on the full dataset
+			) : PsiMClist ( nblocks, nprm ), maxdeviance(maxlest) {}    ///< constructor
+		unsigned int getNblocks ( void ) const { return getNsamples(); } ///< get the number of blocks in the current experiment
+		/** determination of influential observations is performed by checking whether a parameter changes significantly (as defined by
+		 * the confidence intervals) if one observation is omitted. Thus, if leaving out one observation results in significant changes
+		 * in the estimated parameters, this observation is considered "influential".
+		 *
+		 * \param block     index of the block to be checked
+		 * \param ci_lower  lower confidence limits for each parameter in the model
+		 * \param ci_upper  upper confidence limits for each parameter in the model
+		 *
+		 * \return true if block presents an influential observation
+		 */
+		bool influential ( unsigned int block, const std::vector<double>& ci_lower, const std::vector<double>& ci_upper ) const ;
+		/** determination of outliers is based on the following idea: We add a new parameter that fits the data in block perfectly.
+		 * If this "modified" model is significantly better than the original model, then this block is considered an outlier.
+		 *
+		 * \param block      index of the block to be checked
+		 *
+		 * \return true if block presents an outlier
+		 */
 		bool outlier ( unsigned int block ) const ; ///< is block an outlier?
 };
 

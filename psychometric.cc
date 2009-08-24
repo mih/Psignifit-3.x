@@ -334,8 +334,7 @@ double PsiPsychometric::getRpd ( const std::vector<double>& devianceresiduals, c
 	return R;
 }
 
-
-double PsiPsychometric::getRkd ( const std::vector<double>& devianceresiduals, const std::vector<double>& prm ) const
+double PsiPsychometric::getRkd ( const std::vector<double>& devianceresiduals ) const
 {
 	int k,N(devianceresiduals.size());
 	double Ed(0), Ek(0), vard(0), vark(0), R(0);

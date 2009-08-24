@@ -5,48 +5,99 @@
 #include "errors.h"
 #include "special.h"
 
+/** \brief inner function of the sigmoid term of the psychometric function
+ *
+ * The psychometric function is parameterized by two classes. The outer (PsiSigmoid) takes care
+ * of the saturating nonlinearity. The PsiCore class performs some (potentially parameter dependent)
+ * internal transformations of this nonlinearity.
+ *
+ * The PsiCore class itself is completely virtual: It is meant to be the base class off all other
+ * core objects.
+ */
 class PsiCore
 {
 	public:
 		virtual double g (
-			double x,                 ///< stimulus intensity
-			const std::vector<double>& prm ///< parameter vector
+			double x,                       ///< stimulus intensity
+			const std::vector<double>& prm  ///< parameter vector
 			) { throw NotImplementedError(); }          ///< evaluate the core of the sigmoid
 		virtual double dg (
-			double x,                  ///< stimulus intensity
+			double x,                       ///< stimulus intensity
 			const std::vector<double>& prm, ///< parameter vector
-			int i                      ///< index of the parameter to which the derivative should be evaluated
-			) { throw  NotImplementedError(); } ///< evaluate the first derivative of the core with respect to parameter i
+			int i                           ///< index of the parameter to which the derivative should be evaluated
+			) { throw  NotImplementedError(); }        ///< evaluate the first derivative of the core with respect to parameter i
 		virtual double ddg (
-			double x,                  ///< stimulus intensity
+			double x,                       ///< stimulus intensity
 			const std::vector<double>& prm, ///< parameter vector
-			int i,                     ///< index of the first parameter to which the derivative should be evaluated
-			int j                      ///< index of the second parameter to which the derivative should be evaluated
-			) { throw NotImplementedError(); } ///<evaluate the second derivative of the core with respect to parameter i and j
+			int i,                          ///< index of the first parameter to which the derivative should be evaluated
+			int j                           ///< index of the second parameter to which the derivative should be evaluated
+			) { throw NotImplementedError(); }         ///< evaluate the second derivative of the core with respect to parameter i and j
 		virtual double inv (
-			double y,                  ///< transformed intensity
+			double y,                       ///< transformed intensity
 			const std::vector<double>& prm  ///< parameter vector
-			) { throw NotImplementedError(); } ///< invert the core
+			) { throw NotImplementedError(); }         ///< invert the core
 		virtual double dinv (
-			double p,                   ///< transformed inensity at which to evaluate the derivative
+			double p,                        ///< transformed inensity at which to evaluate the derivative
 			const std::vector<double>& prm,  ///< parameter vector
-			int i                       ///< evaluate the derivative with respect to parameter i
-			) { throw NotImplementedError(); } ///< derivative of the inverse core with respect to parameters
-		virtual std::vector<double> transform ( int nprm, double a, double b ) {throw NotImplementedError();} ///< transform parameters from logistic regression to those used for this core
+			int i                            ///< evaluate the derivative with respect to parameter i
+			) { throw NotImplementedError(); }         ///< derivative of the inverse core with respect to parameters
+		virtual std::vector<double> transform (
+				int nprm,                    ///< number of parameters in the final parameter vector
+				double a,                    ///< intercept of the logistic regression model
+				double b                     ///< slope of the logistic regression model
+				) {throw NotImplementedError();}       ///< transform parameters from logistic regression to those used for this core
 };
 
+/** \brief a-b parameterization of the psychometric function
+ *
+ * In the original psignifit release, the nonlinearity was usually defined as a cumulative distribution function. In that
+ * case two parameters describing the mean alpha and the standard deviation beta of this distribution were required. This
+ * yielded a core object of the form (x-alpha)/beta. This type of internal parameterization is implemented here.
+ *
+ * The parameter vector is in any case expected to have the first two parameters alpha and beta
+ */
 class abCore : public PsiCore
 {
 	private:
 	public:
-		double g    ( double x, const std::vector<double>& prm ) { return (x-prm[0])/prm[1]; }
-		double dg   ( double x, const std::vector<double>& prm, int i);
-		double ddg  ( double x, const std::vector<double>& prm, int i, int j);
-		double inv  ( double y, const std::vector<double>& prm );
-		double dinv ( double p, const std::vector<double>& prm, int i );
-		std::vector<double> transform ( int nprm, double a, double b );
+		double g (
+			double x,                        ///< stimulus intensity
+			const std::vector<double>& prm   ///< parameter vector
+			) { return (x-prm[0])/prm[1]; }            ///< evaluate the core of the sigmoid
+		double dg (
+			double x,                        ///< stimulus intensity
+			const std::vector<double>& prm,  ///< parameter vector
+			int i                            ///< index of the parameter to which the derivative should be evaluated
+			);                                         ///< evaluate the first derivative of the core with respect to parameter i
+		double ddg (
+			double x,                        ///< stimulus intensity
+			const std::vector<double>& prm,  ///< parameter vector
+			int i,                           ///< index of the parameter to which the first derivative should be evaluated
+			int j                            ///< index of the parameter to which the second derivative should be evaluated
+			);                                         ///< evaluate the second derivative of the core with respect to parameters i and j
+		double inv (
+			 double y,                       ///< transformed intensity
+			 const std::vector<double>& prm  ///< parameter vector
+			 );                                        ///< invert the core
+		double dinv (
+			double p,                        ///< transformed intenstiy at which to evaluate the derivative
+			const std::vector<double>& prm,  ///< parameter vector
+			int i                            ///< evaluate the derivative with respect to parameter i
+			);                                         ///< derivative of the inverse core with respect to parameter i
+		std::vector<double> transform (
+			int nprm,                        ///< number of parameters in the final parameter vector
+			double a,                        ///< intercept of the logistic regression model
+			double b                         ///< slope of the logistic regression model
+			);                                         ///< transform parameters from a logistic regression model to the parameters used here
 };
 
+/** \brief m-w parameterization of the psychmetric function
+ *
+ * An alternative way to parameterize the psychometric function is to describe it in terms of a threshold (m) and the width
+ * of part of the function over which there is significant performance increase. What exactly "significant performance increase"
+ * means is defined by a parameter alpha. By definition significant performance increase happens over the range where f(g(x|theta)) is
+ * larger than alpha but smaller than 1-alpha. Obviously this definition depends on the sigmoid that is used.
+ */
 class mwCore : public PsiCore
 {
 	private:
@@ -55,13 +106,39 @@ class mwCore : public PsiCore
 		double zalpha;
 		double zshift;
 	public:
-		mwCore ( int sigmoid, double al=0.1 );
-		double g ( double x, const std::vector<double>& prm );
-		double dg ( double x, const std::vector<double>& prm, int i );
-		double ddg ( double x, const std::vector<double>& prm, int i, int j );
-		double inv ( double y, const std::vector<double>& prm );
-		double dinv ( double p, const std::vector<double>& prm, int i );
-		std::vector<double> transform ( int nprm, double a, double b );
+		mwCore (
+			int sigmoid,                     ///< Type of the sigmoid (1=logistic, 2=gauss, 3=gumbel)
+			double al=0.1                    ///< alpha parameter defining what "significant performance increase" means
+			);                                          ///< constructor
+		double g (
+			double x,                        ///< stimulus intensity
+			const std::vector<double>& prm   ///< parameter vector
+			);                                          ///< evaluate the core of the sigmoid
+		double dg (
+			double x,                        ///< stimulus intensity
+			const std::vector<double>& prm,  ///< parameter vector
+			int i                            ///< index of the parameter to which the derivative should be evaluated
+			);                                         ///< evaluate the first derivative of the core with respect to parameter i
+		double ddg (
+			double x,                        ///< stimulus intensity
+			const std::vector<double>& prm,  ///< parameter vector
+			int i,                           ///< index of the parameter to which the first derivative should be evaluated
+			int j                            ///< index of the parameter to which the second derivative should be evaluated
+			);                                         ///< evaluate the second derivative of the core with respect to parameters i and j
+		double inv (
+			 double y,                       ///< transformed intensity
+			 const std::vector<double>& prm  ///< parameter vector
+			 );                                        ///< invert the core
+		double dinv (
+			double p,                        ///< transformed intenstiy at which to evaluate the derivative
+			const std::vector<double>& prm,  ///< parameter vector
+			int i                            ///< evaluate the derivative with respect to parameter i
+			);                                         ///< derivative of the inverse core with respect to parameter i
+		std::vector<double> transform (
+			int nprm,                        ///< number of parameters in the final parameter vector
+			double a,                        ///< intercept of the logistic regression model
+			double b                         ///< slope of the logistic regression model
+			);                                         ///< transform parameters from a logistic regression model to the parameters used here
 };
 
 #endif
