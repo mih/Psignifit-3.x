@@ -1,10 +1,13 @@
 #include "special.h"
 
+const double SQRT2PI ( sqrt(2*M_PI) );
+
 double Phi ( double x ) {
 	return 0.5*(1+erf(x/M_SQRT2));
 }
 
 double invPhi ( double p ) {
+	/*
 	double p0,p1,pp;
 	double a,b;
 	double x0,x1,x(0);
@@ -22,6 +25,18 @@ double invPhi ( double p ) {
 
 	return x;
 	// return M_SQRT2*erfinv(2*p-1);
+	*/
+	double x(0),step;
+	double g,gprime;
+
+	do {
+		g = Phi(x)-p;
+		gprime = exp(-0.5*x*x)/SQRT2PI;
+		step = g/gprime;
+		x -= step;
+	} while (fabs(step)>1e-7);
+
+	return x;
 }
 
 
