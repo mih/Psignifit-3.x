@@ -7,6 +7,7 @@ Use the following marks for commits:
 [BF]    bug fix
 [RF]    refactoring
 [FO]    code formatting (adding spaces etc.)
+[UT]    unit tests
 [DOC]   documentation
 
 Extending
