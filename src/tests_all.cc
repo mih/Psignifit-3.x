@@ -204,7 +204,7 @@ al,bt,lm,gm = fmin(model,prm0,args=(x,k,n))
 }
 
 int BootstrapTest ( TestSuite * T ) {
-	srand48( 1 );
+	srand48( 0 );
 	int failures(0),i;
 	std::vector<double> x ( 6 );
 	std::vector<int>    n ( 6, 50 );
