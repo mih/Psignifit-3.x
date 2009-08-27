@@ -2,37 +2,39 @@ CC=g++
 CFLAGS=-pg -ggdb
 LFLAGS=-lm -pg
 
+BUILD=build
 HEADERS=core.h data.h errors.h optimizer.h prior.h psychometric.h sigmoid.h bootstrap.h mclist.h special.h
-OBJECTS=core.o data.o optimizer.o psychometric.o sigmoid.o bootstrap.o mclist.o special.o
+OBJECTS=$(BUILD)/core.o $(BUILD)/data.o $(BUILD)/optimizer.o $(BUILD)/psychometric.o $(BUILD)/sigmoid.o $(BUILD)/bootstrap.o $(BUILD)/mclist.o $(BUILD)/special.o
 TESTS=tests_all
 
-testfit: $(OBJECTS) testfit.o
-	$(CC) $(OBJECTS) testfit.o $(LFLAGS) -o testfit
+tests: $(BUILD) tests_all
 
-tests: tests_all
+$(BUILD):
+	mkdir $(BUILD)
 
 testfit.o: testfit.cc $(HEADERS)
 	$(CC) -c $(CFLAGS) testfit.cc
-core.o: core.cc $(HEADERS)
-	$(CC) -c $(CFLAGS) core.cc
-data.o: data.cc $(HEADERS)
-	$(CC) -c $(CFLAGS) data.cc
-optimizer.o: optimizer.cc $(HEADERS)
-	$(CC) -c $(CFLAGS) optimizer.cc
-psychometric.o: psychometric.cc $(HEADERS)
-	$(CC) -c $(CFLAGS) psychometric.cc
-sigmoid.o: sigmoid.cc $(HEADERS)
-	$(CC) -c $(CFLAGS) sigmoid.cc
-mclist.o: mclist.cc $(HEADERS)
-	$(CC) -c $(CFLAGS) mclist.cc
-bootstrap.o: bootstrap.cc $(HEADERS)
-	$(CC) -c $(CFLAGS) bootstrap.cc
-special.o: special.cc $(HEADERS)
-	$(CC) -c $(CFLAGS) special.cc
+$(BUILD)/core.o: core.cc $(HEADERS)
+	$(CC) -c $(CFLAGS) core.cc -o $(BUILD)/core.o
+$(BUILD)/data.o: data.cc $(HEADERS)
+	$(CC) -c $(CFLAGS) data.cc -o $(BUILD)/data.o
+$(BUILD)/optimizer.o: optimizer.cc $(HEADERS)
+	$(CC) -c $(CFLAGS) optimizer.cc -o $(BUILD)/optimizer.o
+$(BUILD)/psychometric.o: psychometric.cc $(HEADERS)
+	$(CC) -c $(CFLAGS) psychometric.cc -o $(BUILD)/psychometric.o
+$(BUILD)/sigmoid.o: sigmoid.cc $(HEADERS)
+	$(CC) -c $(CFLAGS) sigmoid.cc -o $(BUILD)/sigmoid.o
+$(BUILD)/mclist.o: mclist.cc $(HEADERS)
+	$(CC) -c $(CFLAGS) mclist.cc -o $(BUILD)/mclist.o
+$(BUILD)/bootstrap.o: bootstrap.cc $(HEADERS)
+	$(CC) -c $(CFLAGS) bootstrap.cc -o $(BUILD)/bootstrap.o
+$(BUILD)/special.o: special.cc $(HEADERS)
+	$(CC) -c $(CFLAGS) special.cc -o $(BUILD)/special.o
 
 tests_all: tests_all.cc $(HEADERS) $(OBJECTS) testing.h
-	$(CC) -c $(CFLAGS) tests_all.cc
-	$(CC) $(OBJECTS) tests_all.o $(LFLAGS) -o tests_all
+	$(CC) -c $(CFLAGS) tests_all.cc -o $(BUILD)/tests_all.o
+	$(CC) $(OBJECTS) $(BUILD)/tests_all.o $(LFLAGS) -o tests_all
 
 clean:
-	rm $(OBJECTS)
+	rm $(BUILD)/*
+	rmdir $(BUILD)
