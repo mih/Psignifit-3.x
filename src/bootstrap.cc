@@ -45,6 +45,7 @@ BootstrapList parametricbootstrap ( int B, const PsiData * data, const PsiPsycho
 		// Fit
 		localfit = opt.optimize (model, localdataset );
 #ifdef DEBUG_BOOTSTRAP
+		if (false)
 		std::cerr << localfit[0] << " " << localfit[1] << " " << localfit[2] << "\n";
 #endif
 		deviance = model->deviance ( localfit, localdataset );
@@ -57,13 +58,22 @@ BootstrapList parametricbootstrap ( int B, const PsiData * data, const PsiPsycho
 		for (cut=0; cut<cuts.size(); cut++) {
 			l_LF[b][cut] = model->leastfavourable ( localfit, localdataset, cuts[cut] );
 #ifdef DEBUG_BOOTSTRAP
+			if (l_LF[b][cut] != l_LF[b][cut])
 			std::cerr << "l_LF["<<b<<"]["<<cut<<"] = " << l_LF[b][cut] << "\n";
 #endif
 			u_i[b][cut]  = model->getThres(localfit,cuts[cut]);
 #ifdef DEBUG_BOOTSTRAP
+			if (l_LF[b][cut]!= l_LF[b][cut])
 			std::cerr << "u_i["<<b<<"]["<<cut<<"] = " << u_i[b][cut] << "\n";
 #endif
 			bootstrapsamples.setThres(u_i[b][cut], b, cut);
+
+			if (l_LF[b][cut] != l_LF[b][cut]) {
+				// TODO: if l_LF is nan we don't take this sample
+				// TODO: This is not the best solution but it works
+				b--;
+				continue;
+			}
 		}
 	}
 
@@ -86,6 +96,7 @@ BootstrapList parametricbootstrap ( int B, const PsiData * data, const PsiPsycho
 
 		// Store BCa stuff
 #ifdef DEBUG_BOOTSTRAP
+	std::cerr << " E_l3=" << E_l3 << "  var_l="<< var_l << "\n";
 	std::cerr << " w = " << w/(B+1) << " real_w = " << invPhi(w/(B+1)) << "\n";
 #endif
 		bootstrapsamples.setBCa(cut, invPhi(w/(B+1)), E_l3/(6*var_l*var_l*var_l));
