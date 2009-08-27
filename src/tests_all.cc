@@ -4,6 +4,7 @@
 #include "mclist.h"
 #include "bootstrap.h"
 #include "testing.h"
+#include "mcmc.h"
 
 int PsychometricValues ( TestSuite* T ) {
 	int failures(0),i;

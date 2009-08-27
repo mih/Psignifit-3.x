@@ -3,8 +3,8 @@ CFLAGS=-pg -ggdb
 LFLAGS=-lm -pg
 
 BUILD=build
-HEADERS=core.h data.h errors.h optimizer.h prior.h psychometric.h sigmoid.h bootstrap.h mclist.h special.h
-OBJECTS=$(BUILD)/core.o $(BUILD)/data.o $(BUILD)/optimizer.o $(BUILD)/psychometric.o $(BUILD)/sigmoid.o $(BUILD)/bootstrap.o $(BUILD)/mclist.o $(BUILD)/special.o
+HEADERS=core.h data.h errors.h optimizer.h prior.h psychometric.h sigmoid.h bootstrap.h mclist.h special.h mcmc.h rng.h
+OBJECTS=$(BUILD)/core.o $(BUILD)/data.o $(BUILD)/optimizer.o $(BUILD)/psychometric.o $(BUILD)/sigmoid.o $(BUILD)/bootstrap.o $(BUILD)/mclist.o $(BUILD)/special.o $(BUILD)/mcmc.o
 TESTS=tests_all
 
 tests: $(BUILD) tests_all
@@ -30,6 +30,8 @@ $(BUILD)/bootstrap.o: bootstrap.cc $(HEADERS)
 	$(CC) -c $(CFLAGS) bootstrap.cc -o $(BUILD)/bootstrap.o
 $(BUILD)/special.o: special.cc $(HEADERS)
 	$(CC) -c $(CFLAGS) special.cc -o $(BUILD)/special.o
+$(BUILD)/mcmc.o: mcmc.cc $(HEADERS)
+	$(CC) -c $(CFLAGS) mcmc.cc -o $(BUILD)/mcmc.o
 
 tests_all: tests_all.cc $(HEADERS) $(OBJECTS) testing.h
 	$(CC) -c $(CFLAGS) tests_all.cc -o $(BUILD)/tests_all.o
