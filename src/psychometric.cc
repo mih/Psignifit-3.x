@@ -99,11 +99,13 @@ double PsiPsychometric::leastfavourable ( const std::vector<double>& prm, const 
 		for (i=0; i<2; i++) {
 			for (j=i; j<2; j++) {
 				I[i][j] += fac1 * (1-guessingrate-prm[2]) * (Sigmoid->ddf(Core->g(xz,prm)) * Core->dg(xz,prm,i) * Core->dg(xz,prm,j) + Sigmoid->df(Core->g(xz,prm)) * Core->ddg(xz,prm,i,j));
-				I[i][j] += fac2 * (1-guessingrate-prm[2]) * pow(Sigmoid->df(Core->g(xz,prm)),2) * Core->dg(xz,prm,i) * Core->dg(xz,prm,j);
+				// I[i][j] += fac2 * (1-guessingrate-prm[2]) * pow(Sigmoid->df(Core->g(xz,prm)),2) * Core->dg(xz,prm,i) * Core->dg(xz,prm,j);
+				I[i][j] -= fac2 * (1-guessingrate-prm[2]) * (1-guessingrate-prm[2]) * pow(Sigmoid->df(Core->g(xz,prm)),2) * Core->dg(xz,prm,i) * Core->dg(xz,prm,j);
 			}
 			for (j=2; j<prm.size(); j++) {
 				I[i][j] -= fac1 * Sigmoid->df(Core->g(xz,prm)) * Core->dg(xz,prm,i);
-				I[i][j] += fac2 * Sigmoid->df(Core->g(xz,prm)) * Core->dg(xz,prm,i) * ( (j==2 ? 1 : 0) - Sigmoid->f(Core->g(xz,prm)) );
+				// I[i][j] += fac2 * Sigmoid->df(Core->g(xz,prm)) * Core->dg(xz,prm,i) * ( (j==2 ? 1 : 0) - Sigmoid->f(Core->g(xz,prm)) );
+				I[i][j] += fac2 * (1-guessingrate-prm[2]) * Sigmoid->df(Core->g(xz,prm)) * Core->dg(xz,prm,i) * ( (j==2 ? 1 : 0) - Sigmoid->f(Core->g(xz,prm)) );
 			}
 		}
 	}
