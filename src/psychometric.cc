@@ -133,14 +133,14 @@ double PsiPsychometric::leastfavourable ( const std::vector<double>& prm, const 
 	for (i=1; i<prm.size(); i++) {
 		s = du[i];
 		for (k=1; k<i; k++)
-		    s -= I[i][k]*du[k]; // y is stored in u
+			s -= I[i][k]*du[k]; // y is stored in u
 		du[i] = s; // We store y in du
 	}
 	// Backward solving U*delta=y (note that y is stored in du)
 	for (i=prm.size()-1; i>=0; i--) {
 		s = du[i];
 		for (k=i+1; k<prm.size(); k++)
-		    s -= I[i][k]*delta[k];
+			s -= I[i][k]*delta[k];
 		delta[i] = s/I[i][i];
 	}
 
