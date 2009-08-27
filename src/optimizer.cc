@@ -53,86 +53,90 @@ std::vector<double> PsiOptimizer::optimize ( const PsiPsychometric * model, cons
 	double stepsize(1); // Measure for the size of the step
 	double fstepsize(1);// Measure of size of a step in function values
 	int iter(0);        // Number of simplex iterations
+	int run;            // the model should be rerun after convergence
 
-	for (k=1; k<nparameters+1; k++) simplex[k][k-1] *= 1.5;
 
-	while (1) {
-		// Evaluate model at every simplex node and determine maximum and minimum
-		maxind = minind = 0;
-		for (k=0; k<nparameters+1; k++) {
-			if (modified[k]) {
-				fx[k] = model->neglpost(simplex[k], data );
-				modified[k] = false;
-			}
-			// fx[k] = testfunction(simplex[k]);
-#ifdef DEBUG_OPTIMIZER
-			std::cerr << simplex[k][0] << " " << simplex[k][1] << " " << simplex[k][2] << " " << simplex[k][3] << " " << "\n";
-#endif
-			if (fx[k]<fx[minind]) minind = k;
-			if (fx[k]>fx[maxind]) maxind = k;
-		}
-
-		// Check Stoping criteria based on simplex and function values
-		stepsize = 0;
-		for (k=0; k<nparameters; k++)
-			stepsize += (simplex[maxind][k]-simplex[minind][k])*(simplex[maxind][k]-simplex[minind][k]);
-		// Simplex size
-		if (stepsize<maxstep) {
-#ifdef DEBUG_OPTIMIZER
-			std::cerr << "Terminating optimization due to small simplex size (" << stepsize << ") after " << iter << " iterations\n";
-#endif
-			break;
-		}
-		// function value differences
-		if ((fstepsize=(fx[maxind]-fx[minind])) < maxfstep ) {
-#ifdef DEBUG_OPTIMIZER
-			std::cerr << "Terminating optimization due to small function value variation (" << fstepsize << ") after " << iter << " iterations\n";
-#endif
-			break;
-		}
-
-#ifdef DEBUG_OPTIMIZER
-		std::cout << iter << " " << fx[minind] << " " << stepsize << "\n";
-#endif
-
-		// Calculate the average of the non maximal nodes
-		for (k=0; k<nparameters; k++) x[k] = 0;
-		for (k=0; k<nparameters+1; k++) {
-			if (k!=maxind)
-				for (l=0; l<nparameters; l++)
-					x[l] += simplex[k][l];
-		}
-		for (k=0; k<nparameters; k++) x[k] /= nparameters;
-
-		// Determine the reflection of the worst point
-		for (k=0; k<nparameters; k++) xx[k] = x[k] - (simplex[maxind][k]-x[k]);
-
-		// Now check what to do
-		ffx = model->neglpost(xx,data);
-		// ffx = testfunction(xx);
-		if (ffx<fx[minind]) {
-			// The reflected point is better than the previous worst point ~> Expand
-			for (k=0; k<nparameters; k++) simplex[maxind][k] = x[k] - 2*(simplex[maxind][k] - x[k]);
-			modified[maxind] = true;
-		} else if (ffx>fx[maxind]) {
-			// The reflected point is even worse than it was before ~> Shrink
+	for (run=0; run<2; run++) {
+		for (k=1; k<nparameters+1; k++) simplex[k][k-1] *= 1.5;
+		iter = 0;
+		while (1) {
+			// Evaluate model at every simplex node and determine maximum and minimum
+			maxind = minind = 0;
 			for (k=0; k<nparameters+1; k++) {
-				for (l=0; l<nparameters; l++)
-					simplex[k][l] = simplex[minind][l] + 0.5 * (simplex[k][l] - simplex[minind][l]);
-				modified[k] = true;
-			}
-		} else {
-			// The reflected point is somewhere in between
-			for (k=0; k<nparameters; k++) simplex[maxind][k] = xx[k];
-			fx[maxind] = ffx;
-		}
-
-		// Also cancel if the number of iterations gets to large
-		if (iter++ > maxiter) {
+				if (modified[k]) {
+					fx[k] = model->neglpost(simplex[k], data );
+					modified[k] = false;
+				}
+				// fx[k] = testfunction(simplex[k]);
 #ifdef DEBUG_OPTIMIZER
-			std::cerr << "Terminating optimization due to large number of iterations (" << iter << "). Final stepsize: " << stepsize << "\n";
+				std::cerr << simplex[k][0] << " " << simplex[k][1] << " " << simplex[k][2] << " " << simplex[k][3] << " " << "\n";
 #endif
-			break;
+				if (fx[k]<fx[minind]) minind = k;
+				if (fx[k]>fx[maxind]) maxind = k;
+			}
+
+			// Check Stoping criteria based on simplex and function values
+			stepsize = 0;
+			for (k=0; k<nparameters; k++)
+				stepsize += (simplex[maxind][k]-simplex[minind][k])*(simplex[maxind][k]-simplex[minind][k]);
+			// Simplex size
+			if (stepsize<maxstep) {
+#ifdef DEBUG_OPTIMIZER
+				std::cerr << "Terminating optimization due to small simplex size (" << stepsize << ") after " << iter << " iterations\n";
+#endif
+				break;
+			}
+			// function value differences
+			if ((fstepsize=(fx[maxind]-fx[minind])) < maxfstep ) {
+#ifdef DEBUG_OPTIMIZER
+				std::cerr << "Terminating optimization due to small function value variation (" << fstepsize << ") after " << iter << " iterations\n";
+#endif
+				break;
+			}
+
+#ifdef DEBUG_OPTIMIZER
+			std::cout << iter << " " << fx[minind] << " " << stepsize << "\n";
+#endif
+
+			// Calculate the average of the non maximal nodes
+			for (k=0; k<nparameters; k++) x[k] = 0;
+			for (k=0; k<nparameters+1; k++) {
+				if (k!=maxind)
+					for (l=0; l<nparameters; l++)
+						x[l] += simplex[k][l];
+			}
+			for (k=0; k<nparameters; k++) x[k] /= nparameters;
+
+			// Determine the reflection of the worst point
+			for (k=0; k<nparameters; k++) xx[k] = x[k] - (simplex[maxind][k]-x[k]);
+
+			// Now check what to do
+			ffx = model->neglpost(xx,data);
+			// ffx = testfunction(xx);
+			if (ffx<fx[minind]) {
+				// The reflected point is better than the previous worst point ~> Expand
+				for (k=0; k<nparameters; k++) simplex[maxind][k] = x[k] - 2*(simplex[maxind][k] - x[k]);
+				modified[maxind] = true;
+			} else if (ffx>fx[maxind]) {
+				// The reflected point is even worse than it was before ~> Shrink
+				for (k=0; k<nparameters+1; k++) {
+					for (l=0; l<nparameters; l++)
+						simplex[k][l] = simplex[minind][l] + 0.5 * (simplex[k][l] - simplex[minind][l]);
+					modified[k] = true;
+				}
+			} else {
+				// The reflected point is somewhere in between
+				for (k=0; k<nparameters; k++) simplex[maxind][k] = xx[k];
+				fx[maxind] = ffx;
+			}
+
+			// Also cancel if the number of iterations gets to large
+			if (iter++ > maxiter) {
+#ifdef DEBUG_OPTIMIZER
+				std::cerr << "Terminating optimization due to large number of iterations (" << iter << "). Final stepsize: " << stepsize << "\n";
+#endif
+				break;
+			}
 		}
 	}
 
