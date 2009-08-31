@@ -16,6 +16,7 @@ class PsiPrior
 		virtual double dpdf ( double x ) { return 0.; }  ///< evaluate the derivative of the pdf of the prior at position x (in this default form, the parameter is completely unconstrained)
 };
 
+/** \brief Uniform prior on an interval */
 class UniformPrior : public PsiPrior
 {
 	private:
@@ -41,9 +42,7 @@ class GaussPrior : public PsiPrior
 	public:
 		GaussPrior ( double mean, double sd ) : mu(mean), sg(sd), normalization(1./sqrt(2*M_PI)), twovar(2*sg*sg), var(sg*sg) {}        ///< initialize prior to have mean mean and standard deviation sd
 		double pdf ( double x ) { return normalization * exp ( - (x-mu)*(x-mu)/twovar ); }                                              ///< return pdf of the prior at position x
-		double dpdf ( double x ) { return - x * pdf ( x ) / var; }
+		double dpdf ( double x ) { return - x * pdf ( x ) / var; }                                                                      ///< return derivative of the prior at position x
 };
-
-
 
 #endif
