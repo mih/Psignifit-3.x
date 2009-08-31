@@ -363,3 +363,40 @@ double PsiPsychometric::getRkd ( const std::vector<double>& devianceresiduals ) 
 	return R;
 }
 
+double PsiPsychometric::dllikeli ( std::vector<double> prm, const PsiData* data, unsigned int i ) const
+{
+	int k, Nblocks(data->getNblocks());
+	double rz,pz,nz,xz,dl(0);
+	double guess(1./Nalternatives);
+	if (Nalternatives==1) // Here we talk about a yes/no task
+		guess = prm[3];
+
+	for (k=0; k<Nblocks; k++) {
+		rz = data->getNcorrect ( k );
+		nz = data->getNtrials  ( k );
+		xz = data->getIntensity( k );
+		pz = evaluate ( xz, prm );
+		switch (i) {
+			case 0: case 1:
+				dl += (rz/pz - (nz-rz)/(1-pz)) * (1-guess-prm[2]) * Sigmoid->df ( Core->g ( xz, prm ) ) * Core->dg ( xz, prm, i );
+				break;
+			case 2:
+				dl -= (rz/pz - (nz-rz)/(1-pz)) * Sigmoid->f ( Core->g ( xz, prm ) );
+				break;
+			case 3:
+				if (Nalternatives==1) // gamma is a free parameter
+					dl += (rz/pz - (nz-rz)/(1-pz)) * (1 - Sigmoid->f ( Core->g ( xz, prm ) ));
+				break;
+		}
+	}
+
+	return dl;
+}
+
+double PsiPsychometric::dlposteri ( std::vector<double> prm, const PsiData* data, unsigned int i ) const
+{
+	if ( i < getNparams() )
+		return dllikeli ( prm, data, i ) + priors[i]->dpdf(prm[i]);
+	else
+		return 0;
+}

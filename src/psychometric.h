@@ -83,13 +83,13 @@ class PsiPsychometric {
 		double dllikeli (
 			std::vector<double> prm,                                                     ///< parameters of the model
 			const PsiData* data,                                                         ///< data for which the likelihood should be evaluated
-			int i                                                                        ///< index of the parameter for which the derivative should be evaluated
-			) {throw NotImplementedError();}                        ///< derivative of the negative loglikelihood with respect to parameter i
+			unsigned int i                                                               ///< index of the parameter for which the derivative should be evaluated
+			) const;                                                                 ///< derivative of the negative loglikelihood with respect to parameter i
 		double dlposteri (
 			std::vector<double> prm,                                                     ///< parameters of the psychometric function model
 			const PsiData* data,                                                         ///< data for which the likelihood should be valuated
-			int i                                                                        ///< index of the parameter for which the derivative should be evaluated
-			) {throw NotImplementedError();}                       ///< derivative of the negative log posterior with respect to parameter i
+			unsigned int i                                                               ///< index of the parameter for which the derivative should be evaluated
+			) const;                                                                 ///< derivative of the negative log posterior with respect to parameter i
 };
 
 #include "optimizer.h"
