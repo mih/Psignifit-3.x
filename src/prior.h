@@ -54,9 +54,22 @@ class BetaPrior : public PsiPrior
 		double beta;
 		double normalization;
 	public:
-		BetaPrior ( double al, double bt ) : alpha(al), beta(bt), normalzation(betaf(al,bt)) {}                       ///< Initialize with parameters alpha=al, beta=bt
+		BetaPrior ( double al, double bt ) : alpha(al), beta(bt), normalization(betaf(al,bt)) {}                      ///< Initialize with parameters alpha=al, beta=bt
 		double pdf ( double x ) { return (x<0||x>1 ? 0 : pow(x,alpha-1)*pow(1-x,beta-1)/normalization); }             ///< return beta pdf
 		double dpdf ( double x ) { return (x<0||x>1 ? 0 : ((alpha-1)*pow(x,alpha-2) + (beta-1)*pow(1-x,beta-2))/normalization); }      ///< return derivative of beta pdf
+};
+
+/** \brief gamma prior */
+class GammaPrior : public PsiPrior
+{
+	private:
+		double k;
+		double theta;
+		double normalization;
+	public:
+		GammaPrior ( double shape, double scale ) : k(shape), theta(scale), normalization(pow(scale,shape)*exp(gammaln(shape))) {}                         ///< Initialize a gamma prior
+		double pdf ( double x ) { return (x>0 ? pow(x,k-1)*exp(-x/theta)/normalization : 0 );}                                                             ///< return pdf at position x
+		double dpdf ( double x ) { return (x>0 ? ( (k-1)*pow(x,k-2)*exp(-x/theta)-pow(x,k-1)*exp(-x/theta)/theta)/normalization : 0 ); }                   ///< return derivative of pdf
 };
 
 #endif
