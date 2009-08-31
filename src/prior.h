@@ -2,6 +2,7 @@
 #define PRIOR_H
 
 #include <cmath>
+#include "special.h"
 
 /** \brief base class for all priors
  *
@@ -43,6 +44,19 @@ class GaussPrior : public PsiPrior
 		GaussPrior ( double mean, double sd ) : mu(mean), sg(sd), normalization(1./sqrt(2*M_PI)), twovar(2*sg*sg), var(sg*sg) {}        ///< initialize prior to have mean mean and standard deviation sd
 		double pdf ( double x ) { return normalization * exp ( - (x-mu)*(x-mu)/twovar ); }                                              ///< return pdf of the prior at position x
 		double dpdf ( double x ) { return - x * pdf ( x ) / var; }                                                                      ///< return derivative of the prior at position x
+};
+
+/** \brief beta prior */
+class BetaPrior : public PsiPrior
+{
+	private:
+		double alpha;
+		double beta;
+		double normalization;
+	public:
+		BetaPrior ( double al, double bt ) : alpha(al), beta(bt), normalzation(betaf(al,bt)) {}                       ///< Initialize with parameters alpha=al, beta=bt
+		double pdf ( double x ) { return (x<0||x>1 ? 0 : pow(x,alpha-1)*pow(1-x,beta-1)/normalization); }             ///< return beta pdf
+		double dpdf ( double x ) { return (x<0||x>1 ? 0 : ((alpha-1)*pow(x,alpha-2) + (beta-1)*pow(1-x,beta-2))/normalization); }      ///< return derivative of beta pdf
 };
 
 #endif
