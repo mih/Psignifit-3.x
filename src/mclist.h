@@ -22,7 +22,7 @@ class PsiMClist
 			int N,                      ///< number of samples to be drawn
 			int nprm                    ///< number of parameters in the model that is analyzed
 			) : mcestimates(nprm, std::vector<double>(N) ), deviances(N) {};   ///< Initialize the list to take N samples of nprm parameters
-		PsiMClist ( ) {} ///< destructor
+		~PsiMClist ( ) {} ///< destructor
 		std::vector<double> getEst ( int i ) const;       ///< get a single parameter estimate at sample i
 		double getEst (
 			int i,                                        ///< sample index
@@ -38,6 +38,9 @@ class PsiMClist
 			double p,                                     ///< desired percentile (in the range (0,1))
 			int prm                                       ///< index of the paramter of interest
 			);                                                                 ///< get a percentile for parameter prm
+		virtual double getMean (
+			unsigned int prm                              ///< index of the parameter of interest
+			) const ;                                                          ///< get the average of parameter prm
 		double getdeviance ( int i ) const;                                    ///< get the deviance of sample i
 		int getNsamples ( void ) const { return mcestimates[0].size(); }       ///< get the total number of samples
 		int getNparams ( void ) const { return mcestimates.size(); }           ///< get the number of parameters

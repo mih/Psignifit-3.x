@@ -82,6 +82,20 @@ double PsiMClist::getDeviancePercentile ( double p ) {
 
 	return deviances[ind];
 }
+
+double PsiMClist::getMean ( unsigned int prm ) const {
+	double m(0);
+	int i,Nsamples(getNsamples());
+	if ( prm>=getNparams() )
+		throw BadIndexError();
+
+	for (i=0; i<Nsamples; i++)
+		m += getEst ( i, prm );
+
+	m /= Nsamples;
+	return m;
+}
+
 /************************************************************
  * BootstrapList methods
  */
