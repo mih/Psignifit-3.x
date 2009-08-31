@@ -1,6 +1,8 @@
 #ifndef PRIOR_H
 #define PRIOR_H
 
+#include <cmath>
+
 /** \brief base class for all priors
  *
  * This default prior does nothing in particular. It poses no restriction on the respective parameter at all.
@@ -25,5 +27,23 @@ class UniformPrior : public PsiPrior
 		double pdf ( double x ) { return ( x>lower && x<upper ? height : 0 ); }                      ///< evaluate the pdf of the prior at position x
 		double dpdf ( double x ) { return ( x!=lower && x!=upper ? 0 : (x==lower ? 1e20 : -1e20 ));} ///< derivative of the pdf of the prior at position x (jumps at lower and upper are replaced by large numbers)
 };
+
+/** \brief gaussian (normal) prior
+ */
+class GaussPrior : public PsiPrior
+{
+	private:
+		double mu;
+		double sg;
+		double normalization;
+		double var;
+		double twovar;
+	public:
+		GaussPrior ( double mean, double sd ) : mu(mean), sg(sd), normalization(1./sqrt(2*M_PI)), twovar(2*sg*sg), var(sg*sg) {}        ///< initialize prior to have mean mean and standard deviation sd
+		double pdf ( double x ) { return normalization * exp ( - (x-mu)*(x-mu)/twovar ); }                                              ///< return pdf of the prior at position x
+		double dpdf ( double x ) { return - x * pdf ( x ) / var; }
+};
+
+
 
 #endif
