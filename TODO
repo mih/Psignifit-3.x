@@ -1,12 +1,16 @@
-- Goodness of fit (Correlations?)
-+ Outliers and Influential observations                   [OK]
+- Implement alternative SimplexAlgorithm
 - Sensitivity analysis
-- Unit test with gamma as a free parameter                [OK] but only very rough correspondence to psignifit should be stricter
-+ Unit test for mwCore                                    [OK]
+- Goodness of fit (Correlations?)
 - More Sigmoids (gumbel, weibull, gauss, ...)
 - BCa confidence limits for slope and widths
-- MCMC
-- Implement alternative SimplexAlgorithm
-+ Documentation                                           [OK]
-+ pointer arithmetic for datasets                         [OK]
+- Unit test with gamma as a free parameter                                 [OK] but only very rough correspondence to psignifit should be stricter
+
++ Unit test for mwCore                                                     [OK]
++ Outliers and Influential observations                                    [OK]
++ MCMC
+     implement dlposteri und dnegllikeli                                   [OK]
+     check hybrid MCMC versus MH-MCMC                                      [OK]
+     can we put both MCMC strategies together to have the same base class? [OK]
++ Documentation                                                            [OK]
++ pointer arithmetic for datasets                                          [OK]
 - beta binomial models
