@@ -257,6 +257,54 @@ int BootstrapTest ( TestSuite * T ) {
 	return failures;
 }
 
+int MCMCTest ( TestSuite * T ) {
+	int failures ( 0 );
+
+	std::vector<double> x ( 6 );
+	std::vector<int>    n ( 6, 50 );
+	std::vector<int>    k ( 6 );
+
+	// Set up data
+	x[0] =  0.; x[1] =  2.; x[2] =  4.; x[3] =  6.; x[4] =  8.; x[5] = 10.;
+	k[0] = 24;  k[1] = 32;  k[2] = 40;  k[3] = 48;  k[4] = 50;  k[5] = 48;
+	PsiData * data = new PsiData (x,n,k,2);
+
+	// Set up psychometric function
+	PsiPsychometric * pmf = new PsiPsychometric ( 2, new abCore(), new PsiLogistic() );
+	std::vector<double> prm(3);
+	prm[0] = 4; prm[1] = 0.8; prm[2] = 0.02;
+	pmf->setPrior( 2, new UniformPrior(0.,1));
+
+	MetropolisHastings * mhS = new MetropolisHastings( pmf, data, new GaussRandom() );
+	mhS->setTheta( prm );
+	mhS->setstepsize(0.1,0);
+	mhS->setstepsize(0.1,1);
+	mhS->setstepsize(0.001,2);
+
+	HybridMCMC * S = new HybridMCMC ( pmf, data, 20 );
+	S->setTheta ( prm );
+	S->setstepsize ( 0.001, 0 );
+	S->setstepsize ( 0.001, 1 );
+	S->setstepsize ( 0.0001, 2 );
+
+	srand48(0);
+	PsiMClist post ( S->sample(10000) );
+	std::cout << "\n\n";
+	srand48(0);
+	PsiMClist mhpost ( mhS->sample(10000) );
+
+	failures += T->isequal ( post.getMean(0), 3.21657, "Hybrid MCMC alpha", 1e-5 );
+	failures += T->isequal ( post.getMean(1), 1.20476, "Hybrid MCMC beta", 1e-5 );
+	failures += T->isequal ( post.getMean(2), 0.0217217, "Hybrid MCMC lambda", 1e-5 );
+	failures += T->isequal ( mhpost.getMean(0), 3.22372, "Metropolis Hastings alpha", 1e-5 );
+	failures += T->isequal ( mhpost.getMean(1), 1.12734, "Metropolis Hastings beta", 1e-5 );
+	failures += T->isequal ( mhpost.getMean(2), 0.0199668, "Metropolis Hastings lambda", 1e-5 );
+
+	std::cerr << pmf->neglpost(prm,data);
+
+	return failures;
+}
+
 int SigmoidTests ( TestSuite * T ) {
 	int failures(0);
 	PsiSigmoid * sigmoid;
@@ -361,10 +409,11 @@ int CoreTests ( TestSuite * T ) {
 
 int main ( int argc, char ** argv ) {
 	TestSuite Tests ( "tests_all.log" );
-	Tests.addTest(&PsychometricValues,"Values of the psychometric function");
-	Tests.addTest(&OptimizerSolution, "Solutions of optimizer");
-	Tests.addTest(&BootstrapTest,     "Bootstrap properties");
-	Tests.addTest(&SigmoidTests,      "Properties of sigmoids");
-	Tests.addTest(&CoreTests,         "Tests of core objects");
+	// Tests.addTest(&PsychometricValues,"Values of the psychometric function");
+	// Tests.addTest(&OptimizerSolution, "Solutions of optimizer");
+	// Tests.addTest(&BootstrapTest,     "Bootstrap properties");
+	// Tests.addTest(&SigmoidTests,      "Properties of sigmoids");
+	// Tests.addTest(&CoreTests,         "Tests of core objects");
+	Tests.addTest(&MCMCTest,          "MCMC");
 	Tests.runTests();
 }
