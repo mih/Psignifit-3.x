@@ -51,7 +51,7 @@ class GaussPrior : public PsiPrior
 		double var;
 		double twovar;
 	public:
-		GaussPrior ( double mean, double sd ) : mu(mean), sg(sd), normalization(1./(sqrt(2*M_PI)*sigma)), twovar(2*sg*sg), var(sg*sg) {}        ///< initialize prior to have mean mean and standard deviation sd
+		GaussPrior ( double mean, double sd ) : mu(mean), sg(sd), normalization(1./(sqrt(2*M_PI)*sg)), twovar(2*sg*sg), var(sg*sg) {}        ///< initialize prior to have mean mean and standard deviation sd
 		double pdf ( double x ) { return normalization * exp ( - (x-mu)*(x-mu)/twovar ); }                                              ///< return pdf of the prior at position x
 		double dpdf ( double x ) { return - x * pdf ( x ) / var; }                                                                      ///< return derivative of the prior at position x
 };
