@@ -75,7 +75,7 @@ class BetaPrior : public PsiPrior
 	public:
 		BetaPrior ( double al, double bt ) : alpha(al), beta(bt), normalization(betaf(al,bt)) {}                      ///< Initialize with parameters alpha=al, beta=bt
 		double pdf ( double x ) { return (x<0||x>1 ? 0 : pow(x,alpha-1)*pow(1-x,beta-1)/normalization); }             ///< return beta pdf
-		double dpdf ( double x ) { return (x<0||x>1 ? 0 : ((alpha-1)*pow(x,alpha-2) + (beta-1)*pow(1-x,beta-2))/normalization); }      ///< return derivative of beta pdf
+		double dpdf ( double x ) { return (x<0||x>1 ? 0 : ((alpha-1)*pow(x,alpha-2)*pow(1-x,beta-1) + (beta-1)*pow(1-x,beta-2)*pow(x,alpha-1))/normalization); }      ///< return derivative of beta pdf
 };
 
 /** \brief gamma prior
