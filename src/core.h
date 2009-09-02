@@ -141,4 +141,45 @@ class mwCore : public PsiCore
 			);                                         ///< transform parameters from a logistic regression model to the parameters used here
 };
 
+/** \brief linear core
+ *
+ * The core of the sigmoid is simply a*x+b, where a and b are the first two parameters. This is the parameterization that would
+ * be used in the context of generalized linear models. The parameters do not have an obvious interpretation in terms of
+ * psychophysically meaningful quantities. However, it might well be that in this form, the parameters are more independent, which
+ * is particularly important for MCMC.
+ */
+class linearCore : public PsiCore
+{
+	public:
+		double g (
+			double x,
+			const std::vector<double>& prm
+			) { return prm[0] * x + prm[1]; }
+		double dg (
+			double x,
+			const std::vector<double>& prm,
+			int i
+			) { switch (i) { case 0: return x; break; case 1: return 1; break; default: return 0; break; } }
+		double ddg (
+			double x,
+			const std::vector<double>& prm,
+			int i,
+			int j
+			) { return 0; }
+		double inv (
+			double y,
+			const std::vector<double>& prm
+			) { return (y-prm[1])/prm[0]; }
+		double dinv (
+			double p,
+			const std::vector<double>& prm,
+			int i
+			) { switch (i) { case 0: return (prm[1]-y)/(prm[0]*prm[0]); break; case 1: return -1./prm[0]; break; default: return 0; break; } }
+		std::vector<double> transform (
+			int nprm,
+			double a,
+			double b
+			) { std::vector<double> out (nprm,0); out[0] = b; out[1] = a; return out; }
+};
+
 #endif
