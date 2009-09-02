@@ -289,7 +289,6 @@ int MCMCTest ( TestSuite * T ) {
 
 	srand48(0);
 	PsiMClist post ( S->sample(10000) );
-	std::cout << "\n\n";
 	srand48(0);
 	PsiMClist mhpost ( mhS->sample(10000) );
 
@@ -301,6 +300,58 @@ int MCMCTest ( TestSuite * T ) {
 	failures += T->isequal ( mhpost.getMean(2), 0.0199668, "Metropolis Hastings lambda", 1e-5 );
 
 	std::cerr << pmf->neglpost(prm,data);
+
+	return failures;
+}
+
+int PriorTest ( TestSuite * T ) {
+	int failures ( 0 );
+	PsiPrior * prior;
+
+	prior = new PsiPrior;
+	failures += T->isequal ( prior->pdf ( 0 ), 1, "Flat prior at 0" );
+	failures += T->isequal ( prior->dpdf ( 0 ) , 0, "Flat prior derivative at 0" );
+	delete prior;
+
+	prior = new UniformPrior ( 0, 1 );
+	failures += T->isequal ( prior->pdf ( -.5 ) , 0, "Uniform prior at -0.5" );
+	failures += T->isequal ( prior->pdf ( .5 ) , 1,  "Uniform prior at 0.5" );
+	failures += T->isequal ( prior->pdf ( 1.5 ) , 0, "Uniform prior at 1.5" );
+	failures += T->isequal ( prior->dpdf ( -.5 ) , 0, "Uniform prior derivative at -0.5" );
+	failures += T->isequal ( prior->dpdf ( .5 ) , 0,  "Uniform prior derivative at 0.5" );
+	failures += T->isequal ( prior->dpdf ( 1.5 ) , 0, "Uniform prior derivative at 1.5" );
+	delete prior;
+
+	prior = new GaussPrior ( 0, 1 );
+	failures += T->isequal ( prior->pdf ( -1 ), 0.24197072, "Gaussian prior at -1" );
+	failures += T->isequal ( prior->pdf ( 0 ), 0.39894228, "Gaussian prior at 0" );
+	failures += T->isequal ( prior->pdf ( 1 ), 0.24197072, "Gaussian prior at 1" );
+	failures += T->isequal ( prior->dpdf ( -1 ), 0.24197072, "Gaussian prior derivative at -1" );
+	failures += T->isequal ( prior->dpdf ( 0 ), 0, "Gaussian prior derivative at 0" );
+	failures += T->isequal ( prior->dpdf ( 1 ), -0.24197072, "Gaussian prior derivative at 1" );
+	delete prior;
+
+	prior = new BetaPrior ( 1.5, 3. );
+	failures += T->isequal ( prior->pdf ( -.1 ), 0, "BetaPrior at 0" );
+	failures += T->isequal ( prior->pdf ( .1 ), 1.68094822, "BetaPrior at 0.1" );
+	failures += T->isequal ( prior->pdf ( .5 ), 1.16009706, "BetaPrior at 0.5" );
+	failures += T->isequal ( prior->pdf ( 1.1 ), 0, "BetaPrior at 1.1" );
+	failures += T->isequal ( prior->dpdf ( -.1 ), 0, "BetaPrior derivative at 0" );
+	failures += T->isequal ( prior->dpdf ( .1 ), 12.14018158, "BetaPrior derivative at 0.1" );
+	failures += T->isequal ( prior->dpdf ( .5 ), 5.80048531, "BetaPrior derivative at 0.5" );
+	failures += T->isequal ( prior->dpdf ( 1.1 ), 0, "BetaPrior derivative at 1.1" );
+	delete prior;
+
+	prior = new GammaPrior ( 1.5, 3. );
+	failures += T->isequal ( prior->pdf ( -0.5 ), 0., "GammaPrior at -0.5" );
+	failures += T->isequal ( prior->pdf ( 0.5 ), 0.12997977, "GammaPrior at 0.5" );
+	failures += T->isequal ( prior->pdf ( 1.0 ), 0.15559955, "GammaPrior at 1.0" );
+	failures += T->isequal ( prior->pdf ( 1.5 ), 0.16131382, "GammaPrior at 1.5" );
+	failures += T->isequal ( prior->dpdf ( -0.5 ), 0., "GammaPrior derivative at -0.5" );
+	failures += T->isequal ( prior->dpdf ( 0.5 ), 0.08665318, "GammaPrior derivative at 0.5" );
+	failures += T->isequal ( prior->dpdf ( 1.0 ), 0.02593326, "GammaPrior derivative at 1.0" );
+	failures += T->isequal ( prior->dpdf ( 1.5 ), 0., "GammaPrior derivative at 1.5" );
+	delete prior;
 
 	return failures;
 }
@@ -409,11 +460,12 @@ int CoreTests ( TestSuite * T ) {
 
 int main ( int argc, char ** argv ) {
 	TestSuite Tests ( "tests_all.log" );
-	// Tests.addTest(&PsychometricValues,"Values of the psychometric function");
-	// Tests.addTest(&OptimizerSolution, "Solutions of optimizer");
-	// Tests.addTest(&BootstrapTest,     "Bootstrap properties");
-	// Tests.addTest(&SigmoidTests,      "Properties of sigmoids");
-	// Tests.addTest(&CoreTests,         "Tests of core objects");
+	Tests.addTest(&PsychometricValues,"Values of the psychometric function");
+	Tests.addTest(&OptimizerSolution, "Solutions of optimizer");
+	Tests.addTest(&BootstrapTest,     "Bootstrap properties");
+	Tests.addTest(&SigmoidTests,      "Properties of sigmoids");
+	Tests.addTest(&CoreTests,         "Tests of core objects");
 	Tests.addTest(&MCMCTest,          "MCMC");
+	Tests.addTest(&PriorTest,         "Priors");
 	Tests.runTests();
 }
