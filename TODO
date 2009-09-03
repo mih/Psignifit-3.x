@@ -1,6 +1,9 @@
-- Implement alternative SimplexAlgorithm
+- Python interface
+- setup.py
+- beta binomial models
+- Implement alternative SimplexAlgorithm (Numerical Recipes?)
 - Sensitivity analysis
-- Goodness of fit (Correlations?)
+- Goodness of fit (Correlations?)                                          [OK] but correlations are wrong
 - More Sigmoids (gumbel, weibull, gauss, ...)
 - BCa confidence limits for slope and widths
 - Unit test with gamma as a free parameter                                 [OK] but only very rough correspondence to psignifit should be stricter
@@ -14,4 +17,3 @@
      can we put both MCMC strategies together to have the same base class? [OK]
 + Documentation                                                            [OK]
 + pointer arithmetic for datasets                                          [OK]
-- beta binomial models
