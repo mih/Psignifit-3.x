@@ -4,6 +4,7 @@
 #include <vector>
 #include "errors.h"
 #include "special.h"
+#include "data.h"
 
 /** \brief inner function of the sigmoid term of the psychometric function
  *
@@ -180,6 +181,49 @@ class linearCore : public PsiCore
 			double a,                           ///< intercept parameter of the logistic regression model
 			double b                            ///< slope parameter of the logistic regression
 			) { std::vector<double> out (nprm,0); out[0] = b; out[1] = a; return out; }   ///< transform logistic regression parameters to useful ones for this core
+};
+
+/** \brief logarithmic core
+ *
+ * The Weibull function typically gives a good fit for data from visual experiments. Unfortunately, the weibull distribution function
+ * does not allow for a straight forward fit using generalized linear models. However, the weibull distribution function is obtained
+ * if a gumbel is fit on logarithmic contrast values. This core is the same as the linearCore but for the logarithm of x
+ */
+class logarithmicCore : public PsiCore
+{
+	private:
+		double scale;
+	public:
+		logarithmicCore ( const PsiData* data );      ///< use a data set to determine the correct scaling factors of initial values and initialize the object
+		double g   (
+			double x,                                 ///< stimulus intensity
+			const std::vector<double>& prm            ///< parameter vector
+			) { return prm[0] * log(x) + prm[1]; }    ///< evaluate the core
+		double dg  (
+			double x,                                 ///< stimulus intensity
+			const std::vector<double>& prm,           ///< parameter vector
+			int i                                     ///< parameter with respect to which the derivative should evaluated
+			);                   ///< evaluate derivative of the core
+		double ddg (
+			double x,                                 ///< stimulus intensity
+			const std::vector<double>& prm,           ///< parameter vector
+			int i,                                    ///< first parameter with respect to which the derivative should be taken
+			int j                                     ///< second parameter with respect to which the derivative should be taken
+			) { return 0; }      ///< evaluate 2nd derivative of the core
+		double inv (
+			double y,                                 ///< value at which to evaluate the inverse
+			const std::vector<double>& prm            ///< parameter vector
+			) { return exp((y-prm[1])/prm[0]); }      ///< invert the core
+		double dinv (
+			double y,                                 ///< value at which to evaluate the inverse
+			const std::vector<double>& prm,           ///< parameter vector
+			int i                                     ///< take derivative of the inverse core with respect to parameter i
+			);                   ///< evaluate derivative of the inverse core with respect to parameter i
+		std::vector<double> transform (
+				int nprm,                             ///< number of parameters in the final model
+				double a,                             ///< intercept of the logistic regression model
+				double b                              ///< slope of the logistic regression model
+			);                   ///< transform parameters from a logistic regression model to starting values
 };
 
 #endif

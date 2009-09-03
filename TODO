@@ -5,6 +5,8 @@
 - Sensitivity analysis
 - Goodness of fit (Correlations?)                                          [OK] but correlations are wrong
 - More Sigmoids (gumbel, weibull, gauss, ...)
++ log-core to allow fitting data on log contrast (i.e. gumbel to weibull)  [OK]
+      MISSING: unit tests for log-core
 - BCa confidence limits for slope and widths
 - Unit test with gamma as a free parameter                                 [OK] but only very rough correspondence to psignifit should be stricter
 
