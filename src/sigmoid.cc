@@ -80,3 +80,83 @@ double PsiGauss::inv ( double p )
 		return lastinvp;
 	}
 }
+
+/************************************************************
+ * Gumbel_l cdf
+ */
+
+double PsiGumbelL::f ( double x )
+{
+	if (x!=lastx) {
+		lastx = x;
+		lastf = 1-exp(-exp(x));
+	}
+	return lastx;
+}
+
+double PsiGumbelL::df ( double x )
+{
+	if ( x!=lastdx ) {
+		lastdx = x;
+		lastdf = exp( x - exp(x));
+	}
+	return lastdf;
+}
+
+double PsiGumbelL::ddf ( double x )
+{
+	if ( x!=lastddx ) {
+		lastddx = x;
+		lastddf = exp ( x - exp(x) ) * (1-exp(x));
+	}
+	return lastddf;
+}
+
+double PsiGumbelL::inv ( double p )
+{
+	if ( p!=lastp ) {
+		lastp = p;
+		lastinvp = log(-log(1-p));
+	}
+	return lastinvp;
+}
+
+/************************************************************
+ * Gumbel_r cdf
+ */
+
+double PsiGumbelR::f ( double x )
+{
+	if (x!=lastx) {
+		lastx = x;
+		lastf = exp(-exp(-x));
+	}
+	return lastx;
+}
+
+double PsiGumbelR::df ( double x )
+{
+	if ( x!=lastdx ) {
+		lastdx = x;
+		lastdf = exp(-x-exp(-x));
+	}
+	return lastdf;
+}
+
+double PsiGumbelR::ddf ( double x )
+{
+	if ( x!=lastddx ) {
+		lastddx = x;
+		lastddf = exp ( -x - exp(-x) ) * (exp(-x)-1);
+	}
+	return lastddf;
+}
+
+double PsiGumbelR::inv ( double p )
+{
+	if ( p!=lastp ) {
+		lastp = p;
+		lastinvp = log(-log(p));
+	}
+	return lastinvp;
+}

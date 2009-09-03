@@ -55,4 +55,48 @@ class PsiGauss : public PsiSigmoid
 		double inv ( double p );                 ///< inverse of the sigmoid
 };
 
+/** \brief left-skewed gumbel cdf
+ *
+ * Cumulative densitiy function of the gumbel distribution.
+ */
+class PsiGumbelL : public PsiSigmoid
+{
+	private:
+		double lastx;
+		double lastf;
+		double lastdx;
+		double lastddx;
+		double lastdf;
+		double lastddf;
+		double lastp;
+		double lastinvp;
+	public:
+		double f   ( double x );              ///< returns the value of the gumbel cdf at position x
+		double df  ( double x );              ///< returns the derivative of the gumbel cdf at position x
+		double ddf ( double x );              ///< returns the 2nd derivative of the gumbel cdf at position x
+		double inv ( double p );              ///< returns the inverse of the gumbel cdf at position p
+};
+
+/** \brief right-skewed gumbel cdf
+ *
+ * Cumulative densitiy function of the gumbel distribution.
+ */
+class PsiGumbelR : public PsiSigmoid
+{
+	private:
+		double lastx;
+		double lastf;
+		double lastdx;
+		double lastddx;
+		double lastdf;
+		double lastddf;
+		double lastp;
+		double lastinvp;
+	public:
+		double f   ( double x );             ///< returns the value of the right skewed gumbel cdf at position x
+		double df  ( double x );             ///< returns the derivative of the right skewed gumbel cdf at position x
+		double ddf ( double x );             ///< returns the 2nd derivative of the right skewed gumbel cdf at position x
+		double inv ( double p );             ///< returns the inverse of the right skewed gumbel cdf at position p
+};
+
 #endif
