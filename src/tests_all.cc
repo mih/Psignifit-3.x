@@ -292,12 +292,12 @@ int MCMCTest ( TestSuite * T ) {
 	srand48(0);
 	PsiMClist mhpost ( mhS->sample(10000) );
 
-	failures += T->isequal ( post.getMean(0), 3.21657, "Hybrid MCMC alpha", 1e-5 );
-	failures += T->isequal ( post.getMean(1), 1.20476, "Hybrid MCMC beta", 1e-5 );
-	failures += T->isequal ( post.getMean(2), 0.0217217, "Hybrid MCMC lambda", 1e-5 );
-	failures += T->isequal ( mhpost.getMean(0), 3.22372, "Metropolis Hastings alpha", 1e-5 );
-	failures += T->isequal ( mhpost.getMean(1), 1.12734, "Metropolis Hastings beta", 1e-5 );
-	failures += T->isequal ( mhpost.getMean(2), 0.0199668, "Metropolis Hastings lambda", 1e-5 );
+	failures += T->isequal ( post.getMean(0), 3.21657, "Hybrid MCMC alpha", .2 );
+	failures += T->isequal ( post.getMean(1), 1.20476, "Hybrid MCMC beta", .2 );
+	failures += T->isequal ( post.getMean(2), 0.0217217, "Hybrid MCMC lambda", .02 );
+	failures += T->isequal ( mhpost.getMean(0), 3.22372, "Metropolis Hastings alpha", .2 );
+	failures += T->isequal ( mhpost.getMean(1), 1.12734, "Metropolis Hastings beta", .2 );
+	failures += T->isequal ( mhpost.getMean(2), 0.0199668, "Metropolis Hastings lambda", .02 );
 
 	std::cerr << pmf->neglpost(prm,data);
 
@@ -404,7 +404,7 @@ int SigmoidTests ( TestSuite * T ) {
 	for ( x=-5; x<5; x+=0.1 )
 		if ( (df=sigmoid->df(x))<mindf )
 			mindf = df;
-	failures += T->ismore ( mindf, 0, "PsiLogistic monotonically increasing" );
+	failures += T->ismore ( mindf, 0, "PsiGaussian monotonically increasing" );
 	// Check saturation
 	failures += T->isless  ( sigmoid->df( 3), 0.01, "PsiGauss->df(3)");
 	failures += T->isless  ( sigmoid->df(-3), 0.01, "PsiGauss->df(-3)");
@@ -413,6 +413,47 @@ int SigmoidTests ( TestSuite * T ) {
 	failures += T->ismore  ( sigmoid->ddf(-3),0,    "PsiGauss->ddf(-3)");
 	delete sigmoid;
 
+	sigmoid = new PsiGumbelL ();
+	// Check specific function values
+	failures += T->isequal ( sigmoid->f (0), 0.63212055882855767, "PsiGumbelL->f(0)");
+	failures += T->isequal ( sigmoid->f (-3), .048568007099546562, "PsiGumbelL->f(0)");
+	failures += T->isequal ( sigmoid->f (3), .99999999810782125, "PsiGumbelL->f(0)");
+	// Check asymmetry
+	failures += T->ismore ( sigmoid->f ( 3 ), 1-sigmoid->f( -3 ), "PsiGumbelL( 3 )-PsiGumbelL (-3 )" );
+	// Check monotonicity
+	mindf = 1e20;
+	for (x=-5; x<5; x+=.1 )
+		if ( (df=sigmoid->df(x))<mindf )
+			mindf = df;
+	failures += T->ismore ( mindf, 0, "PsiGumbelL monotonically increasing" );
+	// Check saturation
+	failures += T->isless  ( sigmoid->df( 3), 0.01, "PsiGumbelL->df(3)");
+	failures += T->isless  ( sigmoid->df(-3), 0.05, "PsiGumbelL->df(-3)");
+	// Check convexity
+	failures += T->isless  ( sigmoid->ddf(3), 0,    "PsiGumbelL->ddf(3)");
+	failures += T->ismore  ( sigmoid->ddf(-3),0,    "PsiGumbelL->ddf(-3)");
+	delete sigmoid;
+
+	sigmoid = new PsiGumbelR ();
+	// Check specific function values
+	failures += T->isequal ( sigmoid->f (0), 0.36787944117144233, "PsiGumbelR->f(0)");
+	failures += T->isequal ( sigmoid->f (-3), 1.8921786948382924e-09, "PsiGumbelR->f(0)");
+	failures += T->isequal ( sigmoid->f (3), .95143199290045344, "PsiGumbelR->f(0)");
+	// Check asymmetry
+	failures += T->ismore ( 1-sigmoid->f ( -3 ), sigmoid->f( 3 ), "PsiGumbelR( -3 )-PsiGumbelR (3 )" );
+	// Check monotonicity
+	mindf = 1e20;
+	for (x=-5; x<5; x+=.1 )
+		if ( (df=sigmoid->df(x))<mindf )
+			mindf = df;
+	failures += T->ismore ( mindf, 0, "PsiGumbelR monotonically increasing" );
+	// Check saturation
+	failures += T->isless  ( sigmoid->df( 3), 0.05, "PsiGumbelR->df(3)");
+	failures += T->isless  ( sigmoid->df(-3), 0.01, "PsiGumbelR->df(-3)");
+	// Check convexity
+	failures += T->isless  ( sigmoid->ddf(3), 0,    "PsiGumbelR->ddf(3)");
+	failures += T->ismore  ( sigmoid->ddf(-3),0,    "PsiGumbelR->ddf(-3)");
+	delete sigmoid;
 
 	return failures;
 }
