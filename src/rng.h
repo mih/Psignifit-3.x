@@ -8,6 +8,7 @@
 class PsiRandom
 {
 	public:
+		double rngcall ( void ) { return drand48(); }
 		virtual double draw ( void ) { throw NotImplementedError(); }
 };
 
@@ -24,6 +25,27 @@ class GaussRandom : public PsiRandom
 	public:
 		GaussRandom ( double mean=0, double standarddeviation=1 ) : mu ( mean ), sigma ( standarddeviation ) {}
 		double draw ( void );              ///< draw a random number using box muller transform
+};
+
+class UniformRandom : public PsiRandom
+{
+	private:
+		double lower;
+		double upper;
+	public:
+		UniformRandom ( double low=0, double up=1 ) : lower(low), upper(up) {}
+		double draw ( void ) { return  (upper-lower)*rngcall()+lower; }
+};
+
+class BinomialRandom : public PsiRandom
+{
+	private:
+		int n;
+		double p;
+	public:
+		BinomialRandom ( int number, double probability ) : n(number), p(probability) {}
+		double draw ( void );
+		void setprm ( int number, double probability ) { n = number; p = probability; }
 };
 
 #endif
