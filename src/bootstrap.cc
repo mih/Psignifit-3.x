@@ -1,4 +1,5 @@
 #include "bootstrap.h"
+#include "rng.h"
 
 #ifdef DEBUG_BOOTSTRAP
 #include <iostream>
@@ -26,6 +27,7 @@ BootstrapList parametricbootstrap ( int B, const PsiData * data, const PsiPsycho
 	std::vector<double> initialthresholds ( cuts.size() );
 	std::vector<double> devianceresiduals ( data->getNblocks() );
 	double p,deviance;
+	BinomialRandom binomial ( 10, 0.5 );
 
 	for (cut=0; cut<cuts.size(); cut++)
 		initialthresholds[cut] = model->getThres(initialfit,cuts[cut]);
@@ -34,10 +36,8 @@ BootstrapList parametricbootstrap ( int B, const PsiData * data, const PsiPsycho
 		// Resampling
 		for ( k=0; k<data->getNblocks(); k++ ) {
 			p = model->evaluate( data->getIntensity(k), initialfit );
-			sample[k] = 0;
-			// TODO: use a better random number generator here
-			for ( l=0; l<data->getNtrials(k); l++ )
-				sample[k] += int( drand48() < p );
+			binomial.setprm ( data->getNtrials(k), p );
+			sample[k] = binomial.draw ();
 		}
 		localdataset->setNcorrect ( sample );
 		bootstrapsamples.setData ( b, sample );

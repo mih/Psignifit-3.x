@@ -24,7 +24,7 @@ MetropolisHastings::MetropolisHastings ( const PsiPsychometric * pmf, const PsiD
 }
 
 std::vector<double> MetropolisHastings::draw ( void ) {
-	double qnew, lratio, acc(drand48());
+	double qnew, lratio, acc(propose->rngcall());
 	const PsiPsychometric * model (getModel());
 	const PsiData * data (getData());
 	int prm, Nprm(model->getNparams());
@@ -154,7 +154,7 @@ std::vector<double> HybridMCMC::draw ( void ) {
 	newH *= 0.5;
 	newH += newenergy;
 
-	if ( log(drand48()) < currentH-newH ) {
+	if ( log(proposal->rngcall()) < currentH-newH ) {
 		// Accept
 		for (i=0; i<model->getNparams(); i++) {
 			currenttheta[i] = newtheta[i];
