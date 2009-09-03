@@ -71,6 +71,7 @@ class PsiGumbelL : public PsiSigmoid
 		double lastp;
 		double lastinvp;
 	public:
+		PsiGumbelL ( void ) : lastx(-1e20), lastdx(-1e20), lastddx(-1e20), lastp(0), lastinvp(-1e20) {}
 		double f   ( double x );              ///< returns the value of the gumbel cdf at position x
 		double df  ( double x );              ///< returns the derivative of the gumbel cdf at position x
 		double ddf ( double x );              ///< returns the 2nd derivative of the gumbel cdf at position x
@@ -93,6 +94,7 @@ class PsiGumbelR : public PsiSigmoid
 		double lastp;
 		double lastinvp;
 	public:
+		PsiGumbelR ( void ) : lastx(-1e20), lastdx(-1e20), lastddx(-1e20), lastp(0), lastinvp(-1e20) {}
 		double f   ( double x );             ///< returns the value of the right skewed gumbel cdf at position x
 		double df  ( double x );             ///< returns the derivative of the right skewed gumbel cdf at position x
 		double ddf ( double x );             ///< returns the 2nd derivative of the right skewed gumbel cdf at position x

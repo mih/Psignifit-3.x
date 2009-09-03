@@ -91,7 +91,7 @@ double PsiGumbelL::f ( double x )
 		lastx = x;
 		lastf = 1-exp(-exp(x));
 	}
-	return lastx;
+	return lastf;
 }
 
 double PsiGumbelL::df ( double x )
@@ -131,7 +131,7 @@ double PsiGumbelR::f ( double x )
 		lastx = x;
 		lastf = exp(-exp(-x));
 	}
-	return lastx;
+	return lastf;
 }
 
 double PsiGumbelR::df ( double x )
