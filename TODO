@@ -4,8 +4,8 @@
 - More Sigmoids (gumbel, weibull, gauss, ...)
 - BCa confidence limits for slope and widths
 - Unit test with gamma as a free parameter                                 [OK] but only very rough correspondence to psignifit should be stricter
-- linear core ax+b                                          [Unfinished (no documentation)]
 
++ linear core ax+b                                                         [OK]
 + Unit test for mwCore                                                     [OK]
 + Outliers and Influential observations                                    [OK]
 + MCMC
