@@ -152,34 +152,34 @@ class linearCore : public PsiCore
 {
 	public:
 		double g (
-			double x,
-			const std::vector<double>& prm
-			) { return prm[0] * x + prm[1]; }
+			double x,                           ///< stimulus intensity
+			const std::vector<double>& prm      ///< parameter vector
+			) { return prm[0] * x + prm[1]; }   ///< evaluate the core of the sigmoid
 		double dg (
-			double x,
-			const std::vector<double>& prm,
-			int i
-			) { switch (i) { case 0: return x; break; case 1: return 1; break; default: return 0; break; } }
+			double x,                           ///< stimululs intensity
+			const std::vector<double>& prm,     ///< parameter vector
+			int i                               ///< index of the parameter we want the derivative to
+			) { switch (i) { case 0: return x; break; case 1: return 1; break; default: return 0; break; } } ///< first derivative w.r.t. parameter i
 		double ddg (
-			double x,
-			const std::vector<double>& prm,
-			int i,
-			int j
-			) { return 0; }
+			double x,                           ///< stimulus intensity
+			const std::vector<double>& prm,     ///< parameter vector
+			int i,                              ///< index of the parameter we want for the first derivative
+			int j                               ///< index of the parameter we want for the second derivative
+			) { return 0; }                     ///< second derivative w.r.t. parameters i and j
 		double inv (
-			double y,
-			const std::vector<double>& prm
-			) { return (y-prm[1])/prm[0]; }
+			double y,                           ///< value to be inverted
+			const std::vector<double>& prm      ///< parameter vector
+			) { return (y-prm[1])/prm[0]; }     ///< inverse of the core
 		double dinv (
-			double p,
-			const std::vector<double>& prm,
-			int i
-			) { switch (i) { case 0: return (prm[1]-y)/(prm[0]*prm[0]); break; case 1: return -1./prm[0]; break; default: return 0; break; } }
+			double y,                           ///< value at which the derivative of the inverse should be evaluated
+			const std::vector<double>& prm,     ///< parameter vector
+			int i                               ///< index of the parameter we want the derivative to
+			) { switch (i) { case 0: return (prm[1]-y)/(prm[0]*prm[0]); break; case 1: return -1./prm[0]; break; default: return 0; break; } } ///< deriviative of the inverse w.r.t. parameter i
 		std::vector<double> transform (
-			int nprm,
-			double a,
-			double b
-			) { std::vector<double> out (nprm,0); out[0] = b; out[1] = a; return out; }
+			int nprm,                           ///< number of parameters in the whole model
+			double a,                           ///< intercept parameter of the logistic regression model
+			double b                            ///< slope parameter of the logistic regression
+			) { std::vector<double> out (nprm,0); out[0] = b; out[1] = a; return out; }   ///< transform logistic regression parameters to useful ones for this core
 };
 
 #endif
