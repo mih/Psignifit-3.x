@@ -461,6 +461,11 @@ int SigmoidTests ( TestSuite * T ) {
 int CoreTests ( TestSuite * T ) {
 	int failures(0);
 	PsiCore * core;
+	PsiData * data;
+	std::vector<double> *x;
+	std::vector<int> *k,*n;
+	int i;
+	double th;
 	std::vector<double> prm(4);
 
 	core = new abCore;
@@ -495,6 +500,34 @@ int CoreTests ( TestSuite * T ) {
 	// TODO: Transform Tests
 	delete core;
 
+
+	x = new std::vector<double> (6,0);
+	k = new std::vector<int> (6,0);
+	n = new std::vector<int> (6,50);
+	for (i=0; i<6; i++) (*x)[i] = 2*i+.1;
+	(*k)[0] = 24; (*k)[1] = 32; (*k)[2] = 40; (*k)[3] = 48; (*k)[4] = 50; (*k)[5] = 48;
+	data = new PsiData ( *x, *n, *k, 2 );
+	core = new logCore ( data );
+	th = exp(-2./3);
+
+	failures += T->isequal ( core->g(th,prm), 0,                  "logCore at threshold");
+	failures += T->isequal ( core->dg(th,prm,0), log(th),         "logCore derivative(0) at threshold");
+	failures += T->isequal ( core->dg(th,prm,1), 1,               "logCore derivative(1) at threshold");
+	failures += T->isequal ( core->ddg(th,prm,0,0), 0,            "logCore derivative(0,0) at threshold");
+	failures += T->isequal ( core->ddg(th,prm,1,0), 0,            "logCore derivative(1,0) at threshold");
+	failures += T->isequal ( core->ddg(th,prm,1,1), 0,            "logCore derivative(1,1) at threshold");
+	failures += T->isequal ( core->ddg(th,prm,0,1), core->ddg(th,prm,1,0), "logCore 2nd derivative symmetry at threshold");
+	failures += T->isequal ( core->inv(0,prm), th,                "logCore inverse");
+	failures += T->isequal ( core->inv(core->g(2.,prm),prm),2.,   "logCore inversion g(inv(2))");
+	failures += T->isequal ( core->g(core->inv(2.,prm),prm),2.,   "logCore inversion inv(g(2))");
+	failures += T->isequal ( core->dinv(2.,prm,0), 0.,            "logCore inversion dinv(2,0)");
+	failures += T->isequal ( core->dinv(2.,prm,1), -1./3., "logCore inversion dinv(2,1)");
+
+	delete data;
+	delete core;
+	delete x;
+	delete k;
+	delete n;
 
 	return failures;
 }
