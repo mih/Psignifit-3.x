@@ -151,7 +151,7 @@ std::vector<double> mwCore::transform ( int nprm, double a, double b ) {
  * logarithmicCore
  */
 
-logarithmicCore::logarithmicCore ( const PsiData* data ) : scale(0) {
+logCore::logCore ( const PsiData* data ) : scale(0) {
 	int i;
 	// we need this to scale starting values obtained from logistic regression so that they are correct "on average"
 	for (i=0; i<data->getNblocks(); i++)
@@ -159,7 +159,7 @@ logarithmicCore::logarithmicCore ( const PsiData* data ) : scale(0) {
 	scale /= data->getNblocks();
 }
 
-double logarithmicCore::dg ( double x, const std::vector<double>& prm, int i ) {
+double logCore::dg ( double x, const std::vector<double>& prm, int i ) {
 	switch (i) {
 		case 0:
 			return log(x);
@@ -173,7 +173,7 @@ double logarithmicCore::dg ( double x, const std::vector<double>& prm, int i ) {
 	}
 }
 
-double logarithmicCore::dinv ( double x, const std::vector<double>& prm, int i ) {
+double logCore::dinv ( double y, const std::vector<double>& prm, int i ) {
 	switch (i) {
 		case 0:
 			return exp((y-prm[1])/prm[0]) * (prm[1]-y)/(prm[0]*prm[0]);
@@ -187,7 +187,7 @@ double logarithmicCore::dinv ( double x, const std::vector<double>& prm, int i )
 	}
 }
 
-std::vector<double> logarithmicCore::transform ( int nprm, double a, double b ) {
+std::vector<double> logCore::transform ( int nprm, double a, double b ) {
 	std::vector<double> prm ( nprm, 0 );
 	prm[0] = b*scale;  // we scale the intercept so that it is correct "on average"
 	prm[1] = a;

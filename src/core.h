@@ -189,12 +189,12 @@ class linearCore : public PsiCore
  * does not allow for a straight forward fit using generalized linear models. However, the weibull distribution function is obtained
  * if a gumbel is fit on logarithmic contrast values. This core is the same as the linearCore but for the logarithm of x
  */
-class logarithmicCore : public PsiCore
+class logCore : public PsiCore
 {
 	private:
 		double scale;
 	public:
-		logarithmicCore ( const PsiData* data );      ///< use a data set to determine the correct scaling factors of initial values and initialize the object
+		logCore ( const PsiData* data );      ///< use a data set to determine the correct scaling factors of initial values and initialize the object
 		double g   (
 			double x,                                 ///< stimulus intensity
 			const std::vector<double>& prm            ///< parameter vector
