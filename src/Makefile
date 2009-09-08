@@ -7,7 +7,7 @@ HEADERS=core.h data.h errors.h optimizer.h prior.h psychometric.h sigmoid.h boot
 OBJECTS=$(BUILD)/core.o $(BUILD)/data.o $(BUILD)/optimizer.o $(BUILD)/psychometric.o $(BUILD)/sigmoid.o $(BUILD)/bootstrap.o $(BUILD)/mclist.o $(BUILD)/special.o $(BUILD)/mcmc.o $(BUILD)/rng.o
 TESTS=tests_all
 
-tests: $(BUILD) tests_all
+tests: $(BUILD) tests_all.log
 
 $(BUILD):
 	mkdir $(BUILD)
@@ -38,6 +38,8 @@ $(BUILD)/rng.o: rng.cc $(HEADERS)
 tests_all: tests_all.cc $(HEADERS) $(OBJECTS) testing.h
 	$(CC) -c $(CFLAGS) tests_all.cc -o $(BUILD)/tests_all.o
 	$(CC) $(OBJECTS) $(BUILD)/tests_all.o $(LFLAGS) -o tests_all
+tests_all.log: tests_all
+	./tests_all
 
 clean:
 	rm $(BUILD)/*
