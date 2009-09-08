@@ -1,15 +1,15 @@
-- unit tests for logCore and linearCore
 - Python interface
 - setup.py
-- beta binomial models
 - Implement alternative SimplexAlgorithm (Numerical Recipes?)
+- beta binomial models
+- BCa confidence limits for slope (and widths?)
 - Sensitivity analysis
 - Goodness of fit (Correlations?)                                          [OK] but correlations are wrong
-- More Sigmoids (gumbel, weibull, gauss, ...)
-- BCa confidence limits for slope and widths
-- Unit test with gamma as a free parameter                                 [OK] but only very rough correspondence to psignifit should be stricter
+- Unit test with gamma as a free parameter                                 [OK] but only very rough correspondence to psignifit -- should be stricter
 
++ More Sigmoids (gumbel, weibull, gauss, ...)                              [OK] at least for now
 + log-core to allow fitting data on log contrast (i.e. gumbel to weibull)  [OK]
++ unit tests for logCore and linearCore                                    [OK]
 + linear core ax+b                                                         [OK]
 + Unit test for mwCore                                                     [OK]
 + Outliers and Influential observations                                    [OK]
