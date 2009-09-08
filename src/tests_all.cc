@@ -466,7 +466,8 @@ int CoreTests ( TestSuite * T ) {
 	std::vector<int> *k,*n;
 	int i;
 	double th;
-	std::vector<double> prm(4);
+	std::vector<double> prm(4,0);
+	std::vector<double> prm2(4,0);
 
 	core = new abCore;
 	prm[0] = 3.;
@@ -500,6 +501,26 @@ int CoreTests ( TestSuite * T ) {
 	// TODO: Transform Tests
 	delete core;
 
+	core = new linearCore;
+	prm2 = prm;
+	th = -2./3;
+	failures += T->isequal ( core->g(th,prm), 0,                   "linearCore at threshold");
+	failures += T->isequal ( core->dg(th,prm,0), th,               "linearCore derivative(0) at threshold");
+	failures += T->isequal ( core->dg(th,prm,1), 1.,               "linearCore derivative(1) at threshold");
+	failures += T->isequal ( core->ddg(th,prm,0,0), 0,             "linearCore derivative(0,0) at threshold");
+	failures += T->isequal ( core->ddg(th,prm,1,0), 0,             "linearCore derivative(0,0) at threshold");
+	failures += T->isequal ( core->ddg(th,prm,1,1), 0,             "linearCore derivative(0,0) at threshold");
+	failures += T->isequal ( core->ddg(th,prm,0,1), core->ddg(th,prm,1,0), "linearCore 2nd derivative symmetry at threshold");
+	failures += T->isequal ( core->inv(0,prm),th,                  "linearCore inverse threshold");
+	failures += T->isequal ( core->g(core->inv(2.,prm),prm), 2.,   "linearCore inverse g(inv(2))");
+	failures += T->isequal ( core->inv(core->g(2.,prm),prm), 2.,   "linearCore inverse inv(g(2))");
+	prm2[0] += 1e-8;
+	failures += T->isequal ( core->dinv(2.,prm,0), (core->inv(2,prm2)-core->inv(2.,prm))/1e-8,              "linearCore inverse derivative(0)");
+	prm2[0] = prm[0];
+	prm2[1] += 1e-8;
+	failures += T->isequal ( core->dinv(2.,prm,1), (core->inv(2,prm2)-core->inv(2.,prm))/1e-8,              "linearCore inverse derivative(1)");
+	prm2[1] = prm[1];
+	delete core;
 
 	x = new std::vector<double> (6,0);
 	k = new std::vector<int> (6,0);
@@ -520,8 +541,12 @@ int CoreTests ( TestSuite * T ) {
 	failures += T->isequal ( core->inv(0,prm), th,                "logCore inverse");
 	failures += T->isequal ( core->inv(core->g(2.,prm),prm),2.,   "logCore inversion g(inv(2))");
 	failures += T->isequal ( core->g(core->inv(2.,prm),prm),2.,   "logCore inversion inv(g(2))");
-	failures += T->isequal ( core->dinv(2.,prm,0), 0.,            "logCore inversion dinv(2,0)");
-	failures += T->isequal ( core->dinv(2.,prm,1), -1./3., "logCore inversion dinv(2,1)");
+	prm2[0] += 1e-8;
+	failures += T->isequal ( core->dinv(2.,prm,0), (core->inv(2,prm2)-core->inv(2,prm))/1e-8,            "logCore inversion dinv(2,0)");
+	prm2[0] = prm[0];
+	prm2[1] += 1e-8;
+	failures += T->isequal ( core->dinv(2.,prm,1), (core->inv(2,prm2)-core->inv(2,prm))/1e-8, "logCore inversion dinv(2,1)");
+	prm2[1] = prm[1];
 
 	delete data;
 	delete core;
