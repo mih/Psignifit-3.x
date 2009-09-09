@@ -1,5 +1,7 @@
 - Python interface
-- setup.py
+	+ bootstrap (some options are missing!) <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+	- mcmc
++ setup.py                                                                 [OK]
 - Implement alternative SimplexAlgorithm (Numerical Recipes?, gsl-Wrapper-Object?)
 - beta binomial models
 - BCa confidence limits for slope (and widths?)
