@@ -6,7 +6,7 @@
 #endif
 
 
-BootstrapList parametricbootstrap ( int B, const PsiData * data, const PsiPsychometric* model, std::vector<double> cuts, bool BCa )
+BootstrapList parametricbootstrap ( int B, const PsiData * data, const PsiPsychometric* model, std::vector<double> cuts, std::vector<double>* param, bool BCa )
 {
 #ifdef DEBUG_BOOTSTRAP
 	std::cerr << "Starting bootstrap\n Cuts size=" << cuts.size() << " "; std::cerr.flush();
@@ -21,7 +21,11 @@ BootstrapList parametricbootstrap ( int B, const PsiData * data, const PsiPsycho
 			data->getNcorrect(),
 			data->getNalternatives() );
 
-	std::vector<double> initialfit ( opt.optimize( model, data ) );
+	std::vector<double> initialfit ( model->getNparams() );
+	if (param==NULL)
+		initialfit = opt.optimize( model, data );
+	else
+		initialfit = *param;
 	std::vector<double> localfit   ( model->getNparams() );
 	std::vector<int>    sample     ( data->getNblocks() );
 	std::vector<double> initialthresholds ( cuts.size() );
