@@ -299,8 +299,6 @@ int MCMCTest ( TestSuite * T ) {
 	failures += T->isequal ( mhpost.getMean(1), 1.12734, "Metropolis Hastings beta", .2 );
 	failures += T->isequal ( mhpost.getMean(2), 0.0199668, "Metropolis Hastings lambda", .02 );
 
-	std::cerr << pmf->neglpost(prm,data);
-
 	return failures;
 }
 
