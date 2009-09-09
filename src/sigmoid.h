@@ -13,6 +13,7 @@ class PsiSigmoid
 		virtual double df  ( double x ) { throw NotImplementedError(); }      ///< This should give the first derivative of the sigmoid
 		virtual double ddf ( double x ) { throw NotImplementedError(); }      ///< This should give the second derivative of the sigmoid
 		virtual double inv ( double p ) { throw NotImplementedError(); }      ///< This should give the inverse of the sigmoid (taking values between 0 and 1)
+		virtual int    getcode ( void ) { throw NotImplementedError(); }      ///< return the sigmoid identifier
 };
 
 /** \brief logistic function
@@ -30,6 +31,7 @@ class PsiLogistic : public PsiSigmoid
 		double df ( double x );                ///< derivative of the sigmoid at position x
 		double ddf ( double x );               ///< second derivative of the sigmoid
 		double inv ( double p ) { return log(p/(1-p)); }  ///< inverse of the sigmoid
+		int getcode ( void ) { return 1; }     ///< return the sigmoid identifier
 };
 
 /** \brief gaussian cdf function
@@ -53,6 +55,7 @@ class PsiGauss : public PsiSigmoid
 		double df  ( double x );                 ///< derivative of the sigmoid at x
 		double ddf ( double x );                 ///< second derivative of the sigmoid at x
 		double inv ( double p );                 ///< inverse of the sigmoid
+		int getcode ( void ) { return 2; }       ///< return the sigmoid identifier
 };
 
 /** \brief left-skewed gumbel cdf
@@ -76,6 +79,7 @@ class PsiGumbelL : public PsiSigmoid
 		double df  ( double x );              ///< returns the derivative of the gumbel cdf at position x
 		double ddf ( double x );              ///< returns the 2nd derivative of the gumbel cdf at position x
 		double inv ( double p );              ///< returns the inverse of the gumbel cdf at position p
+		int getcode ( void ) { return 3; }    ///< return the sigmoid identifier
 };
 
 /** \brief right-skewed gumbel cdf
@@ -99,6 +103,7 @@ class PsiGumbelR : public PsiSigmoid
 		double df  ( double x );             ///< returns the derivative of the right skewed gumbel cdf at position x
 		double ddf ( double x );             ///< returns the 2nd derivative of the right skewed gumbel cdf at position x
 		double inv ( double p );             ///< returns the inverse of the right skewed gumbel cdf at position p
+		int getcode ( void ) { return 3; }   ///< return the sigmoid identifier
 };
 
 #endif
