@@ -1,6 +1,6 @@
 - Python interface
 - setup.py
-- Implement alternative SimplexAlgorithm (Numerical Recipes?)
+- Implement alternative SimplexAlgorithm (Numerical Recipes?, gsl-Wrapper-Object?)
 - beta binomial models
 - BCa confidence limits for slope (and widths?)
 - Sensitivity analysis
