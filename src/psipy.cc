@@ -197,7 +197,7 @@ static PyObject * psibootstrap ( PyObject * self, PyObject * args, PyObject * kw
 }
 
 static PyMethodDef psipy_methods[] = {
-	{"psibootstrap", (PyCFunction) psibootstrap, METH_VARARGS | METH_KEYWORDS, psibootstrap_doc },
+	{"bootstrap", (PyCFunction) psibootstrap, METH_VARARGS | METH_KEYWORDS, psibootstrap_doc },
 	{NULL,NULL}
 };
 
