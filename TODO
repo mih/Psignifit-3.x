@@ -1,7 +1,11 @@
 - Python interface
-	+ bootstrap (some options are missing!) <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-	- mcmc
-+ setup.py                                                                 [OK]
+	- generate some functions that perform the parameter parsing -- the code is really ugly in its current state
+	+ bootstrap, missing:
+		- return BCa stuff
+		- many python functions return new references. Not all of them are
+		  properly dereferenced yet.
+	- ML/MAP-estimate separately
+	- MCMC
 - Implement alternative SimplexAlgorithm (Numerical Recipes?, gsl-Wrapper-Object?)
 - beta binomial models
 - BCa confidence limits for slope (and widths?)
@@ -9,6 +13,9 @@
 - Goodness of fit (Correlations?)                                          [OK] but correlations are wrong
 - Unit test with gamma as a free parameter                                 [OK] but only very rough correspondence to psignifit -- should be stricter
 
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
++ setup.py                                                                 [OK]
 + More Sigmoids (gumbel, weibull, gauss, ...)                              [OK] at least for now
 + log-core to allow fitting data on log contrast (i.e. gumbel to weibull)  [OK]
 + unit tests for logCore and linearCore                                    [OK]
