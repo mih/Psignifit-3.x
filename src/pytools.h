@@ -105,7 +105,24 @@ void setpriors ( PyObject * pypriors, PsiPsychometric * pmf ) {
 			Py_DECREF ( singleprior );
 		}
 	} else {
-		throw std::string ( "priors should be gien as a sequence" );
+		throw std::string ( "priors should be given as a sequence" );
+	}
+}
+
+void setstepwidths ( PyObject * pysteps, MetropolisHastings * S ) {
+	int i, Nparams ( S->getNparams() );
+	PyObject * singlestep;
+
+	if ( pysteps == Py_None ) {
+		std::cerr << "Warning: stepwidths were not touched! This might lead to bad convergence of the markov chains.\n";
+	} else if ( PySequence_Check ( pysteps ) ) {
+		for ( i=0; i<Nparams; i++ ) {
+			singlestep = PySequence_GetItem ( pysteps, i );
+			S->setstepsize ( PyFloat_AsDouble ( singlestep ), i );
+			Py_DECREF ( singlestep );
+		}
+	} else {
+		throw std::string ( "stepwidths should be given as a sequence" );
 	}
 }
 #endif
