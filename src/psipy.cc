@@ -68,10 +68,12 @@ static PyObject * psibootstrap ( PyObject * self, PyObject * args, PyObject * kw
 	char *corename    = "ab";          // name of the parameterization
 	PyObject *pypriors (Py_None);      // prior specs
 
-	int Nblocks;
+	// local variables
+	int Nblocks,Nparams;
 	PsiSigmoid * sigmoid;
 	PsiCore * core;
 	PsiData *data;
+	PsiPsychometric * pmf;
 	PyObject *pyblock;       // python object holding data from a single block
 
 	/************************************************************
@@ -104,8 +106,8 @@ static PyObject * psibootstrap ( PyObject * self, PyObject * args, PyObject * kw
 		return NULL;
 	}
 
-	PsiPsychometric * pmf = new PsiPsychometric ( Nafc, core, sigmoid );
-	int Nparams = pmf->getNparams ();
+	pmf = new PsiPsychometric ( Nafc, core, sigmoid );
+	Nparams = pmf->getNparams ();
 	std::vector<double> cuts (1, .5);
 
 	try {
