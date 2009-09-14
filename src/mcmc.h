@@ -48,6 +48,7 @@ class MetropolisHastings : public PsiSampler
 		void setstepsize ( double size, unsigned int param );                             ///< set the standard deviation of the proposal distribution for parameter param
 		void setstepsize ( const std::vector<double>& sizes );                            ///< set standard deviations of the proposal distribution for all parameters at once
 		PsiMClist sample ( unsigned int N );                                              ///< draw N samples from the posterior
+		unsigned int getNparams ( void ) { return newtheta.size(); }                      ///< get the number of parameters for which the sampler is set up
 };
 
 class HybridMCMC : public PsiSampler
