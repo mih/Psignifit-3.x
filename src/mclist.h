@@ -95,6 +95,7 @@ class BootstrapList : public PsiMClist
 			);   ///< store a simulated data set
 		std::vector<int> getData ( unsigned int i ) const;                 ///< get a simulated data set at posititon i
 		double getThres ( double p, unsigned int cut );                    ///< get the p-th percentile associated with the threshold at cut
+		double getThres_byPos ( unsigned int i, unsigned int cut );        ///< get the threshold for the i-th sample
 		void setThres ( double thres, unsigned int i, unsigned int cut );  ///< set the value of a threshold associated with the threshold at cut
 		int getNblocks ( void ) const { return data[0].size(); }           ///< get the number of blocks in the underlying dataset
 		double getCut ( unsigned int i ) const;                            ///< get the value of cut i
@@ -110,7 +111,7 @@ class BootstrapList : public PsiMClist
 		double percRkd ( double p );                                       ///< get the p-th percentile of the correlations between block index and deviance residuals
 };
 
-/** \brief list of JackKnive data
+/** \brief list of JackKnife data
  *
  * JackKnifeing is not suggested for the assessment of confidence intervals or variability. Instead the close link between jackknife samples
  * and individual data points is useful to determine influential data points and outliers.

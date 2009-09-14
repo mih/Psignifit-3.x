@@ -136,6 +136,15 @@ double BootstrapList::getThres ( double p, unsigned int cut ) {
 	return thresholds[cut][position];
 }
 
+double BootstrapList::getThres_byPos ( unsigned int i, unsigned int cut ) {
+	if ( cut>=cuts.size() )
+		throw BadIndexError();
+	if (i>getNsamples())
+		throw BadIndexError();
+
+	return thresholds[cut][i];
+}
+
 void BootstrapList::setThres ( double thres, unsigned int i, unsigned int cut )
 {
 	if ( i>=getNsamples() )
