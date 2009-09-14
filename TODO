@@ -1,8 +1,8 @@
 - Python interface
-	- generate some functions that perform the parameter parsing -- the code is really ugly in its current state
+	+ generate some functions that perform the parameter parsing -- the code is really ugly in its current state
 	+ bootstrap, missing:
 		- return BCa stuff
-		- many python functions return new references. Not all of them are
+		+ many python functions return new references. Not all of them are
 		  properly dereferenced yet.
 	- ML/MAP-estimate separately
 	- MCMC

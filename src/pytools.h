@@ -7,7 +7,7 @@ PsiData * create_dataset ( PyObject * pydata, int Nafc, int *nblocks ) {
 	if ( !PySequence_Check ( pydata ) )
 		throw std::string ( "data should be a sequence" );
 
-	PyObject * pyblock;
+	PyObject * pyblock, * pynumber;
 
 	int Nblocks ( PySequence_Size ( pydata ) );
 	*nblocks = Nblocks;
@@ -20,11 +20,13 @@ PsiData * create_dataset ( PyObject * pydata, int Nafc, int *nblocks ) {
 		if ( PySequence_Size ( pyblock ) != 3 ) {
 			char msg[50];
 			sprintf ( msg,"data in block %d do not have 3 entries", i );
+			Py_DECREF ( pyblock );
 			throw std::string ( msg );
 		}
-		x[i] = PyFloat_AsDouble ( PySequence_GetItem ( pyblock, 0 ) );
-		k[i] = PyInt_AsLong ( PySequence_GetItem ( pyblock, 1 ) );
-		n[i] = PyInt_AsLong ( PySequence_GetItem ( pyblock, 2 ) );
+		pynumber = PySequence_GetItem ( pyblock, 0 );   x[i] = PyFloat_AsDouble ( pynumber );    Py_DECREF ( pynumber );
+		pynumber = PySequence_GetItem ( pyblock, 1 );   k[i] = PyInt_AsLong ( pynumber );        Py_DECREF ( pynumber );
+		pynumber = PySequence_GetItem ( pyblock, 2 );   n[i] = PyInt_AsLong ( pynumber );        Py_DECREF ( pynumber );
+		Py_DECREF ( pyblock );
 		std::cerr << i << " " << x[i] << " " << k[i] << " " << n[i] << "\n";
 	}
 
@@ -100,6 +102,7 @@ void setpriors ( PyObject * pypriors, PsiPsychometric * pmf ) {
 			} else {
 				std::cerr << "Imposing no constraints on parameter " << i << "\n";
 			}
+			Py_DECREF ( singleprior );
 		}
 	} else {
 		throw std::string ( "priors should be gien as a sequence" );

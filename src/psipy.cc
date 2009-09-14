@@ -74,12 +74,11 @@ static PyObject * psibootstrap ( PyObject * self, PyObject * args, PyObject * kw
 	PsiCore * core;
 	PsiData *data;
 	PsiPsychometric * pmf;
-	PyObject *pyblock;       // python object holding data from a single block
+	PyObject *pynumber;
 
 	/************************************************************
 	 * Parse command line
 	 */
-	// TODO: command line parsing should go to a separate function
 	static char *kwlist[] = {
 		"data",
 		"start",
@@ -118,8 +117,11 @@ static PyObject * psibootstrap ( PyObject * self, PyObject * args, PyObject * kw
 
 	std::vector<double> *start = new std::vector<double> (Nparams);
 	if ( pystart!=Py_None ) {
-		for ( i=0; i<Nparams; i++ )
-			(*start)[i] = PyFloat_AsDouble ( PySequence_GetItem ( pystart, i ) );
+		for ( i=0; i<Nparams; i++ ) {
+			pynumber = PySequence_GetItem ( pystart, i );
+			(*start)[i] = PyFloat_AsDouble ( pynumber );
+			Py_DECREF ( pynumber );
+		}
 	} else
 		start = NULL;
 
@@ -154,7 +156,7 @@ static PyObject * psibootstrap ( PyObject * self, PyObject * args, PyObject * kw
 	/************************************************************
 	 * Return
 	 */
-	pyblock = Py_BuildValue ( "(OOO)", pysamples, pyestimates, pydeviance );
+	pynumber = Py_BuildValue ( "(OOO)", pysamples, pyestimates, pydeviance );
 	Py_DECREF ( pysamples );
 	Py_DECREF ( pyestimates );
 	Py_DECREF ( pydeviance );
@@ -162,7 +164,7 @@ static PyObject * psibootstrap ( PyObject * self, PyObject * args, PyObject * kw
 	delete data;
 	delete pmf;    // also deletes core and sigmoid
 
-	return pyblock;
+	return pynumber;
 }
 
 static PyMethodDef psipy_methods[] = {
