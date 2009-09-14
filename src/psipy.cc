@@ -70,6 +70,7 @@ static PyObject * psibootstrap ( PyObject * self, PyObject * args, PyObject * kw
 
 	int Nblocks;
 	PsiSigmoid * sigmoid;
+	PsiCore * core;
 	PsiData *data;
 	PyObject *pyblock;       // python object holding data from a single block
 
@@ -101,26 +102,21 @@ static PyObject * psibootstrap ( PyObject * self, PyObject * args, PyObject * kw
 		return NULL;
 	}
 
-	// Determine sigmoid
-	if ( !strcmp(sigmoidname,"logistic") ) {
-		std::cerr << "Using logistic sigmoid\n";
-		sigmoid = new PsiLogistic;
-	} else if ( !strcmp(sigmoidname,"gauss") ) {
-		std::cerr << "Using gaussian cdf sigmoid\n";
-		sigmoid = new PsiGauss;
-	} else if ( !strcmp(sigmoidname,"gumbel_l") || !strcmp(sigmoidname,"lgumbel") ) {
-		std::cerr << "Using gumbelL sigmoid\n";
-		sigmoid = new PsiGumbelL;
-	} else if ( !strcmp(sigmoidname,"gumbel_r") || !strcmp(sigmoidname,"rgumbel") ) {
-		std::cerr << "Using gumbelR sigmoid\n";
-		sigmoid = new PsiGumbelR;
-	} else {
-		PyErr_Format ( PyExc_ValueError, "invalid sigmoid type" );
+	try {
+		sigmoid = getsigmoid ( sigmoidname );
+	} catch ( std::string message ) {
+		PyErr_Format ( PyExc_ValueError, message.c_str() );
 		return NULL;
 	}
 
+	try {
+		core = getcore ( corename, sigmoid->getcode(), data );
+	} catch ( std::string message ) {
+		PyErr_Format ( PyExc_ValueError, message.c_str() );
+		return NULL;
+	}
 	// Determine core
-	PsiCore * core;
+	/*
 	if ( !strcmp(corename,"ab") ) {
 		std::cerr << "Using core ab\n";
 		core = new abCore;
@@ -141,6 +137,7 @@ static PyObject * psibootstrap ( PyObject * self, PyObject * args, PyObject * kw
 		PyErr_Format ( PyExc_ValueError, "invalid core type" );
 		return NULL;
 	}
+	*/
 
 	PsiPsychometric * pmf = new PsiPsychometric ( Nafc, core, sigmoid );
 	int Nparams = pmf->getNparams ();
