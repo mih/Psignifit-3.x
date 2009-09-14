@@ -115,65 +115,15 @@ static PyObject * psibootstrap ( PyObject * self, PyObject * args, PyObject * kw
 		PyErr_Format ( PyExc_ValueError, message.c_str() );
 		return NULL;
 	}
-	// Determine core
-	/*
-	if ( !strcmp(corename,"ab") ) {
-		std::cerr << "Using core ab\n";
-		core = new abCore;
-	} else if ( !strncmp(corename,"mw",2) ) {
-		double alpha;
-		std::cerr << corename << "\n";
-		if ( sscanf ( corename, "mw%lf", &alpha )==0 )
-			alpha = 0.1;
-		std::cerr << "Using core mw with parameter " << alpha << "\n";
-		core = new mwCore ( sigmoid->getcode(), alpha );
-	} else if ( !strcmp(corename,"linear") ) {
-		std::cerr << "Using linear core\n";
-		core = new linearCore;
-	} else if ( !strcmp(corename,"log") || !strcmp(corename,"logarithmic") ) {
-		std::cerr << "Using logarithmic core\n";
-		core = new logCore ( data );
-	} else {
-		PyErr_Format ( PyExc_ValueError, "invalid core type" );
-		return NULL;
-	}
-	*/
 
 	PsiPsychometric * pmf = new PsiPsychometric ( Nafc, core, sigmoid );
 	int Nparams = pmf->getNparams ();
 	std::vector<double> cuts (1, .5);
 
-	// Set priors
-	double priorpars[10];
-	if ( pypriors == Py_None ) {
-		std::cerr << "WARNING: No priors imposed! This might lead to strange results for guessing rate.\n";
-	} else if ( PySequence_Check ( pypriors ) ) {
-		// Priors are given as a sequence
-		for ( i=0; i<Nparams; i++ ) {
-			pyblock = PySequence_GetItem ( pypriors, i );
-			if ( !strncmp ( PyString_AsString(pyblock), "Uniform", 7 ) ) {
-				sscanf ( PyString_AsString(pyblock), "Uniform(%lf,%lf)", priorpars,priorpars+1 );
-				pmf->setPrior ( i, new UniformPrior ( priorpars[0], priorpars[1] ) );
-				std::cerr << "Using Uniform Prior with params " << priorpars[0] << " " << priorpars[1] << " for parameter " << i << "\n";
-			} else if ( !strncmp ( PyString_AsString(pyblock), "Gauss", 5 ) ) {
-				sscanf ( PyString_AsString(pyblock), "Gauss(%lf,%lf)", priorpars,priorpars+1 );
-				pmf->setPrior ( i, new GaussPrior ( priorpars[0], priorpars[1] ) );
-				std::cerr << "Using Gauss Prior with params " << priorpars[0] << " " << priorpars[1] << " for parameter " << i << "\n";
-			} else if ( !strncmp ( PyString_AsString(pyblock), "Beta", 4 ) ) {
-				sscanf ( PyString_AsString(pyblock), "Beta(%lf,%lf)", priorpars,priorpars+1 );
-				pmf->setPrior ( i, new BetaPrior ( priorpars[0], priorpars[1] ) );
-				std::cerr << "Using Beta Prior with params " << priorpars[0] << " " << priorpars[1] << " for parameter " << i << "\n";
-			} else if ( !strncmp ( PyString_AsString(pyblock), "Gamma", 6 ) ) {
-				sscanf ( PyString_AsString(pyblock), "Gamma(%lf,%lf)", priorpars,priorpars+1 );
-				pmf->setPrior ( i, new GammaPrior ( priorpars[0], priorpars[1] ) );
-				std::cerr << "Using Gamma Prior with params " << priorpars[0] << " " << priorpars[1] << " for parameter " << i << "\n";
-			} else {
-				std::cerr << "Imposing no constraints on parameter " << i << "\n";
-			}
-		}
-	} else {
-		PyErr_Format ( PyExc_ValueError, "priors should be given as dictionary or sequence" );
-		return NULL;
+	try {
+		setpriors ( pypriors, pmf );
+	} catch ( std::string msg ) {
+		PyErr_Format ( PyExc_ValueError, msg.c_str() );
 	}
 
 	std::vector<double> *start = new std::vector<double> (Nparams);
