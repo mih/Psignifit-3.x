@@ -93,25 +93,13 @@ static PyObject * psibootstrap ( PyObject * self, PyObject * args, PyObject * kw
 		return NULL;
 
 	/************************************************************
-	 * Get data
+	 * prepare data and sigmoid
 	 */
 	try {
-		data = create_dataset ( pydata, Nafc, &Nblocks );
+		data = create_dataset ( pydata, Nafc, &Nblocks );       // prepare data
+		sigmoid = getsigmoid ( sigmoidname );                   // prepare sigmoid
+		core = getcore ( corename, sigmoid->getcode(), data );  // prepare core object
 	} catch (std::string message) {
-		PyErr_Format ( PyExc_ValueError, message.c_str() );
-		return NULL;
-	}
-
-	try {
-		sigmoid = getsigmoid ( sigmoidname );
-	} catch ( std::string message ) {
-		PyErr_Format ( PyExc_ValueError, message.c_str() );
-		return NULL;
-	}
-
-	try {
-		core = getcore ( corename, sigmoid->getcode(), data );
-	} catch ( std::string message ) {
 		PyErr_Format ( PyExc_ValueError, message.c_str() );
 		return NULL;
 	}
