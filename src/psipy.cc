@@ -4,6 +4,7 @@
 #include <cstdio>
 
 #include "psipp.h"
+#include "pytools.h"
 
 static char psibootstrap_doc [] =
 "bootstrap ( data, start=None, nsamples=2000, nafc=2, sigmoid=\"logistic\", core=\"ab\", priors=None )\n"
@@ -67,6 +68,9 @@ static PyObject * psibootstrap ( PyObject * self, PyObject * args, PyObject * kw
 	char *corename    = "ab";          // name of the parameterization
 	PyObject *pypriors (Py_None);      // prior specs
 
+	int Nblocks;
+	PsiSigmoid * sigmoid;
+	PsiData *data;
 	PyObject *pyblock;       // python object holding data from a single block
 
 	/************************************************************
@@ -88,38 +92,16 @@ static PyObject * psibootstrap ( PyObject * self, PyObject * args, PyObject * kw
 		return NULL;
 
 	/************************************************************
-	 * Check data
+	 * Get data
 	 */
-	if ( !PySequence_Check ( pydata ) ) {
-		// data are no sequence ~> Error
-		PyErr_Format ( PyExc_ValueError, "data should be a sequence" );
+	try {
+		data = create_dataset ( pydata, Nafc, &Nblocks );
+	} catch (std::string message) {
+		PyErr_Format ( PyExc_ValueError, message.c_str() );
 		return NULL;
 	}
 
-	// Get the data
-	int Nblocks ( PySequence_Size ( pydata ) );
-	std::vector<double> x ( Nblocks );
-	std::vector<int> k ( Nblocks );
-	std::vector<int> n ( Nblocks );
-	for ( i=0; i<Nblocks; i++ ) {
-		pyblock = PySequence_GetItem ( pydata, i );
-		if ( PySequence_Size ( pyblock ) != 3 ) {
-			PyErr_Format ( PyExc_ValueError, "data in block %d do not have 3 entries", i );
-			return NULL;
-		}
-		x[i] = PyFloat_AsDouble ( PySequence_GetItem ( pyblock, 0 ) );
-		k[i] = PyInt_AsLong ( PySequence_GetItem ( pyblock, 1 ) );
-		n[i] = PyInt_AsLong ( PySequence_GetItem ( pyblock, 2 ) );
-		std::cerr << i << " " << x[i] << " " << k[i] << " " << n[i] << "\n";
-	}
-
-	/************************************************************
-	 * Now set up the model and go
-	 */
-	PsiData * data = new PsiData (x,n,k,Nafc);
-
 	// Determine sigmoid
-	PsiSigmoid * sigmoid;
 	if ( !strcmp(sigmoidname,"logistic") ) {
 		std::cerr << "Using logistic sigmoid\n";
 		sigmoid = new PsiLogistic;
@@ -215,6 +197,7 @@ static PyObject * psibootstrap ( PyObject * self, PyObject * args, PyObject * kw
 	PyArrayObject *pysamples;
 	PyArrayObject *pyestimates;
 	PyArrayObject *pydeviance;
+	std::vector<int> k (Nblocks);
 	int samplesdim[2]   = {Nsamples, Nblocks};
 	int estimatesdim[2] = {Nsamples, Nparams};
 	pysamples   = (PyArrayObject*) PyArray_FromDims ( 2, samplesdim, PyArray_INT );
