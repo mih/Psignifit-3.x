@@ -6,7 +6,7 @@
 		+ many python functions return new references. Not all of them are
 		  properly dereferenced yet.
 	- ML/MAP-estimate separately
-	- MCMC
+	+ MCMC
 - nonparametric bootstrap
 - Implement alternative SimplexAlgorithm (Numerical Recipes?, gsl-Wrapper-Object?)
 - beta binomial models
