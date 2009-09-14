@@ -1,7 +1,7 @@
 - Python interface
 	+ generate some functions that perform the parameter parsing -- the code is really ugly in its current state
 	+ bootstrap, missing:
-		- return BCa stuff
+		+ return BCa stuff                                                [OK] but is this what we wanted?
         - return correlations and outliers
 		+ many python functions return new references. Not all of them are
 		  properly dereferenced yet.

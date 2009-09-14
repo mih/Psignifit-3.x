@@ -38,11 +38,13 @@ static char psibootstrap_doc [] =
 "            if an invalid prior is selected, no constraints are imposed at all.\n"
 "\n"
 ":Output:\n"
-"  samples,estimates,deviance\n"
+"  samples,estimates,deviance,bias,acceleration\n"
 "\n"
 "  samples   a nsamplesXnblocks array of the bootstrap sampled data\n"
 "  estimates a nsamplesXnparameters array of estimated parameters associated with the data sets\n"
 "  deviance  a nsamples array of the associated deviances\n"
+"  bias      a ncuts array of the bias term associated with the threshold\n"
+"  acc       a ncuts array of the acceleration constant associated with the threshold\n"
 "\n"
 "\n"
 ":Example:\n"
@@ -136,12 +138,14 @@ static PyObject * psibootstrap ( PyObject * self, PyObject * args, PyObject * kw
 	PyArrayObject *pysamples;
 	PyArrayObject *pyestimates;
 	PyArrayObject *pydeviance;
+	PyArrayObject *pythres;
 	std::vector<int> k (Nblocks);
 	int samplesdim[2]   = {Nsamples, Nblocks};
 	int estimatesdim[2] = {Nsamples, Nparams};
 	pysamples   = (PyArrayObject*) PyArray_FromDims ( 2, samplesdim, PyArray_INT );
 	pyestimates = (PyArrayObject*) PyArray_FromDims ( 2, estimatesdim, PyArray_DOUBLE );
-	pydeviance = (PyArrayObject*) PyArray_FromDims ( 1, &Nsamples, PyArray_DOUBLE );
+	pydeviance  = (PyArrayObject*) PyArray_FromDims ( 1, &Nsamples, PyArray_DOUBLE );
+	pythres     = (PyArrayObject*) PyArray_FromDims ( 1, &Nsamples, PyArray_DOUBLE );
 	for ( i=0; i<Nsamples; i++ ) {
 		k = boots.getData ( i );
 		for ( j=0; j<Nblocks; j++ ) {
@@ -151,15 +155,20 @@ static PyObject * psibootstrap ( PyObject * self, PyObject * args, PyObject * kw
 			((double*)pyestimates->data)[i*Nparams+j] = boots.getEst ( i, j );
 		}
 		((double*)pydeviance->data)[i] = boots.getdeviance ( i );
+		((double*)pythres->data)[i]    = boots.getThres_byPos ( i, 0 );
 	}
+
+	// BCa
+	double bias (boots.getBias(0)), acceleration (boots.getAcc(0));
 
 	/************************************************************
 	 * Return
 	 */
-	pynumber = Py_BuildValue ( "(OOO)", pysamples, pyestimates, pydeviance );
+	pynumber = Py_BuildValue ( "(OOOOdd)", pysamples, pyestimates, pydeviance, pythres, bias, acceleration );
 	Py_DECREF ( pysamples );
 	Py_DECREF ( pyestimates );
 	Py_DECREF ( pydeviance );
+	Py_DECREF ( pythres );
 
 	delete data;
 	delete pmf;    // also deletes core and sigmoid
