@@ -164,7 +164,7 @@ static char psimapestimate_doc [] =
 ">>> k = [34,32,40,48,50,48]\n"
 ">>> n = [50]*6\n"
 ">>> d = [[xx,kk,nn] for xx,kk,nn in zip(x,k,n)]\n"
-"priors = ('flat','flat','Uniform(0,0.1)')\n"
+">>> priors = ('flat','flat','Uniform(0,0.1)')\n"
 ">>> estimate,deviance = mapestimate ( d, priors=priors )\n"
 ">>> estimate\n"
 "array([2.751768597693296, 1.4572372412562276, 0.015556356934318862], 'd')\n"
@@ -204,7 +204,19 @@ static char psidiagnostics_doc [] =
 "  Rpd                correlation between predicted performance and deviance residuals\n"
 "  Rkd                correlation between block index and deviance residuals\n"
 "\n"
-":Example:\n";
+":Example:\n"
+">>> x = [float(2*k) for k in xrange(6)]\n"
+">>> k = [34,32,40,48,50,48]\n"
+">>> n = [50]*6\n"
+">>> d = [[xx,kk,nn] for xx,kk,nn in zip(x,k,n)]\n"
+">>> prm = [2.75, 1.45, 0.015]\n"
+">>> pred,di,D,Rpd,Rkd = _psipy.diagnostics(d,prm)\n"
+">>> D\n"
+"8.0748485860836254\n"
+">>> di[0]\n"
+"1.6893279652591433\n"
+">>> Rpd\n"
+"-0.19344675783032761\n";
 
 static PyObject * psibootstrap ( PyObject * self, PyObject * args, PyObject * kwargs ) {
 	int i,j;
