@@ -1,6 +1,7 @@
 #ifndef PYTOOLS_H
 #define PYTOOLS_H
 
+#include <vector>
 #include <string>
 
 PsiData * create_dataset ( PyObject * pydata, int Nafc, int *nblocks ) {
@@ -124,5 +125,24 @@ void setstepwidths ( PyObject * pysteps, MetropolisHastings * S ) {
 	} else {
 		throw std::string ( "stepwidths should be given as a sequence" );
 	}
+}
+
+std::vector<double> *getparams ( PyObject * pyparams, int Nparams ) {
+	if ( !PySequence_Check ( pyparams ) )
+		throw std::string ( "parameters should be a sequence" );
+
+	if ( PySequence_Size ( pyparams ) != Nparams )
+		throw std::string ( "parameters have incorrect lengths" );
+
+	int i;
+	std::vector<double> *out = new std::vector<double> ( Nparams );
+	PyObject * pynumber;
+	for ( i=0; i<Nparams; i++ ) {
+		pynumber = PySequence_GetItem ( pyparams, i );
+		(*out)[i] = PyFloat_AsDouble ( pynumber );
+		Py_DECREF ( pynumber );
+	}
+
+	return out;
 }
 #endif
