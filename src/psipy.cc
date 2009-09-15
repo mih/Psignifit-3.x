@@ -177,6 +177,8 @@ static char psidiagnostics_doc [] =
 "  data     a list of lists or an array containing stimulus intensity in the first column, number of\n"
 "           correct responses (for nAFC) or number of Yes-responses (for Yes/No) in the second column,\n"
 "           and total number of trials in the third column.\n"
+"           Alternatively, only the intensities can be given. In that case, we only obtain the predicted\n"
+"           values\n"
 "  nafc     number of response alternatives in nAFC tasks. For Yes/No tasks, this should be 1.\n"
 "  sigmoid  type of the sigmoid that was used for fitting. Valid choices are:\n"
 "             'logistic'\n"
@@ -191,7 +193,7 @@ static char psidiagnostics_doc [] =
 "              'log'     a+b log(x)\n"
 "\n"
 ":Output:\n"
-"  predicted,devianceresiduals,deviance,Rpd,Rkd\n"
+"  predicted(,devianceresiduals,deviance,Rpd,Rkd)\n"
 "  predicted          predicted values associated with the respective stimulus intensities\n"
 "  devianceresiduals  deviance residuals of the data\n"
 "  deviance           deviance of the data\n"
@@ -493,7 +495,7 @@ static PyObject * psidiagnostics ( PyObject * self, PyObject * args, PyObject * 
 	char *corename    = "ab";          // name of the parameterization
 
 	PyObject * pyout;
-	int i, Nparams, Nblocks;
+	int i, intensityonly(-1), Nparams, Nblocks;
 	PsiData * data;
 	PsiPsychometric * pmf;
 	PsiCore * core;
@@ -514,7 +516,7 @@ static PyObject * psidiagnostics ( PyObject * self, PyObject * args, PyObject * 
 		return NULL;
 
 	try {
-		data = create_dataset ( pydata, Nafc, &Nblocks );       // prepare data
+		data = create_dataset ( pydata, Nafc, &Nblocks, &intensityonly );   // prepare data
 		sigmoid = getsigmoid ( sigmoidname );                   // prepare sigmoid
 		core = getcore ( corename, sigmoid->getcode(), data );  // prepare core object
 	} catch (std::string message) {
@@ -526,26 +528,34 @@ static PyObject * psidiagnostics ( PyObject * self, PyObject * args, PyObject * 
 	Nparams = pmf->getNparams ();
 
 	params = getparams ( pyparams, Nparams );
-	devianceresiduals = new std::vector<double> (pmf->getDevianceResiduals ( *params, data ) );
+	if ( intensityonly==-1)
+		devianceresiduals = new std::vector<double> (pmf->getDevianceResiduals ( *params, data ) );
 
 	PyArrayObject *pydevianceresiduals;
 	PyArrayObject *pypredicted;
-	pydevianceresiduals = (PyArrayObject*) PyArray_FromDims ( 1, &Nblocks, PyArray_DOUBLE );
+	if ( intensityonly==-1 )
+		pydevianceresiduals = (PyArrayObject*) PyArray_FromDims ( 1, &Nblocks, PyArray_DOUBLE );
 	pypredicted = (PyArrayObject*) PyArray_FromDims ( 1, &Nblocks, PyArray_DOUBLE );
 	for (i=0; i<Nblocks; i++) {
-		((double*)pydevianceresiduals->data)[i] = (*devianceresiduals)[i];
+		if ( intensityonly==-1 )
+			((double*)pydevianceresiduals->data)[i] = (*devianceresiduals)[i];
 		((double*)pypredicted->data)[i] = pmf->evaluate ( data->getIntensity ( i ), *params );
 	}
 
-	pyout = Py_BuildValue ( "OOddd", pypredicted, pydevianceresiduals, pmf->deviance ( *params, data ),
-			pmf->getRpd ( *devianceresiduals, *params, data ),
-			pmf->getRkd ( *devianceresiduals ) );
+	if ( intensityonly==-1 )
+		pyout = Py_BuildValue ( "(OOddd)", pypredicted, pydevianceresiduals, pmf->deviance ( *params, data ),
+				pmf->getRpd ( *devianceresiduals, *params, data ),
+				pmf->getRkd ( *devianceresiduals ) );
+	else
+		pyout = Py_BuildValue ( "O", pypredicted );
 
 	delete data;
 	delete pmf;
 	delete params;
-	delete devianceresiduals;
-	Py_DECREF ( pydevianceresiduals );
+	if ( intensityonly==-1 ) {
+		delete devianceresiduals;
+		Py_DECREF ( pydevianceresiduals );
+	}
 	Py_DECREF ( pypredicted );
 
 	return pyout;

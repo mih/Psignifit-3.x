@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 
-PsiData * create_dataset ( PyObject * pydata, int Nafc, int *nblocks ) {
+PsiData * create_dataset ( PyObject * pydata, int Nafc, int *nblocks, int *allow1d=NULL ) {
 	if ( !PySequence_Check ( pydata ) )
 		throw std::string ( "data should be a sequence" );
 
@@ -18,17 +18,34 @@ PsiData * create_dataset ( PyObject * pydata, int Nafc, int *nblocks ) {
 
 	for ( int i=0; i<Nblocks; i++ ) {
 		pyblock = PySequence_GetItem ( pydata, i );
-		if ( PySequence_Size ( pyblock ) != 3 ) {
+		if ( PySequence_Check ( pyblock ) && (allow1d==NULL || *allow1d==-1) ) {
+			// The data are a sequence, we are interested in "real" data
+			if ( PySequence_Size ( pyblock ) != 3 ) {
+				char msg[50];
+				sprintf ( msg,"data in block %d do not have 3 entries", i );
+				Py_DECREF ( pyblock );
+				throw std::string ( msg );
+			}
+			pynumber = PySequence_GetItem ( pyblock, 0 );   x[i] = PyFloat_AsDouble ( pynumber );    Py_DECREF ( pynumber );
+			pynumber = PySequence_GetItem ( pyblock, 1 );   k[i] = PyInt_AsLong ( pynumber );        Py_DECREF ( pynumber );
+			pynumber = PySequence_GetItem ( pyblock, 2 );   n[i] = PyInt_AsLong ( pynumber );        Py_DECREF ( pynumber );
+			std::cerr << i << " " << x[i] << " " << k[i] << " " << n[i] << "\n";
+		} else if ( PyNumber_Check ( pyblock ) && allow1d!=NULL ) {
+			// The data are just a number, we are interested in the intensity only
+			std::cerr << "Using just intensities\n";
+			pynumber = PyNumber_Float(pyblock);
+			*allow1d = 1;
+			x[i] = PyFloat_AsDouble ( pynumber );
+			Py_DECREF ( pynumber );
+			k[i] = 0;
+			n[i] = 0;
+		} else {
 			char msg[50];
-			sprintf ( msg,"data in block %d do not have 3 entries", i );
+			sprintf ( msg, "data in block %d are strange, I don't know what to do with them", i );
 			Py_DECREF ( pyblock );
 			throw std::string ( msg );
 		}
-		pynumber = PySequence_GetItem ( pyblock, 0 );   x[i] = PyFloat_AsDouble ( pynumber );    Py_DECREF ( pynumber );
-		pynumber = PySequence_GetItem ( pyblock, 1 );   k[i] = PyInt_AsLong ( pynumber );        Py_DECREF ( pynumber );
-		pynumber = PySequence_GetItem ( pyblock, 2 );   n[i] = PyInt_AsLong ( pynumber );        Py_DECREF ( pynumber );
 		Py_DECREF ( pyblock );
-		std::cerr << i << " " << x[i] << " " << k[i] << " " << n[i] << "\n";
 	}
 
 	return new PsiData ( x, n, k, Nafc );
