@@ -121,6 +121,85 @@ static char psimcmc_doc [] =
 "1.6920641469955848\n"
 "\n";
 
+static char psimapestimate_doc [] =
+"mapestimate ( data, nafc=2, sigmoid='logistic', core='ab', priors=None )\n"
+"\n"
+"MAP or constrained maximum likelihood estimation for a psychometric function\n"
+"\n"
+":Parameters:\n"
+"  data       an array or a list with three columns, the first of which contains stimulus intensity, the second\n"
+"             contains the number of correct responses (in nAFC) or the number of 'Yes' responses (in Yes/No),\n"
+"             the third column contains the number of trials.\n"
+"  nafc       number of response alternatives in an nAFC task. For Yes/No tasks, nafc should be 1\n"
+"  sigmoid    type of the sigmoid to be fitted. Valid choices are:\n"
+"                'logistic'\n"
+"                'gauss'\n"
+"                'gumbel_l'\n"
+"                'gumbel_r'\n"
+"  core       term inside the sigmoid. Valid choices are:\n"
+"                'ab'       (x-a)/b\n"
+"                'mw%g'     midpoint and width\n"
+"                'linear'   a+bx\n"
+"                'log'      a+b log(x)\n"
+"  priors     constraints to be imposed on the fitting procedure. This should be a list of strings indicating\n"
+"             the imposed constraints. Valid choices are:\n"
+"                'Uniform(%g,%g)'     Uniform prior on interval\n"
+"                'Gauss(%g,%g)'       Gaussian with mean and standard deviation\n"
+"                'Beta(%g,%g)'        Beta distribution\n"
+"                'Gamma(%g,%g)'       Gamma distribution\n"
+"             If an invalid prior is selected, no constraints are imposed on that parameter, resulting in\n"
+"             an improper prior distribution.\n"
+"\n"
+":Output:\n"
+"  estimate,deviance\n"
+"  estimate  a nparameters array of estimated parameters\n"
+"  deviance  the deviance associated with the estimated parameters\n"
+"\n"
+":Example:\n"
+">>> x = [float(2*k) for k in xrange(6)]\n"
+">>> k = [34,32,40,48,50,48]\n"
+">>> n = [50]*6\n"
+">>> d = [[xx,kk,nn] for xx,kk,nn in zip(x,k,n)]\n"
+"priors = ('flat','flat','Uniform(0,0.1)')\n"
+">>> estimate,deviance = mapestimate ( d, priors=priors )\n"
+">>> estimate\n"
+"array([2.751768597693296, 1.4572372412562276, 0.015556356934318862], 'd')\n"
+">>> deviance\n"
+"8.071331367479198\n";
+
+
+static char psidiagnostics_doc [] =
+"diagnostics ( data, params, nafc=2, sigmoid='logistics', core='ab' )\n"
+"\n"
+"Some diagnostic statistics for a psychometric function fit\n"
+"\n"
+":Parameters:\n"
+"  data     a list of lists or an array containing stimulus intensity in the first column, number of\n"
+"           correct responses (for nAFC) or number of Yes-responses (for Yes/No) in the second column,\n"
+"           and total number of trials in the third column.\n"
+"  nafc     number of response alternatives in nAFC tasks. For Yes/No tasks, this should be 1.\n"
+"  sigmoid  type of the sigmoid that was used for fitting. Valid choices are:\n"
+"             'logistic'\n"
+"             'gauss'\n"
+"             'gumbel_l'\n"
+"             'gumbel_r'\n"
+"  core     term inside the sigmoid, i.e. in most cases the parameterization of the sigmoid. Valid\n"
+"           choices are:\n"
+"              'ab'      (x-a)/b\n"
+"              'mw%g'    midpoint and width\n"
+"              'linear'  a+bx\n"
+"              'log'     a+b log(x)\n"
+"\n"
+":Output:\n"
+"  predicted,devianceresiduals,deviance,Rpd,Rkd\n"
+"  predicted          predicted values associated with the respective stimulus intensities\n"
+"  devianceresiduals  deviance residuals of the data\n"
+"  deviance           deviance of the data\n"
+"  Rpd                correlation between predicted performance and deviance residuals\n"
+"  Rkd                correlation between block index and deviance residuals\n"
+"\n"
+":Example:\n";
+
 static PyObject * psibootstrap ( PyObject * self, PyObject * args, PyObject * kwargs ) {
 	int i,j;
 	int Nsamples ( 2000 );             // Number of bootstrap samples
@@ -341,9 +420,142 @@ static PyObject * psimcmc ( PyObject * self, PyObject * args, PyObject * kwargs 
 	return pynumber;
 }
 
+static PyObject * psimapestimate ( PyObject * self, PyObject * args, PyObject * kwargs ) {
+	int Nafc ( 2 );                    // Number of response alternatives
+	PyObject *pydata;                  // python object holding the data
+	char *sigmoidname = "logistic";    // name of the sigmoid
+	char *corename    = "ab";          // name of the parameterization
+	PyObject *pypriors (Py_None);      // prior specs
+
+	PyObject * pyout;
+	int i, Nparams, Nblocks;
+	PsiData * data;
+	PsiPsychometric * pmf;
+	PsiCore * core;
+	PsiSigmoid * sigmoid;
+
+	static char *kwlist[] = {
+		"data",
+		"nafc",
+		"sigmoid",
+		"core",
+		"priors",
+		NULL };
+	if ( !PyArg_ParseTupleAndKeywords ( args, kwargs, "O|issO",
+				kwlist,
+				&pydata,&Nafc,&sigmoidname,&corename,&pypriors ) )
+		return NULL;
+
+	try {
+		data = create_dataset ( pydata, Nafc, &Nblocks );       // prepare data
+		sigmoid = getsigmoid ( sigmoidname );                   // prepare sigmoid
+		core = getcore ( corename, sigmoid->getcode(), data );  // prepare core object
+	} catch (std::string message) {
+		PyErr_Format ( PyExc_ValueError, message.c_str() );
+		return NULL;
+	}
+
+	pmf = new PsiPsychometric ( Nafc, core, sigmoid );
+	Nparams = pmf->getNparams ();
+
+	try {
+		setpriors ( pypriors, pmf );
+	} catch ( std::string msg ) {
+		PyErr_Format ( PyExc_ValueError, msg.c_str() );
+		return NULL;
+	}
+
+	std::vector<double> *estimate = new std::vector<double> (Nparams);
+	PsiOptimizer * opt = new PsiOptimizer ( pmf, data );
+	*estimate = opt->optimize ( pmf, data );
+	delete opt;
+
+	PyArrayObject *pyestimate;
+	pyestimate = (PyArrayObject*) PyArray_FromDims ( 1, &Nparams, PyArray_DOUBLE );
+	for (i=0; i<Nparams; i++)
+		((double*)pyestimate->data)[i] = (*estimate)[i];
+
+	pyout = Py_BuildValue ( "Od", pyestimate, pmf->deviance ( *estimate, data ) );
+
+	delete estimate;
+	delete data;
+	delete pmf;
+	Py_DECREF ( pyestimate );
+
+	return pyout;
+}
+
+static PyObject * psidiagnostics ( PyObject * self, PyObject * args, PyObject * kwargs ) {
+	int Nafc ( 2 );                    // Number of response alternatives
+	PyObject *pyparams;                // estimated parameters
+	PyObject *pydata;                  // python object holding the data
+	char *sigmoidname = "logistic";    // name of the sigmoid
+	char *corename    = "ab";          // name of the parameterization
+
+	PyObject * pyout;
+	int i, Nparams, Nblocks;
+	PsiData * data;
+	PsiPsychometric * pmf;
+	PsiCore * core;
+	PsiSigmoid * sigmoid;
+	std::vector<double> *params;
+	std::vector<double> *devianceresiduals;
+
+	static char *kwlist[] = {
+		"data",
+		"params",
+		"nafc",
+		"sigmoid",
+		"core",
+		NULL };
+	if ( !PyArg_ParseTupleAndKeywords ( args, kwargs, "OO|iss",
+				kwlist,
+				&pydata,&pyparams,&Nafc,&sigmoidname,&corename ) )
+		return NULL;
+
+	try {
+		data = create_dataset ( pydata, Nafc, &Nblocks );       // prepare data
+		sigmoid = getsigmoid ( sigmoidname );                   // prepare sigmoid
+		core = getcore ( corename, sigmoid->getcode(), data );  // prepare core object
+	} catch (std::string message) {
+		PyErr_Format ( PyExc_ValueError, message.c_str() );
+		return NULL;
+	}
+
+	pmf = new PsiPsychometric ( Nafc, core, sigmoid );
+	Nparams = pmf->getNparams ();
+
+	params = getparams ( pyparams, Nparams );
+	devianceresiduals = new std::vector<double> (pmf->getDevianceResiduals ( *params, data ) );
+
+	PyArrayObject *pydevianceresiduals;
+	PyArrayObject *pypredicted;
+	pydevianceresiduals = (PyArrayObject*) PyArray_FromDims ( 1, &Nblocks, PyArray_DOUBLE );
+	pypredicted = (PyArrayObject*) PyArray_FromDims ( 1, &Nblocks, PyArray_DOUBLE );
+	for (i=0; i<Nblocks; i++) {
+		((double*)pydevianceresiduals->data)[i] = (*devianceresiduals)[i];
+		((double*)pypredicted->data)[i] = pmf->evaluate ( data->getIntensity ( i ), *params );
+	}
+
+	pyout = Py_BuildValue ( "OOddd", pypredicted, pydevianceresiduals, pmf->deviance ( *params, data ),
+			pmf->getRpd ( *devianceresiduals, *params, data ),
+			pmf->getRkd ( *devianceresiduals ) );
+
+	delete data;
+	delete pmf;
+	delete params;
+	delete devianceresiduals;
+	Py_DECREF ( pydevianceresiduals );
+	Py_DECREF ( pypredicted );
+
+	return pyout;
+}
+
 static PyMethodDef psipy_methods[] = {
 	{"bootstrap", (PyCFunction) psibootstrap, METH_VARARGS | METH_KEYWORDS, psibootstrap_doc },
 	{"mcmc", (PyCFunction) psimcmc, METH_VARARGS | METH_KEYWORDS, psimcmc_doc },
+	{"mapestimate", (PyCFunction) psimapestimate, METH_VARARGS | METH_KEYWORDS, psimapestimate_doc },
+	{"diagnostics", (PyCFunction) psidiagnostics, METH_VARARGS | METH_KEYWORDS, psidiagnostics_doc },
 	{NULL,NULL}
 };
 
