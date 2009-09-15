@@ -495,7 +495,8 @@ static PyObject * psidiagnostics ( PyObject * self, PyObject * args, PyObject * 
 	char *corename    = "ab";          // name of the parameterization
 
 	PyObject * pyout;
-	int i, intensityonly(-1), Nparams, Nblocks;
+	int intensityonly(-1);    // This variable is a bit tricky: if it remains -1, we have "real" data, if it becomes 1, we only have intensities and can safe some steps
+	int i, Nparams, Nblocks;
 	PsiData * data;
 	PsiPsychometric * pmf;
 	PsiCore * core;

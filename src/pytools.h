@@ -30,11 +30,10 @@ PsiData * create_dataset ( PyObject * pydata, int Nafc, int *nblocks, int *allow
 			pynumber = PySequence_GetItem ( pyblock, 1 );   k[i] = PyInt_AsLong ( pynumber );        Py_DECREF ( pynumber );
 			pynumber = PySequence_GetItem ( pyblock, 2 );   n[i] = PyInt_AsLong ( pynumber );        Py_DECREF ( pynumber );
 			std::cerr << i << " " << x[i] << " " << k[i] << " " << n[i] << "\n";
-		} else if ( PyNumber_Check ( pyblock ) && allow1d!=NULL ) {
+		} else if ( PyNumber_Check ( pyblock ) && allow1d!=NULL ) {     // We can only get to the intensity stuff, if allow1d is not NULL
 			// The data are just a number, we are interested in the intensity only
-			std::cerr << "Using just intensities\n";
 			pynumber = PyNumber_Float(pyblock);
-			*allow1d = 1;
+			*allow1d = 1;                          // From now on only intensities alone are allowed
 			x[i] = PyFloat_AsDouble ( pynumber );
 			Py_DECREF ( pynumber );
 			k[i] = 0;
