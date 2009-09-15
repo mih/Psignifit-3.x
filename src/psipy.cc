@@ -38,7 +38,7 @@ static char psibootstrap_doc [] =
 "            if an invalid prior is selected, no constraints are imposed at all.\n"
 "\n"
 ":Output:\n"
-"  samples,estimates,deviance,threshold,bias,acceleration\n"
+"  samples,estimates,deviance,threshold,bias,acceleration,Rkd,Rpd,outliers,influential\n"
 "\n"
 "  samples   a nsamplesXnblocks array of the bootstrap sampled data\n"
 "  estimates a nsamplesXnparameters array of estimated parameters associated with the data sets\n"
@@ -46,6 +46,10 @@ static char psibootstrap_doc [] =
 "  threshold a nsamples array of thresholds\n"
 "  bias      a ncuts array of the bias term associated with the threshold\n"
 "  acc       a ncuts array of the acceleration constant associated with the threshold\n"
+"  Rkd       a nsamples array of correlations between block index and deviance residuals\n"
+"  Rpd       a nsamples array of correlations between model prediction and deviance residuals\n"
+"  outliers  a nblocks array indicating points that are outliers\n"
+"  influential a nblocks array indicating points that are influential observations\n"
 "\n"
 "\n"
 ":Example:\n"
@@ -54,10 +58,10 @@ static char psibootstrap_doc [] =
 ">>> n = [50]*6\n"
 ">>> d = [[xx,kk,nn] for xx,kk,nn in zip(x,k,n)]\n"
 ">>> priors = ('flat','flat','Uniform(0,0.1)')\n"
-">>> samples,estimates,deviance,thresholds,bias,acceleration = bootstrap(d,nsamples=2000,priors=priors)\n"
-">>> mean(estimates[:,0])\n"
+">>> samples,est,D,thres,bias,acc,Rkd,Rpd,out,influ = bootstrap(d,nsamples=2000,priors=priors)\n"
+">>> mean(est[:,0])\n"
 "2.7762481672120902\n"
-">>> mean(estimates[:,1])\n"
+">>> mean(est[:,1])\n"
 "1.4243919674602623\n"
 "\n";
 
@@ -282,6 +286,10 @@ static PyObject * psibootstrap ( PyObject * self, PyObject * args, PyObject * kw
 	PyArrayObject *pyestimates;
 	PyArrayObject *pydeviance;
 	PyArrayObject *pythres;
+	PyArrayObject *pyRpd;
+	PyArrayObject *pyRkd;
+	PyArrayObject *pyoutliers;
+	PyArrayObject *pyinfluential;
 	std::vector<int> k (Nblocks);
 	int samplesdim[2]   = {Nsamples, Nblocks};
 	int estimatesdim[2] = {Nsamples, Nparams};
@@ -289,6 +297,10 @@ static PyObject * psibootstrap ( PyObject * self, PyObject * args, PyObject * kw
 	pyestimates = (PyArrayObject*) PyArray_FromDims ( 2, estimatesdim, PyArray_DOUBLE );
 	pydeviance  = (PyArrayObject*) PyArray_FromDims ( 1, &Nsamples, PyArray_DOUBLE );
 	pythres     = (PyArrayObject*) PyArray_FromDims ( 1, &Nsamples, PyArray_DOUBLE );
+	pyRpd       = (PyArrayObject*) PyArray_FromDims ( 1, &Nsamples, PyArray_DOUBLE );
+	pyRkd       = (PyArrayObject*) PyArray_FromDims ( 1, &Nsamples, PyArray_DOUBLE );
+	pyoutliers  = (PyArrayObject*) PyArray_FromDims ( 1, &Nblocks,  PyArray_INT );
+	pyinfluential = (PyArrayObject*) PyArray_FromDims ( 1, &Nblocks,  PyArray_INT );
 	for ( i=0; i<Nsamples; i++ ) {
 		k = boots.getData ( i );
 		for ( j=0; j<Nblocks; j++ ) {
@@ -299,7 +311,21 @@ static PyObject * psibootstrap ( PyObject * self, PyObject * args, PyObject * kw
 		}
 		((double*)pydeviance->data)[i] = boots.getdeviance ( i );
 		((double*)pythres->data)[i]    = boots.getThres_byPos ( i, 0 );
+		((double*)pyRpd->data)[i]      = boots.getRpd(i);
+		((double*)pyRkd->data)[i]      = boots.getRkd(i);
 	}
+	std::vector<double> *ci_lower = new std::vector<double> ( Nparams );
+	std::vector<double> *ci_upper = new std::vector<double> ( Nparams );
+	for ( i=0; i<Nparams; i++ ) {
+		(*ci_lower)[i] = boots.getPercentile(0.025,i);
+		(*ci_upper)[i] = boots.getPercentile(0.975,i);
+	}
+	for ( i=0; i<Nblocks; i++ ) {
+		((bool*)pyoutliers->data)[i]   = jack.outlier ( i );
+		((bool*)pyinfluential->data)[i]= jack.influential ( i, *ci_lower, *ci_upper );
+	}
+	delete ci_lower;
+	delete ci_upper;
 
 	// BCa
 	double bias (boots.getBias(0)), acceleration (boots.getAcc(0));
@@ -307,11 +333,15 @@ static PyObject * psibootstrap ( PyObject * self, PyObject * args, PyObject * kw
 	/************************************************************
 	 * Return
 	 */
-	pynumber = Py_BuildValue ( "(OOOOdd)", pysamples, pyestimates, pydeviance, pythres, bias, acceleration );
+	pynumber = Py_BuildValue ( "(OOOOddOOOO)", pysamples, pyestimates, pydeviance, pythres, bias, acceleration, pyRpd, pyRkd, pyoutliers, pyinfluential );
 	Py_DECREF ( pysamples );
 	Py_DECREF ( pyestimates );
 	Py_DECREF ( pydeviance );
 	Py_DECREF ( pythres );
+	Py_DECREF ( pyRpd );
+	Py_DECREF ( pyRkd );
+	Py_DECREF ( pyoutliers );
+	Py_DECREF ( pyinfluential );
 
 	delete data;
 	delete pmf;    // also deletes core and sigmoid
