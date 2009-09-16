@@ -1,4 +1,5 @@
 - high level python interface
+- MCMC: Use fisher matrix as covariance matrix for the proposal distribution
 - nonparametric bootstrap
 - Implement alternative SimplexAlgorithm (Numerical Recipes?, gsl-Wrapper-Object?)
 - beta binomial models
