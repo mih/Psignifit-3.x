@@ -3,9 +3,11 @@
 import numpy as N
 import pylab as p
 import _psipy
+import psigniplot as pp
 
 class PsiInference ( object ):
     def __init__ ( self ):
+        """This is just a dummy function"""
         self.data = None
         self.model = {
                 "sigmoid":  "logistic",
@@ -18,11 +20,26 @@ class PsiInference ( object ):
         self.devianceresiduals = None
         self.Rpd               = None
         self.Rkd               = None
-        self.outl              = None
-        self.infl              = None
+        self.__outl              = None
+        self.__infl              = None
 
-    def pmfanddata ( self, ax=None, xlabel_text="Stimulus intensity" ):
-        """Show the psychometric function and data in an axes system"""
+    def pmfanddata ( self, ax=None, xlabel_text="Stimulus intensity", ylabel_text=None ):
+        """Show the psychometric function and data in an axes system
+
+        This function plots the best fitting psychometric function and with the
+        corresponding data points. If data points are labelled influential, they
+        are plotted as red squares, if data points are labelled as outliers, they
+        are plotted as red triangles.
+        The function uses its internal knowledge about the task (nAFC or Yes/No)
+        to put the correct labels to the y-axis.
+
+        :Parameters:
+            ax          axes object in which the plot should go
+            xlabel_text label for the x-axis
+            ylabel_text label for the y-axis, if this is None, the functions
+                        determines the correct label from its internal knowledge
+                        about the task
+        """
         if ax==None:
             ax = p.axes()
 
@@ -48,37 +65,47 @@ class PsiInference ( object ):
         # Check axes limits
         if self.model["nafc"]>1:
             ymin,ymax = 1./self.model["nafc"]-.05,1.05
-            ylabel_text = "P(correct)"
+            if ylabel_text is None:
+                ylabel_text = "P(correct)"
         else:
             ymin,ymax = -.05,1.05
-            ylabel_text = "P(Yes)"
-        lenx = xmax-xmin
+            if ylabel_text is None:
+                ylabel_text = "P(Yes)"
+
+        # Determine tics
         p.setp(ax,frame_on=False,ylim=(ymin,ymax))
         xtics = p.getp(ax,'xticks')
-        ytics = p.getp(ax,'yticks')
+        ytics = p.getp(ax,'yticks').tolist()
+        # Clean up ytics
+        if self.model["nafc"]==1:
+            for k,yt in enumerate(ytics):
+                if yt<0 or yt>1:
+                    ytics.pop(k)
+        else:
+            for k,yt in enumerate(ytics):
+                if yt<(1./self.model["nafc"]) or yt>1:
+                    ytics.pop(k)
+        ytics = N.array(ytics)
 
-        # xaxis
-        ax.plot([xmin,xmax],[ymin+.01]*2,'k-',[xmin-.04*lenx]*2,[ymin+.05,1],'k-',linewidth=1)
-        for xt in xtics:
-            ax.plot([xt]*2,[ymin+.01,ymin+.02],'k-')
-            ax.text(xt,ymin,"%2.1f" % (xt,), verticalalignment="top",horizontalalignment="center")
-        ax.text(0.5*(xmin+xmax),ymin-.1,xlabel_text,fontsize=16,horizontalalignment="center")
+        pp.drawaxes ( ax, xtics, "%g", ytics, "%g", xlabel_text, ylabel_text )
 
-        # yaxis
-        for yt in ytics:
-            if (yt>=ymin and yt <= 1):
-                ax.plot([xmin-.04*lenx,xmin-.03*lenx],[yt]*2,'k-')
-                ax.text(xmin-.05*lenx,yt,"%2.2f" % (yt,), verticalalignment="center",horizontalalignment="right")
-        ax.text(xmin-.28*lenx,0.5*(ymin+ymax),ylabel_text,fontsize=16,verticalalignment="center",rotation=90)
-
+        # Write some model information
         if not self.deviance is None:
             ax.text(0.5*(xmin+xmax),ymin+.05,"D=%g" % ( self.deviance, ) )
         ax.text ( 0.5*(xmin+xmax),ymin+.1,self.desc )
 
-        p.setp(ax,xlim=(xmin-0.35*lenx,xmax+0.05*lenx),ylim=(ymin-.2,ymax),xticks=(),yticks=())
-
     def plotRd ( self, ax=None, regressor="p" ):
-        """plot deviance residuals agains model prediction"""
+        """plot deviance residuals against a regressor
+
+        Deviance residuals are used plotted agains either predicted performance or
+        block index to check for systematic deviations of the data from the fitted
+        function.
+
+        :Parameters:
+            ax          an axes object where the plot should go
+            regressor   plot deviance residuals against model prediction (p) or
+                        against block index (k)
+        """
         if ax==None:
             ax = p.axes()
 
@@ -105,12 +132,14 @@ class PsiInference ( object ):
                 p.setp(ax,xlim=(1./self.model["nafc"],1))
         xtics = p.getp(ax,"xticks").tolist()
         if regressor=="p":
+            # In this case predictions larger than 1 and less than 0 are impossible
             for k,xt in enumerate(xtics):
-                if xtics[k]>1.:
+                if xtics[k]>1. or xtics[k]<0.:
                     xtics.pop(k)
         xtics = N.array(xtics)
         ytics = p.getp(ax,"yticks")
 
+        # Generate the respective labels
         if regressor=="p":
             ax.text(psilims.mean(),ytics[-2],"Rpd=%.3f" % ( self.Rpd, ) )
             xname = "model prediction"
@@ -118,29 +147,12 @@ class PsiInference ( object ):
             ax.text(psilims.mean(),ytics[-2],"Rkd=%.3f" % ( self.Rkd, ) )
             xname = "block index"
 
-        # x-axis
-        yt = ytics.min()
-        yr = ytics.max()-yt
-        ax.plot([xtics[0],xtics[-1]],[yt-0.04*yr]*2,'k-')
-        for xt in xtics:
-            ax.plot([xt]*2,[yt-0.04*yr,yt-0.03*yr],'k-')
-            ax.text(xt,yt-.05*yr,"%g" % (xt,), verticalalignment="top",horizontalalignment="center")
-        ax.text(xtics.mean(),yt-.25*yr,xname,fontsize=16,horizontalalignment="center")
+        pp.drawaxes ( ax, xtics, "%g", ytics, "%g", xname, "deviance residuals" )
 
-        # y-axis
-        xt = xtics.min()
-        xr = xtics.max()-xt
-        ax.plot([xt-0.04*xr]*2,[ytics[0],ytics[-1]],'k-')
-        for yt in ytics:
-            ax.plot([xt-0.04*xr,xt-0.03*xr],[yt]*2,'k-')
-            ax.text(xt-.05*xr,yt,"%.2f" % (yt,), verticalalignment="center",horizontalalignment="right")
-        ax.text(xt-.3*xr,ytics.mean(),"deviance residuals",verticalalignment="center",fontsize=16,rotation=90)
-
-        # Delete the uninteresting stuff
-        p.setp(ax,frame_on=False,xticks=(),yticks=())
-        p.setp(ax,xlim=(xtics.min()-0.4*xr,xtics.max()+0.04*xr),ylim=(ytics.min()-0.4*yr,ytics.max()+0.1*yr))
-
-    desc = property ( fget=lambda self: "sigmoid: %(sigmoid)s\ncore: %(core)s\nnAFC: %(nafc)d" % self.model )
+    desc = property ( fget=lambda self: "sigmoid: %(sigmoid)s\ncore: %(core)s\nnAFC: %(nafc)d" % self.model,
+            doc="A short description of the employed model")
+    outl = property ( fget=lambda self: self.__outl, doc="A boolean array indicating whether or not a block was an outlier" )
+    infl = property ( fget=lambda self: self.__infl, doc="A boolean array indicating whether or not a block was an influential observation" )
 
 class BootstrapInference ( PsiInference ):
     def __init__ ( self, data, sample=False, **kwargs ):
@@ -177,6 +189,10 @@ class BootstrapInference ( PsiInference ):
             nafc    number of response alternatives. If nafc==1, this indicates a Yes/No
                     task
         """
+        # Call the base constructor
+        PsiInference.__init__(self,data)
+
+        # Store basic data
         self.data = data
         self.model = {
                 "sigmoid": kwargs.setdefault("sigmoid","logistic"),
@@ -184,6 +200,8 @@ class BootstrapInference ( PsiInference ):
                 "priors":  kwargs.setdefault("priors", None),
                 "nafc":    kwargs.setdefault("nafc",    2)
                 }
+
+        # Store point estimates
         self.estimate,self.deviance = _psipy.mapestimate(self.data,**self.model)
         self.predicted,self.devianceresiduals,self.deviance,self.Rpd,self.Rkd = _psipy.diagnostics(self.data,self.estimate)
 
@@ -204,6 +222,7 @@ class BootstrapInference ( PsiInference ):
         self.__th_bias   = None
         self.__th_acc    = None
 
+        # If we want direct sampling this is done here
         if sample:
             if isinstance(sample,bool):
                 self.sample ()
@@ -221,16 +240,38 @@ class BootstrapInference ( PsiInference ):
         """
         self.__bdata,self.__bestimate,self.__bdeviance,self.__bthres,self.__th_bias,self.__th_acc,\
                 self.__bRkd,self.__bRpd,self.__outl,self.__infl = _psipy.bootstrap(self.data,self.estimate,Nsamples,**self.model)
-        self.__outl = N.array(self.__outl,dtype=bool)
-        self.__infl = N.array(self.__infl,dtype=bool)
+
+        # Cast sampled data to numpy arrays
+        self.__bdata = N.array(self.__bdata)
+        self.__bestimate = N.array(self.__bestimate)
+        self.__bdeviance = N.array(self.__bdeviance)
+        self.__bthres    = N.array(self.__bthres)
+        self.__th_bias   = N.array(self.__th_bias)
+        self.__th_acc    = N.array(self.__th_acc)
+        self.__bRkd      = N.array(self.__bRkd)
+        self.__bRpd      = N.array(self.__bRpd)
+        self.__outl  = N.array(self.__outl,dtype=bool)
+        self.__infl  = N.array(self.__infl,dtype=bool)
 
     def plothistogram ( self, simdata, observed, xname, ax=None ):
-        """plot a histogram and compare observed data to it"""
+        """plot a histogram and compare observed data to it
+
+        :Parameters:
+            simdata     an array of monte-carlo samples of the parameter of interest
+            observed    observed value of the parameter of interest
+            xname       name of the paramter of interest
+            ax          axes object defining the area where the plot should go
+
+        :Output:
+            returns a boolean value indicating whether or not the Null-Hypothesis that
+                observed was drawn from the same distribution as simdata is true
+        """
         if ax is None:
             ax = p.axes()
 
         if xname[0] == "R":
             ax.hist ( simdata, bins=N.arange(-1,1,.1) )
+            p.setp(ax,xlim=(-1,1))
         else:
             ax.hist ( simdata, bins=20 )
 
@@ -238,37 +279,54 @@ class BootstrapInference ( PsiInference ):
         ytics = p.getp(ax,"yticks")
         p25,p975 = p.prctile ( simdata, (2.5,97.5) )
 
-        yr = ytics.max()-ytics.min()
         xr = xtics.max()-xtics.min()
         yy = [ytics.min(),ytics.max()+0.02*xr]
         ax.plot ( [observed]*2, yy, 'r', linewidth=2 )
         ax.plot ( [p25]*2, yy, 'r:', [p975]*2, yy, 'r:' )
 
-        # y axes
-        xt = xtics.min()
-        ax.plot ( [xt-.02*xr]*2, [ytics.min(),ytics.max()], 'k-' )
-        for yt in ytics:
-            ax.plot ( [xt-.02*xr,xt-.01*xr], [yt]*2, 'k-' )
-            ax.text ( xt-.03*xr,yt, "%d" % (yt,), verticalalignment="center", horizontalalignment="right" )
-        ax.text ( xt-.25*xr, ytics.mean(), "number per bin", fontsize=16, verticalalignment="center", rotation=90 )
-
-        # x axes
-        yt = xtics.min()
-        ax.plot ( [xtics.min(),xtics.max()], [yt-.04*yr]*2, 'k-' )
-        for xt in xtics:
-            ax.plot ( [xt]*2, [yt-.04*yr,yt-.03*yr], 'k-' )
-            ax.text ( xt, yt-.05*yr, "%.1f" % (xt,), verticalalignment="top", horizontalalignment="center" )
-        ax.text ( xtics.mean(), yt-.2*yr, xname, fontsize=16, horizontalalignment="center" )
+        pp.drawaxes ( ax, xtics, "%g", ytics, "%d", xname, "number per bin" )
 
         # Write diagnostics
         yt = ytics.max()
         ax.text ( xtics.min(), yt+.1, "%s=%.3f, c(2.5%%)=%.3f, c(97.5%%)=%.3f" % (xname,observed,p25,p975), horizontalalignment="left",verticalalignment="bottom", fontsize=8 )
 
-        p.setp ( ax, frame_on=False, xticks=(), yticks=() )
-        p.setp ( ax, xlim=(xtics.min()-.3*xr,xtics.max()+.01*xr), ylim=(ytics.min()-.3*yr,ytics.max()+.01*yr) )
+        if observed>p25 and observed<p975:
+            return True
+        else:
+            return False
 
     def diagnostics ( self ):
-        """Make a diagnostic plot"""
+        """Make a diagnostic plot
+
+        This plots a figure that resembles the diagnostic plot of the old psignifit matlab interface.
+        The figure has the following form:
+
+            +-----+-----+-----+
+            |  1  |  2  |  3  |
+            +-----+-----+-----+
+            |  4  |  5  |  6  |
+            +-----+-----+-----+
+
+        At position 1, the psychometric function is shown with the fitted data. Influential observations
+            are marked as red squares, outliers as red triangles.
+        At position 2, the deviance residuals are plotted against model predictions. The best fitting
+            straigt line is shown in addition. This plot should not show any obvious trends.
+        At position 3, the deviance residuals are plotted against block index. The best fitting
+            straigt line is shown in addition. This plot should not show any obvious trends. Trends
+            in this plot might indicate perceptual learning (which is interesting in itself but
+            makes the statistics ambiguous).
+        At position 4, a histogram of deviances for an observer that perfectly agrees with the model fit
+            in 1 is shown. In addition, the observed deviance is shown as a solid red line and the
+            2.5% and 97.5% percentile are drawn as dotted red lines. If the observed deviance is outside
+            the interval marked by the two dotted red lines, this indicates a bad fit.
+        At position 5 and 6, histograms of the correlations between deviance residuals and model
+            prediction (5) or block index (6) are shown for the assumption of an observer that perfectly
+            agrees with the model fit in 1. The observed correlation (from positions 2 or 3) is drawn
+            as a solid red line and the 2.5% and 97.5% percentile are marked by dotted red lines.
+            If the observed correlation is outside the interval marked by the two dotted red lines, this
+            indicates that the data systematically deviate from the model. In this case, the model
+            does not capture all the structure in the data.
+        """
         p.figure(figsize=(10,8))
         self.pmfanddata ( p.axes([0,.5,.33,.5] ) )
         self.plothistogram ( self.bdeviance, self.deviance, "deviance", p.axes([0,0,.33,.5]) )
@@ -277,24 +335,22 @@ class BootstrapInference ( PsiInference ):
         self.plotRd ( p.axes([.66,.5,.33,.5]), "k" )
         self.plothistogram ( self.bRkd, self.Rkd, "Rkd", p.axes([.66,0,.33,.5]) )
 
-    outl = property ( fget=lambda self: self.__outl )
-    infl = property ( fget=lambda self: self.__infl )
-    bdeviance = property ( fget=lambda self: self.__bdeviance )
-    bRpd = property ( fget=lambda self: self.__bRpd )
-    bRkd = property ( fget=lambda self: self.__bRkd )
+    outl = property ( fget=lambda self: self.__outl, doc="A boolean vector indicating whether a block should be considered an outlier" )
+    infl = property ( fget=lambda self: self.__infl, doc="A boolean vector indicating whether a block should be considered an influential observation" )
+    bdeviance = property ( fget=lambda self: self.__bdeviance, doc="A vector of bootstrapped deviances" )
+    bRpd = property ( fget=lambda self: self.__bRpd, doc="A vector of correlations between model prections and deviance residuals in all bootstrap samples" )
+    bRkd = property ( fget=lambda self: self.__bRkd, doc="A vector of correlations between block index and deviance residuals in all bootstrap samples" )
 
 def main ( ):
-    x = [3]+[float(2*k) for k in xrange(6)]
-    k = [25,34,32,40,48,50,48]
-    n = [50]*7
+    "If we call the file directly, we perform a test run"
+    x = [float(2*k) for k in xrange(6)]
+    k = [34,32,40,48,50,48]
+    n = [50]*6
     d = [[xx,kk,nn] for xx,kk,nn in zip(x,k,n)]
     d = N.array(zip(x,k,n))
     priors = ("flat","flat","Uniform(0,0.1)")
     b = BootstrapInference ( d, sample=2000, priors=priors )
 
-    # b.pmfanddata()
-    # b.plotRd (regressor="k")
-    # b.plothistogram ( b.bdeviance, b.deviance, "deviance" )
     b.diagnostics()
 
     p.show()
