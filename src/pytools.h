@@ -29,7 +29,7 @@ PsiData * create_dataset ( PyObject * pydata, int Nafc, int *nblocks, int *allow
 			pynumber = PySequence_GetItem ( pyblock, 0 );   x[i] = PyFloat_AsDouble ( pynumber );    Py_DECREF ( pynumber );
 			pynumber = PySequence_GetItem ( pyblock, 1 );   k[i] = PyInt_AsLong ( pynumber );        Py_DECREF ( pynumber );
 			pynumber = PySequence_GetItem ( pyblock, 2 );   n[i] = PyInt_AsLong ( pynumber );        Py_DECREF ( pynumber );
-			std::cerr << i << " " << x[i] << " " << k[i] << " " << n[i] << "\n";
+			// std::cerr << i << " " << x[i] << " " << k[i] << " " << n[i] << "\n";
 		} else if ( PyNumber_Check ( pyblock ) && allow1d!=NULL ) {     // We can only get to the intensity stuff, if allow1d is not NULL
 			// The data are just a number, we are interested in the intensity only
 			pynumber = PyNumber_Float(pyblock);
@@ -52,16 +52,16 @@ PsiData * create_dataset ( PyObject * pydata, int Nafc, int *nblocks, int *allow
 
 PsiSigmoid * getsigmoid ( const char * sigmoidname ) {
 	if ( !strcmp(sigmoidname,"logistic") ) {
-		std::cerr << "Using logistic sigmoid\n";
+		// std::cerr << "Using logistic sigmoid\n";
 		return new PsiLogistic;
 	} else if ( !strcmp(sigmoidname,"gauss") ) {
-		std::cerr << "Using gaussian cdf sigmoid\n";
+		// std::cerr << "Using gaussian cdf sigmoid\n";
 		return new PsiGauss;
 	} else if ( !strcmp(sigmoidname,"gumbel_l") || !strcmp(sigmoidname,"lgumbel") ) {
-		std::cerr << "Using gumbelL sigmoid\n";
+		// std::cerr << "Using gumbelL sigmoid\n";
 		return new PsiGumbelL;
 	} else if ( !strcmp(sigmoidname,"gumbel_r") || !strcmp(sigmoidname,"rgumbel") ) {
-		std::cerr << "Using gumbelR sigmoid\n";
+		// std::cerr << "Using gumbelR sigmoid\n";
 		return new PsiGumbelR;
 	} else {
 		throw std::string ( "invalid sigmoid type" );
@@ -70,20 +70,20 @@ PsiSigmoid * getsigmoid ( const char * sigmoidname ) {
 
 PsiCore * getcore ( const char * corename, int sigmoidcode, const PsiData * data ) {
 	if ( !strcmp(corename,"ab") ) {
-		std::cerr << "Using core ab\n";
+		// std::cerr << "Using core ab\n";
 		return new abCore;
 	} else if ( !strncmp(corename,"mw",2) ) {
 		double alpha;
-		std::cerr << corename << "\n";
+		// std::cerr << corename << "\n";
 		if ( sscanf ( corename, "mw%lf", &alpha )==0 )
 			alpha = 0.1;
-		std::cerr << "Using core mw with parameter " << alpha << "\n";
+		// std::cerr << "Using core mw with parameter " << alpha << "\n";
 		return new mwCore ( sigmoidcode, alpha );
 	} else if ( !strcmp(corename,"linear") ) {
-		std::cerr << "Using linear core\n";
+		// std::cerr << "Using linear core\n";
 		return new linearCore;
 	} else if ( !strcmp(corename,"log") || !strcmp(corename,"logarithmic") ) {
-		std::cerr << "Using logarithmic core\n";
+		// std::cerr << "Using logarithmic core\n";
 		return new logCore ( data );
 	} else {
 		throw std::string ( "invalid core type" );
@@ -103,21 +103,21 @@ void setpriors ( PyObject * pypriors, PsiPsychometric * pmf ) {
 			if ( !strncmp ( PyString_AsString(singleprior), "Uniform", 7 ) ) {
 				sscanf ( PyString_AsString(singleprior), "Uniform(%lf,%lf)", priorpars,priorpars+1 );
 				pmf->setPrior ( i, new UniformPrior ( priorpars[0], priorpars[1] ) );
-				std::cerr << "Using Uniform Prior with params " << priorpars[0] << " " << priorpars[1] << " for parameter " << i << "\n";
+				// std::cerr << "Using Uniform Prior with params " << priorpars[0] << " " << priorpars[1] << " for parameter " << i << "\n";
 			} else if ( !strncmp ( PyString_AsString(singleprior), "Gauss", 5 ) ) {
 				sscanf ( PyString_AsString(singleprior), "Gauss(%lf,%lf)", priorpars,priorpars+1 );
 				pmf->setPrior ( i, new GaussPrior ( priorpars[0], priorpars[1] ) );
-				std::cerr << "Using Gauss Prior with params " << priorpars[0] << " " << priorpars[1] << " for parameter " << i << "\n";
+				// std::cerr << "Using Gauss Prior with params " << priorpars[0] << " " << priorpars[1] << " for parameter " << i << "\n";
 			} else if ( !strncmp ( PyString_AsString(singleprior), "Beta", 4 ) ) {
 				sscanf ( PyString_AsString(singleprior), "Beta(%lf,%lf)", priorpars,priorpars+1 );
 				pmf->setPrior ( i, new BetaPrior ( priorpars[0], priorpars[1] ) );
-				std::cerr << "Using Beta Prior with params " << priorpars[0] << " " << priorpars[1] << " for parameter " << i << "\n";
+				// std::cerr << "Using Beta Prior with params " << priorpars[0] << " " << priorpars[1] << " for parameter " << i << "\n";
 			} else if ( !strncmp ( PyString_AsString(singleprior), "Gamma", 6 ) ) {
 				sscanf ( PyString_AsString(singleprior), "Gamma(%lf,%lf)", priorpars,priorpars+1 );
 				pmf->setPrior ( i, new GammaPrior ( priorpars[0], priorpars[1] ) );
-				std::cerr << "Using Gamma Prior with params " << priorpars[0] << " " << priorpars[1] << " for parameter " << i << "\n";
+				// std::cerr << "Using Gamma Prior with params " << priorpars[0] << " " << priorpars[1] << " for parameter " << i << "\n";
 			} else {
-				std::cerr << "Imposing no constraints on parameter " << i << "\n";
+				// std::cerr << "Imposing no constraints on parameter " << i << "\n";
 			}
 			Py_DECREF ( singleprior );
 		}
@@ -131,7 +131,7 @@ void setstepwidths ( PyObject * pysteps, MetropolisHastings * S ) {
 	PyObject * singlestep;
 
 	if ( pysteps == Py_None ) {
-		std::cerr << "Warning: stepwidths were not touched! This might lead to bad convergence of the markov chains.\n";
+		// std::cerr << "Warning: stepwidths were not touched! This might lead to bad convergence of the markov chains.\n";
 	} else if ( PySequence_Check ( pysteps ) ) {
 		for ( i=0; i<Nparams; i++ ) {
 			singlestep = PySequence_GetItem ( pysteps, i );
