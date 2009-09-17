@@ -693,6 +693,9 @@ class BayesInference ( PsiInference ):
 
 def main ( ):
     "If we call the file directly, we perform a test run"
+
+    bootstrap = False
+
     x = [float(2*k) for k in xrange(6)]
     k = [34,32,40,48,50,48]
     n = [50]*6
@@ -700,24 +703,18 @@ def main ( ):
     d = N.array(zip(x,k,n))
     priors = ("flat","flat","Uniform(0,0.1)")
 
-    # b = BootstrapInference ( d, sample=2000, priors=priors )
-    # b.diagnostics()
-
-    priors = ("Gauss(0,100)","Gamma(1,3)","Beta(2,100)")
-    mcmc = BayesInference ( d, priors=priors )
-    mcmc.thin = 10
-    mcmc.burnin = 200
-    mcmc.sample(start=(6,4,.3))
-    mcmc.sample(start=(1,1,.1))
-    # for k in xrange(mcmc.nchains):
-    #     samples = mcmc.getsamples(k)
-    #     print samples.shape
-
-    #     p.plot(samples[:,0])
-
-    # mcmc.drawposteriorexamples(Nsamples=50)
-    mcmc.gof()
-    print mcmc.getPI()
+    if bootstrap:
+        b = BootstrapInference ( d, sample=2000, priors=priors )
+        b.diagnostics()
+    else:
+        priors = ("Gauss(0,100)","Gamma(1,3)","Beta(2,100)")
+        mcmc = BayesInference ( d, priors=priors )
+        mcmc.thin = 10
+        mcmc.burnin = 200
+        mcmc.sample(start=(6,4,.3))
+        mcmc.sample(start=(1,1,.1))
+        mcmc.gof()
+        print mcmc.getPI()
 
     p.show()
 
