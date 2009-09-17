@@ -161,4 +161,30 @@ std::vector<double> *getparams ( PyObject * pyparams, int Nparams ) {
 
 	return out;
 }
+
+std::vector<double> *getcuts ( PyObject * pycuts ) {
+}
+
+std::vector<double> *getcuts ( PyObject * pycuts, int * Ncuts ) {
+	if ( pycuts == Py_None ) {
+		*Ncuts = 1;
+		return new std::vector<double> (1,.5);
+	} else if ( PySequence_Check ( pycuts ) ) {
+		int i,len ( PySequence_Size ( pycuts ) );
+		*Ncuts = len;
+		std::vector<double>* out = new std::vector<double> (len);
+		PyObject *pynumber;
+		for ( i=0; i<len; i++ ) {
+			pynumber = PySequence_GetItem ( pycuts, i );
+			(*out)[i] = PyFloat_AsDouble ( pynumber );
+			Py_DECREF ( pynumber );
+		}
+		return out;
+	} else if ( PyNumber_Check ( pycuts ) ) {
+		*Ncuts = 1;
+		return new std::vector<double> (1, PyFloat_AsDouble ( pycuts ) );
+	} else {
+		throw std::string ( "cuts should be a sequence or a single number" );
+	}
+}
 #endif

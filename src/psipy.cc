@@ -36,6 +36,9 @@ static char psibootstrap_doc [] =
 "               Beta(%g,%g)\n"
 "               Gamma(%g,%g)\n"
 "            if an invalid prior is selected, no constraints are imposed at all.\n"
+"  cuts      a single number or a sequence of 'cuts' indicating the performances that should be\n"
+"            considered 'threshold' performances. This means that in a 2AFC task, cuts==0.5 the\n"
+"            'threshold' is somewhere around 75%% correct performance, depending on the lapse rate\n"
 "\n"
 ":Output:\n"
 "  samples,estimates,deviance,threshold,bias,acceleration,Rkd,Rpd,outliers,influential\n"
@@ -227,6 +230,7 @@ static PyObject * psibootstrap ( PyObject * self, PyObject * args, PyObject * kw
 	char *sigmoidname = "logistic";    // name of the sigmoid
 	char *corename    = "ab";          // name of the parameterization
 	PyObject *pypriors (Py_None);      // prior specs
+	PyObject *pycuts (Py_None);        // specify cuts
 
 	// local variables
 	int Nblocks,Nparams;
@@ -247,10 +251,11 @@ static PyObject * psibootstrap ( PyObject * self, PyObject * args, PyObject * kw
 		"sigmoid",
 		"core",
 		"priors",
+		"cuts",
 		NULL };
-	if ( !PyArg_ParseTupleAndKeywords ( args, kwargs, "O|OiissO",
+	if ( !PyArg_ParseTupleAndKeywords ( args, kwargs, "O|OiissOO",
 				kwlist,
-				&pydata,&pystart,&Nsamples,&Nafc,&sigmoidname,&corename,&pypriors ) )
+				&pydata,&pystart,&Nsamples,&Nafc,&sigmoidname,&corename,&pypriors,&pycuts ) )
 		return NULL;
 
 	/************************************************************
@@ -267,9 +272,11 @@ static PyObject * psibootstrap ( PyObject * self, PyObject * args, PyObject * kw
 
 	pmf = new PsiPsychometric ( Nafc, core, sigmoid );
 	Nparams = pmf->getNparams ();
-	std::vector<double> cuts (1, .5);
 
+	std::vector<double> *cuts;
+	int Ncuts;
 	try {
+		cuts = getcuts ( pycuts, &Ncuts );
 		setpriors ( pypriors, pmf );
 	} catch ( std::string msg ) {
 		PyErr_Format ( PyExc_ValueError, msg.c_str() );
@@ -287,7 +294,7 @@ static PyObject * psibootstrap ( PyObject * self, PyObject * args, PyObject * kw
 		start = NULL;
 
 	// Perform the real work
-	BootstrapList boots = parametricbootstrap ( Nsamples, data, pmf, cuts, start );
+	BootstrapList boots = parametricbootstrap ( Nsamples, data, pmf, *cuts, start );
 	JackKnifeList jack  = jackknifedata       ( data, pmf );
 
 	/************************************************************
@@ -302,17 +309,22 @@ static PyObject * psibootstrap ( PyObject * self, PyObject * args, PyObject * kw
 	PyArrayObject *pyRkd;
 	PyArrayObject *pyoutliers;
 	PyArrayObject *pyinfluential;
+	PyArrayObject *pybias;
+	PyArrayObject *pyacc;
 	std::vector<int> k (Nblocks);
 	int samplesdim[2]   = {Nsamples, Nblocks};
 	int estimatesdim[2] = {Nsamples, Nparams};
+	int thresdim[2]     = {Nsamples, Ncuts};
 	pysamples   = (PyArrayObject*) PyArray_FromDims ( 2, samplesdim, PyArray_INT );
 	pyestimates = (PyArrayObject*) PyArray_FromDims ( 2, estimatesdim, PyArray_DOUBLE );
 	pydeviance  = (PyArrayObject*) PyArray_FromDims ( 1, &Nsamples, PyArray_DOUBLE );
-	pythres     = (PyArrayObject*) PyArray_FromDims ( 1, &Nsamples, PyArray_DOUBLE );
+	pythres     = (PyArrayObject*) PyArray_FromDims ( 2, thresdim, PyArray_DOUBLE );
 	pyRpd       = (PyArrayObject*) PyArray_FromDims ( 1, &Nsamples, PyArray_DOUBLE );
 	pyRkd       = (PyArrayObject*) PyArray_FromDims ( 1, &Nsamples, PyArray_DOUBLE );
 	pyoutliers  = (PyArrayObject*) PyArray_FromDims ( 1, &Nblocks,  PyArray_INT );
 	pyinfluential = (PyArrayObject*) PyArray_FromDims ( 1, &Nblocks,  PyArray_INT );
+	pybias      = (PyArrayObject*) PyArray_FromDims ( 1, &Ncuts, PyArray_DOUBLE );
+	pyacc       = (PyArrayObject*) PyArray_FromDims ( 1, &Ncuts, PyArray_DOUBLE );
 	for ( i=0; i<Nsamples; i++ ) {
 		k = boots.getData ( i );
 		for ( j=0; j<Nblocks; j++ ) {
@@ -322,7 +334,8 @@ static PyObject * psibootstrap ( PyObject * self, PyObject * args, PyObject * kw
 			((double*)pyestimates->data)[i*Nparams+j] = boots.getEst ( i, j );
 		}
 		((double*)pydeviance->data)[i] = boots.getdeviance ( i );
-		((double*)pythres->data)[i]    = boots.getThres_byPos ( i, 0 );
+		for ( j=0; j<Ncuts; j++ )
+			((double*)pythres->data)[i*Ncuts+j]    = boots.getThres_byPos ( i, j );
 		((double*)pyRpd->data)[i]      = boots.getRpd(i);
 		((double*)pyRkd->data)[i]      = boots.getRkd(i);
 	}
@@ -340,12 +353,15 @@ static PyObject * psibootstrap ( PyObject * self, PyObject * args, PyObject * kw
 	delete ci_upper;
 
 	// BCa
-	double bias (boots.getBias(0)), acceleration (boots.getAcc(0));
+	for ( i=0; i<Ncuts; i++ ) {
+		((double*)pybias->data)[i] = boots.getBias(i);
+		((double*)pyacc->data)[i]  = boots.getAcc(i);
+	}
 
 	/************************************************************
 	 * Return
 	 */
-	pynumber = Py_BuildValue ( "(OOOOddOOOO)", pysamples, pyestimates, pydeviance, pythres, bias, acceleration, pyRpd, pyRkd, pyoutliers, pyinfluential );
+	pynumber = Py_BuildValue ( "(OOOOOOOOOO)", pysamples, pyestimates, pydeviance, pythres, pybias, pyacc, pyRpd, pyRkd, pyoutliers, pyinfluential );
 	Py_DECREF ( pysamples );
 	Py_DECREF ( pyestimates );
 	Py_DECREF ( pydeviance );
