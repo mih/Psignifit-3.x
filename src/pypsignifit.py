@@ -191,7 +191,7 @@ class BootstrapInference ( PsiInference ):
                     task
         """
         # Call the base constructor
-        PsiInference.__init__(self,data)
+        PsiInference.__init__(self)
 
         # Store basic data
         self.data = data
