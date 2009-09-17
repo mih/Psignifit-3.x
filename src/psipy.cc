@@ -438,6 +438,7 @@ static PyObject * psimcmc ( PyObject * self, PyObject * args, PyObject * kwargs 
 		}
 	} else {
 		// If we have no explicit starting value, we start with the MAP estimate
+		std::cerr << "No starting value for chain specified -- using MAP estimate\n";
 		PsiOptimizer * opt = new PsiOptimizer ( pmf, data );
 		*start = opt->optimize ( pmf, data );
 		delete opt;
@@ -563,6 +564,7 @@ static PyObject * psidiagnostics ( PyObject * self, PyObject * args, PyObject * 
 	PyObject *pydata;                  // python object holding the data
 	char *sigmoidname = "logistic";    // name of the sigmoid
 	char *corename    = "ab";          // name of the parameterization
+	PyObject *pycuts (Py_None);         // cuts
 
 	PyObject * pyout;
 	int intensityonly(-1);    // This variable is a bit tricky: if it remains -1, we have "real" data, if it becomes 1, we only have intensities and can safe some steps
@@ -580,10 +582,11 @@ static PyObject * psidiagnostics ( PyObject * self, PyObject * args, PyObject * 
 		"nafc",
 		"sigmoid",
 		"core",
+		"cuts",
 		NULL };
-	if ( !PyArg_ParseTupleAndKeywords ( args, kwargs, "OO|iss",
+	if ( !PyArg_ParseTupleAndKeywords ( args, kwargs, "OO|issO",
 				kwlist,
-				&pydata,&pyparams,&Nafc,&sigmoidname,&corename ) )
+				&pydata,&pyparams,&Nafc,&sigmoidname,&corename,&pycuts ) )
 		return NULL;
 
 	try {
@@ -598,23 +601,37 @@ static PyObject * psidiagnostics ( PyObject * self, PyObject * args, PyObject * 
 	pmf = new PsiPsychometric ( Nafc, core, sigmoid );
 	Nparams = pmf->getNparams ();
 
+	std::vector<double> *cuts = NULL;
+	int Ncuts (0);
+	try {
+		cuts = getcuts ( pycuts, &Ncuts );
+	} catch (std::string message) {
+		PyErr_Format ( PyExc_ValueError, message.c_str() );
+		return NULL;
+	}
+
 	params = getparams ( pyparams, Nparams );
 	if ( intensityonly==-1)
 		devianceresiduals = new std::vector<double> (pmf->getDevianceResiduals ( *params, data ) );
 
 	PyArrayObject *pydevianceresiduals;
 	PyArrayObject *pypredicted;
+	PyArrayObject *pythres;
 	if ( intensityonly==-1 )
 		pydevianceresiduals = (PyArrayObject*) PyArray_FromDims ( 1, &Nblocks, PyArray_DOUBLE );
 	pypredicted = (PyArrayObject*) PyArray_FromDims ( 1, &Nblocks, PyArray_DOUBLE );
+	pythres     = (PyArrayObject*) PyArray_FromDims ( 1, &Ncuts,   PyArray_DOUBLE );
 	for (i=0; i<Nblocks; i++) {
 		if ( intensityonly==-1 )
 			((double*)pydevianceresiduals->data)[i] = (*devianceresiduals)[i];
 		((double*)pypredicted->data)[i] = pmf->evaluate ( data->getIntensity ( i ), *params );
 	}
+	for (i=0; i<Ncuts; i++) {
+		((double*)pythres->data)[i] = pmf->getThres ( *params, (*cuts)[i] );
+	}
 
 	if ( intensityonly==-1 )
-		pyout = Py_BuildValue ( "(OOddd)", pypredicted, pydevianceresiduals, pmf->deviance ( *params, data ),
+		pyout = Py_BuildValue ( "(OOdOdd)", pypredicted, pydevianceresiduals, pmf->deviance ( *params, data ), pythres,
 				pmf->getRpd ( *devianceresiduals, *params, data ),
 				pmf->getRkd ( *devianceresiduals ) );
 	else
