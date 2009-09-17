@@ -1,7 +1,7 @@
 - high level python interface
 - MCMC: Use fisher matrix as covariance matrix for the proposal distribution
 - nonparametric bootstrap
-- Implement alternative SimplexAlgorithm (Numerical Recipes?, gsl-Wrapper-Object?)
+- Implement alternative SimplexAlgorithm (Numerical Recipes?, gsl-Wrapper-Object?) The current one depends heavily on the initial simplex!
 - beta binomial models
 - BCa confidence limits for slope (and widths?)
 - Sensitivity analysis
