@@ -486,6 +486,7 @@ static PyObject * psimapestimate ( PyObject * self, PyObject * args, PyObject * 
 	char *sigmoidname = "logistic";    // name of the sigmoid
 	char *corename    = "ab";          // name of the parameterization
 	PyObject *pypriors (Py_None);      // prior specs
+	PyObject *pycuts (Py_None);        // cuts
 
 	PyObject * pyout;
 	int i, Nparams, Nblocks;
@@ -500,10 +501,11 @@ static PyObject * psimapestimate ( PyObject * self, PyObject * args, PyObject * 
 		"sigmoid",
 		"core",
 		"priors",
+		"cuts",
 		NULL };
-	if ( !PyArg_ParseTupleAndKeywords ( args, kwargs, "O|issO",
+	if ( !PyArg_ParseTupleAndKeywords ( args, kwargs, "O|issOO",
 				kwlist,
-				&pydata,&Nafc,&sigmoidname,&corename,&pypriors ) )
+				&pydata,&Nafc,&sigmoidname,&corename,&pypriors,&pycuts ) )
 		return NULL;
 
 	try {
@@ -518,7 +520,10 @@ static PyObject * psimapestimate ( PyObject * self, PyObject * args, PyObject * 
 	pmf = new PsiPsychometric ( Nafc, core, sigmoid );
 	Nparams = pmf->getNparams ();
 
+	int Ncuts;
+	std::vector<double> *cuts;
 	try {
+		cuts = getcuts ( pycuts, &Ncuts );
 		setpriors ( pypriors, pmf );
 	} catch ( std::string msg ) {
 		PyErr_Format ( PyExc_ValueError, msg.c_str() );
@@ -531,16 +536,23 @@ static PyObject * psimapestimate ( PyObject * self, PyObject * args, PyObject * 
 	delete opt;
 
 	PyArrayObject *pyestimate;
+	PyArrayObject *pythres;
 	pyestimate = (PyArrayObject*) PyArray_FromDims ( 1, &Nparams, PyArray_DOUBLE );
+	pythres    = (PyArrayObject*) PyArray_FromDims ( 1, &Ncuts, PyArray_DOUBLE );
 	for (i=0; i<Nparams; i++)
 		((double*)pyestimate->data)[i] = (*estimate)[i];
 
-	pyout = Py_BuildValue ( "Od", pyestimate, pmf->deviance ( *estimate, data ) );
+	for (i=0; i<Ncuts; i++)
+		((double*)pythres->data)[i] = pmf->getThres ( *estimate, (*cuts)[i] );
+
+	pyout = Py_BuildValue ( "OOd", pyestimate, pythres, pmf->deviance ( *estimate, data ) );
 
 	delete estimate;
 	delete data;
 	delete pmf;
+	delete cuts;
 	Py_DECREF ( pyestimate );
+	Py_DECREF ( pythres );
 
 	return pyout;
 }

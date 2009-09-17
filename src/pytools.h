@@ -162,9 +162,6 @@ std::vector<double> *getparams ( PyObject * pyparams, int Nparams ) {
 	return out;
 }
 
-std::vector<double> *getcuts ( PyObject * pycuts ) {
-}
-
 std::vector<double> *getcuts ( PyObject * pycuts, int * Ncuts ) {
 	if ( pycuts == Py_None ) {
 		*Ncuts = 1;
