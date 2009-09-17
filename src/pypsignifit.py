@@ -2,6 +2,7 @@
 
 import numpy as N
 import pylab as p
+from scipy import stats
 import _psipy
 import psigniplot as pp
 
@@ -155,7 +156,7 @@ class PsiInference ( object ):
     infl = property ( fget=lambda self: self.__infl, doc="A boolean array indicating whether or not a block was an influential observation" )
 
 class BootstrapInference ( PsiInference ):
-    def __init__ ( self, data, sample=False, **kwargs ):
+    def __init__ ( self, data, sample=False, cuts=(.25,.5,.75), conf=(.025,.975), **kwargs ):
         """Set up an object of bootstrapped data
 
         :Parameters:
@@ -201,8 +202,14 @@ class BootstrapInference ( PsiInference ):
                 "nafc":    kwargs.setdefault("nafc",    2)
                 }
 
+        self.cuts = cuts
+        if conf=="v1.0":
+            self.conf = (0.023, 0.159, 0.841, 0.977)
+        else:
+            self.conf = conf
+
         # Store point estimates
-        self.estimate,self.deviance = _psipy.mapestimate(self.data,**self.model)
+        self.estimate,self.thres,self.deviance = _psipy.mapestimate(self.data,cuts=self.cuts,**self.model)
         self.predicted,self.devianceresiduals,self.deviance,self.Rpd,self.Rkd = _psipy.diagnostics(self.data,self.estimate)
 
         # The _psipy arrays are not numpy arrays
@@ -239,7 +246,7 @@ class BootstrapInference ( PsiInference ):
             Nsamples    number of bootstrapsamples to be drawn
         """
         self.__bdata,self.__bestimate,self.__bdeviance,self.__bthres,self.__th_bias,self.__th_acc,\
-                self.__bRkd,self.__bRpd,self.__outl,self.__infl = _psipy.bootstrap(self.data,self.estimate,Nsamples,**self.model)
+                self.__bRkd,self.__bRpd,self.__outl,self.__infl = _psipy.bootstrap(self.data,self.estimate,Nsamples,cuts=self.cuts,**self.model)
 
         # Cast sampled data to numpy arrays
         self.__bdata = N.array(self.__bdata)
@@ -295,6 +302,35 @@ class BootstrapInference ( PsiInference ):
         else:
             return False
 
+    def drawthreshold ( self, ax, cut ):
+        """draw the threshold into an axes system
+
+        :Parameters:
+            ax      axes system in which to draw
+            cut     index(!) of the cut of interest
+        """
+        cc = self.getCI(cut)
+
+        ylev =_psipy.diagnostics ( [self.thres[cut]], self.estimate, sigmoid=self.model["sigmoid"], core=self.model["core"], nafc=self.model["nafc"] )
+
+        ax.plot ( cc, [ylev]*len(cc), 'b-|' )
+        ax.plot ( [self.thres[cut]], [ylev], 'b|' )
+
+    def getCI ( self, cut ):
+        """Determine the confidence interval of a cut
+
+        :Parameters:
+            cut     index(!) of the cut of interest
+        """
+        bias = self.__th_bias[cut]
+        acc  = self.__th_bias[cut]
+
+        vals = []
+        for pp in self.conf:
+            vals.append(stats.norm.cdf( bias + ( stats.norm.ppf(pp) + bias ) / (1-acc*(stats.norm.ppf(pp) + bias )) ))
+
+        return p.prctile ( self.__bthres[:,cut], 100*N.array(vals) )
+
     def diagnostics ( self ):
         """Make a diagnostic plot
 
@@ -329,6 +365,8 @@ class BootstrapInference ( PsiInference ):
         """
         p.figure(figsize=(10,8))
         self.pmfanddata ( p.axes([0,.5,.33,.5] ) )
+        for k in xrange(len(self.cuts)):
+            self.drawthreshold ( p.gca(), k )
         self.plothistogram ( self.bdeviance, self.deviance, "deviance", p.axes([0,0,.33,.5]) )
         self.plotRd ( p.axes([.33,.5,.33,.5]), "p" )
         self.plothistogram ( self.bRpd, self.Rpd, "Rpd", p.axes([.33,0,.33,.5]) )
