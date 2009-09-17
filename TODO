@@ -1,6 +1,8 @@
 - high level python interface:
     - Convergence diagnostics for MCMC
     - posterior intervals and posterior histograms for model parameters
+- mid level python interface:
+    - document that diagnostics returns thresholds
 - MCMC: Use fisher matrix as covariance matrix for the proposal distribution
 - nonparametric bootstrap
 - Implement alternative SimplexAlgorithm (Numerical Recipes?, gsl-Wrapper-Object?) The current one depends heavily on the initial simplex!
