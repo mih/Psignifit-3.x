@@ -501,6 +501,13 @@ class BayesInference ( PsiInference ):
                 return self.mapestimate
         return self.__meanestimate
 
+    def getdeviance ( self ):
+        """Get the deviance"""
+        if self.__meandeviance is None:
+            return self.mapdeviance
+        else:
+            return self.__meandeviance
+
     def __recomputeCorrelationsAndThresholds ( self ):
         samples = self.getsamples()
         self.__pRpd = N.zeros(samples.shape[0],'d')
@@ -675,7 +682,8 @@ class BayesInference ( PsiInference ):
 
 
     nchains = property ( fget=lambda self: len(self.__mcmc_chains), doc="Number of chains that have been sampled" )
-    estimate = property ( fget=getestimate, fset=lambda self,v: v, doc="Determine the mean estimate of the parameters" )
+    estimate = property ( fget=getestimate, fset=lambda self,v: v, doc="Determine the estimate of the parameters" )
+    deviance = property ( fget=getdeviance, fset=lambda self,v: v, doc="Deviance of the estimate" )
     burnin  = property ( fget=lambda self: self.__burnin, fset=set_burnin, doc="Burnin: Number of samples to be discarded at the beginning of each chain" )
     thin    = property ( fget=lambda self: self.__thin,   fset=set_thin,   doc="Thinning: Subsample chains to reduce autocorrelation" )
     pRpd    = property ( fget=getpRpd, doc="Determine posterior correlation of model predictions and data" )
