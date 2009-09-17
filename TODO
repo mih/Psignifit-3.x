@@ -1,3 +1,4 @@
+- Check when we need #include <numpy/arrayobject.h> and when #include <Numeric/arrayobject.h>
 - high level python interface:
     - Convergence diagnostics for MCMC
 - MCMC: Use fisher matrix as covariance matrix for the proposal distribution
