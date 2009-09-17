@@ -189,6 +189,13 @@ class BootstrapInference ( PsiInference ):
                     'a','b','m','w','guess','gamma','lapse','lambda' as keys.
             nafc    number of response alternatives. If nafc==1, this indicates a Yes/No
                     task
+            cuts    performance values that should be considered 'thresholds'. This means that a
+                    'cut' of 0.5 corresponds to an expected performance of roughly 75%% correct in
+                    a 2AFC task.
+            conf    limits of confidence intervals. The default gives 95%% confidence intervals.
+                    Any other sequence can be used alternatively. In addition, conf can be 'v1.0'
+                    to give the default values of the classical psignifit version (i.e. .023,.159,.841,.977,
+                    corresponding to -2,-1,1,2 standard deviations for a gaussian).
         """
         # Call the base constructor
         PsiInference.__init__(self)
