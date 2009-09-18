@@ -1,3 +1,4 @@
+- Check when we need #include <numpy/arrayobject.h> and when #include <Numeric/arrayobject.h>
 - high level python interface:
     - Convergence diagnostics for MCMC
     - posterior intervals and posterior histograms for model parameters
