@@ -489,36 +489,69 @@ class BayesInference ( PsiInference ):
             self.sample ()
 
     def sample ( self, Nsamples=10000, start=None ):
-        """Draw samples from the posterior distribution using MCMC"""
+        """Draw samples from the posterior distribution using MCMC
+
+        :Parameters:
+            Nsamples    number of samples that should be drawn from the posterior
+            start       starting value of the chain. If this is None, the chain starts
+                        at the MAP estimate. However, if you sample multiple chains, you
+                        might want to start from different (overdispersed) starting values
+                        to diagnose convergence
+        """
         if start is None:
             start = self.mapestimate
-        # TODO: stepwidths are not good so far
+        # TODO: stepwidths are not good for all situations
+        # TODO: it would be better to have the sampler itself set the stepwidths based on asymptotic properties of the mapestimate
         stepwidths = (0.4,4,1e-2)
         chain,deviance = _psipy.mcmc ( self.data, start, Nsamples, stepwidths=stepwidths, **self.model )
         # print N.cov(N.array(chain[self.burnin::self.thin]).T)
         self.__mcmc_chains.append(N.array(chain))
         self.__mcmc_deviances.append(N.array(deviance))
 
+    ############################################
+    # Setters and getters
     def getsamples ( self, chain=None ):
-        """Get the chain at index"""
+        """Get sampes from the posterior
+
+        :Parameters:
+            chain   if chain is None, samples are aggregated over all chains
+                    sampled so far. If chain is an integer only data from the
+                    chain indexed by this number are returned
+
+        :Output:
+            an array of nsamplesXnparams samples from the posterior
+        """
         if chain==None:
             # Get all chains
             chains = []
             for chain in self.__mcmc_chains:
                 chains.append ( chain[self.burnin::self.thin] )
             return N.concatenate ( chains, 0 )
-        else:
+        elif isinstance (chain,int):
+            # Get a single chain
             return self.__mcmc_chains[chain][self.burnin::self.thin]
+        else:
+            raise IndexError, "chain should be either None or an integer"
 
     def getestimate ( self ):
-        """Get the mean estimate"""
+        """Get a parameter estimate
+
+        If data have already been sampled, the meanestimate is returned. If
+        no samples from the posterior have been sampled yet, the mapestimate
+        is returned. After sampling has occurred, the mapestimate can always
+        be obtained from the attribute 'mapestimate'
+        """
         if self.__meanestimate is None:
+            # We don't have a mean estimate
             if len(self.__mcmc_chains) > 0:
+                # But we have samples!
                 self.__meanestimate = self.getsamples().mean(0)
                 self.devianceresiduals,self.__meandeviance,self.thres,self.Rpd,self.Rkd = _psipy.diagnostics ( \
                         self.data, self.__meanestimate, cuts=self.cuts, nafc=self.model["nafc"], sigmoid=self.model["sigmoid"], core=self.model["core"] )[1:]
             else:
+                # We have no samples ~> return mapestimate
                 return self.mapestimate
+        # In this case, we seem to have a meanestimate, so we return it
         return self.__meanestimate
 
     def getdeviance ( self ):
@@ -528,68 +561,104 @@ class BayesInference ( PsiInference ):
         else:
             return self.__meandeviance
 
-    def __recomputeCorrelationsAndThresholds ( self ):
-        samples = self.getsamples()
-        self.__pRpd = N.zeros(samples.shape[0],'d')
-        self.__pRkd = N.zeros(samples.shape[0],'d')
-        self.__pthres = N.zeros((samples.shape[0],self.Ncuts),'d')
-        for k,theta in enumerate(samples):
-            self.__pthres[k,:],self.__pRpd[k],self.__pRkd[k] = _psipy.diagnostics (\
-                    self.data, theta, cuts=self.cuts, nafc=self.model["nafc"], sigmoid=self.model["sigmoid"], core=self.model["core"] )[3:]
-
     def getpRpd ( self ):
-        """Get posterior distribution of correlation between model prediction and deviance residuals"""
+        """Get samples from the posterior distribution of correlation between model prediction and deviance residuals"""
         if self.__pRpd is None:
+            # pRpd is currently undefined
             if len(self.__mcmc_chains) > 0:
+                # We have samples ~> recompute the correlations
                 self.__recomputeCorrelationsAndThresholds()
             else:
-                raise Exception
+                raise NosamplesError, "Samples from the posterior have not yet been drawn"
         return self.__pRpd
 
     def getpRkd ( self ):
-        """Get posterior distribution of correlation between block index and deviance residuals"""
+        """Get samples from the posterior distribution of correlation between block index and deviance residuals"""
         if self.__pRkd is None:
+            # pRkd is currently undefined
             if len(self.__mcmc_chains) > 0:
+                # We have samples ~> recompute the correlations
                 self.__recomputeCorrelationsAndThresholds()
             else:
-                raise Exception
+                raise NosamplesError, "Samples from the posterior have not yet been drawn"
         return self.__pRkd
 
     def getpthres ( self ):
-        """Get posterior distribution of thresholds"""
+        """Get samples of the posterior distribution of thresholds"""
         if self.__pthres is None:
+            # pthres is currently undefined
             if len(self.__mcmc_chains) > 0:
+                # We have samples ~> recompute the thresholds
                 self.__recomputeCorrelationsAndThresholds()
             else:
-                raise Exception
+                raise NosamplesError, "Samples from the posterior have not yet been drawn"
         return self.__pthres
 
     def getpdeviance ( self, chain=None ):
-        """Get the chain at index"""
+        """Get samples from the posterior distribution of deviances
+
+        :Parameters:
+            chain   if chain is None, the samples are combined across all chains
+                    sampled so far. If chain is an integer, it is interpreted as
+                    the index of the chain to be returned
+
+        :Output:
+            an array of samples from the posterior distribution of deviances. This
+            array respects the burnin and thin settings.
+        """
         if chain==None:
             # Get all chains
             chains = []
             for chain in self.__mcmc_deviances:
                 chains.append ( chain[self.burnin::self.thin] )
             return N.concatenate ( chains, 0 )
-        else:
+        elif isinstance ( chain, int ):
             return self.__mcmc_deviances[chain][self.burnin::self.thin]
+        else:
+            raise ValueError, "chain should be either None or an integer"
 
     def set_burnin ( self, b ):
-        """Set the burnin"""
+        """Set the burnin
+
+        :Parameters:
+            b   new burnin value, i.e. number of samples that are discarded at
+                the beginning of each chain
+        """
         self.__burnin = b
+        # Set all values that depend on burnin to None. This way, they are
+        # recomputed on access
         self.__meanestimate = None
         self.__meandeviance = None
         self.__pRpd = None
         self.__pRkd = None
+        self.__pthres = None
 
     def set_thin ( self, t ):
+        """Set the thinning factor
+
+        :Parameters:
+            t   new thinning factor, i.e. number of samples that are skipped between
+                two samples to reduce autocorrelation of the samples
+        """
         self.__thin = t
+        # Set all values that depend on thin to None. This way, they are recomputed
+        # on access
         self.__meanestimate = None
         self.__meandeviance = None
+        self.__pRpd = None
+        self.__pRkd = None
+        self.__pthres = None
 
-    def getPI ( self, param="thres", conf=(.025,0.5,.975) ):
-        if param=="thres":
+    def getPI ( self, conf=(.025,0.5,.975), param="thres" ):
+        """Get a posterior interval for a particular parameter
+
+        :Parameters:
+            conf    percentiles that should be returned
+            param   parameter of interest. Currently, only thres/threshold
+                    and Rkd,Rpd,deviance are defined.
+        """
+        if param[:5]=="thres":
+            # We have to handle thresholds separately because there could be multiple cuts.
             pthres = self.pthres
             out = []
             for k in xrange(self.Ncuts):
@@ -603,10 +672,20 @@ class BayesInference ( PsiInference ):
             elif param=="deviance":
                 vals = self.pdeviance
             else:
-                raise Exception
+                raise NotImplementedError
             return p.prctile ( vals, 100*N.array(conf) )
 
+    ############################################
+    # Plotting routines
     def drawposteriorexamples ( self, ax=None, Nsamples=20 ):
+        """plots the mean estimate of the psychometric function and a number of samples from the posterior
+
+        :Parameters:
+            ax      axes object in which to draw the plot. If this is None,
+                    a new axes object is created.
+            Nsamples number of psychometric functions that should be drawn
+                    from the posterior
+        """
         if ax is None:
             ax = p.axes()
 
@@ -615,92 +694,81 @@ class BayesInference ( PsiInference ):
         xmax = self.data[:,0].max()
         x = N.mgrid[xmin:xmax:100j]
 
+        # Now we sample Nsamples psychometric functions from all the chains we have
+        samples = self.getsamples()
         for k in xrange(Nsamples):
-            chain = N.random.randint ( 0, len(self.__mcmc_chains) )
-            sample = N.random.randint ( 0, self.__mcmc_chains[chain].shape[0] )
-            psi = N.array(_psipy.diagnostics ( x, self.__mcmc_chains[chain][sample,:], sigmoid=self.model["sigmoid"], core=self.model["core"], nafc=self.model["nafc"] ))
+            psi = N.array(_psipy.diagnostics ( x, samples[N.random.randint(samples.shape[0]),:], sigmoid=self.model["sigmoid"], core=self.model["core"], nafc=self.model["nafc"] ))
             ax.plot(x,psi,color=[.6,.6,1])
 
+        # We further visualize the posterior distribution py plotting some posterior intervals
         for k,cut in enumerate(self.cuts):
-            c25,c975 = self.getPI ( conf=(.025,.975))[k]
+            c25,c975 = self.getPI ( conf=(.025,.975) )[k]
             thres = float(_psipy.diagnostics ( self.data, self.estimate, cuts=cut, nafc=self.model["nafc"], sigmoid=self.model["sigmoid"], core=self.model["core"] )[3])
             ylev  = _psipy.diagnostics ( [thres],   self.estimate, cuts=cut, nafc=self.model["nafc"], sigmoid=self.model["sigmoid"], core=self.model["core"] )
             ax.plot ( [c25,thres,c975],[ylev]*3, 'b-|' )
 
+        # This plots the 'real' psychometric function and the axes
         self.pmfanddata ( ax=ax )
 
-    def drawposteriorRd ( self, ax=None, regressor="p", Nsamples=50 ):
-        if ax is None:
-            ax = p.axes()
+    def gof ( self, warn=True ):
+        """Draw a diagnostic figure to help assessing goodness of fit
 
-        # Make shure we have everything
-        dummy = self.estimate
+        This graphic is intended to help the user determine how well the fitted function describes
+        the data. The plot has 6 fields:
 
-        for k in xrange(Nsamples):
-            chain = N.random.randint ( 0, len(self.__mcmc_chains) )
-            sample = N.random.randint ( 0, self.__mcmc_chains[chain].shape[0] )
+        +-----+-----+-----+
+        |  1  |  3  |  5  |
+        +-----+-----+-----+
+        |  2  |  4  |  6  |
+        +-----+-----+-----+
 
-            psi,devianceresiduals = _psipy.diagnostics ( self.data, self.__mcmc_chains[chain][sample,:], sigmoid=self.model["sigmoid"], core=self.model["core"], nafc=self.model["nafc"] )[:2]
-            psi = N.array(psi)
-            devianceresiduals = N.array(devianceresiduals)
-            if regressor=="p":
-                pass
-            elif regressor=="k":
-                psi = N.arange(len(self.data[:,0]))
-            else:
-                raise ValueError,"regressor %s is unknown" % regressor
-            psilims = N.array([psi.min(),psi.max()])
-            ax.plot ( psi, devianceresiduals, ".", color=(.6,.6,1) )
+        The fields provide the following information:
+        1.  The data and the fitted psychometric function. "fitted" here means the parameters are
+            the mean of the posterior. To get an idea of the posterior distribution, posterior
+            intervals are plotted at some positions (the location and width of the posterior
+            intervals is given in the constructor). To make the posterior distribution really
+            "plastic", a number of samples from the posterior distribution over psychometric
+            functions are also drawn in light blue
+        2.  A histogram to approximate the posterior distribution of deviances.
+        3.  A plot of model predictions (of the mean estimate) against deviance residuals. If
+            there is no obvious interrelation between model prediction and deviance residuals,
+            this indicates that the model describes the data reasonably well. To get an idea
+            of the interrelation between model prediction and deviance residuals, the best
+            fitting line is plotted as a dotted line.
+        4.  A histogram of samples from the posterior distribution of correlations between
+            model prediction and deviance residuals. If this distribution is clearly shifted
+            away from 0, this is strong evidence, that something is wrong with your model or
+            your data.
+        5,6 Similar to 3 and 4 but form correlations between block index and deviance residuals.
+            Correlations between block index and deviance residuals indicate nonstationary
+            data as should be found during e.g. perceptual learning.
 
-            # Linear regression
-            A = N.ones((len(psi),2),'d')
-            A[:,1] = psi
-            a,b = N.linalg.lstsq(A,devianceresiduals)[0]
-            ax.plot(psilims,a+b*psilims,':',color=(.6,.6,1))
-
-        self.plotRd ( ax=ax, regressor=regressor )
-
-    def plotposterior ( self, ax=None, param="threshold", cut=0 ):
-        if ax is None:
-            ax = p.axes()
-
-        if param=='Rkd':
-            val = self.pRkd
-            ax.hist(val,N.arange(-1,1,.1))
-        elif param=="Rpd":
-            val = self.pRpd
-            ax.hist(val,N.arange(-1,1,.1))
-        else:
-            if param=="threshold":
-                val = self.pthres[:,cut]
-            elif param=="deviance":
-                val = self.pdeviance
-            ax.hist(val,20)
-
-        if param[0]=="R":
-            p.setp(ax,xlim=(-1,1))
-
-        xtics = p.getp(ax,"xticks")
-        ytics = p.getp(ax,"yticks")
-
-        c25,c975 = self.getPI ( param=param, conf = (.025,.975) )
-        ydat = [ytics.min(),ytics.max()]
-
-        p.plot ( [c25]*2, ydat, 'r:',[c975]*2, ydat,'r:' )
-        p.plot ( [0]*2, ydat, 'r-', linewidth=2 )
-
-        pp.drawaxes (ax,xtics,"%g", ytics, "%d", param, "number per bin" )
-
-    def gof ( self ):
+        :Parameters:
+            warn    if warn is set to True, red warning messages are displayed
+                    whenever the fit does not seem to describe the data well.
+        """
         p.figure(figsize=(10,8))
+
+        # First part: Data and fitted function, bottom deviance
         self.drawposteriorexamples ( p.axes([0,.5,.33,.5] ) )
-        self.plotposterior ( p.axes([0,0,.33,.5]), "deviance" )
-        self.drawposteriorRd ( p.axes([.33,.5,.33,.5]), "p", Nsamples=0 )
-        self.plotposterior ( p.axes([.33,0,.33,.5]), "Rpd" )
-        self.drawposteriorRd ( p.axes([.66,.5,.33,.5]), "k", Nsamples=0 )
-        self.plotposterior ( p.axes([.66,0,.33,.5]), "Rkd" )
+        self.plothistogram ( self.pdeviance, self.deviance, "posterior deviance", "D", p.axes ( [0,0,.33,.5] ) )
 
+        # Second part: Correlations between model prediction and residuals
+        self.plotRd ( p.axes([.33,.5,.33,.5]), "p" )
+        good = self.plothistogram ( self.pRpd, self.Rpd, "posterior Rpd", "Rpd", p.axes([.33,0,.33,.5]) )
+        if not good and warn==True:
+            p.text ( 0, p.getp(p.gca(),'ylim').mean() , "Rpd is different from 0!\nModel deviates systematically from data", \
+                    fontsize=16, color="r", horizontalalignment="center", verticalalignment="center", rotation=45 )
 
+        # Third part: Correlations between model prediction and block index
+        self.plotRd ( p.axes([.66,.5,.33,.5]), "k" )
+        good = self.plothistogram ( self.pRkd, self.Rkd, "posterior Rkd", "Rkd", p.axes([.66,0,.33,.5]) )
+        if not good and warn==True:
+            p.text ( 0, p.getp(p.gca(),'ylim').mean(), "Rkd is different from 0!\nData are nonstationary!",\
+                    fontsize=16, color="r", horizontalalignment="center", verticalalignment="center", rotation=45 )
+
+    ############################################
+    # Properties
     nchains = property ( fget=lambda self: len(self.__mcmc_chains), doc="Number of chains that have been sampled" )
     estimate = property ( fget=getestimate, fset=lambda self,v: v, doc="Determine the estimate of the parameters" )
     deviance = property ( fget=getdeviance, fset=lambda self,v: v, doc="Deviance of the estimate" )
@@ -710,6 +778,28 @@ class BayesInference ( PsiInference ):
     pRkd    = property ( fget=getpRkd, doc="Determine posterior correlation of model predictions and data" )
     pdeviance = property ( fget=getpdeviance , doc="Deviances of the posterior samples" )
     pthres  = property ( fget=getpthres, doc="posterior distribution of thresholds" )
+
+    ############################################
+    # Private methods
+    def __recomputeCorrelationsAndThresholds ( self ):
+        """This method is called whenever the sample basis from the
+        posterior changes. This can have three reasons:
+            - burnin: the burnin is changed resulting in samples being
+                added or removed at the beginning of each chain
+            - thin: the thinning is changed resulting in samples being
+                discarded from within the chains
+            - sample: an additional chain is acquired. In this case,
+                a large number of samples is added.
+        """
+        samples = self.getsamples()
+
+        self.__pRpd = N.zeros(samples.shape[0],'d')
+        self.__pRkd = N.zeros(samples.shape[0],'d')
+        self.__pthres = N.zeros((samples.shape[0],self.Ncuts),'d')
+
+        for k,theta in enumerate(samples):
+            self.__pthres[k,:],self.__pRpd[k],self.__pRkd[k] = _psipy.diagnostics (\
+                    self.data, theta, cuts=self.cuts, nafc=self.model["nafc"], sigmoid=self.model["sigmoid"], core=self.model["core"] )[3:]
 
 def main ( ):
     "If we call the file directly, we perform a test run"
