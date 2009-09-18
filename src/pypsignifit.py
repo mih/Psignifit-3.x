@@ -6,6 +6,13 @@ from scipy import stats
 import _psipy
 import psigniplot as pp
 
+class NosamplesError ( Exception ):
+    """An exception that is raised whenever we try to use samples but there are none"""
+    def __init__ ( self, msg ):
+        self.msg = msg
+    def __str__(self):
+        return repr(self.msg)
+
 class PsiInference ( object ):
     def __init__ ( self ):
         """This is just a dummy function"""
