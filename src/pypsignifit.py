@@ -358,7 +358,7 @@ class BootstrapInference ( PsiInference ):
 
         return p.prctile ( self.__bthres[:,cut], 100*N.array(vals) )
 
-    def diagnostics ( self ):
+    def gof ( self, warn=True ):
         """Make a diagnostic plot
 
         This plots a figure that resembles the diagnostic plot of the old psignifit matlab interface.
