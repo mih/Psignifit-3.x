@@ -690,6 +690,65 @@ class BayesInference ( PsiInference ):
             p.text ( 0, p.getp(p.gca(),'ylim').mean(), "Rkd is different from 0!\nData are nonstationary!",\
                     fontsize=16, color="r", horizontalalignment="center", verticalalignment="center", rotation=45 )
 
+    def convergence ( self, warn=True ):
+        raise NotImplementedError
+
+    ############################################
+    # Convergence diagnostics
+    def geweke ( self, parameter=0, nsegments=10, ax=None ):
+        """Geweke test for stationarity of a chain."""
+        z = N.zeros ( (nsegments, self.nchains), 'd' )
+        for k in xrange ( self.nchains ):
+            samples = self.getsamples ( k ) [:,parameter]
+            w = len(samples)/nsegments
+            m = samples.mean()
+            s = samples.std()
+            for l in xrange ( nsegments ):
+                z[l,k] = (samples[l*w:(l+1)*w].mean()-m)/s
+            if not ax is None:
+                p.plot(z[:,k],'o-')
+        if not ax is None:
+            xtics = N.array(p.getp(ax,"xticks"))
+            p.setp(ax,"xticks",xtics,"yticks",N.array((-3,-2,-1,0,1,2,3)))
+            p.plot ( [xtics.min(),xtics.max()],[-2]*2,'k:')
+            p.plot ( [xtics.min(),xtics.max()],[ 2]*2,'k:')
+            pp.drawaxes ( ax, xtics, "%g", N.array((-3,-2,-1,0,1,2,3)), "%g", "chain segment", "z-score" )
+        if abs(z).max() > 2:
+            bad = []
+            for k in xrange(self.nchains):
+                if abs(z[:,k]).max() > 2:
+                    bad.append(k)
+            p.text(0.5*nsegments,0,"chains did not converge: %s" % (bad,), color="red", fontsize=16, rotation=45, verticalalignment="center", horizontalalignment="center" )
+            return False
+        else:
+            return True
+
+    def Rhat ( self, parameter=0 ):
+        """Gelman Rhat statistic for convergence using multiple chains
+
+        This is also called the 'estimated potential scale reduction'.
+        A value Rhat > 1.1 is indicative of poor convergence.
+        """
+        # See p.137 in Gilks, Richardson, Spiegelhalter (1996)
+        m = self.nchains
+        n = self.getsamples(0).shape[0]
+
+        psi_i = N.zeros(m,'d')    # within chain averages
+        si2 = N.zeros(m,'d')      # within chain variances
+
+        for chain in xrange(m):
+            psi_i[chain] = self.getsamples(chain)[:,parameter].mean()
+            si2[chain]   = sum ( (self.getsamples(chain)[:,parameter]-psi_i[chain])**2 )/(n-1)
+
+        psi_mean = psi_i.mean()
+        B = n * sum( (psi_i-psi_mean)**2 ) / (m-1)
+        W = si2.mean()
+
+        return (float(n-1)/n * W + B/n)/W;
+
+    def RafeteryLewis ( self ):
+        raise NotImplementedError
+
     ############################################
     # Properties
     nchains = property ( fget=lambda self: len(self.__mcmc_chains), doc="Number of chains that have been sampled" )
@@ -880,6 +939,11 @@ def main ( ):
         mcmc.gof()
         print mcmc.getPI()
         print "Model Evidence", mcmc.evidence
+        print "Rhat (m):",mcmc.Rhat ()
+
+        p.figure()
+        ax = p.axes()
+        mcmc.geweke ( ax=ax )
 
     p.show()
 
