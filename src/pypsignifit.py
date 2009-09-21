@@ -23,6 +23,7 @@ def Property(function):
     function()
     return property(**func_locals)
 
+##############################################################################################################################
 class PsiInference ( object ):
     def __init__ ( self ):
         """This is just a dummy function"""
@@ -227,6 +228,7 @@ class PsiInference ( object ):
     outl = property ( fget=lambda self: self.__outl, doc="A boolean array indicating whether or not a block was an outlier" )
     infl = property ( fget=lambda self: self.__infl, doc="A boolean array indicating whether or not a block was an influential observation" )
 
+##############################################################################################################################
 class BootstrapInference ( PsiInference ):
     def __init__ ( self, data, sample=False, cuts=(.25,.5,.75), conf=(.025,.975), **kwargs ):
         """Set up an object of bootstrapped data
@@ -416,6 +418,7 @@ class BootstrapInference ( PsiInference ):
     bRpd = property ( fget=lambda self: self.__bRpd, doc="A vector of correlations between model prections and deviance residuals in all bootstrap samples" )
     bRkd = property ( fget=lambda self: self.__bRkd, doc="A vector of correlations between block index and deviance residuals in all bootstrap samples" )
 
+##############################################################################################################################
 class BayesInference ( PsiInference ):
     def __init__ ( self, data, sample=True, cuts=(.25,.5,.75), conf=(.025,.975), **kwargs ):
         """Bayesian Inference for psychometric functions using MCMC
@@ -565,7 +568,6 @@ class BayesInference ( PsiInference ):
             return self.__mcmc_deviances[chain][self.burnin::self.thin]
         else:
             raise ValueError, "chain should be either None or an integer"
-
 
     def getPI ( self, conf=(.025,0.5,.975), param="thres" ):
         """Get a posterior interval for a particular parameter
@@ -853,7 +855,7 @@ class BayesInference ( PsiInference ):
 def main ( ):
     "If we call the file directly, we perform a test run"
 
-    bootstrap = False
+    bootstrap = True
 
     x = [float(2*k) for k in xrange(6)]
     k = [34,32,40,48,50,48]
