@@ -420,7 +420,7 @@ class BootstrapInference ( PsiInference ):
 
 ##############################################################################################################################
 class BayesInference ( PsiInference ):
-    def __init__ ( self, data, sample=True, cuts=(.25,.5,.75), conf=(.025,.975), **kwargs ):
+    def __init__ ( self, data, sample=True, cuts=(.25,.5,.75), conf=(.025,.975), resample=False, **kwargs ):
         """Bayesian Inference for psychometric functions using MCMC
 
         :Parameters:
@@ -460,6 +460,8 @@ class BayesInference ( PsiInference ):
                     Any other sequence can be used alternatively. In addition, conf can be 'v1.0'
                     to give the default values of the classical psignifit version (i.e. .023,.159,.841,.977,
                     corresponding to -2,-1,1,2 standard deviations for a gaussian).
+            resample if a chain is considered "bad" in terms of convergence should it
+                    automatically be resampled?
         """
         PsiInference.__init__(self)
 
@@ -471,6 +473,7 @@ class BayesInference ( PsiInference ):
                 "priors":  kwargs.setdefault("priors", None),
                 "nafc":    kwargs.setdefault("nafc",    2)
                 }
+        self.resample = resample
 
         self.mapestimate,thres,self.mapdeviance = _psipy.mapestimate(self.data,**self.model)
 
@@ -855,7 +858,7 @@ class BayesInference ( PsiInference ):
 def main ( ):
     "If we call the file directly, we perform a test run"
 
-    bootstrap = True
+    bootstrap = False
 
     x = [float(2*k) for k in xrange(6)]
     k = [34,32,40,48,50,48]
