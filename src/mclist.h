@@ -91,7 +91,7 @@ class BootstrapList : public PsiMClist
 			) { BCa=true; bias[i] = Bias; acceleration[i] = Acceleration; }  ///< set bias and acceleration to get BCa confidence intervals
 		void setData (
 			unsigned int i,                                               ///< index of the bootstrap sample to be set
-			const std::vector<int> newdata                                ///< responses in the new bootstrap sample
+			const std::vector<int>& newdata                                ///< responses in the new bootstrap sample
 			);   ///< store a simulated data set
 		std::vector<int> getData ( unsigned int i ) const;                 ///< get a simulated data set at posititon i
 		double getThres ( double p, unsigned int cut );                    ///< get the p-th percentile associated with the threshold at cut

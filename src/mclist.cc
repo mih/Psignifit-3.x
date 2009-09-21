@@ -100,7 +100,7 @@ double PsiMClist::getMean ( unsigned int prm ) const {
  * BootstrapList methods
  */
 
-void BootstrapList::setData ( unsigned int i, const std::vector<int> newdata )
+void BootstrapList::setData ( unsigned int i, const std::vector<int>& newdata )
 {
 	if ( i>=getNsamples() || i<0 )
 		throw BadIndexError();
