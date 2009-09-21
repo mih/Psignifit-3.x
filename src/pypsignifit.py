@@ -1,17 +1,27 @@
 #!/usr/bin/env python
 
+import sys
 import numpy as N
 import pylab as p
 from scipy import stats
 import _psipy
 import psigniplot as pp
 
-class NosamplesError ( Exception ):
-    """An exception that is raised whenever we try to use samples but there are none"""
-    def __init__ ( self, msg ):
-        self.msg = msg
-    def __str__(self):
-        return repr(self.msg)
+from psignierrors import NosamplesError
+
+# Helper function to create properties with one function
+def Property(function):
+    keys = 'fget', 'fset', 'fdel'
+    func_locals = {'doc':function.__doc__}
+    def probeFunc(frame, event, arg):
+        if event == 'return':
+            locals = frame.f_locals
+            func_locals.update(dict((k,locals.get(k)) for k in keys))
+            sys.settrace(None)
+        return probeFunc
+    sys.settrace(probeFunc)
+    function()
+    return property(**func_locals)
 
 class PsiInference ( object ):
     def __init__ ( self ):
@@ -394,11 +404,11 @@ class BootstrapInference ( PsiInference ):
         self.pmfanddata ( p.axes([0,.5,.33,.5] ) )
         for k in xrange(len(self.cuts)):
             self.drawthreshold ( p.gca(), k )
-        self.plothistogram ( self.bdeviance, self.deviance, "deviance", p.axes([0,0,.33,.5]) )
+        self.plothistogram ( self.bdeviance, self.deviance, "deviance", "D", p.axes([0,0,.33,.5]) )
         self.plotRd ( p.axes([.33,.5,.33,.5]), "p" )
-        self.plothistogram ( self.bRpd, self.Rpd, "Rpd", p.axes([.33,0,.33,.5]) )
+        self.plothistogram ( self.bRpd, self.Rpd, "Rpd", "Rpd", p.axes([.33,0,.33,.5]) )
         self.plotRd ( p.axes([.66,.5,.33,.5]), "k" )
-        self.plothistogram ( self.bRkd, self.Rkd, "Rkd", p.axes([.66,0,.33,.5]) )
+        self.plothistogram ( self.bRkd, self.Rkd, "Rkd", "Rkd", p.axes([.66,0,.33,.5]) )
 
     outl = property ( fget=lambda self: self.__outl, doc="A boolean vector indicating whether a block should be considered an outlier" )
     infl = property ( fget=lambda self: self.__infl, doc="A boolean vector indicating whether a block should be considered an influential observation" )
@@ -533,67 +543,6 @@ class BayesInference ( PsiInference ):
         else:
             raise IndexError, "chain should be either None or an integer"
 
-    def getestimate ( self ):
-        """Get a parameter estimate
-
-        If data have already been sampled, the meanestimate is returned. If
-        no samples from the posterior have been sampled yet, the mapestimate
-        is returned. After sampling has occurred, the mapestimate can always
-        be obtained from the attribute 'mapestimate'
-        """
-        if self.__meanestimate is None:
-            # We don't have a mean estimate
-            if len(self.__mcmc_chains) > 0:
-                # But we have samples!
-                self.__meanestimate = self.getsamples().mean(0)
-                self.devianceresiduals,self.__meandeviance,self.thres,self.Rpd,self.Rkd = _psipy.diagnostics ( \
-                        self.data, self.__meanestimate, cuts=self.cuts, nafc=self.model["nafc"], sigmoid=self.model["sigmoid"], core=self.model["core"] )[1:]
-            else:
-                # We have no samples ~> return mapestimate
-                return self.mapestimate
-        # In this case, we seem to have a meanestimate, so we return it
-        return self.__meanestimate
-
-    def getdeviance ( self ):
-        """Get the deviance"""
-        if self.__meandeviance is None:
-            return self.mapdeviance
-        else:
-            return self.__meandeviance
-
-    def getpRpd ( self ):
-        """Get samples from the posterior distribution of correlation between model prediction and deviance residuals"""
-        if self.__pRpd is None:
-            # pRpd is currently undefined
-            if len(self.__mcmc_chains) > 0:
-                # We have samples ~> recompute the correlations
-                self.__recomputeCorrelationsAndThresholds()
-            else:
-                raise NosamplesError, "Samples from the posterior have not yet been drawn"
-        return self.__pRpd
-
-    def getpRkd ( self ):
-        """Get samples from the posterior distribution of correlation between block index and deviance residuals"""
-        if self.__pRkd is None:
-            # pRkd is currently undefined
-            if len(self.__mcmc_chains) > 0:
-                # We have samples ~> recompute the correlations
-                self.__recomputeCorrelationsAndThresholds()
-            else:
-                raise NosamplesError, "Samples from the posterior have not yet been drawn"
-        return self.__pRkd
-
-    def getpthres ( self ):
-        """Get samples of the posterior distribution of thresholds"""
-        if self.__pthres is None:
-            # pthres is currently undefined
-            if len(self.__mcmc_chains) > 0:
-                # We have samples ~> recompute the thresholds
-                self.__recomputeCorrelationsAndThresholds()
-            else:
-                raise NosamplesError, "Samples from the posterior have not yet been drawn"
-        return self.__pthres
-
     def getpdeviance ( self, chain=None ):
         """Get samples from the posterior distribution of deviances
 
@@ -617,37 +566,7 @@ class BayesInference ( PsiInference ):
         else:
             raise ValueError, "chain should be either None or an integer"
 
-    def set_burnin ( self, b ):
-        """Set the burnin
 
-        :Parameters:
-            b   new burnin value, i.e. number of samples that are discarded at
-                the beginning of each chain
-        """
-        self.__burnin = b
-        # Set all values that depend on burnin to None. This way, they are
-        # recomputed on access
-        self.__meanestimate = None
-        self.__meandeviance = None
-        self.__pRpd = None
-        self.__pRkd = None
-        self.__pthres = None
-
-    def set_thin ( self, t ):
-        """Set the thinning factor
-
-        :Parameters:
-            t   new thinning factor, i.e. number of samples that are skipped between
-                two samples to reduce autocorrelation of the samples
-        """
-        self.__thin = t
-        # Set all values that depend on thin to None. This way, they are recomputed
-        # on access
-        self.__meanestimate = None
-        self.__meandeviance = None
-        self.__pRpd = None
-        self.__pRkd = None
-        self.__pthres = None
 
     def getPI ( self, conf=(.025,0.5,.975), param="thres" ):
         """Get a posterior interval for a particular parameter
@@ -770,14 +689,128 @@ class BayesInference ( PsiInference ):
     ############################################
     # Properties
     nchains = property ( fget=lambda self: len(self.__mcmc_chains), doc="Number of chains that have been sampled" )
-    estimate = property ( fget=getestimate, fset=lambda self,v: v, doc="Determine the estimate of the parameters" )
-    deviance = property ( fget=getdeviance, fset=lambda self,v: v, doc="Deviance of the estimate" )
-    burnin  = property ( fget=lambda self: self.__burnin, fset=set_burnin, doc="Burnin: Number of samples to be discarded at the beginning of each chain" )
-    thin    = property ( fget=lambda self: self.__thin,   fset=set_thin,   doc="Thinning: Subsample chains to reduce autocorrelation" )
-    pRpd    = property ( fget=getpRpd, doc="Determine posterior correlation of model predictions and data" )
-    pRkd    = property ( fget=getpRkd, doc="Determine posterior correlation of model predictions and data" )
+    @Property
+    def estimate ():
+        """Estimate of the parameters.
+
+        If sampling has already occurred, this will be the mean estimate, otherwise it will be the mapestimate.
+        """
+        def fget (self):
+            if self.__meanestimate is None:
+                # We don't have a mean estimate
+                if len(self.__mcmc_chains) > 0:
+                    # But we have samples!
+                    self.__meanestimate = self.getsamples().mean(0)
+                    self.devianceresiduals,self.__meandeviance,self.thres,self.Rpd,self.Rkd = _psipy.diagnostics ( \
+                            self.data, self.__meanestimate, cuts=self.cuts, nafc=self.model["nafc"], sigmoid=self.model["sigmoid"], core=self.model["core"] )[1:]
+                else:
+                    # We have no samples ~> return mapestimate
+                    return self.mapestimate
+            # In this case, we seem to have a meanestimate, so we return it
+            return self.__meanestimate
+        def fset (self):
+            pass
+
+    @Property
+    def deviance ():
+        """Deviance of the estimate.
+
+        If sampling has already occurred, this will be the deviance of the mean estimate. Otherwise it will be
+        the deviance of the mapestimate.
+        """
+        def fget (self):
+            if self.__meandeviance is None:
+                return self.mapdeviance
+            else:
+                return self.__meandeviance
+        def fset (self):
+            pass
+
+    @Property
+    def burnin ():
+        "Burnin: Number of samples to be discarded at the beginning of each chain"
+        def fget (self):
+            return self.__burnin
+        def fset (self,b):
+            """Set the burnin
+
+            :Parameters:
+                b   new burnin value, i.e. number of samples that are discarded at
+                    the beginning of each chain
+            """
+            self.__burnin = b
+            # Set all values that depend on burnin to None. This way, they are
+            # recomputed on access
+            self.__meanestimate = None
+            self.__meandeviance = None
+            self.__pRpd = None
+            self.__pRkd = None
+            self.__pthres = None
+
+    @Property
+    def thin ():
+        "Thinning: Subsample chains to reduce autocorrelation"
+        def fget (self):
+            return self.__thin
+        def fset (self,t):
+            self.__thin = t
+            # Set all values that depend on thin to None. This way, they are recomputed
+            # on access
+            self.__meanestimate = None
+            self.__meandeviance = None
+            self.__pRpd = None
+            self.__pRkd = None
+            self.__pthres = None
+
+    @Property
+    def pRpd ():
+        "Determine posterior correlation of model predictions and data"
+        def fget (self):
+            """Get samples from the posterior distribution of correlation between model prediction and deviance residuals"""
+            if self.__pRpd is None:
+                # pRpd is currently undefined
+                if len(self.__mcmc_chains) > 0:
+                    # We have samples ~> recompute the correlations
+                    self.__recomputeCorrelationsAndThresholds()
+                else:
+                    raise NosamplesError, "Samples from the posterior have not yet been drawn"
+            return self.__pRpd
+        def fset (self, v):
+            pass
+
+    @Property
+    def pRkd ():
+        "Determine posterior correlation of model predictions and data"
+        def fget (self):
+            """Get samples from the posterior distribution of correlation between block index and deviance residuals"""
+            if self.__pRkd is None:
+                # pRkd is currently undefined
+                if len(self.__mcmc_chains) > 0:
+                    # We have samples ~> recompute the correlations
+                    self.__recomputeCorrelationsAndThresholds()
+                else:
+                    raise NosamplesError, "Samples from the posterior have not yet been drawn"
+            return self.__pRkd
+        def fset (self, v):
+            pass
+
     pdeviance = property ( fget=getpdeviance , doc="Deviances of the posterior samples" )
-    pthres  = property ( fget=getpthres, doc="posterior distribution of thresholds" )
+
+    @Property
+    def pthres ():
+        "Samples from the posterior distribution of thresholds"
+        def fget (self):
+            """Get samples of the posterior distribution of thresholds"""
+            if self.__pthres is None:
+                # pthres is currently undefined
+                if len(self.__mcmc_chains) > 0:
+                    # We have samples ~> recompute the thresholds
+                    self.__recomputeCorrelationsAndThresholds()
+                else:
+                    raise NosamplesError, "Samples from the posterior have not yet been drawn"
+            return self.__pthres
+        def fset (self, t):
+            pass
 
     ############################################
     # Private methods
@@ -804,7 +837,7 @@ class BayesInference ( PsiInference ):
 def main ( ):
     "If we call the file directly, we perform a test run"
 
-    bootstrap = False
+    bootstrap = True
 
     x = [float(2*k) for k in xrange(6)]
     k = [34,32,40,48,50,48]
@@ -815,7 +848,7 @@ def main ( ):
 
     if bootstrap:
         b = BootstrapInference ( d, sample=2000, priors=priors )
-        b.diagnostics()
+        b.gof()
     else:
         priors = ("Gauss(0,100)","Gamma(1,3)","Beta(2,100)")
         mcmc = BayesInference ( d, priors=priors )
