@@ -567,7 +567,6 @@ class BayesInference ( PsiInference ):
             raise ValueError, "chain should be either None or an integer"
 
 
-
     def getPI ( self, conf=(.025,0.5,.975), param="thres" ):
         """Get a posterior interval for a particular parameter
 
@@ -708,7 +707,7 @@ class BayesInference ( PsiInference ):
                     return self.mapestimate
             # In this case, we seem to have a meanestimate, so we return it
             return self.__meanestimate
-        def fset (self):
+        def fset (self,v):
             pass
 
     @Property
@@ -723,7 +722,7 @@ class BayesInference ( PsiInference ):
                 return self.mapdeviance
             else:
                 return self.__meandeviance
-        def fset (self):
+        def fset (self,v):
             pass
 
     @Property
@@ -812,6 +811,23 @@ class BayesInference ( PsiInference ):
         def fset (self, t):
             pass
 
+    @Property
+    def evidence ():
+        """model evidence or marginal likelihood
+
+        Model evidence is typically given as the integral of the likelihood over the parameter space.
+        We replace the integral by a discrete sum over samples, such that we have
+
+        E = 1/N sum P(D|theta)
+
+        Model evidence is typically used in Bayesian model selection: If E1 is the evidence for model
+        1 and E2 is the evidence for model 2, then the ratio E1/E2 can be interpreted as "how much more
+        evidence is there for model 2 than for model 1".
+        """
+        def fget (self):
+            dev = self.pdeviance
+            return N.exp(-0.5*dev).mean()
+
     ############################################
     # Private methods
     def __recomputeCorrelationsAndThresholds ( self ):
@@ -837,7 +853,7 @@ class BayesInference ( PsiInference ):
 def main ( ):
     "If we call the file directly, we perform a test run"
 
-    bootstrap = True
+    bootstrap = False
 
     x = [float(2*k) for k in xrange(6)]
     k = [34,32,40,48,50,48]
@@ -858,6 +874,7 @@ def main ( ):
         mcmc.sample(start=(1,1,.1))
         mcmc.gof()
         print mcmc.getPI()
+        print "Model Evidence", mcmc.evidence
 
     p.show()
 
