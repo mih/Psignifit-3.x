@@ -610,6 +610,7 @@ static PyObject * psidiagnostics ( PyObject * self, PyObject * args, PyObject * 
 		return NULL;
 	}
 
+	// TODO: does this throw exceptions
 	params = getparams ( pyparams, Nparams );
 	if ( intensityonly==-1)
 		devianceresiduals = new std::vector<double> (pmf->getDevianceResiduals ( *params, data ) );
@@ -645,6 +646,7 @@ static PyObject * psidiagnostics ( PyObject * self, PyObject * args, PyObject * 
 		Py_DECREF ( pydevianceresiduals );
 	}
 	Py_DECREF ( pypredicted );
+	Py_DECREF ( pythres );
 
 	return pyout;
 }
