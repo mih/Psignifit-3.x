@@ -422,7 +422,7 @@ class BootstrapInference ( PsiInference ):
 
 ##############################################################################################################################
 class BayesInference ( PsiInference ):
-    def __init__ ( self, data, sample=True, cuts=(.25,.5,.75), conf=(.025,.975), resample=False, **kwargs ):
+    def __init__ ( self, data, sample=True, cuts=(.25,.5,.75), conf=(.025,.975), automatic=True, resample=False, **kwargs ):
         """Bayesian Inference for psychometric functions using MCMC
 
         :Parameters:
@@ -462,6 +462,7 @@ class BayesInference ( PsiInference ):
                     Any other sequence can be used alternatively. In addition, conf can be 'v1.0'
                     to give the default values of the classical psignifit version (i.e. .023,.159,.841,.977,
                     corresponding to -2,-1,1,2 standard deviations for a gaussian).
+            automatic   do everything automatically
             resample if a chain is considered "bad" in terms of convergence should it
                     automatically be resampled?
         """
@@ -500,35 +501,80 @@ class BayesInference ( PsiInference ):
         self.__pRkd   = None
         self.__pthres = None
 
+        self.conf = conf
+
         self.burnin = 0
         self.thin   = 1
-        self.nsamples = 0
+        self.nsamples = None
+
+        if automatic:
+            self.determineoptimalsampling ()
+            sample = True
 
         if sample:
+            self.sample()
+
+    def determineoptimalsampling ( self, noptimizations=10 ):
+        """Determine optimal sampling parameters using the Raftery&Lewis (1995) procedure
+
+        Automatically set burnin,thin,nsamples.
+        In addition, an object, that contains more detailed information about the sampling
+        is stored in self.mcmcpars
+
+        :Parameters:
+            noptimizations  maximum number of optimization iterations. If the same
+                            sampling parameters are obtained before, the method
+                            terminates earlier
+        """
+        if noptimizations==0:
+            return
+
+        if len(self.__mcmc_chains)>0:
+            mcmc_chains    = self.__mcmc_chains
+            mcmc_deviances = self.__mcmc_deviances
+            self.__mcmc_chains    = []
+            self.__mcmc_deviances = []
+        else:
+            mcmc_chains = []
+
+        # Determine size of initial test run
+        if self.nsamples is None:
             N = 0
-            for q in conf:
+            for q in self.conf:
                 Nmin = pygibbsit.gibbsit ( q=q )["Nmin"]
-                if Nmin > N:
-                    N = Nmin
-            self.sample (N)
-            testrun = self.pthres
-            self.__mcmc_chains.pop(0)
-            burnin = 0
-            thin   = 1
-            nsamples = 0
-            for q in conf:
+                N = max(N,Nmin)
+            self.nsamples = N
+
+        oldburnin = 0
+        oldthin   = 1
+        oldnsamples = N
+        for n in xrange ( noptimizations ):
+            self.sample ()           # Test run
+            testrun = self.pthres    # Thresholds from testrun
+            self.__mcmc_chains.pop() # throw the samples away, don't use them for "real" inference
+
+            # Check all desired thresholds
+            for q in self.conf:
                 for k in xrange ( self.Ncuts ):
                     try:
                         mcmcpars = pygibbsit.gibbsit ( testrun[:,k], q=q )
                     except IndexError:
                         continue
-                    burnin = max ( burnin, mcmcpars.burnin )
-                    thin   = max ( thin,   mcmcpars.thin )
-                    nsamples = max ( nsamples, mcmcpars.Nsamples )
-            self.sample ( nsamples+burnin )
-            self.burnin = burnin
-            self.thin   = thin
+                    self.burnin = max ( self.burnin, mcmcpars.burnin )
+                    self.thin   = max ( self.thin,   mcmcpars.thin )
+                    self.nsamples = max ( self.nsamples, mcmcpars.Nsamples )
 
+            print "Burnin:",self.burnin,"Thinning:",self.thin,"Nsamples:",self.nsamples
+            if oldburnin==self.burnin and oldthin==self.thin and oldnsamples==self.nsamples:
+                break
+            else:
+                oldburnin,oldthin,oldnsamples = self.burnin,self.thin,self.nsamples
+
+        self.mcmcpars = mcmcpars
+
+        if len(mcmc_chains)>0:
+            self.__mcmc_chains = mcmc_chains
+            self.__mcmc_deviances = mcmc_deviances
 
     def sample ( self, Nsamples=None, start=None ):
         """Draw samples from the posterior distribution using MCMC
@@ -544,7 +590,7 @@ class BayesInference ( PsiInference ):
         if isinstance (Nsamples,int):
             self.nsamples = Nsamples
         elif Nsamples is None:
-            Nsamples = self.nsamples
+            Nsamples = self.nsamples+self.burnin
         else:
             Nsamples = 10000
 
