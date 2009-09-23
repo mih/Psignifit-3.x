@@ -5,7 +5,9 @@ import numpy as N
 import pylab as p
 from scipy import stats
 import _psipy
+
 import psigniplot as pp
+import pygibbsit
 
 from psignierrors import NosamplesError
 
@@ -500,20 +502,52 @@ class BayesInference ( PsiInference ):
 
         self.burnin = 0
         self.thin   = 1
+        self.nsamples = 0
 
         if sample:
-            self.sample ()
+            N = 0
+            for q in conf:
+                Nmin = pygibbsit.gibbsit ( q=q )["Nmin"]
+                if Nmin > N:
+                    N = Nmin
+            self.sample (N)
+            testrun = self.pthres
+            self.__mcmc_chains.pop(0)
+            burnin = 0
+            thin   = 1
+            nsamples = 0
+            for q in conf:
+                for k in xrange ( self.Ncuts ):
+                    try:
+                        mcmcpars = pygibbsit.gibbsit ( testrun[:,k], q=q )
+                    except IndexError:
+                        continue
+                    burnin = max ( burnin, mcmcpars.burnin )
+                    thin   = max ( thin,   mcmcpars.thin )
+                    nsamples = max ( nsamples, mcmcpars.Nsamples )
+            self.sample ( nsamples+burnin )
+            self.burnin = burnin
+            self.thin   = thin
 
-    def sample ( self, Nsamples=10000, start=None ):
+
+    def sample ( self, Nsamples=None, start=None ):
         """Draw samples from the posterior distribution using MCMC
 
         :Parameters:
-            Nsamples    number of samples that should be drawn from the posterior
+            Nsamples    number of samples that should be drawn from the posterior. If Nsamples is
+                        None, an optimal number of samples is tried to obtain.
             start       starting value of the chain. If this is None, the chain starts
                         at the MAP estimate. However, if you sample multiple chains, you
                         might want to start from different (overdispersed) starting values
                         to diagnose convergence
         """
+        if isinstance (Nsamples,int):
+            self.nsamples = Nsamples
+        elif Nsamples is None:
+            Nsamples = self.nsamples
+        else:
+            Nsamples = 10000
+
         if start is None:
             start = self.mapestimate
         # TODO: stepwidths are not good for all situations
@@ -746,9 +780,6 @@ class BayesInference ( PsiInference ):
 
         return (float(n-1)/n * W + B/n)/W;
 
-    def RafeteryLewis ( self ):
-        raise NotImplementedError
-
     ############################################
     # Properties
     nchains = property ( fget=lambda self: len(self.__mcmc_chains), doc="Number of chains that have been sampled" )
@@ -932,14 +963,15 @@ def main ( ):
     else:
         priors = ("Gauss(0,100)","Gamma(1,3)","Beta(2,100)")
         mcmc = BayesInference ( d, priors=priors )
-        mcmc.thin = 10
-        mcmc.burnin = 200
+        # mcmc.thin = 10
+        # mcmc.burnin = 200
         mcmc.sample(start=(6,4,.3))
         mcmc.sample(start=(1,1,.1))
         mcmc.gof()
         print mcmc.getPI()
         print "Model Evidence", mcmc.evidence
         print "Rhat (m):",mcmc.Rhat ()
+        print "Nsamples:",mcmc.nsamples
 
         p.figure()
         ax = p.axes()
