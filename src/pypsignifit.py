@@ -994,7 +994,7 @@ class BayesInference ( PsiInference ):
 def main ( ):
     "If we call the file directly, we perform a test run"
 
-    bootstrap = False
+    bootstrap = True
 
     x = [float(2*k) for k in xrange(6)]
     k = [34,32,40,48,50,48]

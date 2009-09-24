@@ -1,5 +1,6 @@
 #include "psychometric.h"
 #include "special.h"
+#include "linalg.h"
 
 // #ifdef DEBUG_PSYCHOMETRIC
 #include <iostream>
@@ -75,7 +76,7 @@ double PsiPsychometric::leastfavourable ( const std::vector<double>& prm, const 
 	if (!threshold) throw NotImplementedError();  // So far we only have this for the threshold
 
 	std::vector<double> delta (prm.size(),0), du(prm.size(),0);
-	std::vector< std::vector<double> > I (prm.size(),std::vector<double>(prm.size(),0));
+	Matrix * I = new Matrix ( prm.size(), prm.size() );
 	double ythres,rz,nz,pz,xz,fac1,fac2;
 	double l_LF(0);
 	double c,s;
@@ -98,14 +99,12 @@ double PsiPsychometric::leastfavourable ( const std::vector<double>& prm, const 
 		// These parts must be determined
 		for (i=0; i<2; i++) {
 			for (j=i; j<2; j++) {
-				I[i][j] += fac1 * (1-guessingrate-prm[2]) * (Sigmoid->ddf(Core->g(xz,prm)) * Core->dg(xz,prm,i) * Core->dg(xz,prm,j) + Sigmoid->df(Core->g(xz,prm)) * Core->ddg(xz,prm,i,j));
-				// I[i][j] += fac2 * (1-guessingrate-prm[2]) * pow(Sigmoid->df(Core->g(xz,prm)),2) * Core->dg(xz,prm,i) * Core->dg(xz,prm,j);
-				I[i][j] -= fac2 * (1-guessingrate-prm[2]) * (1-guessingrate-prm[2]) * pow(Sigmoid->df(Core->g(xz,prm)),2) * Core->dg(xz,prm,i) * Core->dg(xz,prm,j);
+				(*I)(i,j) += fac1 * (1-guessingrate-prm[2]) * (Sigmoid->ddf(Core->g(xz,prm)) * Core->dg(xz,prm,i) * Core->dg(xz,prm,j) + Sigmoid->df(Core->g(xz,prm)) * Core->ddg(xz,prm,i,j));
+				(*I)(i,j) -= fac2 * (1-guessingrate-prm[2]) * (1-guessingrate-prm[2]) * pow(Sigmoid->df(Core->g(xz,prm)),2) * Core->dg(xz,prm,i) * Core->dg(xz,prm,j);
 			}
 			for (j=2; j<prm.size(); j++) {
-				I[i][j] -= fac1 * Sigmoid->df(Core->g(xz,prm)) * Core->dg(xz,prm,i);
-				// I[i][j] += fac2 * Sigmoid->df(Core->g(xz,prm)) * Core->dg(xz,prm,i) * ( (j==2 ? 1 : 0) - Sigmoid->f(Core->g(xz,prm)) );
-				I[i][j] += fac2 * (1-guessingrate-prm[2]) * Sigmoid->df(Core->g(xz,prm)) * Core->dg(xz,prm,i) * ( (j==2 ? 1 : 0) - Sigmoid->f(Core->g(xz,prm)) );
+				(*I)(i,j) -= fac1 * Sigmoid->df(Core->g(xz,prm)) * Core->dg(xz,prm,i);
+				(*I)(i,j) += fac2 * (1-guessingrate-prm[2]) * Sigmoid->df(Core->g(xz,prm)) * Core->dg(xz,prm,i) * ( (j==2 ? 1 : 0) - Sigmoid->f(Core->g(xz,prm)) );
 			}
 		}
 	}
@@ -114,37 +113,15 @@ double PsiPsychometric::leastfavourable ( const std::vector<double>& prm, const 
 	// TODO: Do we really need this step?
 	for (i=0; i<prm.size(); i++)
 		for (j=i; j<prm.size(); j++)
-			I[i][j] /= data->getNblocks();
+			(*I)(i,j) /= data->getNblocks();
 
 	// The remaining parts of I can be copied
 	for (i=1; i<prm.size(); i++)
 		for (j=0; j<i; j++)
-			I[i][j] = I[j][i];
+			(*I)(i,j) = (*I)(j,i);
 
 	// Now we have to solve I*delta = du for delta
-	// LU decomposition
-	for (i=1; i<prm.size()-1; i++) {
-		for (k=i+1; k<prm.size(); k++) {
-			c = I[k][i]/I[i][i]; I[k][i] = c;
-			for (j=i+1; j<prm.size(); j++) {
-				I[k][j] -= c*I[i][j];
-			}
-		}
-	}
-	// Forward solving Ly=du
-	for (i=1; i<prm.size(); i++) {
-		s = du[i];
-		for (k=1; k<i; k++)
-			s -= I[i][k]*du[k]; // y is stored in u
-		du[i] = s; // We store y in du
-	}
-	// Backward solving U*delta=y (note that y is stored in du)
-	for (i=prm.size()-1; i>=0; i--) {
-		s = du[i];
-		for (k=i+1; k<prm.size(); k++)
-			s -= I[i][k]*delta[k];
-		delta[i] = s/I[i][i];
-	}
+	delta = I->solve ( du );
 
 	// Normalize the result
 	s = 0;

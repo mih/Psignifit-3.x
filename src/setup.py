@@ -25,7 +25,8 @@ psippmodule = Extension ( "_psipy",
 			"psychometric.cc",
 			"rng.cc",
 			"sigmoid.cc",
-			"special.cc"]
+			"special.cc",
+            "linalg.cc"]
 		)
 
 setup ( name = "psipy",

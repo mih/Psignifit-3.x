@@ -3,8 +3,8 @@ CFLAGS=-pg -ggdb
 LFLAGS=-lm -pg
 
 BUILD=build
-HEADERS=core.h data.h errors.h optimizer.h prior.h psychometric.h sigmoid.h bootstrap.h mclist.h special.h mcmc.h rng.h
-OBJECTS=$(BUILD)/core.o $(BUILD)/data.o $(BUILD)/optimizer.o $(BUILD)/psychometric.o $(BUILD)/sigmoid.o $(BUILD)/bootstrap.o $(BUILD)/mclist.o $(BUILD)/special.o $(BUILD)/mcmc.o $(BUILD)/rng.o
+HEADERS=core.h data.h errors.h optimizer.h prior.h psychometric.h sigmoid.h bootstrap.h mclist.h special.h mcmc.h rng.h linalg.h
+OBJECTS=$(BUILD)/core.o $(BUILD)/data.o $(BUILD)/optimizer.o $(BUILD)/psychometric.o $(BUILD)/sigmoid.o $(BUILD)/bootstrap.o $(BUILD)/mclist.o $(BUILD)/special.o $(BUILD)/mcmc.o $(BUILD)/rng.o $(BUILD)/linalg.o
 TESTS=tests_all
 
 tests: $(BUILD) tests_all.log
@@ -34,6 +34,8 @@ $(BUILD)/mcmc.o: mcmc.cc $(HEADERS)
 	$(CC) -c $(CFLAGS) mcmc.cc -o $(BUILD)/mcmc.o
 $(BUILD)/rng.o: rng.cc $(HEADERS)
 	$(CC) -c $(CFLAGS) rng.cc -o $(BUILD)/rng.o
+$(BUILD)/linalg.o: linalg.cc $(HEADERS)
+	$(CC) -c $(CFLAGS) linalg.cc -o $(BUILD)/linalg.o
 
 tests_all: tests_all.cc $(HEADERS) $(OBJECTS) testing.h
 	$(CC) -c $(CFLAGS) tests_all.cc -o $(BUILD)/tests_all.o

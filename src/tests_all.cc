@@ -292,7 +292,7 @@ int MCMCTest ( TestSuite * T ) {
 	srand48(0);
 	PsiMClist mhpost ( mhS->sample(10000) );
 
-	failures += T->isequal ( post.getMean(0), 3.21657, "Hybrid MCMC alpha", .2 );
+	failures += T->isequal ( post.getMean(0), 3.21657, "Hybrid MCMC alpha", .3 );
 	failures += T->isequal ( post.getMean(1), 1.20476, "Hybrid MCMC beta", .2 );
 	failures += T->isequal ( post.getMean(2), 0.0217217, "Hybrid MCMC lambda", .02 );
 	failures += T->isequal ( mhpost.getMean(0), 3.22372, "Metropolis Hastings alpha", .2 );
