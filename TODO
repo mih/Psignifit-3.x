@@ -1,4 +1,5 @@
 - Check when we need #include <numpy/arrayobject.h> and when #include <Numeric/arrayobject.h>
+- use linalg.h/linalg.cc for Psychometric::leastfavourable and for Sampler class
 - high level python interface:
     - Convergence diagnostics for MCMC
     - posterior intervals and posterior histograms for model parameters
