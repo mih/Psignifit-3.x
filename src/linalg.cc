@@ -54,7 +54,7 @@ void Matrix::print ( void ) {
 	}
 }
 
-Matrix* Matrix::cholesky_dec ( void ) {
+Matrix* Matrix::cholesky_dec ( void ) const {
 	if (nrows!=ncols)
 		throw MatrixError();
 
@@ -81,7 +81,7 @@ Matrix* Matrix::cholesky_dec ( void ) {
 	return L;
 }
 
-Matrix* Matrix::lu_dec ( void ) {
+Matrix* Matrix::lu_dec ( void ) const {
 	if (nrows!=ncols)
 		throw MatrixError ();
 
@@ -175,4 +175,39 @@ Matrix* Matrix::inverse ( void ) {
 	delete LU;
 
 	return Inv;
+}
+
+
+std::vector<double> Matrix::operator* ( std::vector<double>& x ) {
+	if (x.size() != ncols)
+		throw MatrixError();
+
+	std::vector<double> out ( nrows, 0 );
+	int i,j;
+
+	for (i=0; i<nrows; i++) {
+		for (j=0; j<ncols; j++) {
+			out[i] += (*this)(i,j) * x[j];
+		}
+	}
+
+	return out;
+}
+
+void Matrix::scale ( double a ) {
+	int i;
+
+	for (i=0; i<nrows*ncols; i++)
+		data[i] *= a;
+}
+
+bool Matrix::symmetric ( void ) {
+	int i,j;
+	for ( i=0; i<nrows; i++ ) {
+		for ( j=i; j<ncols; j++ ) {
+			if ((*this)(i,j)!=(*this)(j,i))
+				return false;
+		}
+	}
+	return true;
 }

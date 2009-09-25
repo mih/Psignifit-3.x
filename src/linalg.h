@@ -36,10 +36,13 @@ class Matrix
 		void print ( void );                                         ///< print the matrix to stdout
 		unsigned int getnrows ( void ) const { return nrows; }       ///< get the number of rows
 		unsigned int getncols ( void ) const { return ncols; }       ///< get the number of columns
-		Matrix* cholesky_dec ( void );                               ///< return a pointer to a newly allocated Matrix L, such that L*L^T = A
-		Matrix* lu_dec ( void );                                     ///< return a pointer to a newly allocated Matrix LU. If you construct a matrix L from the elements of LU below the diagnonal and L_ii = 1, and a matrix U from the elements above the diagnonal, then A=LU
+		Matrix* cholesky_dec ( void ) const;                         ///< return a pointer to a newly allocated Matrix L, such that L*L^T = A
+		Matrix* lu_dec ( void ) const;                               ///< return a pointer to a newly allocated Matrix LU. If you construct a matrix L from the elements of LU below the diagnonal and L_ii = 1, and a matrix U from the elements above the diagnonal, then A=LU
 		std::vector<double> solve ( const std::vector<double>& b );  ///< solve a linear equation Ax=b for x
 		Matrix* inverse ( void );                                    ///< return a pointer to the (newly allocated) inverse Matrix
+		std::vector<double> operator* ( std::vector<double>& x );    ///< right multiplication with a vector
+		void scale ( double a );                                     ///< scale the whole matrix by a constant factor
+		bool symmetric ( void );                                     ///< check whether the matrix is symmetric
 };
 
 #endif
