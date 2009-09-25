@@ -507,6 +507,8 @@ class BayesInference ( PsiInference ):
         self.thin   = 1
         self.nsamples = None
 
+        self._steps = (.4,4,.01)
+
         if automatic:
             self.determineoptimalsampling ()
             sample = True
@@ -528,6 +530,7 @@ class BayesInference ( PsiInference ):
         """
         if noptimizations==0:
             return
+        mcmcpars = {}
 
         if len(self.__mcmc_chains)>0:
             mcmc_chains    = self.__mcmc_chains
@@ -539,19 +542,19 @@ class BayesInference ( PsiInference ):
 
         # Determine size of initial test run
         if self.nsamples is None:
-            N = 0
+            NN = 0
             for q in self.conf:
                 Nmin = pygibbsit.gibbsit ( q=q )["Nmin"]
-                N = max(N,Nmin)
-            self.nsamples = N
+                NN = max(NN,Nmin)
+            self.nsamples = NN
 
         oldburnin = 0
         oldthin   = 1
-        oldnsamples = N
+        oldnsamples = NN
         for n in xrange ( noptimizations ):
             self.sample ()           # Test run
             testrun = self.pthres    # Thresholds from testrun
-            self.__mcmc_chains.pop() # throw the samples away, don't use them for "real" inference
+            samples = self.__mcmc_chains.pop() # throw the samples away, don't use them for "real" inference
 
             # Check all desired thresholds
             for q in self.conf:
@@ -563,13 +566,14 @@ class BayesInference ( PsiInference ):
                     self.burnin = max ( self.burnin, mcmcpars.burnin )
                     self.thin   = max ( self.thin,   mcmcpars.thin )
                     self.nsamples = max ( self.nsamples, mcmcpars.Nsamples )
+            self._steps = N.sqrt(N.diag(N.cov ( samples[self.burnin::self.thin].T )))
+            print "Steps:",self._steps
 
             print "Burnin:",self.burnin,"Thinning:",self.thin,"Nsamples:",self.nsamples
             if oldburnin==self.burnin and oldthin==self.thin and oldnsamples==self.nsamples:
                 break
             else:
                 oldburnin,oldthin,oldnsamples = self.burnin,self.thin,self.nsamples
-
         self.mcmcpars = mcmcpars
 
         if len(mcmc_chains)>0:
@@ -599,7 +603,7 @@ class BayesInference ( PsiInference ):
         # TODO: stepwidths are not good for all situations
         # TODO: it would be better to have the sampler itself set the stepwidths based on asymptotic properties of the mapestimate
         stepwidths = (0.4,4,1e-2)
-        chain,deviance = _psipy.mcmc ( self.data, start, Nsamples, stepwidths=stepwidths, **self.model )
+        chain,deviance = _psipy.mcmc ( self.data, start, Nsamples, stepwidths=self._steps, **self.model )
         # print N.cov(N.array(chain[self.burnin::self.thin]).T)
         self.__mcmc_chains.append(N.array(chain))
         self.__mcmc_deviances.append(N.array(deviance))
@@ -994,7 +998,7 @@ class BayesInference ( PsiInference ):
 def main ( ):
     "If we call the file directly, we perform a test run"
 
-    bootstrap = True
+    bootstrap = False
 
     x = [float(2*k) for k in xrange(6)]
     k = [34,32,40,48,50,48]
