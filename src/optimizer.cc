@@ -154,5 +154,20 @@ std::vector<double> PsiOptimizer::optimize ( const PsiPsychometric * model, cons
 	for (k=0; k<nparameters; k++)
 	    start[k] = simplex[minind][k];
 
+	/*
+	// Perform some Gradient descent steps
+	for (k=0; k<40; k++) {
+		x = model->dnegllikeli ( start, data );
+		dl = 0;
+		for (l=0; l<nparameters; l++) {
+			start[l] -= .1*x[l];
+			if (fabs(x[l])>dl)
+				dl = fabs(x[l]);
+		}
+		if (dl<1e-6)
+			break;
+	}
+	*/
+
 	return start;
 }
