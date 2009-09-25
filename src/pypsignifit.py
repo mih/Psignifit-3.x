@@ -894,7 +894,7 @@ class BayesInference ( PsiInference ):
 
         p.text(x0+0.6*xr,y0+0.95*yr,"R^ = %.4f" % (self.Rhat ( parameter ) ) )
 
-        if warn and self.Rhat(parameter)<1.1:
+        if warn and self.Rhat(parameter)>1.1:
             p.text(x0+0.5*xr,y0+0.5*yr,"Chains do not seem to sample\nfrom the same distribution!",
                     horizontalalignment="center",verticalalignment="center",fontsize=16,rotation=45,color=warnred)
 
