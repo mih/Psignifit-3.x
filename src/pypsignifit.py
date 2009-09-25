@@ -11,6 +11,8 @@ import pygibbsit
 
 from psignierrors import NosamplesError
 
+warnred = [.7,0,0]
+
 # Helper function to create properties with one function
 def Property(function):
     keys = 'fget', 'fset', 'fdel'
@@ -478,6 +480,14 @@ class BayesInference ( PsiInference ):
                 }
         self.resample = resample
 
+        if self.model["core"][:2] == "mw":
+            self.parnames = ["m","w"]
+        else:
+            self.parnames = ["a","b"]
+        self.parnames.append("lambda")
+        if self.model["nafc"]<2:
+            self.parnames.append("guess")
+
         self.mapestimate,thres,self.mapdeviance = _psipy.mapestimate(self.data,**self.model)
 
         if cuts is None:
@@ -765,22 +775,42 @@ class BayesInference ( PsiInference ):
         good = self.plothistogram ( self.pRpd, self.Rpd, "posterior Rpd", "Rpd", p.axes([.33,0,.33,.5]) )
         if not good and warn==True:
             p.text ( 0, p.getp(p.gca(),'ylim').mean() , "Rpd is different from 0!\nModel deviates systematically from data", \
-                    fontsize=16, color="r", horizontalalignment="center", verticalalignment="center", rotation=45 )
+                    fontsize=16, color=warnred, horizontalalignment="center", verticalalignment="center", rotation=45 )
 
         # Third part: Correlations between model prediction and block index
         self.plotRd ( p.axes([.66,.5,.33,.5]), "k" )
         good = self.plothistogram ( self.pRkd, self.Rkd, "posterior Rkd", "Rkd", p.axes([.66,0,.33,.5]) )
         if not good and warn==True:
             p.text ( 0, p.getp(p.gca(),'ylim').mean(), "Rkd is different from 0!\nData are nonstationary!",\
-                    fontsize=16, color="r", horizontalalignment="center", verticalalignment="center", rotation=45 )
+                    fontsize=16, color=warnred, horizontalalignment="center", verticalalignment="center", rotation=45 )
 
-    def convergence ( self, warn=True ):
-        raise NotImplementedError
+    def convergence ( self, parameter=0, warn=True ):
+        """A simple convergence plot"""
+        p.figure()
+        ax = p.axes([0,.5,.5,.5])
+        self.chainplot ( parameter,ax=ax, warn=warn )
+        ax = p.axes([.5,.5,.5,.5])
+        self.geweke ( parameter, ax=ax, warn=warn )
 
     ############################################
     # Convergence diagnostics
-    def geweke ( self, parameter=0, nsegments=10, ax=None ):
-        """Geweke test for stationarity of a chain."""
+    def geweke ( self, parameter=0, nsegments=10, ax=None, warn=True ):
+        """Geweke test for stationarity of a chain.
+
+        The Geweke test first transforms all samples to mean 0 and standard deviation 1.
+        In a second step, it calculates the sample average in a number of segments and
+        checks whether these subaverages differ significantly from 0.
+
+        :Parameters:
+            parameter       parameter of interest
+            nsegments       number of subaverages to be calculated
+            ax              axes to plot in (if this is None, no plot is created)
+            warn            should a warning message be plotted if the chain did not
+                            converge?
+
+        :Output:
+            a boolean value indicating whether the chain is "good" or "bad"
+        """
         z = N.zeros ( (nsegments, self.nchains), 'd' )
         for k in xrange ( self.nchains ):
             samples = self.getsamples ( k ) [:,parameter]
@@ -797,12 +827,15 @@ class BayesInference ( PsiInference ):
             p.plot ( [xtics.min(),xtics.max()],[-2]*2,'k:')
             p.plot ( [xtics.min(),xtics.max()],[ 2]*2,'k:')
             pp.drawaxes ( ax, xtics, "%g", N.array((-3,-2,-1,0,1,2,3)), "%g", "chain segment", "z-score" )
+
+        # warn about bad points
         if abs(z).max() > 2:
             bad = []
             for k in xrange(self.nchains):
                 if abs(z[:,k]).max() > 2:
                     bad.append(k)
-            p.text(0.5*nsegments,0,"chains did not converge: %s" % (bad,), color="red", fontsize=16, rotation=45, verticalalignment="center", horizontalalignment="center" )
+            if warn:
+                p.text(0.5*nsegments,0,"chains did not converge: %s" % (bad,), color="red", fontsize=16, rotation=45, verticalalignment="center", horizontalalignment="center" )
             return False
         else:
             return True
@@ -829,6 +862,43 @@ class BayesInference ( PsiInference ):
         W = si2.mean()
 
         return (float(n-1)/n * W + B/n)/W;
+
+    def chainplot ( self, parameter=0, raw=False, ax=None, warn=True ):
+        """Simply plot all chains for a single parameter
+
+        :Parameters:
+            parameter   index of the model parameter to plot
+            raw         plot raw samples instead of thinned samples after burnin
+            ax          axes in which to print
+            warn        if True, warnings are written into the plot
+        """
+        # Do we have an appropriate axis?
+        if ax==None:
+            ax = p.axes()
+
+        # Plot the chains
+        for c in xrange(self.nchains):
+            if raw:
+                samples = samples.__mcmc_chains[c]
+            else:
+                samples = self.getsamples(c)
+            p.plot ( samples[:,parameter] )
+
+        # Learn something about the axes
+        xtics = N.array(ax.get_xticks())
+        x0    = xtics.min()
+        xr    = xtics.max()-xtics.min()
+        ytics = ax.get_yticks()
+        y0    = ytics.min()
+        yr    = N.array(ytics.max()-ytics.min())
+
+        p.text(x0+0.6*xr,y0+0.95*yr,"R^ = %.4f" % (self.Rhat ( parameter ) ) )
+
+        if warn and self.Rhat(parameter)<1.1:
+            p.text(x0+0.5*xr,y0+0.5*yr,"Chains do not seem to sample\nfrom the same distribution!",
+                    horizontalalignment="center",verticalalignment="center",fontsize=16,rotation=45,color=warnred)
+
+        pp.drawaxes ( ax, ax.get_xticks(), "%g", ax.get_yticks(), "%g", "sample #", self.parnames[parameter] )
 
     ############################################
     # Properties
@@ -1018,14 +1088,12 @@ def main ( ):
         mcmc.sample(start=(6,4,.3))
         mcmc.sample(start=(1,1,.1))
         mcmc.gof()
-        print mcmc.getPI()
+        print "Posterior Intervals",mcmc.getPI()
         print "Model Evidence", mcmc.evidence
         print "Rhat (m):",mcmc.Rhat ()
         print "Nsamples:",mcmc.nsamples
 
-        p.figure()
-        ax = p.axes()
-        mcmc.geweke ( ax=ax )
+        mcmc.convergence(0)
 
     p.show()
 
