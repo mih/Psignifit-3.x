@@ -4,11 +4,11 @@ import pylab as p
 
 def drawaxes ( ax, xtics, xfmt, ytics, yfmt, xname, yname ):
     """Draw x and y axes that look nicer than standard matplotlib
-    
+
     This function deletes the pylab default axes and draws visually more
     pleasing axes. In addition it takes care that all graphics remain within
     the area covered by the axes.
-    
+
     :Parameters:
         ax      the axes object in which the graphics should stay
         xtics   an array of x-ticks
