@@ -1043,6 +1043,24 @@ class BayesInference ( PsiInference ):
             dev = self.pdeviance
             return N.exp(-0.5*dev).mean()
 
+    @Property
+    def pD ():
+        """effective number of parameters"""
+        def fget ( self ):
+            return self.pdeviance.mean()-self.deviance
+
+    @Property
+    def DIC ():
+        """Deviance information criterion
+
+        This is an information criterion based on the posterior distribution of deviance.
+        In contrast, to other information criteria, the deviance information criterion
+        determines the effective number of free parameters from the posterior distribution.
+        """
+        def fget ( self ):
+            meandev = self.pdeviance.mean()
+            return 2*meandev-self.deviance
+
     ############################################
     # Private methods
     def __recomputeCorrelationsAndThresholds ( self ):
@@ -1092,6 +1110,8 @@ def main ( ):
         print "Model Evidence", mcmc.evidence
         print "Rhat (m):",mcmc.Rhat ()
         print "Nsamples:",mcmc.nsamples
+        print "DIC:",mcmc.DIC
+        print "pD:", mcmc.pD
 
         mcmc.convergence(0)
 
