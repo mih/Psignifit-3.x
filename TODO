@@ -1,5 +1,7 @@
 - Check when we need #include <numpy/arrayobject.h> and when #include <Numeric/arrayobject.h>
 - use linalg.h/linalg.cc for Psychometric::leastfavourable and for Sampler class
+    - leastfavourable                                                     [OK]
+    - sampler class doesn't work, why?
 - high level python interface:
     - Convergence diagnostics for MCMC
     - posterior intervals and posterior histograms for model parameters
@@ -8,6 +10,7 @@
 - MCMC: Use fisher matrix as covariance matrix for the proposal distribution
 - nonparametric bootstrap
 - Implement alternative SimplexAlgorithm (Numerical Recipes?, gsl-Wrapper-Object?) The current one depends heavily on the initial simplex!
+    - Perform some gradient based steps after simplex optimization
 - beta binomial models
 - BCa confidence limits for slope (and widths?)
 - Sensitivity analysis
