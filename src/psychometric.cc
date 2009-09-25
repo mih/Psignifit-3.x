@@ -76,8 +76,9 @@ double PsiPsychometric::leastfavourable ( const std::vector<double>& prm, const 
 	if (!threshold) throw NotImplementedError();  // So far we only have this for the threshold
 
 	std::vector<double> delta (prm.size(),0), du(prm.size(),0);
-	Matrix * I = new Matrix ( prm.size(), prm.size() );
-	double ythres,rz,nz,pz,xz,fac1,fac2;
+	Matrix * I;
+	double ythres;
+	double rz,nz,xz,pz,fac1;
 	double l_LF(0);
 	double c,s;
 	int i,j,k,z;
@@ -86,6 +87,47 @@ double PsiPsychometric::leastfavourable ( const std::vector<double>& prm, const 
 	ythres = Sigmoid->inv(cut);
 	du[0] = Core->dinv(ythres,prm,0);
 	du[1] = Core->dinv(ythres,prm,1);
+
+	// Determine 2nd derivative
+	I = ddnegllikeli ( prm, data );
+
+	// Now we have to solve I*delta = du for delta
+	delta = I->solve ( du );
+
+	// I is not needed anymore
+	delete I;
+
+	// Normalize the result
+	s = 0;
+	for (i=0; i<prm.size(); i++)
+		s += delta[i]*delta[i];
+	s = sqrt(s);
+	for (i=0; i<prm.size(); i++)
+	    delta[i] /= s;
+
+	// The result has to be multiplied by the gradient of the likelihood
+	for (z=0; z<data->getNblocks(); z++) {
+		rz = data->getNcorrect(z);
+		nz = data->getNtrials(z);
+		xz = data->getIntensity(z);
+		pz = evaluate(xz,prm);
+		fac1 = rz/pz - (nz-rz)/(1-pz);
+		for (i=0; i<2; i++)
+			l_LF += delta[i] * fac1 * Sigmoid->df(Core->g(xz,prm)) * Core->dg(xz,prm,i);
+	
+		for (i=2; i<prm.size(); i++)
+			l_LF += delta[i] * fac1 * ( (i==2 ? 1 : 0) - Sigmoid->f(Core->g(xz,prm)) );
+	}
+
+	return l_LF;
+}
+
+Matrix * PsiPsychometric::ddnegllikeli ( const std::vector<double>& prm, const PsiData* data ) const
+{
+	Matrix * I = new Matrix ( prm.size(), prm.size() );
+
+	double rz,nz,pz,xz,fac1,fac2;
+	int z,i,j;
 
 	// Fill I
 	for (z=0; z<data->getNblocks(); z++) {
@@ -120,18 +162,15 @@ double PsiPsychometric::leastfavourable ( const std::vector<double>& prm, const 
 		for (j=0; j<i; j++)
 			(*I)(i,j) = (*I)(j,i);
 
-	// Now we have to solve I*delta = du for delta
-	delta = I->solve ( du );
+	return I;
+}
 
-	// Normalize the result
-	s = 0;
-	for (i=0; i<prm.size(); i++)
-		s += delta[i]*delta[i];
-	s = sqrt(s);
-	for (i=0; i<prm.size(); i++)
-	    delta[i] /= s;
+std::vector<double> PsiPsychometric::dnegllikeli ( const std::vector<double>& prm, const PsiData* data ) const
+{
+	std::vector<double> out (prm.size());
+	double rz,xz,pz,nz,fac1;
+	int z,i;
 
-	// The result has to be multiplied by the gradient of the likelihood
 	for (z=0; z<data->getNblocks(); z++) {
 		rz = data->getNcorrect(z);
 		nz = data->getNtrials(z);
@@ -139,13 +178,13 @@ double PsiPsychometric::leastfavourable ( const std::vector<double>& prm, const 
 		pz = evaluate(xz,prm);
 		fac1 = rz/pz - (nz-rz)/(1-pz);
 		for (i=0; i<2; i++)
-			l_LF += delta[i] * fac1 * Sigmoid->df(Core->g(xz,prm)) * Core->dg(xz,prm,i);
+			out[i] = fac1 * (1-guessingrate-prm[2]) * Sigmoid->df(Core->g(xz,prm)) * Core->dg(xz,prm,i);
 	
 		for (i=2; i<prm.size(); i++)
-			l_LF += delta[i] * fac1 * ( (i==2 ? 1 : 0) - Sigmoid->f(Core->g(xz,prm)) );
+			out[i] = fac1 * ( (i==2 ? 1 : 0) - Sigmoid->f(Core->g(xz,prm)) );
 	}
 
-	return l_LF;
+	return out;
 }
 
 double PsiPsychometric::deviance ( const std::vector<double>& prm, const PsiData* data ) const

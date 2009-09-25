@@ -9,6 +9,7 @@
 #include "errors.h"
 #include "prior.h"
 #include "data.h"
+#include "linalg.h"
 
 /** \brief Standard psychometric function model
  *
@@ -60,6 +61,14 @@ class PsiPsychometric {
 			const std::vector<double>& prm,                                          ///< parameters of the psychometric functin model
 			const PsiData* data                                                      ///< data for which the likelihood should be evaluated
 			) const; ///< deviance for a given data set and parameter constellation
+		virtual Matrix * ddnegllikeli (
+				const std::vector<double>& prm,                                      ///< parameters at which the second derivative should be evaluated
+				const PsiData* data                                                  ///< data for which the likelihood should be evaluated
+				) const;                                          ///< 2nd derivative of the negative log likelihood (newly allocated matrix)
+		virtual std::vector<double> dnegllikeli (
+				const std::vector<double>& prm,                                      ///< parameters at which the first derivative should be evaluated
+				const PsiData* data                                                  ///< data for which the likelihood should be evaluated
+				) const;                                          ///< 1st derivative of the negative log likelihood
 		const PsiCore* getCore ( void ) { return Core; }                ///< get the core of the psychometric function
 		const PsiSigmoid* getSigmoid ( void ) { return Sigmoid; }       ///< get the sigmoid of the psychometric function
 		void setPrior ( int index, PsiPrior* prior );                   ///< set a Prior for the parameter indicated by index
