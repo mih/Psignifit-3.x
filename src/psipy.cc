@@ -176,7 +176,7 @@ static char psimapestimate_doc [] =
 
 
 static char psidiagnostics_doc [] =
-"diagnostics ( data, params, nafc=2, sigmoid='logistics', core='ab' )\n"
+"diagnostics ( data, params, nafc=2, sigmoid='logistics', core='ab', cuts=None )\n"
 "\n"
 "Some diagnostic statistics for a psychometric function fit\n"
 "\n"
@@ -198,12 +198,17 @@ static char psidiagnostics_doc [] =
 "              'mw%g'    midpoint and width\n"
 "              'linear'  a+bx\n"
 "              'log'     a+b log(x)\n"
+"  cuts     cuts at which thresholds should be determined. That is if cuts = (.25,.5,.75), thresholds\n"
+"           (F^{-1} ( 0.25 ), F^{-1} ( 0.5 ), F^{-1} ( 0.75 )) are returned. Here F^{-1} denotes the inverse\n"
+"           of the function specified by sigmoid. If cuts==None, this is modified to cuts=[0.5]. In any case,\n"
+"           cuts should be a sequence!\n"
 "\n"
 ":Output:\n"
 "  predicted(,devianceresiduals,deviance,Rpd,Rkd)\n"
 "  predicted          predicted values associated with the respective stimulus intensities\n"
 "  devianceresiduals  deviance residuals of the data\n"
 "  deviance           deviance of the data\n"
+"  thres              threshold / thresholds for the specified cuts\n"
 "  Rpd                correlation between predicted performance and deviance residuals\n"
 "  Rkd                correlation between block index and deviance residuals\n"
 "\n"
