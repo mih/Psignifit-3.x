@@ -555,6 +555,33 @@ int CoreTests ( TestSuite * T ) {
 	return failures;
 }
 
+int LinalgTests ( TestSuite * T ) {
+	int failures (0);
+
+	Matrix *M = new Matrix (3,3);
+	std::vector<double> x(3),b(3);
+
+	(*M)(0,0) = 0.75; (*M)(0,1) = 0.52; (*M)(0,2) = -.16;
+	(*M)(1,0) = 0.52; (*M)(1,1) = 1.38; (*M)(1,2) = -.42;
+	(*M)(2,0) = -.16; (*M)(2,1) = -.42; (*M)(2,2) = 0.53;
+
+	Matrix *I = M->inverse();
+	failures += T->isequal ( (*I)(0,0),  1.80488979, "Inverse (0,0)" );
+	failures += T->isequal ( (*I)(1,0), -0.67772799, "Inverse (1,0)" );
+	failures += T->isequal ( (*I)(2,0),  0.00780493, "Inverse (2,0)" );
+	failures += T->isequal ( (*I)(0,1), -0.67772799, "Inverse (0,1)" );
+	failures += T->isequal ( (*I)(1,1),  1.20943876, "Inverse (1,1)" );
+	failures += T->isequal ( (*I)(2,1),  0.75382604, "Inverse (2,1)" );
+	failures += T->isequal ( (*I)(0,2),  0.00780493, "Inverse (0,2)" );
+	failures += T->isequal ( (*I)(1,2),  0.75382604, "Inverse (1,2)" );
+	failures += T->isequal ( (*I)(2,2),  2.48652024, "Inverse (2,2)" );
+
+	delete I;
+	delete M;
+
+	return failures;
+}
+
 int main ( int argc, char ** argv ) {
 	TestSuite Tests ( "tests_all.log" );
 	Tests.addTest(&PsychometricValues,"Values of the psychometric function");
@@ -564,5 +591,6 @@ int main ( int argc, char ** argv ) {
 	Tests.addTest(&CoreTests,         "Tests of core objects");
 	Tests.addTest(&MCMCTest,          "MCMC");
 	Tests.addTest(&PriorTest,         "Priors");
+	Tests.addTest(&LinalgTests,       "Linear algebra routines");
 	Tests.runTests();
 }
