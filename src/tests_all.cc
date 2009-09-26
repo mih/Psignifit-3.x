@@ -556,6 +556,7 @@ int CoreTests ( TestSuite * T ) {
 }
 
 int LinalgTests ( TestSuite * T ) {
+	// These tests compare the results with the respective numpy/scipy routines
 	int failures (0);
 
 	Matrix *M = new Matrix (3,3);
@@ -575,8 +576,56 @@ int LinalgTests ( TestSuite * T ) {
 	failures += T->isequal ( (*I)(0,2),  0.00780493, "Inverse (0,2)" );
 	failures += T->isequal ( (*I)(1,2),  0.75382604, "Inverse (1,2)" );
 	failures += T->isequal ( (*I)(2,2),  2.48652024, "Inverse (2,2)" );
-
 	delete I;
+
+	b[0] = 1; b[1] = 0.5; b[2] = 0;
+	x = M->solve(b);
+	failures += T->isequal ( x[0],  1.4660258,  "solving Ax=b, x[0]" );
+	failures += T->isequal ( x[1], -0.0730086,  "solving Ax=b, x[1]" );
+	failures += T->isequal ( x[2],  0.38471795, "solving Ax=b, x[2]" );
+
+	I = M->cholesky_dec ();
+	failures += T->isequal ( (*I)(0,0),  0.8660254,  "Cholesky (0,0)" );
+	failures += T->isequal ( (*I)(1,0),  0.60044428, "Cholesky (1,0)" );
+	failures += T->isequal ( (*I)(2,0), -0.18475209, "Cholesky (2,0)" );
+	failures += T->isequal ( (*I)(0,1),  0.        , "Cholesky (0,1)" );
+	failures += T->isequal ( (*I)(1,1),  1.00968642, "Cholesky (1,1)" );
+	failures += T->isequal ( (*I)(2,1), -0.30610164, "Cholesky (2,1)" );
+	failures += T->isequal ( (*I)(0,2),  0.        , "Cholesky (0,2)" );
+	failures += T->isequal ( (*I)(1,2),  0.        , "Cholesky (1,2)" );
+	failures += T->isequal ( (*I)(2,2),  0.63416753, "Cholesky (2,2)" );
+	delete I;
+
+	I = M->lu_dec ();
+	failures += T->isequal ( (*I)(0,0),  0.75      , "LU (0,0)" );
+	failures += T->isequal ( (*I)(1,0),  0.69333333, "LU (1,0)" );
+	failures += T->isequal ( (*I)(2,0), -0.21333333, "LU (2,0)" );
+	failures += T->isequal ( (*I)(0,1),  0.52      , "LU (0,1)" );
+	failures += T->isequal ( (*I)(1,1),  1.01946667, "LU (1,1)" );
+	failures += T->isequal ( (*I)(2,1), -0.30316505, "LU (2,1)" );
+	failures += T->isequal ( (*I)(0,2), -0.16      , "LU (0,2)" );
+	failures += T->isequal ( (*I)(1,2), -0.30906667, "LU (1,2)" );
+	failures += T->isequal ( (*I)(2,2),  0.40216845, "LU (2,2)" );
+	delete I;
+
+	b = (*M)*x;
+	failures += T->isequal ( b[0], 1., "Ax=b, b[0]" );
+	failures += T->isequal ( b[1], .5, "Ax=b, b[1]" );
+	failures += T->isequal ( b[2], 0., "Ax=b, b[2]" );
+
+	T->isequal ( M->symmetric(), 1., "M should be symmetric" );
+
+	int i,j;
+	I = new Matrix (3,3);
+	for (i=0; i<3; i++)
+		for (j=0; j<3; j++)
+		(*I)(i,j) = (*M)(i,j);
+	I->scale(2);
+	for (i=0; i<3; i++)
+		for (j=0; j<3; j++)
+			failures += T->isequal ( (*I)(i,j), 2*(*M)(i,j), "matrix scaling" );
+	delete I;
+
 	delete M;
 
 	return failures;
