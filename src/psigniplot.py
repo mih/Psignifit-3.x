@@ -156,8 +156,85 @@ def plotHistogram ( simdata, observed, xname, shortname=None, ax=None, hideobser
     else:
         return False
 
-def plotPMF ( InferenceObject, ax=None ):
-    raise NotImplementedError()
+def plotPMF ( InferenceObject, xlabel_text="Stimulus intensity", ylabel_text=None,ax=None ):
+#    def pmfanddata ( self, ax=None, xlabel_text="Stimulus intensity", ylabel_text=None ):
+    """Show the psychometric function and data in an axes system
+
+    This function plots the best fitting psychometric function and with the
+    corresponding data points. If data points are labelled influential, they
+    are plotted as red squares, if data points are labelled as outliers, they
+    are plotted as red triangles.
+    The function uses its internal knowledge about the task (nAFC or Yes/No)
+    to put the correct labels to the y-axis.
+
+    :Parameters:
+        ax          axes object in which the plot should go
+        xlabel_text label for the x-axis
+        ylabel_text label for the y-axis, if this is None, the functions
+                    determines the correct label from its internal knowledge
+                    about the task
+    """
+    if ax==None:
+        ax = p.axes()
+
+    # Plot the psychometric function
+    xmin = InferenceObject.data[:,0].min()
+    xmax = InferenceObject.data[:,0].max()
+    x = N.mgrid[xmin:xmax:100j]
+    # psi = N.array(_psipy.diagnostics ( x, self.estimate, sigmoid=self.model["sigmoid"], core=self.model["core"], nafc=self.model["nafc"] ))
+    psi = InferenceObject.evaluate ( x )
+    ax.plot(x,psi,'b')
+
+    # Plot the data
+    xd = InferenceObject.data[:,0]
+    pd = InferenceObject.data[:,1].astype("d")/InferenceObject.data[:,2]
+    goodpoints = N.ones(pd.shape,bool)
+    if not InferenceObject.outl==None:
+        ax.plot(xd[InferenceObject.outl],pd[InferenceObject.outl],'r^')
+        goodpoints = N.logical_and(goodpoints,N.logical_not(InferenceObject.outl))
+    if not InferenceObject.infl==None:
+        ax.plot(xd[InferenceObject.infl],pd[InferenceObject.infl],"rs")
+        goodpoints = N.logical_and(goodpoints,N.logical_not(InferenceObject.infl))
+    ax.plot(xd[goodpoints],pd[goodpoints],'bo')
+
+    # Check axes limits
+    if InferenceObject.model["nafc"]>1:
+        ymin,ymax = 1./InferenceObject.model["nafc"]-.05,1.05
+        if ylabel_text is None:
+            ylabel_text = "P(correct)"
+    else:
+        ymin,ymax = -.05,1.05
+        if ylabel_text is None:
+            ylabel_text = "P(Yes)"
+
+    # Determine tics
+    p.setp(ax,frame_on=False,ylim=(ymin,ymax))
+    xtics = p.getp(ax,'xticks')
+    ytics = p.getp(ax,'yticks').tolist()
+    # Clean up ytics
+    if InferenceObject.model["nafc"]==1:
+        for k,yt in enumerate(ytics):
+            if yt<0 or yt>1:
+                ytics.pop(k)
+    else:
+        for k,yt in enumerate(ytics):
+            if yt<(1./InferenceObject.model["nafc"]) or yt>1:
+                ytics.pop(k)
+    ytics = N.array(ytics)
+
+    drawaxes ( ax, xtics, "%g", ytics, "%g", xlabel_text, ylabel_text )
+
+    # Write some model information
+    if not InferenceObject.deviance is None:
+        ax.text(0.5*(xmin+xmax),ymin+.05,"D=%g" % ( InferenceObject.deviance, ) )
+    ax.text ( 0.5*(xmin+xmax),ymin+.1,InferenceObject.desc )
+
+# def plotThres ( InferenceObject, ax=None ):
+#     """Plot thresholds and confidence intervals"""
+#     if ax == None:
+#         ax = p.axes()
+
+
 
 def plotGeweke ( BayesInferenceObject, ax=None ):
     raise NotImplementedError()

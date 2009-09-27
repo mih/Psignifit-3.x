@@ -1012,7 +1012,8 @@ def main ( ):
 
         # mcmc.convergence(0)
         # pp.plotRd ( mcmc )
-        pp.plotHistogram ( mcmc.pRkd, mcmc.Rkd, "posterior Rkd", "Rkd", hideobserved=True )
+        # pp.plotHistogram ( mcmc.pRkd, mcmc.Rkd, "posterior Rkd", "Rkd", hideobserved=True )
+        pp.plotPMF ( mcmc )
 
     p.show()
 
