@@ -1,3 +1,4 @@
+- Update documentation
 - Make sure that sscanf does not use locale for Numbers!
 - Check when we need #include <numpy/arrayobject.h> and when #include <Numeric/arrayobject.h>
 - use linalg.h/linalg.cc for Psychometric::leastfavourable and for Sampler class
