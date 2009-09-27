@@ -2,6 +2,7 @@
 
 import pylab as p
 import numpy as N
+from pypsignifit import BayesInference, BootstrapInference
 
 def drawaxes ( ax, xtics, xfmt, ytics, yfmt, xname, yname ):
     """Draw x and y axes that look nicer than standard matplotlib
@@ -235,19 +236,88 @@ def plotThres ( InferenceObject, ax=None ):
         ax = p.axes()
 
     for k,cut in enumerate(InferenceObject.cuts):
-        c25,c975 = InferenceObject.getCI ( conf=(.025,.975) )[k]
+        c25,c975 = InferenceObject.getCI ( cut=k, conf=(.025,.975) )
         thres = InferenceObject.getThres ( cut )
         ylev = InferenceObject.evaluate ( [thres] )
         # ylev  = _psipy.diagnostics ( [thres],   self.estimate, cuts=cut, nafc=self.model["nafc"], sigmoid=self.model["sigmoid"], core=self.model["core"] )
         ax.plot ( [c25,thres,c975],[ylev]*3, 'b-|' )
 
+def GoodnessOfFit ( InferenceObject ):
+    """Draw a diagnostic figure to help assessing goodness of fit
+
+    This graphic is intended to help the user determine how well the fitted function describes
+    the data. The plot has 6 fields:
+
+    +-----+-----+-----+
+    |  1  |  3  |  5  |
+    +-----+-----+-----+
+    |  2  |  4  |  6  |
+    +-----+-----+-----+
+
+    The fields provide the following information:
+    1.  The data and the fitted psychometric function. "fitted" here means the parameters are
+        the mean of the posterior. To get an idea of the posterior distribution, posterior
+        intervals are plotted at some positions (the location and width of the posterior
+        intervals is given in the constructor). To make the posterior distribution really
+        "plastic", a number of samples from the posterior distribution over psychometric
+        functions are also drawn in light blue
+    2.  A histogram to approximate the posterior distribution of deviances.
+    3.  A plot of model predictions (of the mean estimate) against deviance residuals. If
+        there is no obvious interrelation between model prediction and deviance residuals,
+        this indicates that the model describes the data reasonably well. To get an idea
+        of the interrelation between model prediction and deviance residuals, the best
+        fitting line is plotted as a dotted line.
+    4.  A histogram of samples from the posterior distribution of correlations between
+        model prediction and deviance residuals. If this distribution is clearly shifted
+        away from 0, this is strong evidence, that something is wrong with your model or
+        your data.
+    5,6 Similar to 3 and 4 but form correlations between block index and deviance residuals.
+        Correlations between block index and deviance residuals indicate nonstationary
+        data as should be found during e.g. perceptual learning.
+
+    :Parameters:
+        warn    if warn is set to True, red warning messages are displayed
+                whenever the fit does not seem to describe the data well.
+    """
+    p.figure(figsize=(10,8))
+
+    # First part: Data and fitted function, bottom deviance
+    ax = p.axes([0,.5,.33,.5] )
+    # if isinstance ( InferenceObject, BayesInference ):
+    try:
+        InferenceObject.drawposteriorexamples ( ax=ax )
+    except:
+        pass
+    plotThres ( InferenceObject, ax=ax )
+    plotPMF   ( InferenceObject, ax=ax )
+    plotHistogram ( InferenceObject.mcdeviance, InferenceObject.deviance, "posterior deviance", "D", p.axes ( [0,0,.33,.5] ) )
+
+    # Second part: Correlations between model prediction and residuals
+    plotRd ( InferenceObject, p.axes([.33,.5,.33,.5]), "p" )
+    good = plotHistogram ( InferenceObject.mcRpd, InferenceObject.Rpd, "posterior Rpd", "Rpd", p.axes([.33,0,.33,.5]) )
+    if not good and warn==True:
+        if isinstance ( InferenceObject, BootstrapInference ):
+            p.text ( 0, p.getp(p.gca(),'ylim').mean() , "Simulated Rpd differs from observed!\nModel deviates systematically from data", \
+                    fontsize=16, color=warnred, horizontalalignment="center", verticalalignment="center", rotation=45 )
+        elif isinstance ( InferenceObject, BayesInferenceObject ):
+            p.text ( 0, p.getp(p.gca(),'ylim').mean() , "Rpd is different from 0!\nModel deviates systematically from data", \
+                    fontsize=16, color=warnred, horizontalalignment="center", verticalalignment="center", rotation=45 )
+
+    # Third part: Correlations between model prediction and block index
+    plotRd ( InferenceObject, p.axes([.66,.5,.33,.5]), "k" )
+    good = plotHistogram ( InferenceObject.mcRkd, InferenceObject.Rkd, "posterior Rkd", "Rkd", p.axes([.66,0,.33,.5]) )
+    if not good and warn==True:
+        if isinstance ( InferenceObject, BootstrapInference ):
+            p.text ( 0, p.getp(p.gca(),'ylim').mean(), "Simulated Rkd differs from observed!\nData are nonstationary!",\
+                    fontsize=16, color=warnred, horizontalalignment="center", verticalalignment="center", rotation=45 )
+        elif isinstance ( InferenceObject, BayesInference ):
+            p.text ( 0, p.getp(p.gca(),'ylim').mean(), "Rkd is different from 0!\nData are nonstationary!",\
+                    fontsize=16, color=warnred, horizontalalignment="center", verticalalignment="center", rotation=45 )
+
 def plotGeweke ( BayesInferenceObject, ax=None ):
     raise NotImplementedError()
 
 def plotChains ( BayesInferenceObject, ax=None ):
-    raise NotImplementedError()
-
-def GoodnessOfFit ( InferenceObject ):
     raise NotImplementedError()
 
 gof = GoodnessOfFit
