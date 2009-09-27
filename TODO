@@ -8,6 +8,7 @@
 - high level python interface:
     - unit tests
     - refactor the python toolbox to have "strict" data objects and plot functions working on top of these
+        what is going on with type checking in psigniplot.GoodnessOfFit?
     - Convergence diagnostics for MCMC
     - posterior intervals and posterior histograms for model parameters
 - mid level python interface:

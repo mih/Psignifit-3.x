@@ -3,6 +3,7 @@
 import pylab as p
 import numpy as N
 from pypsignifit import BayesInference, BootstrapInference
+import pypsignifit
 
 def drawaxes ( ax, xtics, xfmt, ytics, yfmt, xname, yname ):
     """Draw x and y axes that look nicer than standard matplotlib
