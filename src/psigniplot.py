@@ -229,12 +229,17 @@ def plotPMF ( InferenceObject, xlabel_text="Stimulus intensity", ylabel_text=Non
         ax.text(0.5*(xmin+xmax),ymin+.05,"D=%g" % ( InferenceObject.deviance, ) )
     ax.text ( 0.5*(xmin+xmax),ymin+.1,InferenceObject.desc )
 
-# def plotThres ( InferenceObject, ax=None ):
-#     """Plot thresholds and confidence intervals"""
-#     if ax == None:
-#         ax = p.axes()
+def plotThres ( InferenceObject, ax=None ):
+    """Plot thresholds and confidence intervals"""
+    if ax == None:
+        ax = p.axes()
 
-
+    for k,cut in enumerate(InferenceObject.cuts):
+        c25,c975 = InferenceObject.getCI ( conf=(.025,.975) )[k]
+        thres = InferenceObject.getThres ( cut )
+        ylev = InferenceObject.evaluate ( [thres] )
+        # ylev  = _psipy.diagnostics ( [thres],   self.estimate, cuts=cut, nafc=self.model["nafc"], sigmoid=self.model["sigmoid"], core=self.model["core"] )
+        ax.plot ( [c25,thres,c975],[ylev]*3, 'b-|' )
 
 def plotGeweke ( BayesInferenceObject, ax=None ):
     raise NotImplementedError()

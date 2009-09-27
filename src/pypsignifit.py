@@ -124,6 +124,12 @@ class PsiInference ( object ):
             ax.text(0.5*(xmin+xmax),ymin+.05,"D=%g" % ( self.deviance, ) )
         ax.text ( 0.5*(xmin+xmax),ymin+.1,self.desc )
 
+    def getThres ( self, cut=0.5 ):
+        """Get thresholds at cut"""
+        if self.data == None:
+            raise NotImplementedError
+        return float(_psipy.diagnostics ( self.data, self.estimate, cuts=cut, nafc=self.model["nafc"], sigmoid=self.model["sigmoid"], core=self.model["core"] )[3])
+
     desc = property ( fget=lambda self: "sigmoid: %(sigmoid)s\ncore: %(core)s\nnAFC: %(nafc)d" % self.model,
             doc="A short description of the employed model")
     outl = property ( fget=lambda self: self.__outl, doc="A boolean array indicating whether or not a block was an outlier" )
@@ -593,6 +599,7 @@ class BayesInference ( PsiInference ):
                 raise NotImplementedError
             return p.prctile ( vals, 100*N.array(conf) )
 
+
     ############################################
     # Plotting routines
     def drawposteriorexamples ( self, ax=None, Nsamples=20 ):
@@ -618,15 +625,8 @@ class BayesInference ( PsiInference ):
             psi = N.array(_psipy.diagnostics ( x, samples[N.random.randint(samples.shape[0]),:], sigmoid=self.model["sigmoid"], core=self.model["core"], nafc=self.model["nafc"] ))
             ax.plot(x,psi,color=[.6,.6,1])
 
-        # We further visualize the posterior distribution py plotting some posterior intervals
-        for k,cut in enumerate(self.cuts):
-            c25,c975 = self.getCI ( conf=(.025,.975) )[k]
-            thres = float(_psipy.diagnostics ( self.data, self.estimate, cuts=cut, nafc=self.model["nafc"], sigmoid=self.model["sigmoid"], core=self.model["core"] )[3])
-            ylev  = _psipy.diagnostics ( [thres],   self.estimate, cuts=cut, nafc=self.model["nafc"], sigmoid=self.model["sigmoid"], core=self.model["core"] )
-            ax.plot ( [c25,thres,c975],[ylev]*3, 'b-|' )
-
         # This plots the 'real' psychometric function and the axes
-        self.pmfanddata ( ax=ax )
+        # self.pmfanddata ( ax=ax )
 
     def gof ( self, warn=True ):
         """Draw a diagnostic figure to help assessing goodness of fit
@@ -1017,7 +1017,9 @@ def main ( ):
         # mcmc.convergence(0)
         # pp.plotRd ( mcmc )
         # pp.plotHistogram ( mcmc.pRkd, mcmc.Rkd, "posterior Rkd", "Rkd", hideobserved=True )
-        pp.plotPMF ( mcmc )
+        mcmc.drawposteriorexamples()
+        pp.plotThres ( mcmc, ax=p.gca() )
+        pp.plotPMF ( mcmc, ax=p.gca() )
 
     p.show()
 
