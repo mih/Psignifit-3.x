@@ -998,7 +998,8 @@ def main ( ):
 
     if bootstrap:
         b = BootstrapInference ( d, sample=2000, priors=priors )
-        b.gof()
+        # b.gof()
+        pp.GoodnessOfFit(b)
     else:
         priors = ("Gauss(0,100)","Gamma(1,3)","Beta(2,100)")
         mcmc = BayesInference ( d, priors=priors )
@@ -1017,9 +1018,10 @@ def main ( ):
         # mcmc.convergence(0)
         # pp.plotRd ( mcmc )
         # pp.plotHistogram ( mcmc.pRkd, mcmc.Rkd, "posterior Rkd", "Rkd", hideobserved=True )
-        mcmc.drawposteriorexamples()
-        pp.plotThres ( mcmc, ax=p.gca() )
-        pp.plotPMF ( mcmc, ax=p.gca() )
+        # mcmc.drawposteriorexamples()
+        # pp.plotThres ( mcmc, ax=p.gca() )
+        # pp.plotPMF ( mcmc, ax=p.gca() )
+        pp.GoodnessOfFit(mcmc)
 
     p.show()
 

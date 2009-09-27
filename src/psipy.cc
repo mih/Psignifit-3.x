@@ -146,7 +146,6 @@ static PyObject * psibootstrap ( PyObject * self, PyObject * args, PyObject * kw
 	for ( i=0; i<Nblocks; i++ ) {
 		((bool*)pyoutliers->data)[i]   = bool(jack.outlier ( i ));
 		((bool*)pyinfluential->data)[i]= bool(jack.influential ( i, *ci_lower, *ci_upper ));
-		std::cerr << "Index " << i << " outl: " << jack.outlier (i) << " infl: " << jack.influential ( i, *ci_lower, *ci_upper ) << "\n";
 	}
 	delete ci_lower;
 	delete ci_upper;
