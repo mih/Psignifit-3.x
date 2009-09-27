@@ -2,6 +2,7 @@
 #define PYTOOLS_H
 
 #include <vector>
+#include <cstdlib>
 #include <string>
 
 PsiData * create_dataset ( PyObject * pydata, int Nafc, int *nblocks, int *allow1d=NULL ) {
@@ -73,11 +74,11 @@ PsiCore * getcore ( const char * corename, int sigmoidcode, const PsiData * data
 		// std::cerr << "Using core ab\n";
 		return new abCore;
 	} else if ( !strncmp(corename,"mw",2) ) {
-		double alpha;
-		// std::cerr << corename << "\n";
+		double alpha(0.1);
 		if ( sscanf ( corename, "mw%lf", &alpha )==0 )
 			alpha = 0.1;
-		// std::cerr << "Using core mw with parameter " << alpha << "\n";
+		if (alpha<=0 || alpha>=1)
+			throw std::string ( "alpha should be >0 and <1, but isn't." );
 		return new mwCore ( sigmoidcode, alpha );
 	} else if ( !strcmp(corename,"linear") ) {
 		// std::cerr << "Using linear core\n";
