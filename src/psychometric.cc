@@ -293,7 +293,6 @@ std::vector<double> PsiPsychometric::getStart ( const PsiData* data ) const
 	    out[2] = 0.02;
 	}
 
-
 	return out;
 }
 

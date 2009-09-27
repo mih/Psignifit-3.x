@@ -45,6 +45,7 @@ std::vector<double> PsiOptimizer::optimize ( const PsiPsychometric * model, cons
 		std::cerr << start[k] << "\n";
 #endif
 
+
 	double dl;
 
 	double ffx;         // function value at potential new point
