@@ -124,61 +124,6 @@ class PsiInference ( object ):
             ax.text(0.5*(xmin+xmax),ymin+.05,"D=%g" % ( self.deviance, ) )
         ax.text ( 0.5*(xmin+xmax),ymin+.1,self.desc )
 
-    def plothistogram ( self, simdata, observed, xname, shortname=None, ax=None, hideobserved=False ):
-        """plot a histogram and compare observed data to it
-
-        :Parameters:
-            simdata     an array of monte-carlo samples of the parameter of interest
-            observed    observed value of the parameter of interest (for MCMC samples, it is often
-                        reasonable to use this as the value of 'no effect' or something)
-            xname       name of the paramter of interest
-            shortname   short name of the parameter of interest
-            ax          axes object defining the area where the plot should go
-            hideobserved if this is True, the observed value is not plotted
-
-        :Output:
-            returns a boolean value indicating whether or not the Null-Hypothesis that
-                observed was drawn from the same distribution as simdata is true
-        """
-        if ax is None:
-            ax = p.axes()
-
-        # Make sure we have a useful shortname
-        if shortname is None:
-            shortname = xname
-
-        # Correlations plots should be treated differently
-        if shortname[0] == "R":
-            ax.hist ( simdata, bins=N.arange(-1,1,.1) )
-            p.setp(ax,xlim=(-1,1))
-        else:
-            ax.hist ( simdata, bins=20 )
-
-        # Get the tics and ranges
-        xtics = p.getp(ax,"xticks")
-        ytics = p.getp(ax,"yticks")
-        xr = xtics.max()-xtics.min()
-        yy = [ytics.min(),ytics.max()+0.02*xr]
-
-        # Plot percentile bars
-        p25,p975 = p.prctile ( simdata, (2.5,97.5) )
-        if not hideobserved:
-            ax.plot ( [observed]*2, yy, 'r', linewidth=2 )
-        ax.plot ( [p25]*2, yy, 'r:', [p975]*2, yy, 'r:' )
-
-        # Draw the full plot
-        pp.drawaxes ( ax, xtics, "%g", ytics, "%d", xname, "number per bin" )
-
-        # Write diagnostics
-        yt = ytics.max()
-        ax.text ( xtics.min(), yt+.1, "%s=%.3f, c(2.5%%)=%.3f, c(97.5%%)=%.3f" % (shortname,observed,p25,p975),\
-                horizontalalignment="left",verticalalignment="bottom", fontsize=8 )
-
-        if observed>p25 and observed<p975:
-            return True
-        else:
-            return False
-
     desc = property ( fget=lambda self: "sigmoid: %(sigmoid)s\ncore: %(core)s\nnAFC: %(nafc)d" % self.model,
             doc="A short description of the employed model")
     outl = property ( fget=lambda self: self.__outl, doc="A boolean array indicating whether or not a block was an outlier" )
@@ -1066,7 +1011,8 @@ def main ( ):
         print "pD:", mcmc.pD
 
         # mcmc.convergence(0)
-        pp.plotRd ( mcmc )
+        # pp.plotRd ( mcmc )
+        pp.plotHistogram ( mcmc.pRkd, mcmc.Rkd, "posterior Rkd", "Rkd", hideobserved=True )
 
     p.show()
 
