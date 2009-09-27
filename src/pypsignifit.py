@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import sys
+import sys,os
 import numpy as N
 import pylab as p
 from scipy import stats
@@ -45,6 +45,13 @@ class PsiInference ( object ):
         self.Rkd               = None
         self.__outl              = None
         self.__infl              = None
+
+    def evaluate ( self, x, prm=None ):
+        """Evaluate the psychometric function model at positions given by x"""
+        if prm==None:
+            prm = self.estimate
+
+        return N.array( _psipy.diagnostics ( x, prm, sigmoid=self.model["sigmoid"], core=self.model["core"], nafc=self.model["nafc"] ) )
 
     def pmfanddata ( self, ax=None, xlabel_text="Stimulus intensity", ylabel_text=None ):
         """Show the psychometric function and data in an axes system
@@ -116,61 +123,6 @@ class PsiInference ( object ):
         if not self.deviance is None:
             ax.text(0.5*(xmin+xmax),ymin+.05,"D=%g" % ( self.deviance, ) )
         ax.text ( 0.5*(xmin+xmax),ymin+.1,self.desc )
-
-    def plotRd ( self, ax=None, regressor="p" ):
-        """plot deviance residuals against a regressor
-
-        Deviance residuals are used plotted agains either predicted performance or
-        block index to check for systematic deviations of the data from the fitted
-        function.
-
-        :Parameters:
-            ax          an axes object where the plot should go
-            regressor   plot deviance residuals against model prediction (p) or
-                        against block index (k)
-        """
-        if ax==None:
-            ax = p.axes()
-
-        # Plot the data points
-        if regressor=="p":
-            psi = N.array(_psipy.diagnostics ( self.data[:,0], self.estimate, sigmoid=self.model["sigmoid"], core=self.model["core"], nafc=self.model["nafc"] ))
-        elif regressor=="k":
-            psi = N.arange(len(self.data[:,0]))
-        else:
-            raise ValueError,"regressor %s is unknown" % regressor
-        psilims = N.array([psi.min(),psi.max()])
-        ax.plot ( psi, self.devianceresiduals, "bo" )
-
-        # Linear regression
-        A = N.ones((len(psi),2),'d')
-        A[:,1] = psi
-        a,b = N.linalg.lstsq(A,self.devianceresiduals)[0]
-        ax.plot(psilims,a+b*psilims,'b:')
-
-        if regressor=="p":
-            if self.model["nafc"]==1:
-                p.setp(ax,xlim=(0,1))
-            else:
-                p.setp(ax,xlim=(1./self.model["nafc"],1))
-        xtics = p.getp(ax,"xticks").tolist()
-        if regressor=="p":
-            # In this case predictions larger than 1 and less than 0 are impossible
-            for k,xt in enumerate(xtics):
-                if xtics[k]>1. or xtics[k]<0.:
-                    xtics.pop(k)
-        xtics = N.array(xtics)
-        ytics = p.getp(ax,"yticks")
-
-        # Generate the respective labels
-        if regressor=="p":
-            ax.text(psilims.mean(),ytics[-2],"Rpd=%.3f" % ( self.Rpd, ) )
-            xname = "model prediction"
-        elif regressor=="k":
-            ax.text(psilims.mean(),ytics[-2],"Rkd=%.3f" % ( self.Rkd, ) )
-            xname = "block index"
-
-        pp.drawaxes ( ax, xtics, "%g", ytics, "%g", xname, "deviance residuals" )
 
     def plothistogram ( self, simdata, observed, xname, shortname=None, ax=None, hideobserved=False ):
         """plot a histogram and compare observed data to it
@@ -1105,7 +1057,7 @@ def main ( ):
         # mcmc.burnin = 200
         mcmc.sample(start=(6,4,.3))
         mcmc.sample(start=(1,1,.1))
-        mcmc.gof()
+        # mcmc.gof()
         print "Posterior Intervals",mcmc.getPI()
         print "Model Evidence", mcmc.evidence
         print "Rhat (m):",mcmc.Rhat ()
@@ -1113,7 +1065,8 @@ def main ( ):
         print "DIC:",mcmc.DIC
         print "pD:", mcmc.pD
 
-        mcmc.convergence(0)
+        # mcmc.convergence(0)
+        pp.plotRd ( mcmc )
 
     p.show()
 
