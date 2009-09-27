@@ -256,11 +256,12 @@ class BootstrapInference ( PsiInference ):
         ax.plot ( cc, [ylev]*len(cc), 'b-|' )
         ax.plot ( [self.thres[cut]], [ylev], 'b|' )
 
-    def getCI ( self, cut ):
+    def getCI ( self, cut, conf=None ):
         """Determine the confidence interval of a cut
 
         :Parameters:
             cut     index(!) of the cut of interest
+            conf    is currently ignored
         """
         bias = self.__th_bias[cut]
         acc  = self.__th_bias[cut]
@@ -307,17 +308,17 @@ class BootstrapInference ( PsiInference ):
         self.pmfanddata ( p.axes([0,.5,.33,.5] ) )
         for k in xrange(len(self.cuts)):
             self.drawthreshold ( p.gca(), k )
-        self.plothistogram ( self.bdeviance, self.deviance, "deviance", "D", p.axes([0,0,.33,.5]) )
+        self.plothistogram ( self.mcdeviance, self.deviance, "deviance", "D", p.axes([0,0,.33,.5]) )
         self.plotRd ( p.axes([.33,.5,.33,.5]), "p" )
-        self.plothistogram ( self.bRpd, self.Rpd, "Rpd", "Rpd", p.axes([.33,0,.33,.5]) )
+        self.plothistogram ( self.mcRpd, self.Rpd, "Rpd", "Rpd", p.axes([.33,0,.33,.5]) )
         self.plotRd ( p.axes([.66,.5,.33,.5]), "k" )
-        self.plothistogram ( self.bRkd, self.Rkd, "Rkd", "Rkd", p.axes([.66,0,.33,.5]) )
+        self.plothistogram ( self.mcRkd, self.Rkd, "Rkd", "Rkd", p.axes([.66,0,.33,.5]) )
 
     outl = property ( fget=lambda self: self.__outl, doc="A boolean vector indicating whether a block should be considered an outlier" )
     infl = property ( fget=lambda self: self.__infl, doc="A boolean vector indicating whether a block should be considered an influential observation" )
-    bdeviance = property ( fget=lambda self: self.__bdeviance, doc="A vector of bootstrapped deviances" )
-    bRpd = property ( fget=lambda self: self.__bRpd, doc="A vector of correlations between model prections and deviance residuals in all bootstrap samples" )
-    bRkd = property ( fget=lambda self: self.__bRkd, doc="A vector of correlations between block index and deviance residuals in all bootstrap samples" )
+    mcdeviance = property ( fget=lambda self: self.__bdeviance, doc="A vector of bootstrapped deviances" )
+    mcRpd = property ( fget=lambda self: self.__bRpd, doc="A vector of correlations between model prections and deviance residuals in all bootstrap samples" )
+    mcRkd = property ( fget=lambda self: self.__bRkd, doc="A vector of correlations between block index and deviance residuals in all bootstrap samples" )
 
 ##############################################################################################################################
 class BayesInference ( PsiInference ):
@@ -460,7 +461,7 @@ class BayesInference ( PsiInference ):
         oldnsamples = NN
         for n in xrange ( noptimizations ):
             self.sample ()           # Test run
-            testrun = self.pthres    # Thresholds from testrun
+            testrun = self.mcthres    # Thresholds from testrun
             samples = self.__mcmc_chains.pop() # throw the samples away, don't use them for "real" inference
 
             # Check all desired thresholds
@@ -540,7 +541,7 @@ class BayesInference ( PsiInference ):
         else:
             raise IndexError, "chain should be either None or an integer"
 
-    def getpdeviance ( self, chain=None ):
+    def getmcdeviance ( self, chain=None ):
         """Get samples from the posterior distribution of deviances
 
         :Parameters:
@@ -563,8 +564,8 @@ class BayesInference ( PsiInference ):
         else:
             raise ValueError, "chain should be either None or an integer"
 
-    def getPI ( self, conf=(.025,0.5,.975), param="thres" ):
-        """Get a posterior interval for a particular parameter
+    def getCI ( self, cut=None, conf=(.025,0.5,.975), param="thres" ):
+        """Get a posterior credibility interval for a particular parameter
 
         :Parameters:
             conf    percentiles that should be returned
@@ -573,18 +574,21 @@ class BayesInference ( PsiInference ):
         """
         if param[:5]=="thres":
             # We have to handle thresholds separately because there could be multiple cuts.
-            pthres = self.pthres
+            mcthres = self.mcthres
             out = []
-            for k in xrange(self.Ncuts):
-                out.append(p.prctile ( pthres[:,k], 100*N.array(conf) ))
-            return N.array(out)
+            if cut==None:
+                for k in xrange(self.Ncuts):
+                    out.append(p.prctile ( mcthres[:,k], 100*N.array(conf) ))
+                return N.array(out)
+            else:
+                return p.prctile ( mcthres[:,cut], 100*N.array(conf) )
         else:
             if param=="Rkd":
-                vals = self.pRkd
+                vals = self.mcRkd
             elif param=="Rpd":
-                vals = self.pRpd
+                vals = self.mcRpd
             elif param=="deviance":
-                vals = self.pdeviance
+                vals = self.mcdeviance
             else:
                 raise NotImplementedError
             return p.prctile ( vals, 100*N.array(conf) )
@@ -616,7 +620,7 @@ class BayesInference ( PsiInference ):
 
         # We further visualize the posterior distribution py plotting some posterior intervals
         for k,cut in enumerate(self.cuts):
-            c25,c975 = self.getPI ( conf=(.025,.975) )[k]
+            c25,c975 = self.getCI ( conf=(.025,.975) )[k]
             thres = float(_psipy.diagnostics ( self.data, self.estimate, cuts=cut, nafc=self.model["nafc"], sigmoid=self.model["sigmoid"], core=self.model["core"] )[3])
             ylev  = _psipy.diagnostics ( [thres],   self.estimate, cuts=cut, nafc=self.model["nafc"], sigmoid=self.model["sigmoid"], core=self.model["core"] )
             ax.plot ( [c25,thres,c975],[ylev]*3, 'b-|' )
@@ -665,18 +669,18 @@ class BayesInference ( PsiInference ):
 
         # First part: Data and fitted function, bottom deviance
         self.drawposteriorexamples ( p.axes([0,.5,.33,.5] ) )
-        self.plothistogram ( self.pdeviance, self.deviance, "posterior deviance", "D", p.axes ( [0,0,.33,.5] ) )
+        self.plothistogram ( self.mcdeviance, self.deviance, "posterior deviance", "D", p.axes ( [0,0,.33,.5] ) )
 
         # Second part: Correlations between model prediction and residuals
         self.plotRd ( p.axes([.33,.5,.33,.5]), "p" )
-        good = self.plothistogram ( self.pRpd, self.Rpd, "posterior Rpd", "Rpd", p.axes([.33,0,.33,.5]) )
+        good = self.plothistogram ( self.mcRpd, self.Rpd, "posterior Rpd", "Rpd", p.axes([.33,0,.33,.5]) )
         if not good and warn==True:
             p.text ( 0, p.getp(p.gca(),'ylim').mean() , "Rpd is different from 0!\nModel deviates systematically from data", \
                     fontsize=16, color=warnred, horizontalalignment="center", verticalalignment="center", rotation=45 )
 
         # Third part: Correlations between model prediction and block index
         self.plotRd ( p.axes([.66,.5,.33,.5]), "k" )
-        good = self.plothistogram ( self.pRkd, self.Rkd, "posterior Rkd", "Rkd", p.axes([.66,0,.33,.5]) )
+        good = self.plothistogram ( self.mcRkd, self.Rkd, "posterior Rkd", "Rkd", p.axes([.66,0,.33,.5]) )
         if not good and warn==True:
             p.text ( 0, p.getp(p.gca(),'ylim').mean(), "Rkd is different from 0!\nData are nonstationary!",\
                     fontsize=16, color=warnred, horizontalalignment="center", verticalalignment="center", rotation=45 )
@@ -874,8 +878,8 @@ class BayesInference ( PsiInference ):
             self.__pthres = None
 
     @Property
-    def pRpd ():
-        "Determine posterior correlation of model predictions and data"
+    def mcRpd ():
+        "Monte Carlo samples of posterior correlation between model predictions and data"
         def fget (self):
             """Get samples from the posterior distribution of correlation between model prediction and deviance residuals"""
             if self.__pRpd is None:
@@ -890,8 +894,8 @@ class BayesInference ( PsiInference ):
             pass
 
     @Property
-    def pRkd ():
-        "Determine posterior correlation of model predictions and data"
+    def mcRkd ():
+        "Monte Carlo samples of posterior correlation between bock index and data"
         def fget (self):
             """Get samples from the posterior distribution of correlation between block index and deviance residuals"""
             if self.__pRkd is None:
@@ -905,11 +909,11 @@ class BayesInference ( PsiInference ):
         def fset (self, v):
             pass
 
-    pdeviance = property ( fget=getpdeviance , doc="Deviances of the posterior samples" )
+    mcdeviance = property ( fget=getmcdeviance , doc="Deviances of monte carlo samples from the posterior" )
 
     @Property
-    def pthres ():
-        "Samples from the posterior distribution of thresholds"
+    def mcthres ():
+        "Monte Carlo Samples from the posterior distribution of thresholds"
         def fget (self):
             """Get samples of the posterior distribution of thresholds"""
             if self.__pthres is None:
@@ -937,14 +941,14 @@ class BayesInference ( PsiInference ):
         evidence is there for model 2 than for model 1".
         """
         def fget (self):
-            dev = self.pdeviance
+            dev = self.mcdeviance
             return N.exp(-0.5*dev).mean()
 
     @Property
     def pD ():
         """effective number of parameters"""
         def fget ( self ):
-            return self.pdeviance.mean()-self.deviance
+            return self.mcdeviance.mean()-self.deviance
 
     @Property
     def DIC ():
@@ -955,7 +959,7 @@ class BayesInference ( PsiInference ):
         determines the effective number of free parameters from the posterior distribution.
         """
         def fget ( self ):
-            meandev = self.pdeviance.mean()
+            meandev = self.mcdeviance.mean()
             return 2*meandev-self.deviance
 
     ############################################
@@ -1003,7 +1007,7 @@ def main ( ):
         mcmc.sample(start=(6,4,.3))
         mcmc.sample(start=(1,1,.1))
         # mcmc.gof()
-        print "Posterior Intervals",mcmc.getPI()
+        print "Posterior Intervals",mcmc.getCI()
         print "Model Evidence", mcmc.evidence
         print "Rhat (m):",mcmc.Rhat ()
         print "Nsamples:",mcmc.nsamples
