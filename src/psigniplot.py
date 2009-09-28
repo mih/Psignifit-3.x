@@ -2,8 +2,11 @@
 
 import pylab as p
 import numpy as N
-from pypsignifit import BayesInference, BootstrapInference
 import pypsignifit
+import re
+from scipy import stats
+
+__warnred = [.7,0,0]
 
 def drawaxes ( ax, xtics, xfmt, ytics, yfmt, xname, yname ):
     """Draw x and y axes that look nicer than standard matplotlib
@@ -299,10 +302,10 @@ def GoodnessOfFit ( InferenceObject ):
     if not good and warn==True:
         if isinstance ( InferenceObject, BootstrapInference ):
             p.text ( 0, p.getp(p.gca(),'ylim').mean() , "Simulated Rpd differs from observed!\nModel deviates systematically from data", \
-                    fontsize=16, color=warnred, horizontalalignment="center", verticalalignment="center", rotation=45 )
+                    fontsize=16, color=__warnred, horizontalalignment="center", verticalalignment="center", rotation=45 )
         elif isinstance ( InferenceObject, BayesInferenceObject ):
             p.text ( 0, p.getp(p.gca(),'ylim').mean() , "Rpd is different from 0!\nModel deviates systematically from data", \
-                    fontsize=16, color=warnred, horizontalalignment="center", verticalalignment="center", rotation=45 )
+                    fontsize=16, color=__warnred, horizontalalignment="center", verticalalignment="center", rotation=45 )
 
     # Third part: Correlations between model prediction and block index
     plotRd ( InferenceObject, p.axes([.66,.5,.33,.5]), "k" )
@@ -310,15 +313,101 @@ def GoodnessOfFit ( InferenceObject ):
     if not good and warn==True:
         if isinstance ( InferenceObject, BootstrapInference ):
             p.text ( 0, p.getp(p.gca(),'ylim').mean(), "Simulated Rkd differs from observed!\nData are nonstationary!",\
-                    fontsize=16, color=warnred, horizontalalignment="center", verticalalignment="center", rotation=45 )
+                    fontsize=16, color=__warnred, horizontalalignment="center", verticalalignment="center", rotation=45 )
         elif isinstance ( InferenceObject, BayesInference ):
             p.text ( 0, p.getp(p.gca(),'ylim').mean(), "Rkd is different from 0!\nData are nonstationary!",\
-                    fontsize=16, color=warnred, horizontalalignment="center", verticalalignment="center", rotation=45 )
+                    fontsize=16, color=__warnred, horizontalalignment="center", verticalalignment="center", rotation=45 )
 
-def plotGeweke ( BayesInferenceObject, ax=None ):
-    raise NotImplementedError()
+def plotGeweke ( BayesInferenceObject, parameter=0, ax=None, warn=True ):
+    """Geweke plot of moving average of samples"""
+    stationary,z = BayesInferenceObject.geweke ( parameter )
 
-def plotChains ( BayesInferenceObject, ax=None ):
-    raise NotImplementedError()
+    if ax is None:
+        ax = p.axes()
+
+    for k in xrange ( z.shape[-1] ):
+        p.plot(z[:,k],'o-')
+    xtics = N.array(p.getp(ax,"xticks"))
+    p.setp(ax,"xticks",xtics,"yticks",N.array((-3,-2,-1,0,1,2,3)))
+    p.plot ( [xtics.min(),xtics.max()],[-2]*2,'k:')
+    p.plot ( [xtics.min(),xtics.max()],[ 2]*2,'k:')
+    drawaxes ( ax, xtics, "%g", N.array((-3,-2,-1,0,1,2,3)), "%g", "chain segment", "z-score" )
+
+    if warn and not stationary:
+        p.text(0.5*nsegments,0,"chains did not converge" , color=warnred, fontsize=16, rotation=45, verticalalignment="center", horizontalalignment="center" )
+
+def plotChains ( BayesInferenceObject, parameter=0, ax=None, raw=False, warn=True ):
+    """Simply plot all chains for a single parameter
+
+    :Parameters:
+        parameter   index of the model parameter to plot
+        raw         plot raw samples instead of thinned samples after burnin
+        ax          axes in which to print
+        warn        if True, warnings are written into the plot
+    """
+    # Do we have an appropriate axis?
+    if ax==None:
+        ax = p.axes()
+
+    # Plot the chains
+    for c in xrange(BayesInferenceObject.nchains):
+        samples = BayesInferenceObject.getsamples ( c, raw=True )
+        p.plot ( samples[:,parameter] )
+
+    # Learn something about the axes
+    xtics = N.array(ax.get_xticks())
+    x0    = xtics.min()
+    xr    = xtics.max()-xtics.min()
+    ytics = ax.get_yticks()
+    y0    = ytics.min()
+    yr    = N.array(ytics.max()-ytics.min())
+
+    p.text(x0+0.6*xr,y0+0.95*yr,"R^ = %.4f" % (BayesInferenceObject.Rhat ( parameter ) ) )
+
+    if warn and BayesInferenceObject.Rhat(parameter)>1.1:
+        p.text(x0+0.5*xr,y0+0.5*yr,"Chains do not seem to sample\nfrom the same distribution!",
+                horizontalalignment="center",verticalalignment="center",fontsize=16,rotation=45,color=warnred)
+
+    drawaxes ( ax, ax.get_xticks(), "%g", ax.get_yticks(), "%g", "sample #", BayesInferenceObject.parnames[parameter] )
+
+def plotParameterDist ( InferenceObject, parameter=0, ax=None ):
+    """Plot the distribution of parameters"""
+    if ax is None:
+        ax = p.axes()
+
+    samples = InferenceObject.getsamples ( )[:,parameter]
+    h,b,ptch = p.hist ( samples, bins=20, normed=True, histtype="step", lw=2 )
+
+    priorstr = InferenceObject.model["priors"]
+    if not priorstr is None:
+        priorstr = priorstr[parameter]
+        m = re.search (
+            r"(\w+)\((-?\d*\.?\d*[eE]?-?\d*),(-?\d*\.?\d*[eE]?-?\d*)\)",
+            priorstr )
+        if not m is None:
+            dist,prm1,prm2 = m.groups()
+            prm1,prm2 = float(prm1),float(prm2)
+            x = N.mgrid[b.min():b.max():100j]
+            if dist.lower () == "gauss":
+                p.plot(x,stats.norm.pdf(x,prm1,prm2))
+            elif dist.lower () == "beta":
+                p.plot(x,stats.beta.pdf(x,prm1,prm2))
+            elif dist.lower () == "gamma":
+                p.plot(x,stats.gamma.pdf(x,prm2,scale=prm1))
+            elif dist.lower () == "uniform":
+                p.plot(x,stats.uniform.pdf(x,prm1,prm2))
+
+    drawaxes ( ax, ax.get_xticks(), "%g", ax.get_yticks(), "%g", InferenceObject.parnames[parameter], "density estimate" )
+
+
+def ConvergenceMCMC ( BayesInferenceObject, parameter=0, ax=None, warn=True ):
+    """Diagram to check convergence of MCMC chains for a single parameter"""
+    fig = p.figure ( figsize=[9,3] )
+    ax =  p.axes ( [0,0.,0.33,1] )
+    plotChains ( BayesInferenceObject, parameter, ax, warn=warn )
+    ax = p.axes ( [.33,0,.33,1] )
+    plotGeweke ( BayesInferenceObject, parameter, ax, warn=warn )
+    ax = p.axes ( [.66,0,.33,1] )
+    plotParameterDist ( BayesInferenceObject, parameter, ax )
 
 gof = GoodnessOfFit
