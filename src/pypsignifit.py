@@ -11,6 +11,7 @@ import pygibbsit
 
 from psignierrors import NosamplesError
 
+__all__ = ["BoostrapInference","BayesInference"]
 warnred = [.7,0,0]
 
 # Helper function to create properties with one function
