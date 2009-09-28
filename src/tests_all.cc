@@ -453,6 +453,29 @@ int SigmoidTests ( TestSuite * T ) {
 	failures += T->ismore  ( sigmoid->ddf(-3),0,    "PsiGumbelR->ddf(-3)");
 	delete sigmoid;
 
+	sigmoid = new PsiCauchy ();
+	// Check specific function values
+	failures += T->isequal ( sigmoid->f ( 0 ), 0.5, "PsiCauchy->f(0)" );
+	double zalpha = -2*tan(M_PI*(0.1-0.5));
+	failures += T->isequal ( sigmoid->f(-0.5*zalpha), 0.1, "PsiCauchy->f(-z(0.1)*(-.5) )" );
+	failures += T->isequal ( sigmoid->f(0.5*zalpha),  0.9, "PsiCauchy->f( z(0.9)*.5 )" );
+	// Check monotonicity
+	mindf = 1e20;
+	for (x=-5; x<5; x+=.1 ) {
+		std::cout << x << " " << sigmoid->f(x) << " " << sigmoid->df(x) << "\n";
+		if ( (df=sigmoid->df(x))<mindf )
+			mindf = df;
+	}
+	failures += T->ismore ( mindf, 0, "PsiCauchy monotonically increasing" );
+	// Check saturation
+	failures += T->isless  ( sigmoid->df( 3), 0.05, "PsiCauchy->df(3)");
+	failures += T->isless  ( sigmoid->df(-3), 0.05, "PsiCauchy->df(-3)");
+	// Check convexity
+	failures += T->isless  ( sigmoid->ddf(3), 0,    "PsiCauchy->ddf(3)");
+	failures += T->ismore  ( sigmoid->ddf(-3),0,    "PsiCauchy->ddf(-3)");
+	delete sigmoid;
+
+
 	return failures;
 }
 

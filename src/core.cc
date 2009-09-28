@@ -84,6 +84,10 @@ mwCore::mwCore ( int sigmoid, double al )
 			zalpha = log(-log(alpha))-log(-log(1.-alpha));
 			zshift = log(-log(0.5));
 			break;
+		case 4:
+			// cauchy
+			zalpha = -2*tan(M_PI*(alpha-0.5));
+			zshift = 0;
 		default:
 			throw NotImplementedError();
 	}

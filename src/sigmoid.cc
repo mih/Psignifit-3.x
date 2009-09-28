@@ -160,3 +160,27 @@ double PsiGumbelR::inv ( double p )
 	}
 	return lastinvp;
 }
+
+/************************************************************
+ * Cauchy cdf
+ */
+
+double PsiCauchy::f ( double x )
+{
+	return atan ( x )/M_PI + 0.5;
+}
+
+double PsiCauchy::df ( double x )
+{
+	return 1./(M_PI*(1+x*x));
+}
+
+double PsiCauchy::ddf ( double x )
+{
+	return -2*x/( M_PI * (1+2*x*x+4*x*x*x*x) );
+}
+
+double PsiCauchy::inv ( double p )
+{
+	return tan ( M_PI*(p-0.5) );
+}

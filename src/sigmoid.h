@@ -106,4 +106,18 @@ class PsiGumbelR : public PsiSigmoid
 		int getcode ( void ) { return 3; }   ///< return the sigmoid identifier
 };
 
+/** \brief cauchy cdf
+ *
+ * Cumulative density function of the cauchy distribution
+ */
+class PsiCauchy : public PsiSigmoid
+{
+	public:
+		double f   ( double x );             ///< returns the value of the cauchy cdf at position x
+		double df  ( double x );             ///< returns the derivative of the cauchy cdf at position x
+		double ddf ( double x );             ///< returns the 2nd derivative of the cauchy cdf at position x
+		double inv ( double p );             ///< returns the inverse of the cauchy cdf at position x
+		int    getcode ( void ) { return 4; }///< returns the sigmoid identifier
+};
+
 #endif
