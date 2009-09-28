@@ -64,6 +64,8 @@ PsiSigmoid * getsigmoid ( const char * sigmoidname ) {
 	} else if ( !strcmp(sigmoidname,"gumbel_r") || !strcmp(sigmoidname,"rgumbel") ) {
 		// std::cerr << "Using gumbelR sigmoid\n";
 		return new PsiGumbelR;
+	} else if ( !strcmp(sigmoidname,"cauchy") ) {
+		return new PsiCauchy;
 	} else {
 		throw std::string ( "invalid sigmoid type" );
 	}
