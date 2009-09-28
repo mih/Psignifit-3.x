@@ -412,7 +412,7 @@ def plotParameterDist ( InferenceObject, parameter=0, ax=None ):
     samples = InferenceObject.mcsamples[:,parameter]
     h,b,ptch = p.hist ( samples, bins=20, normed=True, histtype="step", lw=2 )
 
-    if InferenceObject.__repr__().split()[1] == "BayesInferenceObject":
+    if InferenceObject.__repr__().split()[1] == "BayesInference":
         priorstr = InferenceObject.model["priors"]
         if not priorstr is None:
             priorstr = priorstr[parameter]
