@@ -840,7 +840,7 @@ def main ( ):
         # b.gof()
         pp.GoodnessOfFit(b)
     else:
-        priors = ("Gauss(0,100)","Gamma(1,3)","Beta(2,100)")
+        priors = ("Gauss(0,4)","Gamma(1,3)","Beta(2,30)")
         mcmc = BayesInference ( d, priors=priors )
         # mcmc.thin = 10
         # mcmc.burnin = 200
