@@ -6,6 +6,7 @@ import pypsignifit
 import re
 from scipy import stats
 
+__all__ = ["GoodnessOfFit","ConvergenceMCMC","ParameterPlot"]
 __warnred = [.7,0,0]
 
 def drawaxes ( ax, xtics, xfmt, ytics, yfmt, xname, yname ):
