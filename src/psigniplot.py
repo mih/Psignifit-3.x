@@ -409,7 +409,7 @@ def plotParameterDist ( InferenceObject, parameter=0, ax=None ):
     if ax is None:
         ax = p.axes()
 
-    samples = InferenceObject.mcsamples[:,parameter]
+    samples = InferenceObject.mcestimates[:,parameter]
     h,b,ptch = p.hist ( samples, bins=20, normed=True, histtype="step", lw=2 )
 
     if InferenceObject.__repr__().split()[1] == "BayesInference":
@@ -432,10 +432,37 @@ def plotParameterDist ( InferenceObject, parameter=0, ax=None ):
                 elif dist.lower () == "uniform":
                     p.plot(x,stats.uniform.pdf(x,prm1,prm2))
 
-    drawaxes ( ax, ax.get_xticks(), "%g", ax.get_yticks(), "%g", InferenceObject.parnames[parameter], "density estimate" )
+    # Store ticks
+    xtics = ax.get_xticks()
+    ytics = ax.get_yticks()
 
+    # Highlight estimate and credibility intervals
+    prm = InferenceObject.estimate[parameter]
+    c25,c975 = p.prctile ( samples, (2.5,97.5) )
+    ym = ax.get_yticks().max()
+    p.plot ( [c25]*2,[0,ym],'b:', [c975]*2,[0,ym],'b:' )
+    p.plot ( [prm]*2,[0,ym],'b' )
+    p.text ( ax.get_xticks().mean(), ym, "%s^=%.3f, CI(95%%)=(%.3f,%.3f)" % ( InferenceObject.parnames[parameter],prm,c25,c975 ),
+            fontsize=8, horizontalalignment="center",verticalalignment="bottom" )
 
-def ConvergenceMCMC ( BayesInferenceObject, parameter=0, ax=None, warn=True ):
+    drawaxes ( ax, xtics, "%g", ytics, "%g", InferenceObject.parnames[parameter], "density estimate" )
+
+def ParameterPlot ( InferenceObject ):
+    """Show distributions and estimates for all parameters in the model
+
+    :Parameters:
+        InferenceObject a BootstrapInference or BayesInference object containing the
+                desired data
+    """
+    nparams = len(InferenceObject.parnames)
+    axw = 1./nparams
+    fig = p.figure (figsize=(3*nparams,3))
+
+    for k in xrange ( nparams ):
+        ax = p.axes ( [axw*k,0,axw,1] )
+        plotParameterDist ( InferenceObject, k, ax )
+
+def ConvergenceMCMC ( BayesInferenceObject, parameter=0, warn=True ):
     """Diagram to check convergence of MCMC chains for a single parameter
 
     :Parameters:
@@ -443,7 +470,6 @@ def ConvergenceMCMC ( BayesInferenceObject, parameter=0, ax=None, warn=True ):
                     the model and the posterior distribution
         parameter   model parameter of interest. So far, no model derived parameters such as
                     thresholds are supported
-        ax          pylab.axes object where the plot should go
         warn        should warnings be displayed if the samples look suspicious?
     """
     fig = p.figure ( figsize=[9,3] )
