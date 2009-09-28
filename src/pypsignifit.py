@@ -183,6 +183,7 @@ class BootstrapInference ( PsiInference ):
         """
         # Call the base constructor
         PsiInference.__init__(self)
+        self.__nsamples = 0
 
         # Store basic data
         self.data = data
@@ -192,6 +193,14 @@ class BootstrapInference ( PsiInference ):
                 "priors":  kwargs.setdefault("priors", None),
                 "nafc":    kwargs.setdefault("nafc",    2)
                 }
+
+        if self.model["core"][:2] == "mw":
+            self.parnames = ["m","w"]
+        else:
+            self.parnames = ["a","b"]
+        self.parnames.append("lambda")
+        if self.model["nafc"]<2:
+            self.parnames.append("guess")
 
         self.cuts = cuts
         if conf=="v1.0":
@@ -236,6 +245,7 @@ class BootstrapInference ( PsiInference ):
         :Parameters:
             Nsamples    number of bootstrapsamples to be drawn
         """
+        self.__nsamples = Nsamples
         self.__bdata,self.__bestimate,self.__bdeviance,self.__bthres,self.__th_bias,self.__th_acc,\
                 self.__bRkd,self.__bRpd,self.__outl,self.__infl = _psipy.bootstrap(self.data,self.estimate,Nsamples,cuts=self.cuts,**self.model)
 
@@ -272,6 +282,7 @@ class BootstrapInference ( PsiInference ):
 
     outl = property ( fget=lambda self: self.__outl, doc="A boolean vector indicating whether a block should be considered an outlier" )
     infl = property ( fget=lambda self: self.__infl, doc="A boolean vector indicating whether a block should be considered an influential observation" )
+    mcestimates = property ( fget=lambda self: self.__bestimate, doc="An array of bootstrap estimates of the fitted paramters" )
     mcdeviance = property ( fget=lambda self: self.__bdeviance, doc="A vector of bootstrapped deviances" )
     mcRpd = property ( fget=lambda self: self.__bRpd, doc="A vector of correlations between model prections and deviance residuals in all bootstrap samples" )
     mcRkd = property ( fget=lambda self: self.__bRkd, doc="A vector of correlations between block index and deviance residuals in all bootstrap samples" )
@@ -700,6 +711,7 @@ class BayesInference ( PsiInference ):
         def fset (self, v):
             pass
 
+    mcestimates = property ( fget=getsamples, doc="Monte Carlo samples from the posterior distribution of parameters" )
     mcdeviance = property ( fget=getmcdeviance , doc="Deviances of monte carlo samples from the posterior" )
 
     @Property
@@ -843,7 +855,7 @@ class BayesInference ( PsiInference ):
 def main ( ):
     "If we call the file directly, we perform a test run"
 
-    bootstrap = False
+    bootstrap = True
 
     x = [float(2*k) for k in xrange(6)]
     k = [34,32,40,48,50,48]
@@ -856,9 +868,10 @@ def main ( ):
         b = BootstrapInference ( d, sample=2000, priors=priors )
         # b.gof()
         pp.GoodnessOfFit(b)
+        pp.ParameterPlot(b)
     else:
         priors = ("Gauss(0,4)","Gamma(1,3)","Beta(2,30)")
-        mcmc = BayesInference ( d, priors=priors )
+        mcmc = BayesInference ( d, sigmoid="cauchy", priors=priors )
         # mcmc.thin = 10
         # mcmc.burnin = 200
         mcmc.sample(start=(6,4,.3))
