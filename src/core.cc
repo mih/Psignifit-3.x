@@ -88,6 +88,7 @@ mwCore::mwCore ( int sigmoid, double al )
 			// cauchy
 			zalpha = -2*tan(M_PI*(alpha-0.5));
 			zshift = 0;
+			break;
 		default:
 			throw NotImplementedError();
 	}
