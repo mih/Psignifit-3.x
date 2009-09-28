@@ -368,75 +368,11 @@ class BayesInference ( PsiInference ):
         self._steps = (.4,4,.01)
 
         if automatic:
-            self.determineoptimalsampling ()
+            self.__determineoptimalsampling ()
             sample = True
 
         if sample:
             self.sample()
-
-    def determineoptimalsampling ( self, noptimizations=10 ):
-        """Determine optimal sampling parameters using the Raftery&Lewis (1995) procedure
-
-        Automatically set burnin,thin,nsamples.
-        In addition, an object, that contains more detailed information about the sampling
-        is stored in self.mcmcpars
-
-        :Parameters:
-            noptimizations  maximum number of optimization iterations. If the same
-                            sampling parameters are obtained before, the method
-                            terminates earlier
-        """
-        if noptimizations==0:
-            return
-        mcmcpars = {}
-
-        if len(self.__mcmc_chains)>0:
-            mcmc_chains    = self.__mcmc_chains
-            mcmc_deviances = self.__mcmc_deviances
-            self.__mcmc_chains    = []
-            self.__mcmc_deviances = []
-        else:
-            mcmc_chains = []
-
-        # Determine size of initial test run
-        if self.nsamples is None:
-            NN = 0
-            for q in self.conf:
-                Nmin = pygibbsit.gibbsit ( q=q )["Nmin"]
-                NN = max(NN,Nmin)
-            self.nsamples = NN
-
-        oldburnin = 0
-        oldthin   = 1
-        oldnsamples = NN
-        for n in xrange ( noptimizations ):
-            self.sample ()           # Test run
-            testrun = self.mcthres    # Thresholds from testrun
-            samples = self.__mcmc_chains.pop() # throw the samples away, don't use them for "real" inference
-
-            # Check all desired thresholds
-            for q in self.conf:
-                for k in xrange ( self.Ncuts ):
-                    try:
-                        mcmcpars = pygibbsit.gibbsit ( testrun[:,k], q=q )
-                    except IndexError:
-                        continue
-                    self.burnin = max ( self.burnin, mcmcpars.burnin )
-                    self.thin   = max ( self.thin,   mcmcpars.thin )
-                    self.nsamples = max ( self.nsamples, mcmcpars.Nsamples )
-            self._steps = N.sqrt(N.diag(N.cov ( samples[self.burnin::self.thin].T )))
-            print "Steps:",self._steps
-
-            print "Burnin:",self.burnin,"Thinning:",self.thin,"Nsamples:",self.nsamples
-            if oldburnin==self.burnin and oldthin==self.thin and oldnsamples==self.nsamples:
-                break
-            else:
-                oldburnin,oldthin,oldnsamples = self.burnin,self.thin,self.nsamples
-        self.mcmcpars = mcmcpars
-
-        if len(mcmc_chains)>0:
-            self.__mcmc_chains = mcmc_chains
-            self.__mcmc_deviances = mcmc_deviances
 
     def sample ( self, Nsamples=None, start=None ):
         """Draw samples from the posterior distribution using MCMC
@@ -819,10 +755,75 @@ class BayesInference ( PsiInference ):
             self.__pthres[k,:],self.__pRpd[k],self.__pRkd[k] = _psipy.diagnostics (\
                     self.data, theta, cuts=self.cuts, nafc=self.model["nafc"], sigmoid=self.model["sigmoid"], core=self.model["core"] )[3:]
 
+    def __determineoptimalsampling ( self, noptimizations=10 ):
+        """Determine optimal sampling parameters using the Raftery&Lewis (1995) procedure
+
+        Automatically set burnin,thin,nsamples.
+        In addition, an object, that contains more detailed information about the sampling
+        is stored in self.mcmcpars
+
+        :Parameters:
+            noptimizations  maximum number of optimization iterations. If the same
+                            sampling parameters are obtained before, the method
+                            terminates earlier
+        """
+        if noptimizations==0:
+            return
+        mcmcpars = {}
+
+        if len(self.__mcmc_chains)>0:
+            mcmc_chains    = self.__mcmc_chains
+            mcmc_deviances = self.__mcmc_deviances
+            self.__mcmc_chains    = []
+            self.__mcmc_deviances = []
+        else:
+            mcmc_chains = []
+
+        # Determine size of initial test run
+        if self.nsamples is None:
+            NN = 0
+            for q in self.conf:
+                Nmin = pygibbsit.gibbsit ( q=q )["Nmin"]
+                NN = max(NN,Nmin)
+            self.nsamples = NN
+
+        oldburnin = 0
+        oldthin   = 1
+        oldnsamples = NN
+        for n in xrange ( noptimizations ):
+            self.sample ()           # Test run
+            testrun = self.mcthres    # Thresholds from testrun
+            samples = self.__mcmc_chains.pop() # throw the samples away, don't use them for "real" inference
+
+            # Check all desired thresholds
+            for q in self.conf:
+                for k in xrange ( self.Ncuts ):
+                    try:
+                        mcmcpars = pygibbsit.gibbsit ( testrun[:,k], q=q )
+                    except IndexError:
+                        continue
+                    self.burnin = max ( self.burnin, mcmcpars.burnin )
+                    self.thin   = max ( self.thin,   mcmcpars.thin )
+                    self.nsamples = max ( self.nsamples, mcmcpars.Nsamples )
+            self._steps = N.sqrt(N.diag(N.cov ( samples[self.burnin::self.thin].T )))
+            print "Steps:",self._steps
+
+            print "Burnin:",self.burnin,"Thinning:",self.thin,"Nsamples:",self.nsamples
+            if oldburnin==self.burnin and oldthin==self.thin and oldnsamples==self.nsamples:
+                break
+            else:
+                oldburnin,oldthin,oldnsamples = self.burnin,self.thin,self.nsamples
+        self.mcmcpars = mcmcpars
+
+        if len(mcmc_chains)>0:
+            self.__mcmc_chains = mcmc_chains
+            self.__mcmc_deviances = mcmc_deviances
+
+
 def main ( ):
     "If we call the file directly, we perform a test run"
 
-    bootstrap = True
+    bootstrap = False
 
     x = [float(2*k) for k in xrange(6)]
     k = [34,32,40,48,50,48]
