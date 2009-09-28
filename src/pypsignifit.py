@@ -248,20 +248,6 @@ class BootstrapInference ( PsiInference ):
         self.__outl  = N.array(self.__outl,dtype=bool)
         self.__infl  = N.array(self.__infl,dtype=bool)
 
-    def drawthreshold ( self, ax, cut ):
-        """draw the threshold into an axes system
-
-        :Parameters:
-            ax      axes system in which to draw
-            cut     index(!) of the cut of interest
-        """
-        cc = self.getCI(cut)
-
-        ylev =_psipy.diagnostics ( [self.thres[cut]], self.estimate, sigmoid=self.model["sigmoid"], core=self.model["core"], nafc=self.model["nafc"] )
-
-        ax.plot ( cc, [ylev]*len(cc), 'b-|' )
-        ax.plot ( [self.thres[cut]], [ylev], 'b|' )
-
     def getCI ( self, cut, conf=None ):
         """Determine the confidence interval of a cut
 
@@ -277,48 +263,6 @@ class BootstrapInference ( PsiInference ):
             vals.append(stats.norm.cdf( bias + ( stats.norm.ppf(pp) + bias ) / (1-acc*(stats.norm.ppf(pp) + bias )) ))
 
         return p.prctile ( self.__bthres[:,cut], 100*N.array(vals) )
-
-    def gof ( self, warn=True ):
-        """Make a diagnostic plot
-
-        This plots a figure that resembles the diagnostic plot of the old psignifit matlab interface.
-        The figure has the following form:
-
-            +-----+-----+-----+
-            |  1  |  2  |  3  |
-            +-----+-----+-----+
-            |  4  |  5  |  6  |
-            +-----+-----+-----+
-
-        At position 1, the psychometric function is shown with the fitted data. Influential observations
-            are marked as red squares, outliers as red triangles.
-        At position 2, the deviance residuals are plotted against model predictions. The best fitting
-            straigt line is shown in addition. This plot should not show any obvious trends.
-        At position 3, the deviance residuals are plotted against block index. The best fitting
-            straigt line is shown in addition. This plot should not show any obvious trends. Trends
-            in this plot might indicate perceptual learning (which is interesting in itself but
-            makes the statistics ambiguous).
-        At position 4, a histogram of deviances for an observer that perfectly agrees with the model fit
-            in 1 is shown. In addition, the observed deviance is shown as a solid red line and the
-            2.5% and 97.5% percentile are drawn as dotted red lines. If the observed deviance is outside
-            the interval marked by the two dotted red lines, this indicates a bad fit.
-        At position 5 and 6, histograms of the correlations between deviance residuals and model
-            prediction (5) or block index (6) are shown for the assumption of an observer that perfectly
-            agrees with the model fit in 1. The observed correlation (from positions 2 or 3) is drawn
-            as a solid red line and the 2.5% and 97.5% percentile are marked by dotted red lines.
-            If the observed correlation is outside the interval marked by the two dotted red lines, this
-            indicates that the data systematically deviate from the model. In this case, the model
-            does not capture all the structure in the data.
-        """
-        p.figure(figsize=(10,8))
-        self.pmfanddata ( p.axes([0,.5,.33,.5] ) )
-        for k in xrange(len(self.cuts)):
-            self.drawthreshold ( p.gca(), k )
-        self.plothistogram ( self.mcdeviance, self.deviance, "deviance", "D", p.axes([0,0,.33,.5]) )
-        self.plotRd ( p.axes([.33,.5,.33,.5]), "p" )
-        self.plothistogram ( self.mcRpd, self.Rpd, "Rpd", "Rpd", p.axes([.33,0,.33,.5]) )
-        self.plotRd ( p.axes([.66,.5,.33,.5]), "k" )
-        self.plothistogram ( self.mcRkd, self.Rkd, "Rkd", "Rkd", p.axes([.66,0,.33,.5]) )
 
     outl = property ( fget=lambda self: self.__outl, doc="A boolean vector indicating whether a block should be considered an outlier" )
     infl = property ( fget=lambda self: self.__infl, doc="A boolean vector indicating whether a block should be considered an influential observation" )
@@ -599,7 +543,6 @@ class BayesInference ( PsiInference ):
                 raise NotImplementedError
             return p.prctile ( vals, 100*N.array(conf) )
 
-
     ############################################
     # Plotting routines
     def drawposteriorexamples ( self, ax=None, Nsamples=20 ):
@@ -621,81 +564,20 @@ class BayesInference ( PsiInference ):
 
         # Now we sample Nsamples psychometric functions from all the chains we have
         samples = self.getsamples()
+        deviances = self.getmcdeviance()
+        # Scale deviance to 0,1
+        deviances -= deviances.min()
+        deviances /= deviances.max()
+        deviances = N.clip(.4+4*deviances,0,1)
         for k in xrange(Nsamples):
-            psi = N.array(_psipy.diagnostics ( x, samples[N.random.randint(samples.shape[0]),:], sigmoid=self.model["sigmoid"], core=self.model["core"], nafc=self.model["nafc"] ))
-            ax.plot(x,psi,color=[.6,.6,1])
-
-        # This plots the 'real' psychometric function and the axes
-        # self.pmfanddata ( ax=ax )
-
-    def gof ( self, warn=True ):
-        """Draw a diagnostic figure to help assessing goodness of fit
-
-        This graphic is intended to help the user determine how well the fitted function describes
-        the data. The plot has 6 fields:
-
-        +-----+-----+-----+
-        |  1  |  3  |  5  |
-        +-----+-----+-----+
-        |  2  |  4  |  6  |
-        +-----+-----+-----+
-
-        The fields provide the following information:
-        1.  The data and the fitted psychometric function. "fitted" here means the parameters are
-            the mean of the posterior. To get an idea of the posterior distribution, posterior
-            intervals are plotted at some positions (the location and width of the posterior
-            intervals is given in the constructor). To make the posterior distribution really
-            "plastic", a number of samples from the posterior distribution over psychometric
-            functions are also drawn in light blue
-        2.  A histogram to approximate the posterior distribution of deviances.
-        3.  A plot of model predictions (of the mean estimate) against deviance residuals. If
-            there is no obvious interrelation between model prediction and deviance residuals,
-            this indicates that the model describes the data reasonably well. To get an idea
-            of the interrelation between model prediction and deviance residuals, the best
-            fitting line is plotted as a dotted line.
-        4.  A histogram of samples from the posterior distribution of correlations between
-            model prediction and deviance residuals. If this distribution is clearly shifted
-            away from 0, this is strong evidence, that something is wrong with your model or
-            your data.
-        5,6 Similar to 3 and 4 but form correlations between block index and deviance residuals.
-            Correlations between block index and deviance residuals indicate nonstationary
-            data as should be found during e.g. perceptual learning.
-
-        :Parameters:
-            warn    if warn is set to True, red warning messages are displayed
-                    whenever the fit does not seem to describe the data well.
-        """
-        p.figure(figsize=(10,8))
-
-        # First part: Data and fitted function, bottom deviance
-        self.drawposteriorexamples ( p.axes([0,.5,.33,.5] ) )
-        self.plothistogram ( self.mcdeviance, self.deviance, "posterior deviance", "D", p.axes ( [0,0,.33,.5] ) )
-
-        # Second part: Correlations between model prediction and residuals
-        self.plotRd ( p.axes([.33,.5,.33,.5]), "p" )
-        good = self.plothistogram ( self.mcRpd, self.Rpd, "posterior Rpd", "Rpd", p.axes([.33,0,.33,.5]) )
-        if not good and warn==True:
-            p.text ( 0, p.getp(p.gca(),'ylim').mean() , "Rpd is different from 0!\nModel deviates systematically from data", \
-                    fontsize=16, color=warnred, horizontalalignment="center", verticalalignment="center", rotation=45 )
-
-        # Third part: Correlations between model prediction and block index
-        self.plotRd ( p.axes([.66,.5,.33,.5]), "k" )
-        good = self.plothistogram ( self.mcRkd, self.Rkd, "posterior Rkd", "Rkd", p.axes([.66,0,.33,.5]) )
-        if not good and warn==True:
-            p.text ( 0, p.getp(p.gca(),'ylim').mean(), "Rkd is different from 0!\nData are nonstationary!",\
-                    fontsize=16, color=warnred, horizontalalignment="center", verticalalignment="center", rotation=45 )
-
-    def convergence ( self, parameter=0, warn=True ):
-        """A simple convergence plot"""
-        p.figure()
-        ax = p.axes([0,.5,.5,.5])
-        self.chainplot ( parameter,ax=ax, warn=warn )
-        ax = p.axes([.5,.5,.5,.5])
-        self.geweke ( parameter, ax=ax, warn=warn )
+            i = N.random.randint(samples.shape[0])
+            psi = N.array(_psipy.diagnostics ( x, samples[i,:], sigmoid=self.model["sigmoid"], core=self.model["core"], nafc=self.model["nafc"] ))
+            # Lines are colored according to their deviance
+            ax.plot(x,psi,color=[deviances[i]]*2+[1])
 
     ############################################
     # Convergence diagnostics
-    def geweke ( self, parameter=0, nsegments=10, ax=None, warn=True ):
+    def geweke ( self, parameter=0, nsegments=10 ):
         """Geweke test for stationarity of a chain.
 
         The Geweke test first transforms all samples to mean 0 and standard deviation 1.
@@ -720,14 +602,6 @@ class BayesInference ( PsiInference ):
             s = samples.std()
             for l in xrange ( nsegments ):
                 z[l,k] = (samples[l*w:(l+1)*w].mean()-m)/s
-            if not ax is None:
-                p.plot(z[:,k],'o-')
-        if not ax is None:
-            xtics = N.array(p.getp(ax,"xticks"))
-            p.setp(ax,"xticks",xtics,"yticks",N.array((-3,-2,-1,0,1,2,3)))
-            p.plot ( [xtics.min(),xtics.max()],[-2]*2,'k:')
-            p.plot ( [xtics.min(),xtics.max()],[ 2]*2,'k:')
-            pp.drawaxes ( ax, xtics, "%g", N.array((-3,-2,-1,0,1,2,3)), "%g", "chain segment", "z-score" )
 
         # warn about bad points
         if abs(z).max() > 2:
@@ -735,11 +609,9 @@ class BayesInference ( PsiInference ):
             for k in xrange(self.nchains):
                 if abs(z[:,k]).max() > 2:
                     bad.append(k)
-            if warn:
-                p.text(0.5*nsegments,0,"chains did not converge: %s" % (bad,), color="red", fontsize=16, rotation=45, verticalalignment="center", horizontalalignment="center" )
-            return False
+            return False,z
         else:
-            return True
+            return True,z
 
     def Rhat ( self, parameter=0 ):
         """Gelman Rhat statistic for convergence using multiple chains
@@ -763,43 +635,6 @@ class BayesInference ( PsiInference ):
         W = si2.mean()
 
         return (float(n-1)/n * W + B/n)/W;
-
-    def chainplot ( self, parameter=0, raw=False, ax=None, warn=True ):
-        """Simply plot all chains for a single parameter
-
-        :Parameters:
-            parameter   index of the model parameter to plot
-            raw         plot raw samples instead of thinned samples after burnin
-            ax          axes in which to print
-            warn        if True, warnings are written into the plot
-        """
-        # Do we have an appropriate axis?
-        if ax==None:
-            ax = p.axes()
-
-        # Plot the chains
-        for c in xrange(self.nchains):
-            if raw:
-                samples = samples.__mcmc_chains[c]
-            else:
-                samples = self.getsamples(c)
-            p.plot ( samples[:,parameter] )
-
-        # Learn something about the axes
-        xtics = N.array(ax.get_xticks())
-        x0    = xtics.min()
-        xr    = xtics.max()-xtics.min()
-        ytics = ax.get_yticks()
-        y0    = ytics.min()
-        yr    = N.array(ytics.max()-ytics.min())
-
-        p.text(x0+0.6*xr,y0+0.95*yr,"R^ = %.4f" % (self.Rhat ( parameter ) ) )
-
-        if warn and self.Rhat(parameter)>1.1:
-            p.text(x0+0.5*xr,y0+0.5*yr,"Chains do not seem to sample\nfrom the same distribution!",
-                    horizontalalignment="center",verticalalignment="center",fontsize=16,rotation=45,color=warnred)
-
-        pp.drawaxes ( ax, ax.get_xticks(), "%g", ax.get_yticks(), "%g", "sample #", self.parnames[parameter] )
 
     ############################################
     # Properties
@@ -1022,6 +857,8 @@ def main ( ):
         # pp.plotThres ( mcmc, ax=p.gca() )
         # pp.plotPMF ( mcmc, ax=p.gca() )
         pp.GoodnessOfFit(mcmc)
+        for prm in xrange(3):
+            pp.ConvergenceMCMC ( mcmc, parameter=prm )
 
     p.show()
 
