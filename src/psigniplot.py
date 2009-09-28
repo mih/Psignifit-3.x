@@ -58,6 +58,8 @@ def plotRd ( InferenceObject, ax=None, regressor="p" ):
     function.
 
     :Parameters:
+        InferenceObject a BootstrapInference or BayesInference object containing
+                    the actual inference data
         ax          an axes object where the plot should go
         regressor   plot deviance residuals against model prediction (p) or
                     against block index (k)
@@ -162,7 +164,6 @@ def plotHistogram ( simdata, observed, xname, shortname=None, ax=None, hideobser
         return False
 
 def plotPMF ( InferenceObject, xlabel_text="Stimulus intensity", ylabel_text=None,ax=None ):
-#    def pmfanddata ( self, ax=None, xlabel_text="Stimulus intensity", ylabel_text=None ):
     """Show the psychometric function and data in an axes system
 
     This function plots the best fitting psychometric function and with the
@@ -235,7 +236,12 @@ def plotPMF ( InferenceObject, xlabel_text="Stimulus intensity", ylabel_text=Non
     ax.text ( 0.5*(xmin+xmax),ymin+.1,InferenceObject.desc )
 
 def plotThres ( InferenceObject, ax=None ):
-    """Plot thresholds and confidence intervals"""
+    """Plot thresholds and confidence intervals
+
+    :Parameters:
+        InferenceObject either a BootstrapInference object or a BayesInference object
+        ax              a pylab.axes object to be used for the plot.
+    """
     if ax == None:
         ax = p.axes()
 
@@ -243,10 +249,9 @@ def plotThres ( InferenceObject, ax=None ):
         c25,c975 = InferenceObject.getCI ( cut=k, conf=(.025,.975) )
         thres = InferenceObject.getThres ( cut )
         ylev = InferenceObject.evaluate ( [thres] )
-        # ylev  = _psipy.diagnostics ( [thres],   self.estimate, cuts=cut, nafc=self.model["nafc"], sigmoid=self.model["sigmoid"], core=self.model["core"] )
         ax.plot ( [c25,thres,c975],[ylev]*3, 'b-|' )
 
-def GoodnessOfFit ( InferenceObject ):
+def GoodnessOfFit ( InferenceObject, warn=True ):
     """Draw a diagnostic figure to help assessing goodness of fit
 
     This graphic is intended to help the user determine how well the fitted function describes
@@ -260,21 +265,33 @@ def GoodnessOfFit ( InferenceObject ):
 
     The fields provide the following information:
     1.  The data and the fitted psychometric function. "fitted" here means the parameters are
-        the mean of the posterior. To get an idea of the posterior distribution, posterior
-        intervals are plotted at some positions (the location and width of the posterior
-        intervals is given in the constructor). To make the posterior distribution really
-        "plastic", a number of samples from the posterior distribution over psychometric
-        functions are also drawn in light blue
-    2.  A histogram to approximate the posterior distribution of deviances.
-    3.  A plot of model predictions (of the mean estimate) against deviance residuals. If
-        there is no obvious interrelation between model prediction and deviance residuals,
-        this indicates that the model describes the data reasonably well. To get an idea
-        of the interrelation between model prediction and deviance residuals, the best
-        fitting line is plotted as a dotted line.
-    4.  A histogram of samples from the posterior distribution of correlations between
-        model prediction and deviance residuals. If this distribution is clearly shifted
-        away from 0, this is strong evidence, that something is wrong with your model or
-        your data.
+        the mean of the posterior for BayesInference objects and the (constrained)
+        maximum likelihood fit for BootstrapInference objects. To get an idea of the posterior
+        resp. bootstrap distribution, credibility intervals are plotted at some positions (the
+        location and width of the credibility intervals is given in the constructor). To make
+        the posterior distribution for BayesInference objects really "plastic", a number of
+        samples from the posterior distribution over psychometric functions are also drawn in
+        light blue. The saturation of blue also codes the deviance of the respective function:
+        the more saturated, the better the fit. For BootstrapInference objects, outliers and
+        influential observations are marked as red triangles and red squares.
+    2.  A histogram to approximate the posterior resp. bootstrap distribution of deviances.
+        For BootstrapInference objects this histogram provides important information. It estimates
+        the distribution of deviance that would be expected if the fitted model were perfectly
+        valid. If the deviance of the fitted model is far in the tails of the deviance histogram,
+        this typically indicates a bad fit. In that case, a warning is displayed if warn==True.
+    3.  A plot of model predictions against deviance residuals. If there is no obvious
+        interrelation between model prediction and deviance residuals, this indicates that the
+        model describes the data reasonably well. To get an idea of the interrelation between
+        model prediction and deviance residuals, the best fitting line is plotted as a dotted line.
+    4.  A histogram of samples from the posterior resp. bootstrap distribution of correlations
+        between model prediction and deviance residuals. The interpretation of this histogram
+        differs for BootstrapInference and for BayesInference. For BayesInference the distibution
+        should include 0. If the distribution is clearly shifted away from 0, this is strong
+        evidence, that something is wrong with your model or your data. For BootstrapInference,
+        The distribution shown corresponds to the distribution that would be expected if your
+        fitted psychometric function would perfectly describe the data. Thus, if the maximum
+        likelihood estimate (the vertical bold red line) is in the extremes of the distribution,
+        this is strong evidence, that something is wrong with your model or your data.
     5,6 Similar to 3 and 4 but form correlations between block index and deviance residuals.
         Correlations between block index and deviance residuals indicate nonstationary
         data as should be found during e.g. perceptual learning.
@@ -287,23 +304,24 @@ def GoodnessOfFit ( InferenceObject ):
 
     # First part: Data and fitted function, bottom deviance
     ax = p.axes([0,.5,.33,.5] )
-    # if isinstance ( InferenceObject, BayesInference ):
-    try:
+    if InferenceObject.__repr__().split()[1] == "BayesInference":
         InferenceObject.drawposteriorexamples ( ax=ax )
-    except:
-        pass
     plotThres ( InferenceObject, ax=ax )
     plotPMF   ( InferenceObject, ax=ax )
-    plotHistogram ( InferenceObject.mcdeviance, InferenceObject.deviance, "posterior deviance", "D", p.axes ( [0,0,.33,.5] ) )
+    good = plotHistogram ( InferenceObject.mcdeviance, InferenceObject.deviance, "posterior deviance", "D", p.axes ( [0,0,.33,.5] ) )
+    if warn and not good:
+        p.text ( p.gca().get.xticks().mean(), p.gca().get.yticks().mean(),
+                "The fitted model is a bad\ndescription of the data!",
+                fontsize=16, color=__warnred, horizontalalignment="center", verticalalignment="center", rotation=45 )
 
     # Second part: Correlations between model prediction and residuals
     plotRd ( InferenceObject, p.axes([.33,.5,.33,.5]), "p" )
     good = plotHistogram ( InferenceObject.mcRpd, InferenceObject.Rpd, "posterior Rpd", "Rpd", p.axes([.33,0,.33,.5]) )
     if not good and warn==True:
-        if isinstance ( InferenceObject, BootstrapInference ):
+        if InferenceObject.__repr__().split()[1] == "BootstrapInference":
             p.text ( 0, p.getp(p.gca(),'ylim').mean() , "Simulated Rpd differs from observed!\nModel deviates systematically from data", \
                     fontsize=16, color=__warnred, horizontalalignment="center", verticalalignment="center", rotation=45 )
-        elif isinstance ( InferenceObject, BayesInferenceObject ):
+        elif InferenceObject.__repr__().split()[1] == "BayesInferenceObject":
             p.text ( 0, p.getp(p.gca(),'ylim').mean() , "Rpd is different from 0!\nModel deviates systematically from data", \
                     fontsize=16, color=__warnred, horizontalalignment="center", verticalalignment="center", rotation=45 )
 
@@ -319,7 +337,16 @@ def GoodnessOfFit ( InferenceObject ):
                     fontsize=16, color=__warnred, horizontalalignment="center", verticalalignment="center", rotation=45 )
 
 def plotGeweke ( BayesInferenceObject, parameter=0, ax=None, warn=True ):
-    """Geweke plot of moving average of samples"""
+    """Geweke plot of moving average of samples
+
+    :Parameters:
+        BayesInferenceObject    a BayesInference object that contains all the
+                    infromation about the sampling process
+        parameter   index of the model parameter of interest
+        ax          the pylab.axes object where the plot should go
+        warn        should a warning message be displayed if non stationarity
+                    of the samples is observed?
+    """
     stationary,z = BayesInferenceObject.geweke ( parameter )
 
     if ax is None:
@@ -371,37 +398,54 @@ def plotChains ( BayesInferenceObject, parameter=0, ax=None, raw=False, warn=Tru
     drawaxes ( ax, ax.get_xticks(), "%g", ax.get_yticks(), "%g", "sample #", BayesInferenceObject.parnames[parameter] )
 
 def plotParameterDist ( InferenceObject, parameter=0, ax=None ):
-    """Plot the distribution of parameters"""
+    """Plot the distribution of parameters
+
+    :Parameters:
+        InferenceObject either a BootstrapInference object or a BayesInference object
+                    containing the samples of the parameter distribtution
+        parameter   index of the model parameter of interest
+        ax          pylab.axes object where the plot should go
+    """
     if ax is None:
         ax = p.axes()
 
-    samples = InferenceObject.getsamples ( )[:,parameter]
+    samples = InferenceObject.mcsamples[:,parameter]
     h,b,ptch = p.hist ( samples, bins=20, normed=True, histtype="step", lw=2 )
 
-    priorstr = InferenceObject.model["priors"]
-    if not priorstr is None:
-        priorstr = priorstr[parameter]
-        m = re.search (
-            r"(\w+)\((-?\d*\.?\d*[eE]?-?\d*),(-?\d*\.?\d*[eE]?-?\d*)\)",
-            priorstr )
-        if not m is None:
-            dist,prm1,prm2 = m.groups()
-            prm1,prm2 = float(prm1),float(prm2)
-            x = N.mgrid[b.min():b.max():100j]
-            if dist.lower () == "gauss":
-                p.plot(x,stats.norm.pdf(x,prm1,prm2))
-            elif dist.lower () == "beta":
-                p.plot(x,stats.beta.pdf(x,prm1,prm2))
-            elif dist.lower () == "gamma":
-                p.plot(x,stats.gamma.pdf(x,prm2,scale=prm1))
-            elif dist.lower () == "uniform":
-                p.plot(x,stats.uniform.pdf(x,prm1,prm2))
+    if InferenceObject.__repr__().split()[1] == "BayesInferenceObject":
+        priorstr = InferenceObject.model["priors"]
+        if not priorstr is None:
+            priorstr = priorstr[parameter]
+            m = re.search (
+                r"(\w+)\((-?\d*\.?\d*[eE]?-?\d*),(-?\d*\.?\d*[eE]?-?\d*)\)",
+                priorstr )
+            if not m is None:
+                dist,prm1,prm2 = m.groups()
+                prm1,prm2 = float(prm1),float(prm2)
+                x = N.mgrid[b.min():b.max():100j]
+                if dist.lower () == "gauss":
+                    p.plot(x,stats.norm.pdf(x,prm1,prm2))
+                elif dist.lower () == "beta":
+                    p.plot(x,stats.beta.pdf(x,prm1,prm2))
+                elif dist.lower () == "gamma":
+                    p.plot(x,stats.gamma.pdf(x,prm2,scale=prm1))
+                elif dist.lower () == "uniform":
+                    p.plot(x,stats.uniform.pdf(x,prm1,prm2))
 
     drawaxes ( ax, ax.get_xticks(), "%g", ax.get_yticks(), "%g", InferenceObject.parnames[parameter], "density estimate" )
 
 
 def ConvergenceMCMC ( BayesInferenceObject, parameter=0, ax=None, warn=True ):
-    """Diagram to check convergence of MCMC chains for a single parameter"""
+    """Diagram to check convergence of MCMC chains for a single parameter
+
+    :Parameters:
+        BayesInferenceObject    a BayesInference object containing all information about
+                    the model and the posterior distribution
+        parameter   model parameter of interest. So far, no model derived parameters such as
+                    thresholds are supported
+        ax          pylab.axes object where the plot should go
+        warn        should warnings be displayed if the samples look suspicious?
+    """
     fig = p.figure ( figsize=[9,3] )
     ax =  p.axes ( [0,0.,0.33,1] )
     plotChains ( BayesInferenceObject, parameter, ax, warn=warn )
