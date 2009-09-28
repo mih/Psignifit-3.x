@@ -43,8 +43,8 @@ class PsiInference ( object ):
         self.devianceresiduals = None
         self.Rpd               = None
         self.Rkd               = None
-        self.__outl              = None
-        self.__infl              = None
+        self.__outl            = None
+        self.__infl            = None
 
     def evaluate ( self, x, prm=None ):
         """Evaluate the psychometric function model at positions given by x"""
@@ -129,6 +129,9 @@ class PsiInference ( object ):
         if self.data == None:
             raise NotImplementedError
         return float(_psipy.diagnostics ( self.data, self.estimate, cuts=cut, nafc=self.model["nafc"], sigmoid=self.model["sigmoid"], core=self.model["core"] )[3])
+
+    def __repr__ ( self ):
+        return "< PsiInference object >"
 
     desc = property ( fget=lambda self: "sigmoid: %(sigmoid)s\ncore: %(core)s\nnAFC: %(nafc)d" % self.model,
             doc="A short description of the employed model")
@@ -245,8 +248,8 @@ class BootstrapInference ( PsiInference ):
         self.__th_acc    = N.array(self.__th_acc)
         self.__bRkd      = N.array(self.__bRkd)
         self.__bRpd      = N.array(self.__bRpd)
-        self.__outl  = N.array(self.__outl,dtype=bool)
-        self.__infl  = N.array(self.__infl,dtype=bool)
+        self.__outl      = N.array(self.__outl,dtype=bool)
+        self.__infl      = N.array(self.__infl,dtype=bool)
 
     def getCI ( self, cut, conf=None ):
         """Determine the confidence interval of a cut
@@ -264,11 +267,22 @@ class BootstrapInference ( PsiInference ):
 
         return p.prctile ( self.__bthres[:,cut], 100*N.array(vals) )
 
+    def __repr__ ( self ):
+        return "< BootstrapInference object with %d blocks and %d samples >" % ( self.data.shape[0], self.nsamples )
+
     outl = property ( fget=lambda self: self.__outl, doc="A boolean vector indicating whether a block should be considered an outlier" )
     infl = property ( fget=lambda self: self.__infl, doc="A boolean vector indicating whether a block should be considered an influential observation" )
     mcdeviance = property ( fget=lambda self: self.__bdeviance, doc="A vector of bootstrapped deviances" )
     mcRpd = property ( fget=lambda self: self.__bRpd, doc="A vector of correlations between model prections and deviance residuals in all bootstrap samples" )
     mcRkd = property ( fget=lambda self: self.__bRkd, doc="A vector of correlations between block index and deviance residuals in all bootstrap samples" )
+    @Property
+    def nsamples ():
+        """number of bootstrap samples (setting this attribute results in resampling!!!)"""
+        def fget ( self ):
+            return self.__nsamples
+        def fset ( self, n ):
+            self.__nsamples = n
+            self.sample ( self.__nsamples )
 
 ##############################################################################################################################
 class BayesInference ( PsiInference ):
@@ -401,6 +415,9 @@ class BayesInference ( PsiInference ):
         # print N.cov(N.array(chain[self.burnin::self.thin]).T)
         self.__mcmc_chains.append(N.array(chain))
         self.__mcmc_deviances.append(N.array(deviance))
+
+    def __repr__ ( self ):
+        return "< BayesInference object with %d blocks and %d mcmc chains of %d samples each >" % (self.data.shape[0],len(self.__mcmc_chains), self.nsamples)
 
     ############################################
     # Setters and getters
@@ -863,6 +880,7 @@ def main ( ):
         pp.GoodnessOfFit(mcmc)
         for prm in xrange(3):
             pp.ConvergenceMCMC ( mcmc, parameter=prm )
+        print mcmc
 
     p.show()
 
