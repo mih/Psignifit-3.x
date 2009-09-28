@@ -404,7 +404,7 @@ class BayesInference ( PsiInference ):
 
     ############################################
     # Setters and getters
-    def getsamples ( self, chain=None ):
+    def getsamples ( self, chain=None, raw=False ):
         """Get sampes from the posterior
 
         :Parameters:
@@ -423,7 +423,10 @@ class BayesInference ( PsiInference ):
             return N.concatenate ( chains, 0 )
         elif isinstance (chain,int):
             # Get a single chain
-            return self.__mcmc_chains[chain][self.burnin::self.thin]
+            if raw:
+                return self.__mcmc_chains[chain]
+            else:
+                return self.__mcmc_chains[chain][self.burnin::self.thin]
         else:
             raise IndexError, "chain should be either None or an integer"
 
