@@ -187,7 +187,7 @@ class BootstrapInference ( PsiInference ):
         self.__nsamples = 0
 
         # Store basic data
-        self.data = data
+        self.data = N.array(data)
         self.model = {
                 "sigmoid": kwargs.setdefault("sigmoid","logistic"),
                 "core":    kwargs.setdefault("core",   "ab"),
@@ -239,6 +239,8 @@ class BootstrapInference ( PsiInference ):
                     self.sample (sample)
                 else:
                     raise ValueError, "Negative number of bootstrap samples selected"
+        else:
+            self.__nsamples = 0
 
     def sample ( self, Nsamples=2000 ):
         """Draw bootstrap samples
@@ -345,7 +347,7 @@ class BayesInference ( PsiInference ):
         PsiInference.__init__(self)
 
         # Store basic data
-        self.data = data
+        self.data = N.array(data)
         self.model = {
                 "sigmoid": kwargs.setdefault("sigmoid","logistic"),
                 "core":    kwargs.setdefault("core",   "mw0.1"),

@@ -311,7 +311,7 @@ def GoodnessOfFit ( InferenceObject, warn=True ):
     plotPMF   ( InferenceObject, ax=ax )
     good = plotHistogram ( InferenceObject.mcdeviance, InferenceObject.deviance, "posterior deviance", "D", p.axes ( [0,0,.33,.5] ) )
     if warn and not good:
-        p.text ( p.gca().get.xticks().mean(), p.gca().get.yticks().mean(),
+        p.text ( N.array(p.gca().get_xticks()).mean(), N.array(p.gca().get_yticks()).mean(),
                 "The fitted model is a bad\ndescription of the data!",
                 fontsize=16, color=__warnred, horizontalalignment="center", verticalalignment="center", rotation=45 )
 
@@ -330,10 +330,10 @@ def GoodnessOfFit ( InferenceObject, warn=True ):
     plotRd ( InferenceObject, p.axes([.66,.5,.33,.5]), "k" )
     good = plotHistogram ( InferenceObject.mcRkd, InferenceObject.Rkd, "posterior Rkd", "Rkd", p.axes([.66,0,.33,.5]) )
     if not good and warn==True:
-        if isinstance ( InferenceObject, BootstrapInference ):
+        if InferenceObject.__repr__().split()[1] == "BootstrapInference":
             p.text ( 0, p.getp(p.gca(),'ylim').mean(), "Simulated Rkd differs from observed!\nData are nonstationary!",\
                     fontsize=16, color=__warnred, horizontalalignment="center", verticalalignment="center", rotation=45 )
-        elif isinstance ( InferenceObject, BayesInference ):
+        elif InferenceObject.__repr__().split()[1] == "BayesInferenceObject":
             p.text ( 0, p.getp(p.gca(),'ylim').mean(), "Rkd is different from 0!\nData are nonstationary!",\
                     fontsize=16, color=__warnred, horizontalalignment="center", verticalalignment="center", rotation=45 )
 
