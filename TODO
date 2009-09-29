@@ -1,4 +1,5 @@
-- Update documentation
+- Bugs with different cores -> no convergence, exceptionally high deviance with ok looking fit, ...
+- complete tutorial
 - add a dictionary to the data objects to make them know what they are (stimulus intensity, ...)
 - Make sure that sscanf does not use locale for Numbers!
 - Check when we need #include <numpy/arrayobject.h> and when #include <Numeric/arrayobject.h>
