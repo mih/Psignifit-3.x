@@ -116,7 +116,7 @@ We can also get a graphical representation of the fitted parameters:
 in an interactive session, this should again open a window showing estimated densities of
 the model parameters as shown below. (Again, you might have to type show() to see the window).
 
-.. image:: BootstrapParamers.png
+.. image:: BootstrapParameters.png
 
 Each of these plots shows the estimated density of one of the model parameters. In addition,
 the estimated parameter is marked by a solid vertical line and the 95% confidence interval is
