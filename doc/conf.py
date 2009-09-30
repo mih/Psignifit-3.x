@@ -41,7 +41,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'pypsignifit'
+project = u'psignifit'
 copyright = u'2009, Ingo Fründ & Valentin Haenel'
 
 # The version info for the project you're documenting, acts as replacement for
