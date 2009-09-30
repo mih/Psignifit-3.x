@@ -11,6 +11,7 @@ Contents:
    :maxdepth: 2
 
    TUTORIAL
+   API
 
 Indices and tables
 ==================
