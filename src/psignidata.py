@@ -790,7 +790,7 @@ class BayesInference ( PsiInference ):
             self.__pthres[k,:],self.__pRpd[k],self.__pRkd[k] = _psipy.diagnostics (\
                     self.data, theta, cuts=self.cuts, nafc=self.model["nafc"], sigmoid=self.model["sigmoid"], core=self.model["core"] )[3:]
 
-    def __determineoptimalsampling ( self, noptimizations=10 ):
+    def __determineoptimalsampling ( self, noptimizations=10, verbose=False ):
         """Determine optimal sampling parameters using the Raftery&Lewis (1995) procedure
 
         Automatically set burnin,thin,nsamples.
@@ -801,6 +801,7 @@ class BayesInference ( PsiInference ):
             noptimizations  maximum number of optimization iterations. If the same
                             sampling parameters are obtained before, the method
                             terminates earlier
+            verbose         display status messages
         """
         if noptimizations==0:
             return
@@ -841,9 +842,10 @@ class BayesInference ( PsiInference ):
                     self.thin   = max ( self.thin,   mcmcpars.thin )
                     self.nsamples = max ( self.nsamples, mcmcpars.Nsamples )
             self._steps = N.sqrt(N.diag(N.cov ( samples[self.burnin::self.thin].T )))
-            print "Steps:",self._steps
 
-            print "Burnin:",self.burnin,"Thinning:",self.thin,"Nsamples:",self.nsamples
+            if verbose:
+                print "Burnin:",self.burnin,"Thinning:",self.thin,"Nsamples:",self.nsamples
+                print "Steps:",self._steps
             if oldburnin==self.burnin and oldthin==self.thin and oldnsamples==self.nsamples:
                 break
             else:
