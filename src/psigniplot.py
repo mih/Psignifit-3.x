@@ -17,13 +17,20 @@ def drawaxes ( ax, xtics, xfmt, ytics, yfmt, xname, yname ):
     the area covered by the axes.
 
     :Parameters:
-        ax      the axes object in which the graphics should stay
-        xtics   an array of x-ticks
-        xfmt    format string for the x-ticks
-        ytics   an array of y-ticks
-        yfmt    format string for the y-ticks
-        xname   label for the x-axis
-        yname   label for the y-axis
+        *ax* :
+            the axes object in which the graphics should stay
+        *xtics* :
+            an array of x-ticks
+        *xfmt* :
+            format string for the x-ticks
+        *ytics* :
+            an array of y-ticks
+        *yfmt* :
+            format string for the y-ticks
+        *xname* :
+            label for the x-axis
+        *yname* :
+            label for the y-axis
     """
 
     # Data ranges
@@ -59,11 +66,14 @@ def plotRd ( InferenceObject, ax=None, regressor="p" ):
     function.
 
     :Parameters:
-        InferenceObject a BootstrapInference or BayesInference object containing
-                    the actual inference data
-        ax          an axes object where the plot should go
-        regressor   plot deviance residuals against model prediction (p) or
-                    against block index (k)
+        *InferenceObject* :
+            a BootstrapInference or BayesInference object containing
+            the actual inference data
+        *ax* :
+            an axes object where the plot should go
+        *regressor* :
+            plot deviance residuals against model prediction (p) or
+            against block index (k)
     """
     if ax==None:
         ax = p.axes()
@@ -113,13 +123,19 @@ def plotHistogram ( simdata, observed, xname, shortname=None, ax=None, hideobser
     """plot a histogram and compare observed data to it
 
     :Parameters:
-        simdata     an array of monte-carlo samples of the parameter of interest
-        observed    observed value of the parameter of interest (for MCMC samples, it is often
-                    reasonable to use this as the value of 'no effect' or something)
-        xname       name of the paramter of interest
-        shortname   short name of the parameter of interest
-        ax          axes object defining the area where the plot should go
-        hideobserved if this is True, the observed value is not plotted
+        *simdata* :
+            an array of monte-carlo samples of the parameter of interest
+        *observed* :
+            observed value of the parameter of interest (for MCMC samples, it is often
+            reasonable to use this as the value of 'no effect' or something)
+        *xname* :
+            name of the paramter of interest
+        *shortname* :
+            short name of the parameter of interest
+        *ax* :
+            axes object defining the area where the plot should go
+        *hideobserved* :
+            if this is True, the observed value is not plotted
 
     :Output:
         returns a boolean value indicating whether or not the Null-Hypothesis that
@@ -175,11 +191,14 @@ def plotPMF ( InferenceObject, xlabel_text="Stimulus intensity", ylabel_text=Non
     to put the correct labels to the y-axis.
 
     :Parameters:
-        ax          axes object in which the plot should go
-        xlabel_text label for the x-axis
-        ylabel_text label for the y-axis, if this is None, the functions
-                    determines the correct label from its internal knowledge
-                    about the task
+        *ax* :
+            axes object in which the plot should go
+        *xlabel_text* :
+            label for the x-axis
+        *ylabel_text* :
+            label for the y-axis, if this is None, the functions
+            determines the correct label from its internal knowledge
+            about the task
     """
     if ax==None:
         ax = p.axes()
@@ -240,8 +259,10 @@ def plotThres ( InferenceObject, ax=None ):
     """Plot thresholds and confidence intervals
 
     :Parameters:
-        InferenceObject either a BootstrapInference object or a BayesInference object
-        ax              a pylab.axes object to be used for the plot.
+        *InferenceObject* :
+            either a BootstrapInference object or a BayesInference object
+        *ax* :
+            a pylab.axes object to be used for the plot.
     """
     if ax == None:
         ax = p.axes()
@@ -298,8 +319,9 @@ def GoodnessOfFit ( InferenceObject, warn=True ):
         data as should be found during e.g. perceptual learning.
 
     :Parameters:
-        warn    if warn is set to True, red warning messages are displayed
-                whenever the fit does not seem to describe the data well.
+        *warn* :
+            if warn is set to True, red warning messages are displayed
+            whenever the fit does not seem to describe the data well.
     """
     p.figure(figsize=(10,8))
 
@@ -341,12 +363,16 @@ def plotGeweke ( BayesInferenceObject, parameter=0, ax=None, warn=True ):
     """Geweke plot of moving average of samples
 
     :Parameters:
-        BayesInferenceObject    a BayesInference object that contains all the
-                    infromation about the sampling process
-        parameter   index of the model parameter of interest
-        ax          the pylab.axes object where the plot should go
-        warn        should a warning message be displayed if non stationarity
-                    of the samples is observed?
+        *BayesInferenceObject* :
+            a BayesInference object that contains all the
+            infromation about the sampling process
+        *parameter* :
+            index of the model parameter of interest
+        *ax* :
+            the pylab.axes object where the plot should go
+        *warn* :
+            should a warning message be displayed if non stationarity
+            of the samples is observed?
     """
     stationary,z = BayesInferenceObject.geweke ( parameter )
 
@@ -368,10 +394,14 @@ def plotChains ( BayesInferenceObject, parameter=0, ax=None, raw=False, warn=Tru
     """Simply plot all chains for a single parameter
 
     :Parameters:
-        parameter   index of the model parameter to plot
-        raw         plot raw samples instead of thinned samples after burnin
-        ax          axes in which to print
-        warn        if True, warnings are written into the plot
+        *parameter* :
+            index of the model parameter to plot
+        *raw* :
+            plot raw samples instead of thinned samples after burnin
+        *ax* :
+            axes in which to print
+        *warn* :
+            if True, warnings are written into the plot
     """
     # Do we have an appropriate axis?
     if ax==None:
@@ -402,10 +432,13 @@ def plotParameterDist ( InferenceObject, parameter=0, ax=None ):
     """Plot the distribution of parameters
 
     :Parameters:
-        InferenceObject either a BootstrapInference object or a BayesInference object
-                    containing the samples of the parameter distribtution
-        parameter   index of the model parameter of interest
-        ax          pylab.axes object where the plot should go
+        *InferenceObject* :
+            either a BootstrapInference object or a BayesInference object
+            containing the samples of the parameter distribtution
+        *parameter* :
+            index of the model parameter of interest
+        *ax* :
+            pylab.axes object where the plot should go
     """
     if ax is None:
         ax = p.axes()
@@ -452,8 +485,9 @@ def ParameterPlot ( InferenceObject ):
     """Show distributions and estimates for all parameters in the model
 
     :Parameters:
-        InferenceObject a BootstrapInference or BayesInference object containing the
-                desired data
+        *InferenceObject* :
+            a BootstrapInference or BayesInference object containing the
+            desired data
     """
     nparams = len(InferenceObject.parnames)
     axw = 1./nparams
@@ -467,11 +501,14 @@ def ConvergenceMCMC ( BayesInferenceObject, parameter=0, warn=True ):
     """Diagram to check convergence of MCMC chains for a single parameter
 
     :Parameters:
-        BayesInferenceObject    a BayesInference object containing all information about
-                    the model and the posterior distribution
-        parameter   model parameter of interest. So far, no model derived parameters such as
-                    thresholds are supported
-        warn        should warnings be displayed if the samples look suspicious?
+        *BayesInferenceObject* :
+            a BayesInference object containing all information about
+            the model and the posterior distribution
+        *parameter* :
+            model parameter of interest. So far, no model derived parameters such as
+            thresholds are supported
+        *warn* :
+            should warnings be displayed if the samples look suspicious?
     """
     fig = p.figure ( figsize=[9,3] )
     ax =  p.axes ( [0,0.,0.33,1] )

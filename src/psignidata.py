@@ -12,6 +12,21 @@ import pygibbsit
 from psignierrors import NosamplesError
 
 __all__ = ["BootstrapInference","BayesInference"]
+__doc__ = """
+This module contains data objects to store psychophysical data and perform inference on them. Two general approaches
+have been suggested to fit psychometric functions
+
+1. *Constrained maximum likelihood (Wichmann & Hill, 2001a,b)* This procedure starts by fitting a psychometric function
+   to the data and then performs parametric bootstrap to obtain confidence intervals for parameters, associated
+   thresholds,... This approach is implemented by the :BootstrapInference: class.
+2. *Baysian Inference (Kuss et al., 2005)* This procedure starts with a number of prior distributions for each of
+   the models parameters and then uses Bayes rule to derive the posterior distribution from the data. As the
+   posterior distribution can only be determined up to a normalization constant, inference on the posterior distribution
+   has to be based on samples. These samples are typically obtained using Markoc Chain Monte Carlo (MCMC). This
+   approach is implemented in the :BayesInference: class.
+
+The module also defines a :PsiInference: base class.
+"""
 warnred = [.7,0,0]
 
 # Helper function to create properties with one function
@@ -54,76 +69,76 @@ class PsiInference ( object ):
 
         return N.array( _psipy.diagnostics ( x, prm, sigmoid=self.model["sigmoid"], core=self.model["core"], nafc=self.model["nafc"] ) )
 
-    def pmfanddata ( self, ax=None, xlabel_text="Stimulus intensity", ylabel_text=None ):
-        """Show the psychometric function and data in an axes system
+    # def pmfanddata ( self, ax=None, xlabel_text="Stimulus intensity", ylabel_text=None ):
+    #     """Show the psychometric function and data in an axes system
 
-        This function plots the best fitting psychometric function and with the
-        corresponding data points. If data points are labelled influential, they
-        are plotted as red squares, if data points are labelled as outliers, they
-        are plotted as red triangles.
-        The function uses its internal knowledge about the task (nAFC or Yes/No)
-        to put the correct labels to the y-axis.
+    #     This function plots the best fitting psychometric function and with the
+    #     corresponding data points. If data points are labelled influential, they
+    #     are plotted as red squares, if data points are labelled as outliers, they
+    #     are plotted as red triangles.
+    #     The function uses its internal knowledge about the task (nAFC or Yes/No)
+    #     to put the correct labels to the y-axis.
 
-        :Parameters:
-            ax          axes object in which the plot should go
-            xlabel_text label for the x-axis
-            ylabel_text label for the y-axis, if this is None, the functions
-                        determines the correct label from its internal knowledge
-                        about the task
-        """
-        if ax==None:
-            ax = p.axes()
+    #     :Parameters:
+    #         ax          axes object in which the plot should go
+    #         xlabel_text label for the x-axis
+    #         ylabel_text label for the y-axis, if this is None, the functions
+    #                     determines the correct label from its internal knowledge
+    #                     about the task
+    #     """
+    #     if ax==None:
+    #         ax = p.axes()
 
-        # Plot the psychometric function
-        xmin = self.data[:,0].min()
-        xmax = self.data[:,0].max()
-        x = N.mgrid[xmin:xmax:100j]
-        psi = N.array(_psipy.diagnostics ( x, self.estimate, sigmoid=self.model["sigmoid"], core=self.model["core"], nafc=self.model["nafc"] ))
-        ax.plot(x,psi,'b')
+    #     # Plot the psychometric function
+    #     xmin = self.data[:,0].min()
+    #     xmax = self.data[:,0].max()
+    #     x = N.mgrid[xmin:xmax:100j]
+    #     psi = N.array(_psipy.diagnostics ( x, self.estimate, sigmoid=self.model["sigmoid"], core=self.model["core"], nafc=self.model["nafc"] ))
+    #     ax.plot(x,psi,'b')
 
-        # Plot the data
-        xd = self.data[:,0]
-        pd = self.data[:,1].astype("d")/self.data[:,2]
-        goodpoints = N.ones(pd.shape,bool)
-        if not self.outl==None:
-            ax.plot(xd[self.outl],pd[self.outl],'r^')
-            goodpoints = N.logical_and(goodpoints,N.logical_not(self.outl))
-        if not self.infl==None:
-            ax.plot(xd[self.infl],pd[self.infl],"rs")
-            goodpoints = N.logical_and(goodpoints,N.logical_not(self.infl))
-        ax.plot(xd[goodpoints],pd[goodpoints],'bo')
+    #     # Plot the data
+    #     xd = self.data[:,0]
+    #     pd = self.data[:,1].astype("d")/self.data[:,2]
+    #     goodpoints = N.ones(pd.shape,bool)
+    #     if not self.outl==None:
+    #         ax.plot(xd[self.outl],pd[self.outl],'r^')
+    #         goodpoints = N.logical_and(goodpoints,N.logical_not(self.outl))
+    #     if not self.infl==None:
+    #         ax.plot(xd[self.infl],pd[self.infl],"rs")
+    #         goodpoints = N.logical_and(goodpoints,N.logical_not(self.infl))
+    #     ax.plot(xd[goodpoints],pd[goodpoints],'bo')
 
-        # Check axes limits
-        if self.model["nafc"]>1:
-            ymin,ymax = 1./self.model["nafc"]-.05,1.05
-            if ylabel_text is None:
-                ylabel_text = "P(correct)"
-        else:
-            ymin,ymax = -.05,1.05
-            if ylabel_text is None:
-                ylabel_text = "P(Yes)"
+    #     # Check axes limits
+    #     if self.model["nafc"]>1:
+    #         ymin,ymax = 1./self.model["nafc"]-.05,1.05
+    #         if ylabel_text is None:
+    #             ylabel_text = "P(correct)"
+    #     else:
+    #         ymin,ymax = -.05,1.05
+    #         if ylabel_text is None:
+    #             ylabel_text = "P(Yes)"
 
-        # Determine tics
-        p.setp(ax,frame_on=False,ylim=(ymin,ymax))
-        xtics = p.getp(ax,'xticks')
-        ytics = p.getp(ax,'yticks').tolist()
-        # Clean up ytics
-        if self.model["nafc"]==1:
-            for k,yt in enumerate(ytics):
-                if yt<0 or yt>1:
-                    ytics.pop(k)
-        else:
-            for k,yt in enumerate(ytics):
-                if yt<(1./self.model["nafc"]) or yt>1:
-                    ytics.pop(k)
-        ytics = N.array(ytics)
+    #     # Determine tics
+    #     p.setp(ax,frame_on=False,ylim=(ymin,ymax))
+    #     xtics = p.getp(ax,'xticks')
+    #     ytics = p.getp(ax,'yticks').tolist()
+    #     # Clean up ytics
+    #     if self.model["nafc"]==1:
+    #         for k,yt in enumerate(ytics):
+    #             if yt<0 or yt>1:
+    #                 ytics.pop(k)
+    #     else:
+    #         for k,yt in enumerate(ytics):
+    #             if yt<(1./self.model["nafc"]) or yt>1:
+    #                 ytics.pop(k)
+    #     ytics = N.array(ytics)
 
-        pp.drawaxes ( ax, xtics, "%g", ytics, "%g", xlabel_text, ylabel_text )
+    #     pp.drawaxes ( ax, xtics, "%g", ytics, "%g", xlabel_text, ylabel_text )
 
-        # Write some model information
-        if not self.deviance is None:
-            ax.text(0.5*(xmin+xmax),ymin+.05,"D=%g" % ( self.deviance, ) )
-        ax.text ( 0.5*(xmin+xmax),ymin+.1,self.desc )
+    #     # Write some model information
+    #     if not self.deviance is None:
+    #         ax.text(0.5*(xmin+xmax),ymin+.05,"D=%g" % ( self.deviance, ) )
+    #     ax.text ( 0.5*(xmin+xmax),ymin+.1,self.desc )
 
     def getThres ( self, cut=0.5 ):
         """Get thresholds at cut"""
@@ -145,42 +160,50 @@ class BootstrapInference ( PsiInference ):
         """Set up an object of bootstrapped data
 
         :Parameters:
-            data    an array or a list of lists containing stimulus intensities in the
-                    first column, number of correct responses (nAFC) or number of YES-
-                    responses in the second column, and number of trials in the third
-                    column. Each row should correspond to one experimental block. In
-                    addition, the sequence of the rows is taken as the sequence of
-                    data aquisition.
-            sample  if sample is True, bootstrap samples are drawn. If sample is an
-                    integer, it gives the number of samples that are drawn
-            sigmoid shape of the sigmoid function. Valid choices are
-                        'logistic'   [Default]
-                        'gauss'
-                        'gumbel_l'
-                        'gumbel_r'
-            core    term inside the sigmoid function. Valid choices are
-                        'ab'         (x-a)/b        [Default]
-                        'mw%g'       midpoint and width
-                        'linear'     a+b*x
-                        'log'        a+b*log(x)
-            priors  a list of prior names. Valid choices are
-                        'Uniform(%g,%g)'   Uniform distribution on an interval
-                        'Gauss(%g,%g)'     Gaussian distribution with mean and standard deviation
-                        'Beta(%g,%g)'      Beta distribution
-                        'Gamma(%g,%g)'     Gamma distribution
-                    If no valid prior is selected, the parameter remains unconstrained.
-                    Alternatively, priors can be given as a dictionary that only specifies
-                    priors for those parameters you want to set in that case you can use
-                    'a','b','m','w','guess','gamma','lapse','lambda' as keys.
-            nafc    number of response alternatives. If nafc==1, this indicates a Yes/No
-                    task
-            cuts    performance values that should be considered 'thresholds'. This means that a
-                    'cut' of 0.5 corresponds to an expected performance of roughly 75%% correct in
-                    a 2AFC task.
-            conf    limits of confidence intervals. The default gives 95%% confidence intervals.
-                    Any other sequence can be used alternatively. In addition, conf can be 'v1.0'
-                    to give the default values of the classical psignifit version (i.e. .023,.159,.841,.977,
-                    corresponding to -2,-1,1,2 standard deviations for a gaussian).
+            *data* :
+                an array or a list of lists containing stimulus intensities in the
+                first column, number of correct responses (nAFC) or number of YES-
+                responses in the second column, and number of trials in the third
+                column. Each row should correspond to one experimental block. In
+                addition, the sequence of the rows is taken as the sequence of
+                data aquisition.
+            *sample* :
+                if sample is True, bootstrap samples are drawn. If sample is an
+                integer, it gives the number of samples that are drawn
+            *sigmoid* :
+                shape of the sigmoid function. Valid choices are
+                    - 'logistic'   [Default]
+                    - 'gauss'
+                    - 'gumbel_l'
+                    - 'gumbel_r'
+            *core* :
+                term inside the sigmoid function. Valid choices are
+                    - 'ab'         (x-a)/b        [Default]
+                    - 'mw%g'       midpoint and width
+                    - 'linear'     a+b*x
+                    - 'log'        a+b*log(x)
+            *priors* :
+                a list of prior names. Valid choices are
+                    - 'Uniform(%g,%g)'   Uniform distribution on an interval
+                    - 'Gauss(%g,%g)'     Gaussian distribution with mean and standard deviation
+                    - 'Beta(%g,%g)'      Beta distribution
+                    - 'Gamma(%g,%g)'     Gamma distribution
+                If no valid prior is selected, the parameter remains unconstrained.
+                Alternatively, priors can be given as a dictionary that only specifies
+                priors for those parameters you want to set in that case you can use
+                'a','b','m','w','guess','gamma','lapse','lambda' as keys.
+            *nafc* :
+                number of response alternatives. If nafc==1, this indicates a Yes/No
+                task
+            *cuts* :
+                performance values that should be considered 'thresholds'. This means that a
+                'cut' of 0.5 corresponds to an expected performance of roughly 75%% correct in
+                a 2AFC task.
+            *conf* :
+                limits of confidence intervals. The default gives 95%% confidence intervals.
+                Any other sequence can be used alternatively. In addition, conf can be 'v1.0'
+                to give the default values of the classical psignifit version (i.e. .023,.159,.841,.977,
+                corresponding to -2,-1,1,2 standard deviations for a gaussian).
         """
         # Call the base constructor
         PsiInference.__init__(self)
@@ -246,7 +269,8 @@ class BootstrapInference ( PsiInference ):
         """Draw bootstrap samples
 
         :Parameters:
-            Nsamples    number of bootstrapsamples to be drawn
+            *Nsamples* :
+                number of bootstrapsamples to be drawn
         """
         self.__nsamples = Nsamples
         self.__bdata,self.__bestimate,self.__bdeviance,self.__bthres,self.__th_bias,self.__th_acc,\
@@ -268,8 +292,10 @@ class BootstrapInference ( PsiInference ):
         """Determine the confidence interval of a cut
 
         :Parameters:
-            cut     index(!) of the cut of interest
-            conf    is currently ignored
+            *cut* :
+                index(!) of the cut of interest
+            *conf* :
+                is currently ignored
         """
         bias = self.__th_bias[cut]
         acc  = self.__th_bias[cut]
@@ -304,45 +330,55 @@ class BayesInference ( PsiInference ):
         """Bayesian Inference for psychometric functions using MCMC
 
         :Parameters:
-            data    an array or a list of lists containing stimulus intensities in the
-                    first column, number of correct responses (nAFC) or number of YES-
-                    responses in the second column, and number of trials in the third
-                    column. Each row should correspond to one experimental block. In
-                    addition, the sequence of the rows is taken as the sequence of
-                    data aquisition.
-            sample  if sample is True, bootstrap samples are drawn. If sample is an
-                    integer, it gives the number of samples that are drawn
-            sigmoid shape of the sigmoid function. Valid choices are
-                        'logistic'   [Default]
-                        'gauss'
-                        'gumbel_l'
-                        'gumbel_r'
-            core    term inside the sigmoid function. Valid choices are
-                        'ab'         (x-a)/b        [Default]
-                        'mw%g'       midpoint and width
-                        'linear'     a+b*x
-                        'log'        a+b*log(x)
-            priors  a list of prior names. Valid choices are
-                        'Uniform(%g,%g)'   Uniform distribution on an interval
-                        'Gauss(%g,%g)'     Gaussian distribution with mean and standard deviation
-                        'Beta(%g,%g)'      Beta distribution
-                        'Gamma(%g,%g)'     Gamma distribution
-                    If no valid prior is selected, the parameter remains unconstrained.
-                    Alternatively, priors can be given as a dictionary that only specifies
-                    priors for those parameters you want to set in that case you can use
-                    'a','b','m','w','guess','gamma','lapse','lambda' as keys.
-            nafc    number of response alternatives. If nafc==1, this indicates a Yes/No
-                    task
-            cuts    performance values that should be considered 'thresholds'. This means that a
-                    'cut' of 0.5 corresponds to an expected performance of roughly 75%% correct in
-                    a 2AFC task.
-            conf    limits of confidence intervals. The default gives 95%% confidence intervals.
-                    Any other sequence can be used alternatively. In addition, conf can be 'v1.0'
-                    to give the default values of the classical psignifit version (i.e. .023,.159,.841,.977,
-                    corresponding to -2,-1,1,2 standard deviations for a gaussian).
-            automatic   do everything automatically
-            resample if a chain is considered "bad" in terms of convergence should it
-                    automatically be resampled?
+            *data* :
+                an array or a list of lists containing stimulus intensities in the
+                first column, number of correct responses (nAFC) or number of YES-
+                responses in the second column, and number of trials in the third
+                column. Each row should correspond to one experimental block. In
+                addition, the sequence of the rows is taken as the sequence of
+                data aquisition.
+            *sample* :
+                if sample is True, bootstrap samples are drawn. If sample is an
+                integer, it gives the number of samples that are drawn
+            *sigmoid* :
+                shape of the sigmoid function. Valid choices are
+                    - 'logistic'   [Default]
+                    - 'gauss'
+                    - 'gumbel_l'
+                    - 'gumbel_r'
+            *core* :
+                term inside the sigmoid function. Valid choices are
+                    - 'ab'         (x-a)/b        [Default]
+                    - 'mw%g'       midpoint and width
+                    - 'linear'     a+b*x
+                    - 'log'        a+b*log(x)
+            *priors* :
+                a list of prior names. Valid choices are
+                    - 'Uniform(%g,%g)'   Uniform distribution on an interval
+                    - 'Gauss(%g,%g)'     Gaussian distribution with mean and standard deviation
+                    - 'Beta(%g,%g)'      Beta distribution
+                    - 'Gamma(%g,%g)'     Gamma distribution
+                If no valid prior is selected, the parameter remains unconstrained.
+                Alternatively, priors can be given as a dictionary that only specifies
+                priors for those parameters you want to set in that case you can use
+                'a','b','m','w','guess','gamma','lapse','lambda' as keys.
+            *nafc* :
+                number of response alternatives. If nafc==1, this indicates a Yes/No
+                task
+            *cuts* :
+                performance values that should be considered 'thresholds'. This means that a
+                'cut' of 0.5 corresponds to an expected performance of roughly 75%% correct in
+                a 2AFC task.
+            *conf* :
+                limits of confidence intervals. The default gives 95%% confidence intervals.
+                Any other sequence can be used alternatively. In addition, conf can be 'v1.0'
+                to give the default values of the classical psignifit version (i.e. .023,.159,.841,.977,
+                corresponding to -2,-1,1,2 standard deviations for a gaussian).
+            *automatic* :
+                do everything automatically
+            *resample* :
+                if a chain is considered "bad" in terms of convergence should it
+                automatically be resampled?
         """
         PsiInference.__init__(self)
 
@@ -406,12 +442,14 @@ class BayesInference ( PsiInference ):
         """Draw samples from the posterior distribution using MCMC
 
         :Parameters:
-            Nsamples    number of samples that should be drawn from the posterior. If Nsamples is
-                        None, an optimal number of samples is tried to obtain.
-            start       starting value of the chain. If this is None, the chain starts
-                        at the MAP estimate. However, if you sample multiple chains, you
-                        might want to start from different (overdispersed) starting values
-                        to diagnose convergence
+            *Nsamples* :
+                number of samples that should be drawn from the posterior. If Nsamples is
+                None, an optimal number of samples is tried to obtain.
+            *start* :
+                starting value of the chain. If this is None, the chain starts
+                at the MAP estimate. However, if you sample multiple chains, you
+                might want to start from different (overdispersed) starting values
+                to diagnose convergence
         """
         if isinstance (Nsamples,int):
             self.nsamples = Nsamples
@@ -439,9 +477,10 @@ class BayesInference ( PsiInference ):
         """Get sampes from the posterior
 
         :Parameters:
-            chain   if chain is None, samples are aggregated over all chains
-                    sampled so far. If chain is an integer only data from the
-                    chain indexed by this number are returned
+            *chain* :
+                if chain is None, samples are aggregated over all chains
+                sampled so far. If chain is an integer only data from the
+                chain indexed by this number are returned
 
         :Output:
             an array of nsamplesXnparams samples from the posterior
@@ -465,9 +504,10 @@ class BayesInference ( PsiInference ):
         """Get samples from the posterior distribution of deviances
 
         :Parameters:
-            chain   if chain is None, the samples are combined across all chains
-                    sampled so far. If chain is an integer, it is interpreted as
-                    the index of the chain to be returned
+            *chain* :
+                if chain is None, the samples are combined across all chains
+                sampled so far. If chain is an integer, it is interpreted as
+                the index of the chain to be returned
 
         :Output:
             an array of samples from the posterior distribution of deviances. This
@@ -488,9 +528,11 @@ class BayesInference ( PsiInference ):
         """Get a posterior credibility interval for a particular parameter
 
         :Parameters:
-            conf    percentiles that should be returned
-            param   parameter of interest. Currently, only thres/threshold
-                    and Rkd,Rpd,deviance are defined.
+            *conf* :
+                percentiles that should be returned
+            *param* :
+                parameter of interest. Currently, only thres/threshold
+                and Rkd,Rpd,deviance are defined.
         """
         if param[:5]=="thres":
             # We have to handle thresholds separately because there could be multiple cuts.
@@ -519,10 +561,12 @@ class BayesInference ( PsiInference ):
         """plots the mean estimate of the psychometric function and a number of samples from the posterior
 
         :Parameters:
-            ax      axes object in which to draw the plot. If this is None,
-                    a new axes object is created.
-            Nsamples number of psychometric functions that should be drawn
-                    from the posterior
+            *ax* :
+                axes object in which to draw the plot. If this is None,
+                a new axes object is created.
+            *Nsamples* :
+                number of psychometric functions that should be drawn
+                from the posterior
         """
         if ax is None:
             ax = p.axes()
@@ -555,11 +599,10 @@ class BayesInference ( PsiInference ):
         checks whether these subaverages differ significantly from 0.
 
         :Parameters:
-            parameter       parameter of interest
-            nsegments       number of subaverages to be calculated
-            ax              axes to plot in (if this is None, no plot is created)
-            warn            should a warning message be plotted if the chain did not
-                            converge?
+            *parameter* :
+                parameter of interest
+            *nsegments* :
+                number of subaverages to be calculated
 
         :Output:
             a boolean value indicating whether the chain is "good" or "bad"
@@ -798,22 +841,25 @@ class BayesInference ( PsiInference ):
         is stored in self.mcmcpars
 
         :Parameters:
-            noptimizations  maximum number of optimization iterations. If the same
-                            sampling parameters are obtained before, the method
-                            terminates earlier
-            verbose         display status messages
+            *noptimizations* :
+                maximum number of optimization iterations. If the same
+                sampling parameters are obtained before, the method
+                terminates earlier
+            *verbose* :
+                display status messages
         """
         if noptimizations==0:
             return
         mcmcpars = {}
 
         if len(self.__mcmc_chains)>0:
-            mcmc_chains    = self.__mcmc_chains
-            mcmc_deviances = self.__mcmc_deviances
+            mcmc_chains    = self.__mcmc_chains.copy()
+            mcmc_deviances = self.__mcmc_deviances.copy()
             self.__mcmc_chains    = []
             self.__mcmc_deviances = []
         else:
             mcmc_chains = []
+            mcmc_deviances = []
 
         # Determine size of initial test run
         if self.nsamples is None:
@@ -829,7 +875,8 @@ class BayesInference ( PsiInference ):
         for n in xrange ( noptimizations ):
             self.sample ()           # Test run
             testrun = self.mcthres    # Thresholds from testrun
-            samples = self.__mcmc_chains.pop() # throw the samples away, don't use them for "real" inference
+            samples = self.__mcmc_chains.pop()      # throw the samples away, don't use them for "real" inference
+            deviances = self.__mcmc_deviances.pop()
 
             # Check all desired thresholds
             for q in self.conf:
