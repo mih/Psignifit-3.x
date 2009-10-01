@@ -411,13 +411,12 @@ static PyObject * psidiagnostics ( PyObject * self, PyObject * args, PyObject * 
 	int Ncuts (0);
 	try {
 		cuts = getcuts ( pycuts, &Ncuts );
+		params = getparams ( pyparams, Nparams );
 	} catch (std::string message) {
 		PyErr_Format ( PyExc_ValueError, message.c_str() );
 		return NULL;
 	}
 
-	// TODO: does this throw exceptions
-	params = getparams ( pyparams, Nparams );
 	if ( intensityonly==-1)
 		devianceresiduals = new std::vector<double> (pmf->getDevianceResiduals ( *params, data ) );
 
