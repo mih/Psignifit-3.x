@@ -1,5 +1,5 @@
+- write a number of simulated observers
 - Bugs with different cores -> no convergence, exceptionally high deviance with ok looking fit, ...
-- complete tutorial
 - add a dictionary to the data objects to make them know what they are (stimulus intensity, ...)
 - Make sure that sscanf does not use locale for Numbers!
 - Check when we need #include <numpy/arrayobject.h> and when #include <Numeric/arrayobject.h>
@@ -27,6 +27,7 @@
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
++ complete tutorial                                                        [OK]
 + setup.py                                                                 [OK]
 + More Sigmoids (gumbel, weibull, gauss, ...)                              [OK] at least for now
 + log-core to allow fitting data on log contrast (i.e. gumbel to weibull)  [OK]
