@@ -3,6 +3,8 @@
 import numpy as N
 import _psipy
 
+from psignidata import Property
+
 __doc__ = """
 When we want to know how well a psychometric function can describe an observers behavior, we
 may want to simulate an observer. This module implements a number of simulated observers.
@@ -13,6 +15,10 @@ violate some of the assumptions that are typical when fitting psychometric funct
 class Observer ( object ):
     def __init__ ( self, *params, **model ):
         """A stationary binomial observer
+
+        This is the observer, we all want: No interdependencies between trials, no learning,
+        no fluctuations in attention or motivation. Perfectly binomial responses in accordance
+        with the psychometric function shape you supply.
 
         :Parameters:
             *params* :
@@ -32,3 +38,43 @@ class Observer ( object ):
                 "core":    model.setdefault ( "core",    "ab" ),
                 "nafc":    model.setdefault ( "nafc",    2 )
                 }
+
+    def DoATrial ( self, stimulus_intensity=1 ):
+        """Simulate a single trial
+
+        :Parameters:
+            *stimulus_intensity* :
+                stimulus intensity to be presented
+        """
+        prob = float( _psipy.diagnostics ( [stimulus_intensity], self.params,
+            sigmoid=self.model["sigmoid"], core=self.model["core"], nafc=self.model["nafc"] ) )
+
+        return int ( N.random.rand()<prob )
+
+    def DoABlock ( self, stimulus_intensity=1, ntrials=50 ):
+        """Simulate a block of trials
+
+        :Parameters:
+            *stimulus_intensity* :
+                stimulus intensity to be presented
+            *ntrials* :
+                number of trials in the block
+        """
+        prob = float( _psipy.diagnostics ( [stimulus_intensity], self.params,
+            sigmoid=self.model["sigmoid"], core=self.model["core"], nafc=self.model["nafc"] ) )
+        return N.random.binomial ( ntrials, prob )
+
+
+    @Property
+    def params ():
+        "parameters of the model"
+        def fget ( self ):
+            if self.model["nafc"] < 2:
+                return [self.a,self.b,self.lapse,self.guess]
+            else:
+                return [self.a,self.b,self.lapse]
+
+
+if __name__ == "__main__":
+    O = Observer ( 4,.8,.02 )
+    print O.DoABlock ( 3, 50 )
