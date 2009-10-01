@@ -40,7 +40,7 @@ ax.plot ( x, psi, 'b-', linewidth=2 )
 
 # fill ( [x0-.2,1.7,1.7,x0-.2],[.53,.53,.64,.64], facecolor=[1,1,1], edgecolor=[1,1,1], alpha=.5, zorder=51 )
 
-ax.text ( x0, .7, "psignifit", color="k", fontsize=28, horizontalalignment="left", verticalalignment="center", zorder=52 )
+ax.text ( x0, .71, "psignifit", color="k", fontsize=28, horizontalalignment="left", verticalalignment="center", zorder=52 )
 ax.text ( 7., .60, "2.0", color="k", fontsize=18, horizontalalignment="center", verticalalignment="center" )
 
 setp ( ax, xlim=(x0-.5,10+.5), ylim=(.4,1.1) )
