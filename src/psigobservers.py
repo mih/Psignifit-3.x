@@ -12,6 +12,8 @@ The basic observer does not violate any assumptions. However more elaborated obs
 violate some of the assumptions that are typical when fitting psychometric functions.
 """
 
+__all__ = ["Observer","LinearSystemLearner"]
+
 class Observer ( object ):
     def __init__ ( self, *params, **model ):
         """A stationary binomial observer
@@ -141,6 +143,92 @@ class Observer ( object ):
             else:
                 return [self.a,self.b,self.lapse]
 
+class LinearSystemLearner ( Observer ):
+    def __init__( self, *params, **model ):
+        """A nonstationary observer that learns like a linear system in one or more parameters
+
+        For this observer, the parameters of the psychometric function change: The parameters given
+        to the constructor are initial values. In addition, a dictionary is given containing the learning
+        parameters.
+
+        The constructor requires a dictionary that describes the changes of the parameters. The dictionary
+        has keys 'a', 'b', and/or 'lapse'. For each key, there are two parameters:
+        the rate of decay and the asymptote where the parameter converges. Thus
+        {'a' : ( 40, 3)}
+        means that after every trial, the a parameter is modified according to
+        a -= (a-3)/4
+
+        :Parameters:
+            *params* :
+                parameters of the model a, b, lapse and in Yes/No tasks also guess. In addition, a dictionary
+                is required to describe the changes of the parameters (see above)
+            *model* :
+                a list of keyword arguments to describe the model. These are the same as in the psignidata
+                module.
+
+        :Example:
+        >>> O = LinearSystemLearner ( 7, 2, .02, {'a': (40,3)} )
+        >>> O.seed ( 0 )
+        >>> O.a
+        7.0
+        >>> O.DoATrial ( 3 )
+        1
+        >>> O.DoABlock ( 4, 50 )
+        34
+        >>> O.DoAnExperiment ( [4,2,8,10,6], 50 )
+        [[4, 43, 50], [2, 32, 50], [8, 48, 50], [10, 49, 50], [6, 38, 50]]
+        >>> O.data
+        [[3, 1, 1], [4, 34, 50], [4, 43, 50], [2, 32, 50], [8, 48, 50], [10, 49, 50], [6, 38, 50]]
+        >>> O.a
+        3.0019608723226945
+        """
+        Observer.__init__ ( self, *(params[:-1]), **model )
+        self.learn = params[-1]
+
+    def DoATrial ( self, stimulus_intensity=1 ):
+        """Simulate a single trial with learning
+
+        :Parameters:
+            *stimulus_intensity* :
+                intensity of the presented stimulus
+
+        :Output:
+            either 1 or 0 indicating Yes/No in Yes/No-Tasks or Correct/Incorrect in nAFC
+        """
+        # Get the response:
+        resp = Observer.DoATrial ( self, stimulus_intensity )
+
+        # Modify parameters:
+        for prm,vals in self.learn.iteritems():
+            if prm=="a":
+                self.a -= (self.a-vals[1])/vals[0]
+            elif prm=="b":
+                self.b -= (self.b-vals[1])/vals[0]
+            elif prm=="lapse":
+                self.lapse -= (self.self.lapse-vals[1])/vals[0]
+            else:
+                # This should issue a warning
+                pass
+
+        return resp
+
+    def DoABlock ( self, stimulus_intensity=1, ntrials=50 ):
+        """Simulate a block of trials with learning
+
+        :Parameters:
+            *stimulus_intenstiy* :
+                intensity of the presented stimulus
+            *ntrials* :
+                number of repetitions of the stimulus
+
+        :Output:
+            the number of Yes-responses in a Yes/No-task or the number of correct responses in nAFC
+        """
+        self.data.append ( [stimulus_intensity, 0, 0] )
+        resp = 0
+        for k in xrange(ntrials):
+            resp += self.DoATrial ( stimulus_intensity )
+        return resp
 
 if __name__ == "__main__":
     O = Observer ( 4,.8,.02 )
