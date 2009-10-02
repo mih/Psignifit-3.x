@@ -69,6 +69,10 @@ class Observer ( object ):
         :Parameters:
             *stimulus_intensity* :
                 stimulus intensity to be presented
+
+        :Output:
+            The response in the trail (1/0 coding for Yes/No in Yes/No-Tasks or for
+            Correct/Incorrect in nAFC tasks)
         """
         prob = float( _psipy.diagnostics ( [stimulus_intensity], self.params,
             sigmoid=self.model["sigmoid"], core=self.model["core"], nafc=self.model["nafc"] ) )
