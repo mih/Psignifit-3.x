@@ -186,6 +186,7 @@ class LinearSystemLearner ( Observer ):
         >>> O.a
         3.0019608723226945
         """
+        # TODO: An other example for sharper discriminations (b) and for fatigue (lapse)
         Observer.__init__ ( self, *(params[:-1]), **model )
         self.learn = params[-1]
 
