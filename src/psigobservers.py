@@ -27,6 +27,20 @@ class Observer ( object ):
             *model* :
                 a list of keyword arguments specifying the model. These are the same as in
                 the psignidata module
+
+        :Example:
+        >>> O = Observer ( 4, 1, .02 )
+        >>> O.seed ( 0 )
+        >>> O.DoATrial ( 3 )
+        1
+        >>> O.DoABlock ( 4, 40 )
+        28
+        >>> O.DoABlock ( 6, 40 )
+        37
+        >>> O.DoAnExperiment ( [2,4,6], 50 )
+        [[2, 27, 50], [4, 38, 50], [6, 46, 50]]
+        >>> O.data
+        [[3, 1, 1], [4, 28, 40], [6, 37, 40], [2, 27, 50], [4, 38, 50], [6, 46, 50]]
         """
         if model.setdefault( "nafc", 2 ) == 1:
             self.a,self.b,self.lapse,self.guess = params
