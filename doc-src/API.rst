@@ -37,6 +37,22 @@ To get access to all plot functions in isolation, they can also be imported sepa
 .. autofunction:: psigniplot.plotChains
 .. autofunction:: psigniplot.plotParameterDist
 
+Simulated Observers
+===================
+
+psignifit allows to simulate a number of observers to access stability of psychometric functions.
+
+.. automodule:: psigobservers
+
+.. autoclass:: Observer
+   :members:
+
+.. autoclass:: LinearSystemLearner
+   :members:
+
+.. autoclass:: CriterionSettingObserver
+   :members:
+
 Errors
 ======
 
