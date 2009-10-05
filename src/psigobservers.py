@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import numpy as N
+from scipy import stats
 import _psipy
 
 from psignidata import Property
@@ -12,7 +13,7 @@ The basic observer does not violate any assumptions. However more elaborated obs
 violate some of the assumptions that are typical when fitting psychometric functions.
 """
 
-__all__ = ["Observer","LinearSystemLearner"]
+__all__ = ["Observer","LinearSystemLearner","CriterionSettingObserver"]
 
 class Observer ( object ):
     def __init__ ( self, *params, **model ):
@@ -86,7 +87,6 @@ class Observer ( object ):
             self.data[-1][2] += 1
 
         return resp
-
 
     def DoABlock ( self, stimulus_intensity=1, ntrials=50 ):
         """Simulate a block of trials
@@ -234,6 +234,187 @@ class LinearSystemLearner ( Observer ):
         for k in xrange(ntrials):
             resp += self.DoATrial ( stimulus_intensity )
         return resp
+
+class CriterionSettingObserver ( Observer ):
+    def __init__ ( self, *params, **model ):
+        """A nonstationary observer that recalibrates its decision process according to CST
+
+        Criterion setting theory (CST) is an extension to signal detection theory that was originally
+        proposed by Treisman & Williams (1984): each isolated psychophysical decision is described in
+        terms of signal detection theory. In addition, the criterion used by the observer is updated
+        from trial to trial. There are two processes describing the updating of the criterion:
+
+        1. *stabilization* : The criterion is moved into the direction of new incoming stimuli. This
+            results in the criterion being placed roughly in the middle of the stimulus stream. Thus,
+            stabilization can be said to maximize information transmission.
+        2. *tracking* : The criterion is placed in a direction that increases repetitions of the same
+            response. This strategy can be considered as a prior for an unchanging outside world.
+
+        Both, stabilization and tracking are described in the form of linearly decreasing traces.
+        If Ec(j) ist the effective criterion on trial j and E(j) is the sensory input on trial j, then
+        this will result in a stabilization trace of the form Ds*( E(j) - Ec(j) ). After one trial,
+        this trace will have decreased on the next trial j+1 to Ds*( E(j) - Ec(j) ) - ds. Thus,
+        Ec(j+1) = Ec(j) + Ds*( E(j) - Ec(j))-ds. Similarly for tracking, there are two parameters Dr
+        and dr describing the size of an indicator trace directly after a response has been made and
+        describing the decrease of an indicator trace from one trial to another.
+
+        :Parameters:
+            *params* :
+                a,b,lapse parameters of the psychometric function describing the interrelation between
+                        stimulus intensity and sensitivity (where sensitivity is given in fraction of
+                        correct responses in 2AFC).
+                E0      the reference criterion, i.e. Ec(0) := E0
+                Ds,ds   parameters of the stabilization mechanism
+                Dr,dr   parameters of the tracking mechanism
+
+        :Example:
+        >>> O = CriterionSettingObserver ( 4., 1., 0.02, 0.5, 0.1, 0.005, 0.1, 0.01 )
+        >>> O.seed ( 0 )
+        >>> O.DoATrial ( 1 )
+        0
+        >>> O.DoABlock ( 3, 30 )
+        14
+        >>> O.DoABlock ( 3, 30, 0 )
+        (5, 11, 8, 19)
+        """
+        # Make sure, the parameters of the psychometric function are interpreted as 2AFC
+        model["nafc"] = 2
+        # Initialize the Observer
+        Observer.__init__ ( self, *(params[:3]), **model )
+
+        # Store CST parameters
+        self.E0, self.Ds, self.ds, self.Dr, self.dr = params[3:]
+
+        self.Straces = []
+        self.Ttraces = []
+
+    def DoATrial ( self, stimulus_intensity=1, nAFC=2 ):
+        """Simulate a single trial with criterion setting
+
+        :Parameters:
+            *stimulus_intensity* :
+                intensity of the stimulus the is presented
+            *nAFC* :
+                number of alternatives presented / task to be performed.
+                - nAFC=-1 Yes/No task, stimulus presence is random.
+                - nAFC=0  Yes/No task, noise only trial
+                - nAFC=1  Yes/No task, signal+noise trial
+                - nAFC>1  nAFC task, number of alternatives
+
+        :Output:
+            A number 1 or 0, depending on the task, this means correct/incorrect (nAFC)
+            or signal present, signal absent (Yes/No)
+        """
+        prob = float( _psipy.diagnostics ( [stimulus_intensity], self.params,
+            sigmoid=self.model["sigmoid"], core=self.model["core"], nafc=2 ) )
+        d = stats.norm.ppf(prob) - stats.norm.ppf(1-prob)
+
+        if nAFC==-1:
+            if N.random.rand() < 0.5:
+                stim = [0]
+            else:
+                stim = [d]
+        elif nAFC==0:
+            stim = [0]
+        elif nAFC==1:
+            stim = [d]
+        else:
+            stim = N.random.multinomial ( 1, [self.guess]*nAFC ) * d
+        maxx,maxi = -100,-1
+
+        dat = []
+
+        # The response traces are updated only once per trial
+        Ec = self.E0 + self.__updateTrace ( self.Ttraces, self.dr )
+        for i,s in enumerate(stim):
+            Ej = s + N.random.randn()
+            # The remaining traces are updated after every stimulus
+            Ecs = Ec + self.__updateTrace ( self.Straces, self.ds )
+            x = Ej - Ecs
+
+            # Store
+            self.Straces.append( self.Ds*x )
+            dat.append ( (Ej, Ecs) )
+
+            if x>maxx:
+                maxx = x
+                maxi = i
+
+        # self.data.append ( dat )
+        self.data.append ( Ecs )
+
+        # Decision rule depends on task
+        if nAFC < 2:
+            if x > 0:
+                self.Ttraces.append ( self.Dr )
+                return 1
+            else:
+                self.Ttraces.append( -self.Dr )
+                return 0
+        else:
+            if stim[i] == 0:
+                return 0
+            else:
+                return 1
+
+    def DoABlock ( self, stimulus_intensity=1, ntrials=50, nAFC=2 ):
+        """Simulate a whole block of trials with criterion setting
+
+        :Parameters:
+            *stimulus_intensity* :
+                intensity of the stimulus presented
+            *ntrials* :
+                number of trials in the block
+            *nAFC* :
+                number of alternatives presented / task to be performed.
+                - nAFC in {0,1,-1} Yes/No task, stimulus presence is random.
+                - nAFC>1  nAFC task, number of alternatives
+
+        :Output:
+            Number of Correct responses (nAFC) or a tuple with
+            (number of hits, number of signal trials, number of false alarms, number of noise trials)
+        """
+        if nAFC<2:
+            return self.__DoABlock_YesNo ( stimulus_intensity, ntrials )
+        else:
+            return self.__DoABlock_nAFC ( stimulus_intensity, ntrials, nAFC )
+
+    def __DoABlock_YesNo ( self, stimulus_intensity=1, ntrials=50 ):
+        """Yes/No block"""
+        nhits,nsignals,nfalsealarms,nnoise = 0,0,0,0
+        for j in xrange ( ntrials ):
+            s_or_n = N.random.rand () < 0.5
+            if s_or_n == 0:
+                nnoise += 1
+                nfalsealarms += self.DoATrial ( stimulus_intensity, s_or_n )
+            else:
+                nsignals += 1
+                nhits += self.DoATrial ( stimulus_intensity, s_or_n )
+        return nhits,nsignals,nfalsealarms,nnoise
+
+    def __DoABlock_nAFC ( self, stimulus_intensity=1, ntrials=50, nAFC=2 ):
+        """nAFC block"""
+
+        assert nAFC >= 2
+
+        ncorrect = 0
+
+        for k in xrange ( ntrials ):
+            ncorrect += self.DoATrial ( stimulus_intensity, nAFC )
+
+        return ncorrect
+
+    def __updateTrace ( self, traces, d ):
+        """sum up the traces and update"""
+        Ec = 0
+        for k,t in enumerate(traces):
+            newtrace = t-N.sign(t)*d
+            if newtrace*t < 0: # Sign change of traces ~> the trace died here
+                traces.pop(k)
+            else:
+                traces[k] = newtrace
+                Ec += newtrace
+        return Ec
 
 if __name__ == "__main__":
     O = Observer ( 4,.8,.02 )
