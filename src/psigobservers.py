@@ -470,8 +470,6 @@ class BetaBinomialObserver ( Observer ):
 
         return resp
 
-
-
 ############################################################
 # Utilities
 
