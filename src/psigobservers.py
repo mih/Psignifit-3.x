@@ -416,6 +416,62 @@ class CriterionSettingObserver ( Observer ):
                 Ec += newtrace
         return Ec
 
+class BetaBinomialObserver ( Observer ):
+    def __init__ ( self, *params, **model ):
+        """An overdispersed observer that otherwise follows binomial assumptions
+
+        For every block, this observer draws a p value from a Beta distribution
+        with mean given by the psychometric function. This p-value is then used
+        to generate the responses of that block.
+
+        :Parameters:
+            *params* :
+                a,b,lapse(,guess) are parameters for the classical psychometric function,
+                m gives the dispersion of the Beta distribution. For a Beta distribution
+                with parameters alpha and beta, m=alpha+beta
+            *model* :
+                a list of keywords to further specify the model
+
+        :Example:
+        >>> O = BetaBinomialObserver ( 4., 1., .02, 30 )
+        >>> O.seed ( 0 )
+        >>> O.DoABlock ( 4, 30 )
+        24
+        >>> O.DoABlock ( 4, 30 )
+        18
+        >>> O.DoAnExperiment ( [4,2,8,10,6], 50 )
+        [[4, 37, 50], [2, 24, 50], [8, 47, 50], [10, 49, 50], [6, 49, 50]]
+        """
+        self.dispersion = params[-1]
+        Observer.__init__ ( self, *(params[:-1]), **(model) )
+
+    def DoABlock ( self, stimulus_intensity=1, ntrials=50 ):
+        """Perform a block of trials
+
+        :Parameters:
+            *stimulus_intensity* :
+                intensity of the presented stimulus
+            *ntrials* :
+                number of trials in the block
+
+        :Output:
+            number of correct responses (nAFC) or number of yes responses (Yes/No-Task)
+        """
+        psi = float( _psipy.diagnostics ( [stimulus_intensity], self.params,
+            sigmoid=self.model["sigmoid"], core=self.model["core"], nafc=self.model["nafc"] ) )
+
+        alpha = psi*self.dispersion
+        beta  = (1-psi)*self.dispersion
+        prob = stats.beta.rvs ( alpha, beta )
+
+        resp = N.random.binomial ( ntrials, prob )
+
+        self.data.append ( [stimulus_intensity, resp, ntrials] )
+
+        return resp
+
+
+
 ############################################################
 # Utilities
 
@@ -447,7 +503,7 @@ def yesno2dprime ( hits, signals, falsealarms, noises ):
     return dprime, N.var ( dprimes )
 
 def dprime2Pcorrect ( dprime ):
-   """Convert dprime to 2AFC fraction of correct responses
+    """Convert dprime to 2AFC fraction of correct responses
 
     From a given d' the probability of a correct response in a 2AFC trial can be inferred as
 
