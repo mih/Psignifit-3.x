@@ -273,7 +273,7 @@ class CriterionSettingObserver ( Observer ):
         >>> O.DoATrial ( 1 )
         0
         >>> O.DoABlock ( 3, 30 )
-        14
+        24
         >>> O.DoABlock ( 3, 30, 0 )
         (5, 11, 8, 19)
         """
