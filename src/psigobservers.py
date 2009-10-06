@@ -352,7 +352,7 @@ class CriterionSettingObserver ( Observer ):
                 self.Ttraces.append( -self.Dr )
                 return 0
         else:
-            if stim[i] == 0:
+            if stim[maxi] == 0:
                 return 0
             else:
                 return 1
