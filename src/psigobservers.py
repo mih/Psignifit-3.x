@@ -416,6 +416,49 @@ class CriterionSettingObserver ( Observer ):
                 Ec += newtrace
         return Ec
 
+############################################################
+# Utilities
+
+def yesno2dprime ( hits, signals, falsealarms, noises ):
+    """Determine dprime from hits and false alarms
+
+    :Parameters:
+        *hits* :
+            number of hits
+        *signals* :
+            number of signal trials
+        *falsealarms* :
+            number of false alarm trials
+        *noises* :
+            number of noise only trials
+
+    :Output:
+        dprime, variance (based on bootstrap)
+    """
+    hrate = N.clip(float(hits)/signals,       .001, .999 )
+    frate = N.clip(float(falsealarms)/noises, .001, .999 )
+
+    hsample = N.clip ( N.random.binomial ( signals, hrate, size=5000 ).astype('d') / signals, .001, .999 )
+    fsample = N.clip ( N.random.binomial ( noises,  frate, size=5000 ).astype('d') / noises , .001, .999 )
+
+    dprime = stats.norm.ppf ( hrate ) - stats.norm.ppf ( frate )
+    dprimes = stats.norm.ppf ( hsample ) - stats.norm.ppf ( fsample )
+
+    return dprime, N.var ( dprimes )
+
+def dprime2Pcorrect ( dprime ):
+   """Convert dprime to 2AFC fraction of correct responses
+
+    From a given d' the probability of a correct response in a 2AFC trial can be inferred as
+
+    P(correct) = P(s>n) = P(n<s) = E[ Phi(s) ].
+
+    The expectation is evaluated by solving the integral using trapezoid integration.
+    """
+    x = N.mgrid [ -20:20:1000j ]
+    Phiphi = stats.norm.cdf(x)*stats.norm.pdf(x-dprime)
+    return N.trapz ( Phiphi, x )
+
 if __name__ == "__main__":
     O = Observer ( 4,.8,.02 )
     print O.DoABlock ( 3, 50 )
