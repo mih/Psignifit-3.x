@@ -53,6 +53,9 @@ psignifit allows to simulate a number of observers to access stability of psycho
 .. autoclass:: CriterionSettingObserver
    :members:
 
+.. autoclass:: BetaBinomialObserver
+   :members:
+
 Errors
 ======
 
