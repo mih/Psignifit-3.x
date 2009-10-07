@@ -13,7 +13,7 @@ The basic observer does not violate any assumptions. However more elaborated obs
 violate some of the assumptions that are typical when fitting psychometric functions.
 """
 
-__all__ = ["Observer","LinearSystemLearner","CriterionSettingObserver"]
+__all__ = ["Observer","LinearSystemLearner","CriterionSettingObserver","BetaBinomialObserver"]
 
 class Observer ( object ):
     def __init__ ( self, *params, **model ):
