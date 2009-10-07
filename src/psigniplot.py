@@ -331,32 +331,42 @@ def GoodnessOfFit ( InferenceObject, warn=True ):
         InferenceObject.drawposteriorexamples ( ax=ax )
     plotThres ( InferenceObject, ax=ax )
     plotPMF   ( InferenceObject, ax=ax )
-    good = plotHistogram ( InferenceObject.mcdeviance, InferenceObject.deviance, "posterior deviance", "D", p.axes ( [0,0,.33,.5] ) )
+    if InferenceObject.__repr__().split()[1] == "BayesInference":
+        devname = "posterior deviance"
+    else:
+        devname = "bootstrap deviance"
+    ax = p.axes ( [0,0,.33,.5] )
+    good = plotHistogram ( InferenceObject.mcdeviance, InferenceObject.deviance, devname, "D", ax )
+    print good, warn and not good
     if warn and not good:
-        p.text ( N.array(p.gca().get_xticks()).mean(), N.array(p.gca().get_yticks()).mean(),
+        ax.text ( N.array(ax.get_xlim()).mean(), N.array(ax.get_ylim()).mean(),
                 "The fitted model is a bad\ndescription of the data!",
                 fontsize=16, color=__warnred, horizontalalignment="center", verticalalignment="center", rotation=45 )
 
     # Second part: Correlations between model prediction and residuals
-    plotRd ( InferenceObject, p.axes([.33,.5,.33,.5]), "p" )
-    good = plotHistogram ( InferenceObject.mcRpd, InferenceObject.Rpd, "posterior Rpd", "Rpd", p.axes([.33,0,.33,.5]) )
+    ax = p.axes([.33,.5,.33,.5])
+    plotRd ( InferenceObject, ax, "p" )
+    ax = p.axes([.33,0,.33,.5])
+    good = plotHistogram ( InferenceObject.mcRpd, InferenceObject.Rpd, "posterior Rpd", "Rpd", ax )
     if not good and warn==True:
         if InferenceObject.__repr__().split()[1] == "BootstrapInference":
-            p.text ( 0, p.getp(p.gca(),'ylim').mean() , "Simulated Rpd differs from observed!\nModel deviates systematically from data", \
+            ax.text ( 0, N.mean(p.getp(ax,'ylim')) , "Simulated Rpd differs from observed!\nModel deviates systematically from data", \
                     fontsize=16, color=__warnred, horizontalalignment="center", verticalalignment="center", rotation=45 )
         elif InferenceObject.__repr__().split()[1] == "BayesInferenceObject":
-            p.text ( 0, p.getp(p.gca(),'ylim').mean() , "Rpd is different from 0!\nModel deviates systematically from data", \
+            ax.text ( 0, N.mean(p.getp(ax,'ylim')) , "Rpd is different from 0!\nModel deviates systematically from data", \
                     fontsize=16, color=__warnred, horizontalalignment="center", verticalalignment="center", rotation=45 )
 
     # Third part: Correlations between model prediction and block index
-    plotRd ( InferenceObject, p.axes([.66,.5,.33,.5]), "k" )
-    good = plotHistogram ( InferenceObject.mcRkd, InferenceObject.Rkd, "posterior Rkd", "Rkd", p.axes([.66,0,.33,.5]) )
+    ax = p.axes([.66,.5,.33,.5])
+    plotRd ( InferenceObject, ax, "k" )
+    ax = p.axes([.66,0,.33,.5])
+    good = plotHistogram ( InferenceObject.mcRkd, InferenceObject.Rkd, "posterior Rkd", "Rkd", ax )
     if not good and warn==True:
         if InferenceObject.__repr__().split()[1] == "BootstrapInference":
-            p.text ( 0, p.getp(p.gca(),'ylim').mean(), "Simulated Rkd differs from observed!\nData are nonstationary!",\
+            ax.text ( 0, N.mean(p.getp(ax,'ylim')), "Simulated Rkd differs from observed!\nData are nonstationary!",\
                     fontsize=16, color=__warnred, horizontalalignment="center", verticalalignment="center", rotation=45 )
         elif InferenceObject.__repr__().split()[1] == "BayesInferenceObject":
-            p.text ( 0, p.getp(p.gca(),'ylim').mean(), "Rkd is different from 0!\nData are nonstationary!",\
+            ax.text ( 0, N.mean(p.getp(ax,'ylim')), "Rkd is different from 0!\nData are nonstationary!",\
                     fontsize=16, color=__warnred, horizontalalignment="center", verticalalignment="center", rotation=45 )
 
 def plotGeweke ( BayesInferenceObject, parameter=0, ax=None, warn=True ):
