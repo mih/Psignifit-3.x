@@ -462,7 +462,6 @@ int SigmoidTests ( TestSuite * T ) {
 	// Check monotonicity
 	mindf = 1e20;
 	for (x=-5; x<5; x+=.1 ) {
-		std::cout << x << " " << sigmoid->f(x) << " " << sigmoid->df(x) << "\n";
 		if ( (df=sigmoid->df(x))<mindf )
 			mindf = df;
 	}
