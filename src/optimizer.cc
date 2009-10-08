@@ -59,6 +59,7 @@ std::vector<double> PsiOptimizer::optimize ( const PsiPsychometric * model, cons
 
 	for (run=0; run<2; run++) {
 		for (k=1; k<nparameters+1; k++) simplex[k][k-1] *= 1.5;
+		// for (k=1; k<nparameters+1; k++) simplex[k][k-1] += .05;
 		iter = 0;
 		while (1) {
 			// Evaluate model at every simplex node and determine maximum and minimum
@@ -70,7 +71,7 @@ std::vector<double> PsiOptimizer::optimize ( const PsiPsychometric * model, cons
 				}
 				// fx[k] = testfunction(simplex[k]);
 #ifdef DEBUG_OPTIMIZER
-				std::cerr << simplex[k][0] << " " << simplex[k][1] << " " << simplex[k][2] << " " << simplex[k][3] << " " << "\n";
+				// std::cerr << simplex[k][0] << " " << simplex[k][1] << " " << simplex[k][2] << " " << simplex[k][3] << " " << "\n";
 #endif
 				if (fx[k]<fx[minind]) minind = k;
 				if (fx[k]>fx[maxind]) maxind = k;
@@ -84,6 +85,7 @@ std::vector<double> PsiOptimizer::optimize ( const PsiPsychometric * model, cons
 			if (stepsize<maxstep) {
 #ifdef DEBUG_OPTIMIZER
 				std::cerr << "Terminating optimization due to small simplex size (" << stepsize << ") after " << iter << " iterations\n";
+				std::cout << "\n";
 #endif
 				break;
 			}
@@ -91,6 +93,7 @@ std::vector<double> PsiOptimizer::optimize ( const PsiPsychometric * model, cons
 			if ((fstepsize=(fx[maxind]-fx[minind])) < maxfstep ) {
 #ifdef DEBUG_OPTIMIZER
 				std::cerr << "Terminating optimization due to small function value variation (" << fstepsize << ") after " << iter << " iterations\n";
+				std::cout << "\n";
 #endif
 				break;
 			}
@@ -135,6 +138,7 @@ std::vector<double> PsiOptimizer::optimize ( const PsiPsychometric * model, cons
 			if (iter++ > maxiter) {
 #ifdef DEBUG_OPTIMIZER
 				std::cerr << "Terminating optimization due to large number of iterations (" << iter << "). Final stepsize: " << stepsize << "\n";
+				std::cout << "\n";
 #endif
 				break;
 			}
