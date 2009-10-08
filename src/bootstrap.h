@@ -29,4 +29,7 @@ BootstrapList parametricbootstrap (
  */
 JackKnifeList jackknifedata ( const PsiData * data, const PsiPsychometric* model );
 
+
+void newsample ( const PsiData * data, const std::vector<double>& p, std::vector<int> * sample );
+
 #endif
