@@ -144,6 +144,10 @@ def plotHistogram ( simdata, observed, xname, shortname=None, ax=None, hideobser
     if ax is None:
         ax = p.axes()
 
+    # Remove nan
+    simdata = N.nan_to_num ( simdata )
+    simdata = simdata[simdata!=0]
+
     # Make sure we have a useful shortname
     if shortname is None:
         shortname = xname
