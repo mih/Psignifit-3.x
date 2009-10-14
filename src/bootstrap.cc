@@ -49,8 +49,6 @@ void determineBCa ( const std::vector<double>& l_LF, const std::vector<double>& 
 	*acc  = E_l3 / (6*var_l*var_l*var_l);
 }
 
-
-
 BootstrapList parametricbootstrap ( int B, const PsiData * data, const PsiPsychometric* model, std::vector<double> cuts, std::vector<double>* param, bool BCa )
 {
 #ifdef DEBUG_BOOTSTRAP
