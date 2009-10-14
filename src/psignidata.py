@@ -508,12 +508,13 @@ class BayesInference ( PsiInference ):
         # Now we sample Nsamples psychometric functions from all the chains we have
         samples = self.getsamples()
         deviances = self.getmcdeviance()
+        indices = N.random.randint ( samples.shape[0], size=(Nsamples,) )
         # Scale deviance to 0,1
-        deviances -= deviances.min()
-        deviances /= deviances.max()
+        deviances -= deviances[indices].min()
+        deviances /= deviances[indices].max()
         deviances = N.clip(.4+4*deviances,0,1)
-        for k in xrange(Nsamples):
-            i = N.random.randint(samples.shape[0])
+        for i in indices:
+            # i = N.random.randint(samples.shape[0])
             psi = N.array(_psipy.diagnostics ( x, samples[i,:], sigmoid=self.model["sigmoid"], core=self.model["core"], nafc=self.model["nafc"] ))
             # Lines are colored according to their deviance
             ax.plot(x,psi,color=[deviances[i]]*2+[1])
