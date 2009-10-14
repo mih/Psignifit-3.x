@@ -345,11 +345,11 @@ def GoodnessOfFit ( InferenceObject, warn=True ):
     plotThres ( InferenceObject, ax=ax )
     plotPMF   ( InferenceObject, ax=ax )
     if InferenceObject.__repr__().split()[1] == "BayesInference":
-        devname = "posterior deviance"
+        distname = "posterior"
     else:
-        devname = "bootstrap deviance"
+        distname = "bootstrap"
     ax = p.axes ( [0,0,.33,.5] )
-    good = plotHistogram ( InferenceObject.mcdeviance, InferenceObject.deviance, devname, "D", ax )
+    good = plotHistogram ( InferenceObject.mcdeviance, InferenceObject.deviance, distname+" deviance", "D", ax )
     if warn and not good:
         ax.text ( N.array(ax.get_xlim()).mean(), N.array(ax.get_ylim()).mean(),
                 "The fitted model is a bad\ndescription of the data!",
