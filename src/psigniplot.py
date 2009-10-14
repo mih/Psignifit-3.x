@@ -119,7 +119,7 @@ def plotRd ( InferenceObject, ax=None, regressor="p" ):
 
     drawaxes ( ax, xtics, "%g", ytics, "%g", xname, "deviance residuals" )
 
-def plotHistogram ( simdata, observed, xname, shortname=None, ax=None, hideobserved=False ):
+def plotHistogram ( simdata, observed, xname, shortname=None, ax=None, hideobserved=False, reference="bootstrap" ):
     """plot a histogram and compare observed data to it
 
     :Parameters:
@@ -136,6 +136,9 @@ def plotHistogram ( simdata, observed, xname, shortname=None, ax=None, hideobser
             axes object defining the area where the plot should go
         *hideobserved* :
             if this is True, the observed value is not plotted
+        *reference* :
+            reference of the data. Could be either a string 'bootstrap'/'bayes' or a number
+            against which the histogram is tested
 
     :Output:
         returns a boolean value indicating whether or not the Null-Hypothesis that
@@ -143,6 +146,12 @@ def plotHistogram ( simdata, observed, xname, shortname=None, ax=None, hideobser
     """
     if ax is None:
         ax = p.axes()
+
+    if reference.lower()[:5]==  "boots":
+        reference = observed
+    elif reference.lower()[:5]=="bayes":
+        reference = 0
+
 
     # Remove nan
     simdata = N.nan_to_num ( simdata )
@@ -179,7 +188,7 @@ def plotHistogram ( simdata, observed, xname, shortname=None, ax=None, hideobser
     ax.text ( xtics.min(), yt+.1, "%s=%.3f, c(2.5%%)=%.3f, c(97.5%%)=%.3f" % (shortname,observed,p25,p975),\
             horizontalalignment="left",verticalalignment="bottom", fontsize=8 )
 
-    if observed>p25 and observed<p975:
+    if reference>p25 and reference<p975:
         return True
     else:
         return False
@@ -350,12 +359,12 @@ def GoodnessOfFit ( InferenceObject, warn=True ):
     ax = p.axes([.33,.5,.33,.5])
     plotRd ( InferenceObject, ax, "p" )
     ax = p.axes([.33,0,.33,.5])
-    good = plotHistogram ( InferenceObject.mcRpd, InferenceObject.Rpd, "posterior Rpd", "Rpd", ax )
-    if not good and warn==True:
-        if InferenceObject.__repr__().split()[1] == "BootstrapInference":
+    good = plotHistogram ( InferenceObject.mcRpd, InferenceObject.Rpd, distname+" Rpd", "Rpd", ax, reference=InferenceObject.__repr__().split()[1] )
+    if warn==True:
+        if not good and InferenceObject.__repr__().split()[1] == "BootstrapInference":
             ax.text ( 0, N.mean(p.getp(ax,'ylim')) , "Simulated Rpd differs from observed!\nModel deviates systematically from data", \
                     fontsize=16, color=__warnred, horizontalalignment="center", verticalalignment="center", rotation=45 )
-        elif InferenceObject.__repr__().split()[1] == "BayesInferenceObject":
+        elif not good and InferenceObject.__repr__().split()[1] == "BayesInference":
             ax.text ( 0, N.mean(p.getp(ax,'ylim')) , "Rpd is different from 0!\nModel deviates systematically from data", \
                     fontsize=16, color=__warnred, horizontalalignment="center", verticalalignment="center", rotation=45 )
 
@@ -363,12 +372,12 @@ def GoodnessOfFit ( InferenceObject, warn=True ):
     ax = p.axes([.66,.5,.33,.5])
     plotRd ( InferenceObject, ax, "k" )
     ax = p.axes([.66,0,.33,.5])
-    good = plotHistogram ( InferenceObject.mcRkd, InferenceObject.Rkd, "posterior Rkd", "Rkd", ax )
-    if not good and warn==True:
-        if InferenceObject.__repr__().split()[1] == "BootstrapInference":
+    good = plotHistogram ( InferenceObject.mcRkd, InferenceObject.Rkd, distname+" Rkd", "Rkd", ax, reference=InferenceObject.__repr__().split()[1])
+    if warn==True:
+        if not good and InferenceObject.__repr__().split()[1] == "BootstrapInference":
             ax.text ( 0, N.mean(p.getp(ax,'ylim')), "Simulated Rkd differs from observed!\nData are nonstationary!",\
                     fontsize=16, color=__warnred, horizontalalignment="center", verticalalignment="center", rotation=45 )
-        elif InferenceObject.__repr__().split()[1] == "BayesInferenceObject":
+        elif not good and InferenceObject.__repr__().split()[1] == "BayesInference":
             ax.text ( 0, N.mean(p.getp(ax,'ylim')), "Rkd is different from 0!\nData are nonstationary!",\
                     fontsize=16, color=__warnred, horizontalalignment="center", verticalalignment="center", rotation=45 )
 
