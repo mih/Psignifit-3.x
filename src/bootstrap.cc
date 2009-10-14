@@ -152,6 +152,7 @@ JackKnifeList jackknifedata ( const PsiData * data, const PsiPsychometric* model
 	int i,j,l,exclude(0);
 
 	for ( i=0; i<data->getNblocks(); i++ ) {
+		exclude=i;
 		j=0;
 		for (l=0; l<data->getNblocks(); l++) {
 			if (l!=exclude) {
