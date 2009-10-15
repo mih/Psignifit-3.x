@@ -2,7 +2,6 @@
 - nonparametric bootstrap
 - implement fullmodel, nullmodel
 - Goodness of fit (Correlations?)                                          [OK] but correlations are wrong
-    - Don't use asymptotic values for the correlations.
 - Unit test with gamma as a free parameter                                 [OK] but only very rough correspondence to psignifit -- should be stricter
 - BCa confidence limits for slope (and widths?)
 - Implement alternative SimplexAlgorithm (Numerical Recipes?, gsl-Wrapper-Object?) The current one depends heavily on the initial simplex!

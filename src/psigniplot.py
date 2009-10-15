@@ -410,6 +410,7 @@ def plotGeweke ( BayesInferenceObject, parameter=0, ax=None, warn=True ):
     drawaxes ( ax, xtics, "%g", N.array((-3,-2,-1,0,1,2,3)), "%g", "chain segment", "z-score" )
 
     if warn and not stationary:
+        nsegments = z.shape[0]
         p.text(0.5*nsegments,0,"chains did not converge" , color=warnred, fontsize=16, rotation=45, verticalalignment="center", horizontalalignment="center" )
 
 def plotChains ( BayesInferenceObject, parameter=0, ax=None, raw=False, warn=True ):
@@ -431,7 +432,7 @@ def plotChains ( BayesInferenceObject, parameter=0, ax=None, raw=False, warn=Tru
 
     # Plot the chains
     for c in xrange(BayesInferenceObject.nchains):
-        samples = BayesInferenceObject.getsamples ( c, raw=True )
+        samples = BayesInferenceObject.getsamples ( c, raw=raw )
         p.plot ( samples[:,parameter] )
 
     # Learn something about the axes

@@ -9,11 +9,13 @@ TESTS=tests_all
 
 tests: $(BUILD) tests_all.log
 
+play: $(OBJECTS) play.cc $(HEADERS)
+	$(CC) -c $(CFLAGS) play.cc -o $(BUILD)/play.o
+	$(CC) $(OBJECTS) $(BUILD)/play.o $(LFLAGS) -o play
+
 $(BUILD):
 	mkdir $(BUILD)
 
-testfit.o: testfit.cc $(HEADERS)
-	$(CC) -c $(CFLAGS) testfit.cc
 $(BUILD)/core.o: core.cc $(HEADERS)
 	$(CC) -c $(CFLAGS) core.cc -o $(BUILD)/core.o
 $(BUILD)/data.o: data.cc $(HEADERS)
