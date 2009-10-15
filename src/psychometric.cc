@@ -320,17 +320,17 @@ std::vector<double> PsiPsychometric::getDevianceResiduals ( const std::vector<do
 }
 
 double PsiPsychometric::getRpd ( const std::vector<double>& devianceresiduals, const std::vector<double>& prm, const PsiData* data ) const {
-	int k,N(data->getNblocks());
+	int i,k,N(data->getNblocks());
 	double Ed(0),Ep(0),vard(0),varp(0),R(0);
-	std::vector<double> p ( data->getPcorrect() );
+	std::vector<double> p ( N );
 
 	// Evaluate p values in advance
-	for ( k=0; k<data->getNblocks(); k++ ) {
+	for ( k=0; k<N; k++ ) {
 		p[k] = evaluate(data->getIntensity(k),prm);
 	}
 
 	// Calculate averages
-	for ( k=0; k<data->getNblocks(); k++ ) {
+	for ( k=0; k<N; k++ ) {
 		Ed += devianceresiduals[k];
 		Ep += p[k];
 	}
@@ -338,7 +338,7 @@ double PsiPsychometric::getRpd ( const std::vector<double>& devianceresiduals, c
 	Ep /= N;
 
 	// Calculate unnormalized variances and covariances
-	for ( k=0; k<data->getNblocks(); k++ ) {
+	for ( k=0; k<N; k++ ) {
 		vard += pow(devianceresiduals[k]-Ed,2);
 		varp += pow(p[k]-Ep,2);
 		R    += (devianceresiduals[k]-Ed)*(p[k]-Ep);
@@ -351,24 +351,28 @@ double PsiPsychometric::getRpd ( const std::vector<double>& devianceresiduals, c
 	return R;
 }
 
-double PsiPsychometric::getRkd ( const std::vector<double>& devianceresiduals ) const
+double PsiPsychometric::getRkd ( const std::vector<double>& devianceresiduals, const PsiData* data ) const
 {
-	int k,N(devianceresiduals.size());
+	int i,k,N(devianceresiduals.size());
 	double Ed(0), Ek(0), vard(0), vark(0), R(0);
+	std::vector<int> ofinterest ( data->nonasymptotic() );
+	int M ( ofinterest.size() );
 
 	// Calculate averages
-	for ( k=0; k<N; k++ ) {
-		Ed += devianceresiduals[k];
-		Ek += k;
+	for ( k=0; k<M; k++ ) {
+		i = ofinterest[k];
+		Ed += devianceresiduals[i];
+		Ek += k;  // This should be i in my opinion, but it fits the old psignifit only if it's k
 	}
-	Ed /= N;
-	Ek /= N;
+	Ed /= M;
+	Ek /= M;
 
 	// Calculate unnormalized variances and covariances
-	for ( k=0; k<N; k++ ) {
-		vard += pow(devianceresiduals[k]-Ed,2);
-		vark += pow(k-Ek,2);
-		R    += (devianceresiduals[k]-Ed)*(k-Ek);
+	for ( k=0; k<M; k++ ) {
+		i = ofinterest[k];
+		vard += pow(devianceresiduals[i]-Ed,2);
+		vark += pow(k-Ek,2);         // Here k should be replaced by i in my opinion
+		R    += (devianceresiduals[i]-Ed)*(k-Ek);  // here again, k should be replaced by i in my opinion
 	}
 
 	// Normalize and return

@@ -444,7 +444,7 @@ static PyObject * psidiagnostics ( PyObject * self, PyObject * args, PyObject * 
 	if ( intensityonly==-1 )
 		pyout = Py_BuildValue ( "(OOdOdd)", pypredicted, pydevianceresiduals, pmf->deviance ( *params, data ), pythres,
 				pmf->getRpd ( *devianceresiduals, *params, data ),
-				pmf->getRkd ( *devianceresiduals ) );
+				pmf->getRkd ( *devianceresiduals, data ) );
 	else
 		pyout = Py_BuildValue ( "O", pypredicted );
 

@@ -120,3 +120,27 @@ int PsiData::getNalternatives ( void ) const
 {
 	return Nalternatives;
 }
+
+std::vector<int> PsiData::nonasymptotic ( void ) const
+{
+	int i,j,Ngood(0);
+	double guess ( 1./Nalternatives );
+	if ( Nalternatives<2 )
+		guess = 0;
+
+	for (i=0; i<getNblocks(); i++) {
+		// if ( Pcorrect[i] < 0.95 && Pcorrect[i] > guess+0.05  )
+		if ( Pcorrect[i] < 1. )
+			Ngood ++;
+	}
+
+	std::vector<int> out ( Ngood );
+	j=0;
+	for (i=0; i<getNblocks(); i++) {
+		// if ( Pcorrect[i] < 0.95 && Pcorrect[i] > guess+0.05 )
+		if ( Pcorrect[i] < 1. )
+			out[j++] = i;
+	}
+
+	return out;
+}

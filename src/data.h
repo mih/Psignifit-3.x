@@ -52,6 +52,7 @@ class PsiData
 		int getNalternatives ( void ) const;                             ///< get the number of response alternatives (1 means yes/no task)
 		int getNblocks ( void ) const { return intensities.size(); }     ///< get the number of blocks in the data set
 		double getNoverK (int i ) const;                                 ///< return the log of NoverK for block i
+		std::vector<int> nonasymptotic ( void ) const;                   ///< a vector of indices of those blocks for which the data are not in either asymptote
 };
 
 #endif

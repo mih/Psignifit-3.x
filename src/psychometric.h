@@ -88,7 +88,7 @@ class PsiPsychometric {
 			const std::vector<double>& prm,                                          ///< parameters of the psychometric function model
 			const PsiData* data                                                      ///< data set corresponding to the deviance residuals
 			) const;          ///< correlation between deviance residuals and predictions
-		double getRkd ( const std::vector<double>& devianceresiduals ) const;        ///< correlation between deviance residuals and block sequence
+		double getRkd ( const std::vector<double>& devianceresiduals, const PsiData* data ) const;        ///< correlation between deviance residuals and block sequence
 		double dllikeli (
 			std::vector<double> prm,                                                     ///< parameters of the model
 			const PsiData* data,                                                         ///< data for which the likelihood should be evaluated
