@@ -346,14 +346,29 @@ def GoodnessOfFit ( InferenceObject, warn=True ):
     plotPMF   ( InferenceObject, ax=ax )
     if InferenceObject.__repr__().split()[1] == "BayesInference":
         distname = "posterior"
+        observed = -2*N.log(InferenceObject.nullevidence)
     else:
         distname = "bootstrap"
+        observed = InferenceObject.deviance
     ax = p.axes ( [0,0,.33,.5] )
-    good = plotHistogram ( InferenceObject.mcdeviance, InferenceObject.deviance, distname+" deviance", "D", ax )
-    if warn and not good:
-        ax.text ( N.array(ax.get_xlim()).mean(), N.array(ax.get_ylim()).mean(),
-                "The fitted model is a bad\ndescription of the data!",
-                fontsize=16, color=__warnred, horizontalalignment="center", verticalalignment="center", rotation=45 )
+    good = plotHistogram ( InferenceObject.mcdeviance, observed, distname+" deviance", "D", ax )
+    if InferenceObject.__repr__().split()[1] == "BootstrapInference":
+        if warn and not good:
+            ax.text ( N.array(ax.get_xlim()).mean(), N.array(ax.get_ylim()).mean(),
+                    "The fitted model is a bad\ndescription of the data!",
+                    fontsize=16, color=__warnred, horizontalalignment="center", verticalalignment="center", rotation=45 )
+    elif InferenceObject.__repr__().split()[1] == "BayesInference":
+        BF = InferenceObject.evidence / InferenceObject.nullevidence
+        if warn and not BF>1:
+            ax.text ( N.array(ax.get_xlim()).mean(), N.array(ax.get_ylim()).mean(),
+                    "The fitted model describes the data\nas good as the null model!",
+                    fontsize=16, color=__warnred, horizontalalignment="center", verticalalignment="center", rotation=45 )
+        xl = N.array(ax.get_xlim())
+        xr = xl.max()-xl.min()
+        yl = N.array(ax.get_ylim())
+        yr = yl.max()-yl.min()
+        ax.text ( xl.min()+0.5*xr, yl.min()+0.8*yr, "BF(fit/null)=%.1f" % (BF,) )
+
 
     # Second part: Correlations between model prediction and residuals
     ax = p.axes([.33,.5,.33,.5])
