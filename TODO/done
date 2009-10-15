@@ -27,3 +27,4 @@
 + Convergence diagnostics for MCMC                                         [OK]
 + posterior intervals and posterior histograms for model parameters        [OK]
 + Using linalg matrix routines in leastfavourable                          [OK]
++ Don't use asymptotic values for the correlations.                        [OK] only for Rkd, Rpd seemed be be based on all blocks (Why?)
