@@ -724,6 +724,21 @@ class BayesInference ( PsiInference ):
             return N.exp(-0.5*dev).mean()
 
     @Property
+    def nullevidence ():
+        """model evidence for the corresponding null model
+
+        This can be used for model selection: model evidence devided by null evidence gives the Bayes Factor
+        for the comparison of the model agains the null model. This can be interpreted as "how much more
+        probable is the given psychometric function than the null model for the present data. Also see the
+        documentation for the evidence property.
+        """
+        def fget (self):
+            n = self.data[:,2].sum()
+            k = self.data[:,1].sum()
+            x = N.mgrid[0:1:100j]
+            return N.trapz(stats.binom.pmf(k,n,x),x)
+
+    @Property
     def pD ():
         """effective number of parameters"""
         def fget ( self ):
