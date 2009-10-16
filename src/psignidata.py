@@ -133,6 +133,23 @@ class BootstrapInference ( PsiInference ):
                 Any other sequence can be used alternatively. In addition, conf can be 'v1.0'
                 to give the default values of the classical psignifit version (i.e. .023,.159,.841,.977,
                 corresponding to -2,-1,1,2 standard deviations for a gaussian).
+
+        :Example:
+        Estimate a psychometric function from some example data and derive bootstrap confidence
+        intervals for a threshold
+
+        >>> x = [0,2,4,6,8,10]
+        >>> k = [26,30,38,46,50,49]
+        >>> n = [50]*len(k)
+        >>> B = BootstrapInference ( zip(x,k,n), priors=("flat","flat","Uniform(0,0.1)"), sample=True )
+        >>> B.estimate
+        array([ 3.80593409,  1.09308994,  0.00935698])
+        >>> B.deviance
+        2.5160989036891754
+        >>> B.getThres()
+        3.805934094097025
+        >>> B.getCI(1)
+        array([ 2.70965902,  4.59895584])
         """
         # Call the base constructor
         PsiInference.__init__(self)
@@ -308,6 +325,25 @@ class BayesInference ( PsiInference ):
             *resample* :
                 if a chain is considered "bad" in terms of convergence should it
                 automatically be resampled?
+
+        :Example:
+        Use MCMC to estimate a psychometric function from some example data and derive posterior
+        intervals for a threshold
+
+        >>> x = [0,2,4,6,8,10]
+        >>> k = [26,30,38,46,50,49]
+        >>> n = [50]*len(k)
+        >>> mcmc = BayesInference ( zip(x,k,n), priors=("Gauss(0,5)","Gamma(1,4)","Beta(2,50)") )
+        >>> mcmc.sample ( start=3*mcmc.estimate )
+        >>> mcmc.sample ( start=0.1*mcmc.estimate )
+        >>> mcmc.estimate
+        array([ 3.64159245,  5.13138577,  0.02117899])
+        >>> mcmc.deviance
+        3.3980533168705693
+        >>> mcmc.getThres()
+        3.6415924484119446
+        >>> mcmc.getCI()[1]
+        array([ 2.6650409 ,  3.65213551,  4.51676092])
         """
         PsiInference.__init__(self)
 
