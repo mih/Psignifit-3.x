@@ -3,7 +3,7 @@
 import sys,os
 import numpy as N
 import pylab as p
-from scipy import stats
+from scipy import stats,special
 import _psipy
 
 import psigniplot as pp
@@ -733,10 +733,11 @@ class BayesInference ( PsiInference ):
         documentation for the evidence property.
         """
         def fget (self):
+            # The null deviance can be directly calculated
             n = self.data[:,2].sum()
             k = self.data[:,1].sum()
-            x = N.mgrid[0:1:100j]
-            return N.trapz(stats.binom.pmf(k,n,x),x)
+            alpha,beta = 1.,1.    # flat prior for the null model
+            return int(1./special.beta(k,n-k))*special.beta(k+alpha,n-k+beta)/special.beta(alpha,beta)
 
     @Property
     def pD ():
