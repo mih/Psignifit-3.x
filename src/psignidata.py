@@ -849,4 +849,6 @@ class BayesInference ( PsiInference ):
             self.__mcmc_chains = mcmc_chains
             self.__mcmc_deviances = mcmc_deviances
 
-
+if __name__ == "__main__":
+    import doctest
+    doctest.testmod()

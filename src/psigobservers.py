@@ -7,7 +7,7 @@ import _psipy
 from psignidata import Property
 
 __doc__ = """
-When we want to know how well a psychometric function can describe an observers behavior, we
+If we want to know how well a psychometric function can describe an observers behavior, we
 may want to simulate an observer. This module implements a number of simulated observers.
 The basic observer does not violate any assumptions. However more elaborated observers
 violate some of the assumptions that are typical when fitting psychometric functions.
@@ -514,5 +514,5 @@ def dprime2Pcorrect ( dprime ):
     return N.trapz ( Phiphi, x )
 
 if __name__ == "__main__":
-    O = Observer ( 4,.8,.02 )
-    print O.DoABlock ( 3, 50 )
+    import doctest
+    doctest.testmod()
