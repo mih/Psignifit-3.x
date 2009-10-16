@@ -42,8 +42,8 @@ def drawaxes ( ax, xtics, xfmt, ytics, yfmt, xname, yname ):
     ax.plot ( [xtics.min(),xtics.max()], [yt-.05*yr]*2, 'k-' )
     for xt in xtics:
         ax.plot ( [xt]*2, [yt-.05*yr,yt-.03*yr], 'k-' )
-        ax.text ( xt, yt-.06*yr, xfmt % (xt,), horizontalalignment="center", verticalalignment="top",fontsize=10 )
-    ax.text ( xtics.mean(), yt-.12*yr, xname, horizontalalignment="center", verticalalignment="top", fontsize=16 )
+        ax.text ( xt, yt-.08*yr, xfmt % (xt,), horizontalalignment="center", verticalalignment="top",fontsize=10 )
+    ax.text ( xtics.mean(), yt-.14*yr, xname, horizontalalignment="center", verticalalignment="top", fontsize=16 )
 
     # y axis
     xt = xtics.min()
