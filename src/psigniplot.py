@@ -377,10 +377,10 @@ def GoodnessOfFit ( InferenceObject, warn=True ):
     good = plotHistogram ( InferenceObject.mcRpd, InferenceObject.Rpd, distname+" Rpd", "Rpd", ax, reference=InferenceObject.__repr__().split()[1] )
     if warn==True:
         if not good and InferenceObject.__repr__().split()[1] == "BootstrapInference":
-            ax.text ( 0, N.mean(p.getp(ax,'ylim')) , "Simulated Rpd differs from observed!\nModel deviates systematically from data", \
+            ax.text ( 0, N.mean(p.getp(ax,'ylim')) , "Simulated Rpd differs from observed!\nTry other sigmoid?", \
                     fontsize=16, color=__warnred, horizontalalignment="center", verticalalignment="center", rotation=45 )
         elif not good and InferenceObject.__repr__().split()[1] == "BayesInference":
-            ax.text ( 0, N.mean(p.getp(ax,'ylim')) , "Rpd is different from 0!\nModel deviates systematically from data", \
+            ax.text ( 0, N.mean(p.getp(ax,'ylim')) , "Rpd is different from 0!\nTry other sigmoid?", \
                     fontsize=16, color=__warnred, horizontalalignment="center", verticalalignment="center", rotation=45 )
 
     # Third part: Correlations between model prediction and block index
