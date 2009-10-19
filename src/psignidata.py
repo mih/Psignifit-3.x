@@ -400,7 +400,10 @@ class BayesInference ( PsiInference ):
         self.thin   = 1
         self.nsamples = None
 
-        self._steps = (.4,4,.01)
+        if self.model["nafc"] < 2:
+            self._steps = (.4,4,.01,.01)
+        else:
+            self._steps = (.4,4,.01)
 
         if automatic:
             self.__determineoptimalsampling ()
@@ -431,11 +434,7 @@ class BayesInference ( PsiInference ):
 
         if start is None:
             start = self.mapestimate
-        # TODO: stepwidths are not good for all situations
-        # TODO: it would be better to have the sampler itself set the stepwidths based on asymptotic properties of the mapestimate
-        stepwidths = (0.4,4,1e-2)
         chain,deviance = _psipy.mcmc ( self.data, start, Nsamples, stepwidths=self._steps, **self.model )
-        # print N.cov(N.array(chain[self.burnin::self.thin]).T)
         self.__mcmc_chains.append(N.array(chain))
         self.__mcmc_deviances.append(N.array(deviance))
 
