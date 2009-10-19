@@ -180,7 +180,8 @@ class BootstrapInference ( PsiInference ):
 
         # Store point estimates
         self.estimate,self.thres,self.deviance = _psipy.mapestimate(self.data,cuts=self.cuts,**self.model)
-        self.predicted,self.devianceresiduals,self.deviance,thres,self.Rpd,self.Rkd = _psipy.diagnostics(self.data,self.estimate)
+        self.predicted,self.devianceresiduals,self.deviance,thres,self.Rpd,self.Rkd = _psipy.diagnostics(self.data,self.estimate, \
+                nafc=self.model["nafc"],sigmoid=self.model["sigmoid"],core=self.model["core"])
 
         # The _psipy arrays are not numpy arrays
         self.estimate          = N.array(self.estimate)
