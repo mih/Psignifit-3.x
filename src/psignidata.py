@@ -779,7 +779,7 @@ class BayesInference ( PsiInference ):
             n = self.data[:,2].sum()
             k = self.data[:,1].sum()
             alpha,beta = 1.,1.    # flat prior for the null model
-            return int(1./special.beta(k,n-k))*special.beta(k+alpha,n-k+beta)/special.beta(alpha,beta)
+            return float(int(1./special.beta(k,n-k)))*special.beta(k+alpha,n-k+beta)/special.beta(alpha,beta)
 
     @Property
     def pD ():
