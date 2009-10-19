@@ -241,13 +241,17 @@ class BootstrapInference ( PsiInference ):
             *cut* :
                 index(!) of the cut of interest
             *conf* :
-                is currently ignored
+                levels of confidence (default, levels taken from the object)
         """
+
+        if conf is None:
+            conf = self.conf
+
         bias = self.__th_bias[cut]
-        acc  = self.__th_bias[cut]
+        acc  = self.__th_acc[cut]
 
         vals = []
-        for pp in self.conf:
+        for pp in conf:
             vals.append(stats.norm.cdf( bias + ( stats.norm.ppf(pp) + bias ) / (1-acc*(stats.norm.ppf(pp) + bias )) ))
 
         return p.prctile ( self.__bthres[:,cut], 100*N.array(vals) )
