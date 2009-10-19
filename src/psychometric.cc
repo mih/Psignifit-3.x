@@ -245,8 +245,13 @@ std::vector<double> PsiPsychometric::getStart ( const PsiData* data ) const
 	std::cerr << "minp="<<minp << std::endl;
 #endif
 
-	for (i=0; i<x.size(); i++)
-		p[i] -= 0.999*minp;
+	if (minp==0) {
+		for (i=0; i<x.size(); i++)
+			p[i] += 0.0001;
+	} else {
+		for (i=0; i<x.size(); i++)
+			p[i] -= 0.999*minp;
+	}
 
 	for (i=0; i<x.size(); i++)
 		if (maxp<p[i]) maxp = p[i];
