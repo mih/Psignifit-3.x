@@ -1,6 +1,7 @@
 #include "bootstrap.h"
 #include "rng.h"
 
+
 #ifdef DEBUG_BOOTSTRAP
 #include <iostream>
 #endif
@@ -65,9 +66,9 @@ BootstrapList parametricbootstrap ( int B, const PsiData * data, const PsiPsycho
 			data->getNalternatives() );
 
 	std::vector<double> initialfit ( model->getNparams() );       // generating parameters for the bootstrap samples
-	if (param==NULL)
+	if (param==NULL) {
 		initialfit = opt.optimize( model, data );
-	else
+	} else
 		initialfit = *param;
 	std::vector<double> p          ( data->getNblocks() );       // predicted p-correct for parametric bootstrap
 	for ( k=0; k<data->getNblocks(); k++ ) { p[k] = model->evaluate ( data->getIntensity(k), initialfit ); }
@@ -90,7 +91,8 @@ BootstrapList parametricbootstrap ( int B, const PsiData * data, const PsiPsycho
 		// Fit
 		localfit = opt.optimize (model, localdataset );
 #ifdef DEBUG_BOOTSTRAP
-		if (false)
+		for (l=0; l<sample.size(); l++)
+			std::cerr << " " << sample[l] << "\n";
 		std::cerr << localfit[0] << " " << localfit[1] << " " << localfit[2] << "\n";
 #endif
 
