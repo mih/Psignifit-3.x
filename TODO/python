@@ -2,3 +2,4 @@
 - what is going on with type checking in psigniplot.GoodnessOfFit?
 - add a dictionary to the data objects to make them know what they are (stimulus intensity, ...)
 - enable fixing the guessing rate to an arbitrary value (? which?)
+- resampling of chains in BayesInference objects
