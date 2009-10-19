@@ -1,3 +1,4 @@
++ Like ParameterPlot but for thresholds                                    [OK]
 + move numbers further away from the axes.                                 [OK]
 + warning message for Rpd: "Try other sigmoid!"                            [OK]
 + unit tests                                                               [OK]

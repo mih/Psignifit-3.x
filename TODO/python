@@ -1,4 +1,3 @@
 - Sensitivity analysis
 - what is going on with type checking in psigniplot.GoodnessOfFit?
 - add a dictionary to the data objects to make them know what they are (stimulus intensity, ...)
-- Like ParameterPlot but for thresholds
