@@ -6,7 +6,7 @@ import pypsignifit
 import re
 from scipy import stats
 
-__all__ = ["GoodnessOfFit","ConvergenceMCMC","ParameterPlot"]
+__all__ = ["GoodnessOfFit","ConvergenceMCMC","ParameterPlot","ThresholdPlot"]
 __warnred = [.7,0,0]
 
 def drawaxes ( ax, xtics, xfmt, ytics, yfmt, xname, yname ):
@@ -518,6 +518,57 @@ def plotParameterDist ( InferenceObject, parameter=0, ax=None ):
             fontsize=8, horizontalalignment="center",verticalalignment="bottom" )
 
     drawaxes ( ax, xtics, "%g", ytics, "%g", InferenceObject.parnames[parameter], "density estimate" )
+
+def plotThresholdDist ( InferenceObject, cut=0, ax=None ):
+    """Plot the distribution of thresholds
+
+    :Parameters:
+        *InferenceObjecxt* :
+            a BootstrapInference or BayesInference object containing the desired
+            data
+        *cut* :
+            index (!) of the desired cut
+        *ax* :
+            axes object to place the plot in.
+    """
+    if ax is None:
+        ax = p.axes()
+
+    # Plot histogram
+    mcthres = InferenceObject.mcthres[:,cut]
+    h,b,ptch = p.hist ( mcthres, bins=20, normed=True, histtype="step", lw=2 )
+
+    # Store ticks
+    xtics = N.array(ax.get_xticks())
+    ytics = N.array(ax.get_yticks())
+
+    # Highlight estimate and credibility intervals
+    thres = InferenceObject.getThres ( InferenceObject.cuts[cut] )
+    c25,c975 = InferenceObject.getCI ( cut, (0.025,0.975) )
+    ym = ytics.max()
+    p.plot( [c25]*2,[0,ym],'b:', [c975]*2,[0,ym],'b:' )
+    p.plot ( [thres]*2, [0,ym], 'b' )
+    p.text ( xtics.mean(), ym, "F^{-1}(%.2f)=%.3f, CI(95%%)=(%.3f,%.3f)" % (InferenceObject.cuts[cut], thres, c25, c975 ),
+            fontsize=8, horizontalalignment="center", verticalalignment="bottom" )
+
+    drawaxes ( ax, xtics, "%g", ytics, "%g", "F^{-1}(%.2f)" % (InferenceObject.cuts[cut],), "density estimate" )
+
+
+def ThresholdPlot ( InferenceObject ):
+    """Show distributions and estimates for all thresholds
+
+    :Parameters:
+        *InferenceObject*
+            a BootstrapInference or BayesInference object containing the
+            desired data
+    """
+    nthres = len(InferenceObject.cuts)
+    axw = 1./nthres
+    fig = p.figure ( figsize=(3*nthres,3) )
+
+    for k in xrange ( nthres ):
+        ax = p.axes ( [axw*k,0,axw,1] )
+        plotThresholdDist ( InferenceObject, k, ax )
 
 def ParameterPlot ( InferenceObject ):
     """Show distributions and estimates for all parameters in the model
