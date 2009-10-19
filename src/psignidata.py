@@ -265,6 +265,7 @@ class BootstrapInference ( PsiInference ):
     mcdeviance = property ( fget=lambda self: self.__bdeviance, doc="A vector of bootstrapped deviances" )
     mcRpd = property ( fget=lambda self: self.__bRpd, doc="A vector of correlations between model prections and deviance residuals in all bootstrap samples" )
     mcRkd = property ( fget=lambda self: self.__bRkd, doc="A vector of correlations between block index and deviance residuals in all bootstrap samples" )
+    mcthres = property ( fget=lambda self: self.__bthres, doc="Thresholds of the bootstrap replications" )
     @Property
     def nsamples ():
         """number of bootstrap samples (setting this attribute results in resampling!!!)"""
@@ -621,6 +622,7 @@ class BayesInference ( PsiInference ):
 
     ############################################
     # Properties
+    mcthres = property ( fget=lambda self: self.__pthres, doc="posterior samples of the threshold" )
     nchains = property ( fget=lambda self: len(self.__mcmc_chains), doc="Number of chains that have been sampled" )
     @Property
     def estimate ():
