@@ -426,7 +426,7 @@ def plotGeweke ( BayesInferenceObject, parameter=0, ax=None, warn=True ):
 
     if warn and not stationary:
         nsegments = z.shape[0]
-        p.text(0.5*nsegments,0,"chains did not converge" , color=warnred, fontsize=16, rotation=45, verticalalignment="center", horizontalalignment="center" )
+        p.text(0.5*nsegments,0,"chains did not converge" , color=__warnred, fontsize=16, rotation=45, verticalalignment="center", horizontalalignment="center" )
 
 def plotChains ( BayesInferenceObject, parameter=0, ax=None, raw=False, warn=True ):
     """Simply plot all chains for a single parameter
@@ -462,7 +462,7 @@ def plotChains ( BayesInferenceObject, parameter=0, ax=None, raw=False, warn=Tru
 
     if warn and BayesInferenceObject.Rhat(parameter)>1.1:
         p.text(x0+0.5*xr,y0+0.5*yr,"Chains do not seem to sample\nfrom the same distribution!",
-                horizontalalignment="center",verticalalignment="center",fontsize=16,rotation=45,color=warnred)
+                horizontalalignment="center",verticalalignment="center",fontsize=16,rotation=45,color=__warnred)
 
     drawaxes ( ax, ax.get_xticks(), "%g", ax.get_yticks(), "%g", "sample #", BayesInferenceObject.parnames[parameter] )
 
