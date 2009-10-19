@@ -1,3 +1,4 @@
 - migrate to boost-python?
 - Check when we need #include <numpy/arrayobject.h> and when #include <Numeric/arrayobject.h>
 - Make sure that sscanf does not use locale for Numbers!
+- what happens with dat1 in mm_5 dataset. We get exceptions here BadIndexError
