@@ -13,7 +13,7 @@ To get you starting with pypsignifit, open a python interpreter and type the fol
 
 >>> from pypsignifit import *
 >>> dir()
-['BayesInference', 'BootstrapInference', 'ConvergenceMCMC', 'GInitiallyUnowned', 'GoodnessOfFit', 'ParameterPlot', '__builtins__', '__doc__', '__name__', 'show']
+['BayesInference', 'BootstrapInference', 'ConvergenceMCMC', 'GInitiallyUnowned', 'GoodnessOfFit', 'ParameterPlot', 'ThresholdPlot', '__builtins__', '__doc__', '__name__', 'show']
 
 As you see, there is a number of functions and data types imported in the current workspace.
 To view documentation about one of these functions, you can use the online python help by typing
@@ -123,6 +123,17 @@ the estimated parameter is marked by a solid vertical line and the 95% confidenc
 marked by dotted vertical lines. The confidence interval limits and the estimates are written
 on top of the graph.
 
+In some cases, we may not directly be interested in the parameters of the model. Instead, we
+ask for "thresholds", that is predifined performance levels of the sigmoid F. We can get a plot
+of such thresholds and the associated confidence intervals using the function
+
+>> ThresholdPlot(B)
+
+the image looks essentially the same as for the ParameterPlot only that this time, the threshold(s)
+of the model are displayed.
+
+.. image:: BootstrapThresholds.png
+
 Reparameterizing the model
 --------------------------
 
@@ -136,8 +147,19 @@ Kuss, et al (2005) used a parameterization in terms of the 'midpoint' m of the s
 perform BootstrapInference for this model we can proceed as follows
 
 >>> Bmw = BootstrapInference ( data, sample=2000, priors=constraints, core="mw0.1" )
+>>> Bmw.estimate
+array([ 2.75176858,  6.40375494,  0.01555636])
+>>> Bmw.deviance
+8.0713313674704921
+>>> Bmw.getThres()
+2.7517685843037913
+>>> Bmw.cuts
+(0.25, 0.5, 0.75)
+>>> Bmw.getCI(1)
+array([ 1.4842732 ,  4.06407509])
 
-# TODO: This is not finished yet and it does not work! Deviances are far too high
+Note that this model has the same deviance as the model fitted above. Also the obtained thresholds are the same.
+However, as the parameterization is different, the actual fitted parameter values are different.
 
 Example 2: Bayesian inference
 =============================

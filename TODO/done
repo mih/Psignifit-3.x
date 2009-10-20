@@ -1,3 +1,5 @@
++ Add ThresholdPlot to Tutorial                                            [OK]
++ resampling of chains in BayesInference objects                           [OK]
 + Like ParameterPlot but for thresholds                                    [OK]
 + move numbers further away from the axes.                                 [OK]
 + warning message for Rpd: "Try other sigmoid!"                            [OK]
