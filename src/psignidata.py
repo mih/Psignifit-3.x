@@ -463,8 +463,8 @@ class BayesInference ( PsiInference ):
         elif isinstance (Nsamples,int):
             start = self.__mcmc_chains[chain][start,:]
 
-        chain,deviance = _psipy.mcmc ( self.data, start, Nsamples, stepwidths=self._steps, **self.model )
-        self.__mcmc_chains[chain] = N.array(chain)
+        mcchain,deviance = _psipy.mcmc ( self.data, start, Nsamples, stepwidths=self._steps, **self.model )
+        self.__mcmc_chains[chain] = N.array(mcchain)
         self.__mcmc_deviances[chain] = N.array(deviance)
 
     def __repr__ ( self ):
