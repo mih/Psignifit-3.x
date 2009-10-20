@@ -411,7 +411,7 @@ def plotGeweke ( BayesInferenceObject, parameter=0, ax=None, warn=True ):
             should a warning message be displayed if non stationarity
             of the samples is observed?
     """
-    stationary,z = BayesInferenceObject.geweke ( parameter )
+    stationary,z,bad = BayesInferenceObject.geweke ( parameter )
 
     if ax is None:
         ax = p.axes()

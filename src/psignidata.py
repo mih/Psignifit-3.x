@@ -361,7 +361,7 @@ class BayesInference ( PsiInference ):
                 "priors":  kwargs.setdefault("priors", None),
                 "nafc":    kwargs.setdefault("nafc",    2)
                 }
-        self.resample = resample
+        self.retry = resample
 
         if self.model["core"][:2] == "mw":
             self.parnames = ["m","w"]
@@ -437,6 +437,27 @@ class BayesInference ( PsiInference ):
         chain,deviance = _psipy.mcmc ( self.data, start, Nsamples, stepwidths=self._steps, **self.model )
         self.__mcmc_chains.append(N.array(chain))
         self.__mcmc_deviances.append(N.array(deviance))
+
+        # Resample if bad
+        if self.retry:
+            nprm = self.mapestimate.shape[0]
+            resampled = 0
+            while True:
+                if resampled > 5:
+                    raise SamplingError, "Resampling did not yield a converging chain after 5 tries"
+                for k in xrange ( nprm ):
+                    allok = True
+                    ok,z,bad = self.geweke ( k )
+                    if not bad is None:
+                        print "Resampling"
+                        for b in bad:
+                            self.resample ( b )
+                        resampled += 1
+                        break
+                    else:
+                        allok = allok and ok
+                if allok==True:
+                    break
 
     def resample ( self, chain, Nsamples=None, start=None ):
         """Replace a chain
@@ -622,9 +643,9 @@ class BayesInference ( PsiInference ):
             for k in xrange(self.nchains):
                 if abs(z[:,k]).max() > 2:
                     bad.append(k)
-            return False,z
+            return False,z,bad
         else:
-            return True,z
+            return True,z,None
 
     def Rhat ( self, parameter=0 ):
         """Gelman Rhat statistic for convergence using multiple chains
