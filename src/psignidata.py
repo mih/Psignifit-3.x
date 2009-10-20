@@ -382,7 +382,8 @@ class BayesInference ( PsiInference ):
         else:
             self.Ncuts = len(self.cuts)
 
-        self.Rpd,self.Rkd = _psipy.diagnostics ( self.data, self.mapestimate, cuts=self.cuts, nafc=self.model["nafc"], sigmoid=self.model["sigmoid"], core=self.model["core"] )[4:]
+        self.Rpd,self.Rkd = _psipy.diagnostics ( self.data, self.mapestimate, cuts=self.cuts, nafc=self.model["nafc"],
+                sigmoid=self.model["sigmoid"], core=self.model["core"] )[4:]
 
         self.__meanestimate = None
         self.__meandeviance = None
