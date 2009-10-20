@@ -438,6 +438,35 @@ class BayesInference ( PsiInference ):
         self.__mcmc_chains.append(N.array(chain))
         self.__mcmc_deviances.append(N.array(deviance))
 
+    def resample ( self, chain, Nsamples=None, start=None ):
+        """Replace a chain
+
+        :Parameters:
+            *chain* :
+                index of the chain to be replaced
+            *Nsamples* :
+                number of posterior samples to be drawn. Default is to take the same number of samples
+            *start* :
+                starting value for the chain. Default is to take the same starting value as for the previous
+                chain. If an integer is given as the starting value, this will be interpreted as the position
+                of the old chain at which the new starting value can be found.
+        """
+        if isinstance (Nsamples,int):
+            self.nsamples = Nsamples
+        elif Nsamples is None:
+            Nsamples = self.__mcmc_chains[chain].shape[0]
+        else:
+            Nsamples = self.nsamples
+
+        if start is None:
+            start = self.__mcmc_chains[chain][0,:]
+        elif isinstance (Nsamples,int):
+            start = self.__mcmc_chains[chain][start,:]
+
+        chain,deviance = _psipy.mcmc ( self.data, start, Nsamples, stepwidths=self._steps, **self.model )
+        self.__mcmc_chains[chain] = N.array(chain)
+        self.__mcmc_deviances[chain] = N.array(deviance)
+
     def __repr__ ( self ):
         return "< BayesInference object with %d blocks and %d mcmc chains of %d samples each >" % (self.data.shape[0],len(self.__mcmc_chains), self.nsamples)
 
