@@ -354,6 +354,8 @@ well as the priors associated with the respective model parameters (green lines)
 .. image:: BayesParameters.png
 
 The interpretation of these plots is straigtforward.
+Also the ThresholdPlot() function that we applied to the bootstrap data in the first example can
+be used for Bayesian inference.
 
 
 References
