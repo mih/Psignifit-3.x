@@ -1,7 +1,6 @@
 #include "bootstrap.h"
 #include "rng.h"
 
-
 #ifdef DEBUG_BOOTSTRAP
 #include <iostream>
 #endif
@@ -108,6 +107,7 @@ BootstrapList parametricbootstrap ( int B, const PsiData * data, const PsiPsycho
 			l_LF[cut][b] = model->leastfavourable ( localfit, localdataset, cuts[cut] );
 #ifdef DEBUG_BOOTSTRAP
 			if (l_LF[cut][b] != l_LF[cut][b]) {
+				std::cerr << "deviance = " << deviance << "\n";
 				std::cerr << "l_LF["<<cut<<"]["<<b<<"] = " << l_LF[cut][b] << "\n";
 			}
 #endif
@@ -121,7 +121,7 @@ BootstrapList parametricbootstrap ( int B, const PsiData * data, const PsiPsycho
 
 			if (l_LF[cut][b] != l_LF[cut][b]) {
 				// TODO: if l_LF is nan we don't take this sample
-				// TODO: This is not the best solution but it works
+				// TODO: This is not the best solution but it works (kindof)
 				b--;
 				continue;
 			}
