@@ -38,7 +38,7 @@ class PsiPsychometric {
 			PsiCore * core,                                                          ///< internal part of the nonlinear function (in many cases this is actually a linear function)
 			PsiSigmoid * sigmoid                                                     ///< "external" saturating part of the nonlinear function
 			);    ///< Set up a psychometric function model for an nAFC task (nAFC=1 ~> yes/no)
-		~PsiPsychometric ( void ); ///< destructor
+		~PsiPsychometric ( void );   ///< destructor (also deletes the core and sigmoid objects)
 		virtual double evaluate (
 			double x,                                                                ///< stimulus intensity
 			const std::vector<double>& prm                                           ///< parameters of the psychometric function model
