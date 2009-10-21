@@ -10,7 +10,7 @@
     - alternative: Perform some gradient based steps as a special case of simplex optimization (e.g. particularly good points are moved in the direction of the gradient?)
 - MCMC: Use fisher matrix as covariance matrix for the proposal distribution
 - use linalg.h/linalg.cc for Sampler class
-- Bugs with different cores -> no convergence, exceptionally high deviance with ok looking fit, ...
+- Bugs with different cores -> no convergence, exceptionally high deviance with ok looking fit, ... This is only due to the logCore-Kernel that returns -inf for contrasts of 0
 - NaN in bootstrap
 - Alternate seeds. This might solve problems with optimizers, too. Strategy:
     determine upper and lower bounds for alpha and beta and search the area spanned by these two on a 10x10 grid.
