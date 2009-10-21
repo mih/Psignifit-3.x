@@ -88,7 +88,11 @@ PsiCore * getcore ( const char * corename, int sigmoidcode, const PsiData * data
 	} else if ( !strcmp(corename,"log") || !strcmp(corename,"logarithmic") ) {
 		// std::cerr << "Using logarithmic core\n";
 		return new logCore ( data );
+	} else if ( !strcmp(corename,"weibull") ) {
+		// std::cerr << "Using weibull core\n";
+		return new weibullCore ( data );
 	} else {
+		std::cerr << "corename: " << corename << "\n";
 		throw std::string ( "invalid core type" );
 	}
 }

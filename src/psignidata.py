@@ -111,7 +111,9 @@ class BootstrapInference ( PsiInference ):
                     - 'mw%g'       midpoint and width
                     - 'linear'     a+b*x
                     - 'log'        a+b*log(x)
-            *priors* :
+                    - 'weibull'    2*s*m*(log(x)-log(m))/log(2) + log(log(2))    This will give you a weibull if combined with
+                      the gumbel_l sigmoid and a reverse weibull if combined with the gumbel_r sigmoid.
+           *priors* :
                 a list of prior names. Valid choices are
                     - 'Uniform(%g,%g)'   Uniform distribution on an interval
                     - 'Gauss(%g,%g)'     Gaussian distribution with mean and standard deviation
@@ -166,6 +168,8 @@ class BootstrapInference ( PsiInference ):
 
         if self.model["core"][:2] == "mw":
             self.parnames = ["m","w"]
+        elif self.model["core"] == "weibull":
+            self.parnames = ["m","s"]
         else:
             self.parnames = ["a","b"]
         self.parnames.append("lambda")
@@ -304,6 +308,8 @@ class BayesInference ( PsiInference ):
                     - 'mw%g'       midpoint and width
                     - 'linear'     a+b*x
                     - 'log'        a+b*log(x)
+                    - 'weibull'    2*s*m*(log(x)-log(m))/log(2) + log(log(2))    This will give you a weibull if combined with
+                      the gumbel_l sigmoid and a reverse weibull if combined with the gumbel_r sigmoid.
             *priors* :
                 a list of prior names. Valid choices are
                     - 'Uniform(%g,%g)'   Uniform distribution on an interval
@@ -365,6 +371,8 @@ class BayesInference ( PsiInference ):
 
         if self.model["core"][:2] == "mw":
             self.parnames = ["m","w"]
+        elif self.model["core"] == "weibull":
+            self.parnames = ["m","s"]
         else:
             self.parnames = ["a","b"]
         self.parnames.append("lambda")
