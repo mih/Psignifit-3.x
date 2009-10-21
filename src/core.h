@@ -198,7 +198,7 @@ class logCore : public PsiCore
 		double g   (
 			double x,                                 ///< stimulus intensity
 			const std::vector<double>& prm            ///< parameter vector
-			) { return prm[0] * log(x) + prm[1]; }    ///< evaluate the core
+			);   ///< evaluate the core
 		double dg  (
 			double x,                                 ///< stimulus intensity
 			const std::vector<double>& prm,           ///< parameter vector
@@ -224,6 +224,53 @@ class logCore : public PsiCore
 				double a,                             ///< intercept of the logistic regression model
 				double b                              ///< slope of the logistic regression model
 			);                   ///< transform parameters from a logistic regression model to starting values
+};
+
+/** \brief Core for the psychofun Weibull parameterization
+ *
+ * The R-package psychofun by Kuss et al (2005, J Vis) uses a slightly different parameterization of the Weibull, that is parameterized in
+ * terms of "threshold location m and slope at threshold s". This core should be combined with a PsiGumbelL sigmoid to obtain the Weibull or
+ * with a PsiGumbelR sigmoid to obtain the reversed Weibull. However, any other combination is also valid. However, in that case, the parameters
+ * m and s might not be as interpretable as they are in case of the weibull.
+ */
+class weibullCore : public PsiCore
+{
+	private:
+		double twooverlog2;
+		double loglog2;
+		double loglina;
+		double loglinb;
+	public:
+		weibullCore ( const PsiData* data );
+		double g (
+			double x,                           ///< stimulus intensity
+			const std::vector<double>& prm      ///< parameter vector (m,s,...)
+			) { return twooverlog2*prm[0]*prm[1] * (log(x)-log(prm[0])) + loglog2; } ///< evaluate the weibull core
+		double dg (
+			double x,                           ///< stimulus intensity
+			const std::vector<double>& prm,     ///< parameter vector
+			int i                               ///< index of the parameter with respect to which the derivative should be evaluated
+			);    ///< evaluate the derivateive of the core
+		double ddg (
+			double x,                           ///< stimulus intenstiy
+			const std::vector<double>& prm,     ///< parameter vector
+			int i,                              ///< first parameter with respect to which the derivative should be taken
+			int j                               ///< second parameter with respect to which the derivative should be taken
+			);            ///< evaluate the 2nd derivative of the core
+		double inv (
+			double y,                           ///< value at which to evaluate the inverse
+			const std::vector<double>& prm      ///< parameter vector
+			);           ///< invert the core
+		double dinv (
+			double y,                           ///< value at which to evaluate the inverse
+			const std::vector<double>& prm,     ///< parameter vector
+			int i                               ///< take the derivative of the inverse core with respect to parameter i
+			);           ///< evaluate the derivative of the inverse core with respect to parameter i
+		std::vector<double> transform (
+			int nprm,                           ///< number of parameters in the final model
+			double a,                           ///< intercept of the logistic regression model
+			double b                            ///< slope of the logistic regression model
+			);          ///< transform the parameters from a logistic regression model to starting values
 };
 
 #endif
