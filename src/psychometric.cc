@@ -119,6 +119,10 @@ double PsiPsychometric::leastfavourable ( const std::vector<double>& prm, const 
 			l_LF += delta[i] * fac1 * ( (i==2 ? 1 : 0) - Sigmoid->f(Core->g(xz,prm)) );
 	}
 
+	// If l_LF is nan, return 0
+	if (l_LF!=l_LF)
+		return 0;
+
 	return l_LF;
 }
 
