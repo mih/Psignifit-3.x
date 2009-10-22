@@ -1,3 +1,4 @@
+- Influential observations and outliers for Bayes
 - Sensitivity analysis
 - what is going on with type checking in psigniplot.GoodnessOfFit?
 - add a dictionary to the data objects to make them know what they are (stimulus intensity, ...)
