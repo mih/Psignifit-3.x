@@ -66,7 +66,7 @@ PsiSigmoid * getsigmoid ( const char * sigmoidname ) {
 		return new PsiGumbelR;
 	} else if ( !strcmp(sigmoidname,"cauchy") ) {
 		return new PsiCauchy;
-	} else if ( !strncmp(sigmoidname,"exp",3) {
+	} else if ( !strncmp(sigmoidname,"exp",3) ) {
 		return new PsiExponential;
 	} else {
 		throw std::string ( "invalid sigmoid type" );
@@ -93,6 +93,8 @@ PsiCore * getcore ( const char * corename, int sigmoidcode, const PsiData * data
 	} else if ( !strcmp(corename,"weibull") ) {
 		// std::cerr << "Using weibull core\n";
 		return new weibullCore ( data );
+	} else if ( !strcmp(corename,"poly") ) {
+		return new polyCore ( data );
 	} else {
 		std::cerr << "corename: " << corename << "\n";
 		throw std::string ( "invalid core type" );

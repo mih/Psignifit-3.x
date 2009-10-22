@@ -105,6 +105,7 @@ class BootstrapInference ( PsiInference ):
                     - 'gauss'
                     - 'gumbel_l'
                     - 'gumbel_r'
+                    - 'exp'
             *core* :
                 term inside the sigmoid function. Valid choices are
                     - 'ab'         (x-a)/b        [Default]
@@ -113,6 +114,7 @@ class BootstrapInference ( PsiInference ):
                     - 'log'        a+b*log(x)
                     - 'weibull'    2*s*m*(log(x)-log(m))/log(2) + log(log(2))    This will give you a weibull if combined with
                       the gumbel_l sigmoid and a reverse weibull if combined with the gumbel_r sigmoid.
+                    - 'poly'       (x/a)**b   Will give you a weibull if combined with an exp sigmoid
            *priors* :
                 a list of prior names. Valid choices are
                     - 'Uniform(%g,%g)'   Uniform distribution on an interval
@@ -302,6 +304,7 @@ class BayesInference ( PsiInference ):
                     - 'gauss'
                     - 'gumbel_l'
                     - 'gumbel_r'
+                    - 'exp'
             *core* :
                 term inside the sigmoid function. Valid choices are
                     - 'ab'         (x-a)/b        [Default]
@@ -310,6 +313,7 @@ class BayesInference ( PsiInference ):
                     - 'log'        a+b*log(x)
                     - 'weibull'    2*s*m*(log(x)-log(m))/log(2) + log(log(2))    This will give you a weibull if combined with
                       the gumbel_l sigmoid and a reverse weibull if combined with the gumbel_r sigmoid.
+                    - 'poly'       (x/a)**b   Will give you a weibull if combined with an exp sigmoid
             *priors* :
                 a list of prior names. Valid choices are
                     - 'Uniform(%g,%g)'   Uniform distribution on an interval

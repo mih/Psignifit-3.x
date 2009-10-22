@@ -553,7 +553,6 @@ def plotThresholdDist ( InferenceObject, cut=0, ax=None ):
 
     drawaxes ( ax, xtics, "%g", ytics, "%g", "F^{-1}(%.2f)" % (InferenceObject.cuts[cut],), "density estimate" )
 
-
 def ThresholdPlot ( InferenceObject ):
     """Show distributions and estimates for all thresholds
 
