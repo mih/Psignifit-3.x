@@ -184,3 +184,39 @@ double PsiCauchy::inv ( double p )
 {
 	return tan ( M_PI*(p-0.5) );
 }
+
+/************************************************************
+ * Exponential cdf
+ */
+
+double PsiExponential::f ( double x )
+{
+	if (x<0)
+		return 0;
+	else
+		return 1-exp ( -x );
+}
+
+double PsiExponential::df ( double x )
+{
+	if (x<0)
+		return 0;
+	else
+		return exp( -x );
+}
+
+double PsiExponential::ddf ( double x )
+{
+	if (x<0)
+		return 0;
+	else
+		return -exp( -x );
+}
+
+double PsiExponential::inv ( double p )
+{
+	if ( p>0 && p<1 )
+		return -log(1-p);
+	else
+		throw BadArgumentError();
+}

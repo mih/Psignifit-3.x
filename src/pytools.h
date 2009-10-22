@@ -66,6 +66,8 @@ PsiSigmoid * getsigmoid ( const char * sigmoidname ) {
 		return new PsiGumbelR;
 	} else if ( !strcmp(sigmoidname,"cauchy") ) {
 		return new PsiCauchy;
+	} else if ( !strncmp(sigmoidname,"exp",3) {
+		return new PsiExponential;
 	} else {
 		throw std::string ( "invalid sigmoid type" );
 	}

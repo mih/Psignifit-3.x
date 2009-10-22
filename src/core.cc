@@ -89,6 +89,10 @@ mwCore::mwCore ( int sigmoid, double al )
 			zalpha = -2*tan(M_PI*(alpha-0.5));
 			zshift = 0;
 			break;
+		case 5:
+			// Exponential
+			zalpha = log( (1-alpha)/alpha );
+			zshift = log(2.);
 		default:
 			throw NotImplementedError();
 	}
