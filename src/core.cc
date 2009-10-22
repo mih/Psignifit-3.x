@@ -289,8 +289,95 @@ double weibullCore::dinv ( double y, const std::vector<double>& prm, int i )
 std::vector<double> weibullCore::transform ( int nprm, double a, double b )
 {
 	std::vector<double> prm ( nprm, 0 );
-	prm[0] = exp ( b/loglinb );
-	prm[1] = ((a/loglinb)/twooverlog2)/prm[0];
+	prm[1] = exp ( b/loglinb );
+	prm[0] = ((a/loglinb)/twooverlog2)/prm[1];
+
+	return prm;
+}
+
+/************************************************************
+ * polyCore
+ */
+
+polyCore::polyCore ( const PsiData * data )
+{
+	double meanx (0),varx(0);
+	int i;
+
+	for (i=0; i<data->getNblocks(); i++) {
+		meanx += data->getIntensity(i);
+	}
+	meanx /= data->getNblocks();
+
+	for (i=0; i<data->getNblocks(); i++) {
+		varx += pow( data->getIntensity(i)-meanx, 2 );
+	}
+	varx /= data->getNblocks();
+	varx = sqrt(varx);
+
+	x1 = meanx+varx;
+	x2 = meanx-varx;
+}
+
+double polyCore::dg ( double x, const std::vector<double>& prm, int i )
+{
+	if (x<0)
+		return 0;
+	else {
+		if (i==0)
+			return -prm[1] * x * pow(x/prm[0] , prm[1]-1)/(prm[0]*prm[0]);
+		else if (i==1)
+			return pow (x/prm[0], prm[1] ) * log(x/prm[0]);
+		else
+			return 0;
+	}
+}
+
+double polyCore::ddg ( double x, const std::vector<double>& prm, int i, int j )
+{
+	if (x<0)
+		return 0;
+	else {
+		if (i==j) {
+			if (i=0)
+				return prm[1]*x*(prm[1]+1)*pow(x/prm[0],prm[1]-1)/(prm[0]*prm[0]*prm[0]);
+			else if (i==1)
+				return pow(x/prm[0],prm[1]) * pow(log(x/prm[0]),2);
+			else
+				return 0;
+		} else if ( (i==0 && j==1) || (j==0 & i==1) ) {
+			return - pow(x/prm[0],prm[1]-1)*(1-prm[1]*log(x/prm[0]))/prm[0];
+		} else
+			return 0;
+	}
+}
+
+double polyCore::inv ( double y, const std::vector<double>& prm )
+{
+	return prm[0] * pow ( y, 1./prm[1] );
+}
+
+double polyCore::dinv ( double y, const std::vector<double>& prm, int i )
+{
+	if (i==0) {
+		return pow ( y, 1./prm[1] );
+	} else if (i==1) {
+		return - log(y) * prm[0] * pow ( y, 1./prm[1] )/(prm[1]*prm[1]);
+	} else
+		return 0;
+}
+
+std::vector<double> polyCore::transform ( int nprm, double a, double b )
+{
+	std::vector<double> prm ( nprm, 0 );
+
+	if ( a+b*x1 < 0 )
+		a = -b*x1+.1;
+	if ( a+b*x2 < 0 )
+		a = -b*x2+.1;
+
+	prm[1] = log ( (a+b*x2)/(a+b*x1) )/log(x2/x1);
+	prm[0] = x1*pow(a+b*x1, - 1./prm[1]);
 
 	return prm;
 }

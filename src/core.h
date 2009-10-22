@@ -273,4 +273,47 @@ class weibullCore : public PsiCore
 			);          ///< transform the parameters from a logistic regression model to starting values
 };
 
+/** \brief polynomial Core as used for the weibull function
+ *
+ * The classical weibull function is parameterized as 1-exp(-(x/alpha)^beta), this core defines the (x/alpha)^beta part in this
+ * parameterization. The PsiExponential sigmoid gives the 1-exp(-.) part.
+ */
+class polyCore : public PsiCore
+{
+	private:
+		double x1;
+		double x2;
+	public:
+		polyCore ( const PsiData* data );
+		double g (
+			double x,                                ///< stimulus intensity
+			const std::vector<double>& prm           ///< parameter vector (alpha,beta, ...)
+			) { return pow( x/prm[0], prm[1] ); }    ///< evaluate the polyCore
+		double dg (
+			double x,                                ///< stimulus intensity
+			const std::vector<double>& prm,          ///< parameter vector
+			int i                                    ///< index of the parameter to which the derivative should be evaluated
+			);              ///< derivative of the polyCore with respect to a parameter
+		double ddg (
+			double x,                                ///< stimulus intensity
+			const std::vector<double>& prm,          ///< parameter vector
+			int i,                                   ///< index of the first derivative parameter
+			int j                                    ///< index of the 2nd derivatibe parameter
+			);              ///< 2nd derivative of the polyCore object with respect to parameters
+		double inv (
+			double y,                                ///< value for which the core should be inverted
+			const std::vector<double>& prm           ///< parameter vector
+			);              ///< inverse of the core
+		double dinv (
+			double y,                                ///< value at which to evaluate the inverse
+			const std::vector<double>& prm,          ///< parameter vector
+			int i                                    ///< index of the parameter for which the derivative should be evaluated
+			);              ///< derivative of the inverse core
+		std::vector<double> transform (
+			int nprm,                                ///< number of parameters in the final model
+			double a,                                ///< intercept of the logistic regression model
+			double b                                 ///< slope of the logistic regression model to starting values
+			);              ///< transform the parameter from a logistic regression model to starting values
+};
+
 #endif
