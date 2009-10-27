@@ -6,7 +6,7 @@ import pypsignifit
 import re
 from scipy import stats
 
-__all__ = ["GoodnessOfFit","ConvergenceMCMC","ParameterPlot","ThresholdPlot"]
+__all__ = ["GoodnessOfFit","ConvergenceMCMC","ParameterPlot","ThresholdPlot","plotSensitivity"]
 __warnred = [.7,0,0]
 
 def drawaxes ( ax, xtics, xfmt, ytics, yfmt, xname, yname ):
@@ -605,5 +605,42 @@ def ConvergenceMCMC ( BayesInferenceObject, parameter=0, warn=True ):
     plotGeweke ( BayesInferenceObject, parameter, ax, warn=warn )
     ax = p.axes ( [.66,0,.33,1] )
     plotParameterDist ( BayesInferenceObject, parameter, ax )
+
+def plotSensitivity ( BootstrapInferenceObject, ax=None ):
+    """Visualize a sensitivity analysis to determine expanded bootstrap confidence intervals"""
+    if ax==None:
+        ax = p.axes()
+
+    # Determine axes ranges
+    prm1 = BootstrapInferenceObject.mcestimates[:,0]
+    prm2 = BootstrapInferenceObject.mcestimates[:,1]
+    ax.plot(prm1,prm2,'w.',markersize=1)
+    xmin,xmax = ax.get_xlim()
+    ymin,ymax = ax.get_ylim()
+    ax.cla()
+
+    # Plot the density estimate in the background
+    x,y = N.mgrid[xmin:xmax:100j,ymin:ymax:100j]
+    C = BootstrapInferenceObject.mcdensity(N.c_[N.ravel(x),N.ravel(y)].T)
+    C.shape = 100,100
+    ax.imshow( C.T,origin="lower",extent=(xmin,xmax,ymin,ymax), cmap=p.cm.gray_r )
+
+    # Get the points and make sure, a sensitivity_analysis has indeed been run
+    dummy,points = BootstrapInferenceObject.sensitivity_analysis()
+
+    # plot the points
+    ax.fill(points[:,0],points[:,1],fill=False,edgecolor="r",linewidth=2)
+    ax.plot(prm1,prm2,"b.",markersize=2)
+    ax.plot(points[:,0],points[:,1],'rd',markersize=5)
+    ax.plot([BootstrapInferenceObject.estimate[0]],[BootstrapInferenceObject.estimate[1]],'ro',markersize=5)
+
+    # plot marginal percentiles
+    prm1lims = p.prctile ( BootstrapInferenceObject.mcestimates[:,0], (2.5,25,75,97.5) )
+    prm2lims = p.prctile ( BootstrapInferenceObject.mcestimates[:,1], (2.5,25,75,97.5) )
+    ax.plot( prm1lims, [ymin-0.05*(ymax-ymin)]*4, 'b-', [xmin-0.05*(xmax-xmin)]*4, prm2lims, 'b-' )
+    ax.plot( prm1lims[1:3], [ymin-0.05*(ymax-ymin)]*2, 'b-', [xmin-0.05*(xmax-xmin)]*2, prm2lims[1:3], 'b-', linewidth=5 )
+
+    # Draw axes
+    drawaxes ( ax, ax.get_xticks(), "%g", ax.get_yticks(), "%g", BootstrapInferenceObject.parnames[0], BootstrapInferenceObject.parnames[1] )
 
 gof = GoodnessOfFit
