@@ -3,7 +3,7 @@
 import sys,os
 import numpy as N
 import pylab as p
-from scipy import stats,special
+from scipy import stats,special,optimize
 import _psipy
 
 import psigniplot as pp
@@ -205,6 +205,7 @@ class BootstrapInference ( PsiInference ):
         self.__bthres    = None
         self.__th_bias   = None
         self.__th_acc    = None
+        self.__expanded  = False
 
         # If we want direct sampling this is done here
         if sample:
@@ -253,6 +254,17 @@ class BootstrapInference ( PsiInference ):
 
         if conf is None:
             conf = self.conf
+        elif isinstance ( conf, float ):
+            conf = [conf]
+        elif isinstance ( conf, int ):
+            conf = [self.conf[conf]]
+
+        if self.__expanded:
+            ci = []
+            for c in conf:
+                k = self.__expandedConf.index(round(c,6))
+                ci.append(self.__expandedCI[cut,conf,:])
+                # TODO: Check this code
 
         bias = self.__th_bias[cut]
         acc  = self.__th_acc[cut]
@@ -266,6 +278,102 @@ class BootstrapInference ( PsiInference ):
     def __repr__ ( self ):
         return "< BootstrapInference object with %d blocks and %d samples >" % ( self.data.shape[0], self.nsamples )
 
+    def sensitivity_analysis ( self, conf=0.95, Nsamples=2000, Npoints=8, verbose=True ):
+        """Perform sensitivity_analysis to obtain expanded bootstrap intervals
+
+        :Parameters:
+            *conf* :
+                desired confidence
+            *Nsamples* :
+                number of bootstrap samples per data point
+            *Npoints* :
+                number of points on the contour at which to perform a new bootstrap run
+        """
+        if self.__expanded:
+            return N.array(self.__expandedCI),N.array(self._expansionPoints)
+
+        if self.mcestimates is None:
+            # We need an initial run
+            self.sample ( Nsamples )
+        al,bt = self.estimate[:2]
+        prm0 = N.array([al,bt])
+
+        if isinstance ( conf, float ):
+            conf = [conf]
+
+        # Now fit the confidence with a kde
+        contour = self.mcdensity
+        maxcont = contour.evaluate ( N.array( [al,bt] ) )
+
+        # Determine unexpanded CI
+        self.__expandedCI = []
+        for l,cut in enumerate(self.cuts):
+            self.__expandedConf = []
+            self.__expandedCI.append([])
+            for prob in conf:
+                pprob = 1.-prob
+                p1,p2 = 0.5*pprob,1-0.5*pprob
+                self.__expandedCI[-1].append( self.getCI ( l, (p1,p2) )-self.thres[l] )
+                self.__expandedConf += [round(p1,6),round(p2,6)]
+        self.__expandedCI = N.array(self.__expandedCI)
+
+        # Expand
+        self._expansionPoints = []
+        for k in xrange(Npoints):
+            # The next point in parameter space
+            phi = float(2*N.pi*k) / Npoints
+            searchaxis = N.array([N.cos(phi),N.sin(phi)])
+            x0,x1 = 0.,max(self.mcestimates[:,0].max()-al,self.mcestimates[:,1].max())
+            def f ( prm ):
+                coeffs = prm0+searchaxis*prm
+                return contour.evaluate(coeffs)-0.68*maxcont
+            while f(x0)*f(x1)>=0:
+                x1*=2
+            # We use bisections to find the point on the surface that gives 0.68 the density of the maximum
+            a = optimize.bisect ( f, x0, x1 )
+            self._expansionPoints.append(a*searchaxis+prm0)
+            if verbose:
+                sys.stderr.write("Bootstrapping point %d ... " % (k,))
+                sys.stderr.flush()
+
+            # Perform bootstrap on this next point
+            fullprm = self.estimate.copy()
+            fullprm[:2] = self._expansionPoints[-1]
+            fullthres = _psipy.diagnostics(self.data,fullprm, nafc=self.model["nafc"],sigmoid=self.model["sigmoid"],core=self.model["core"],cuts=self.cuts)[3]
+            bthres,th_bias,th_acc = _psipy.bootstrap(self.data,fullprm,Nsamples,cuts=self.cuts,**self.model)[3:6]
+            thresholdCI = []
+            for l,cut in enumerate(self.cuts):
+                for pp,prob in enumerate(conf):
+                    # Transform confidence to upper and lower limits
+                    pprob = 1.-prob
+                    p1,p2 = 0.5*pprob,1-0.5*pprob
+
+                    # Determine BCa-confidence intervals
+                    prob1 = stats.norm.cdf ( th_bias[l] + ( stats.norm.ppf(p1) + th_bias[l] ) / (1-th_acc[l]*(stats.norm.ppf(p1) + th_bias[l])) )
+                    prob2 = stats.norm.cdf ( th_bias[l] + ( stats.norm.ppf(p2) + th_bias[l] ) / (1-th_acc[l]*(stats.norm.ppf(p2) + th_bias[l])) )
+                    thresholdCI = p.prctile ( bthres[:,l], 100*N.array([prob1,prob2]) ) - fullthres[l] # We substract the threshold here to only obtain relative values
+                    # If this confidence interval is larger than the original one, we expand the CI
+                    if thresholdCI[0]<self.__expandedCI[l,pp,0]:
+                        self.__expandedCI[l,pp,0] = thresholdCI[0]
+                        if verbose:
+                            sys.stderr.write("l- ")
+                    if thresholdCI[1]>self.__expandedCI[l,pp,1]:
+                        self.__expandedCI[l,pp,0] = thresholdCI[1]
+                        if verbose:
+                            sys.stderr.write("u+ ")
+            if verbose:
+                sys.stderr.write("\n")
+                sys.stderr.flush()
+
+                # Now we add the threshold back to the ci
+                self.__expandedCI[l] += self.thres[l]
+
+        # Store that we have expanded the CIs
+        self.__expanded = True
+
+        return N.array(self.__expandedCI),N.array(self._expansionPoints)
+
+
     outl = property ( fget=lambda self: self.__outl, doc="A boolean vector indicating whether a block should be considered an outlier" )
     infl = property ( fget=lambda self: self.__infl, doc="A boolean vector indicating whether a block should be considered an influential observation" )
     mcestimates = property ( fget=lambda self: self.__bestimate, doc="An array of bootstrap estimates of the fitted paramters" )
@@ -273,6 +381,8 @@ class BootstrapInference ( PsiInference ):
     mcRpd = property ( fget=lambda self: self.__bRpd, doc="A vector of correlations between model prections and deviance residuals in all bootstrap samples" )
     mcRkd = property ( fget=lambda self: self.__bRkd, doc="A vector of correlations between block index and deviance residuals in all bootstrap samples" )
     mcthres = property ( fget=lambda self: self.__bthres, doc="Thresholds of the bootstrap replications" )
+    mcdensity = property ( fget=lambda self: stats.kde.gaussian_kde ( self.mcestimates[:,:2].T ),
+            doc="A gaussian kernel density estimate of the joint density of the first two parameters of the model" )
     @Property
     def nsamples ():
         """number of bootstrap samples (setting this attribute results in resampling!!!)"""
