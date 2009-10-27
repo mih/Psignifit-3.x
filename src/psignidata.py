@@ -281,13 +281,32 @@ class BootstrapInference ( PsiInference ):
     def sensitivity_analysis ( self, conf=0.95, Nsamples=2000, Npoints=8, verbose=True ):
         """Perform sensitivity_analysis to obtain expanded bootstrap intervals
 
+        Sensitivity analysis is a strategy to expand bootstrap confidence intervals. Typically,
+        the expanded bootstrap confidence intervals are more realistic than the unexpanded confidence
+        intervals. The function fits a gaussian kernel density estimator to the joint distribution
+        of the first two parameters (those that determine the shape of the psychometric function)
+        and determines a number of points on the 68% contour of this estimated density. For each of
+        these points bootstrap confidence intervals are estimated. The final bootstrap confidence
+        intervals are then defined as the widest of these confidence intervals.
+        After calling sensitivity_analysis() the getCI() method will give the expanded BCa confidence
+        intervals.
+
         :Parameters:
             *conf* :
-                desired confidence
+                desired confidence. Note that this is the "width" of the confidence interval, not the edges.
+                This is necessary because sensitivity_analysis is used to expand the widths of the confidence
+                intervals. It is ambiguous how percentiles of the bootstrap distribution would be modified
+                by sensitivity_analysis.
             *Nsamples* :
                 number of bootstrap samples per data point
             *Npoints* :
                 number of points on the contour at which to perform a new bootstrap run
+
+        :Output:
+            *expandedCI*:
+                an array of expanded confidence intervals
+            *expansionPoints*:
+                an array of coordinates of the points at which additional bootstrap samples were drawn
         """
         if self.__expanded:
             return N.array(self.__expandedCI),N.array(self._expansionPoints)

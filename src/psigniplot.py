@@ -607,7 +607,19 @@ def ConvergenceMCMC ( BayesInferenceObject, parameter=0, warn=True ):
     plotParameterDist ( BayesInferenceObject, parameter, ax )
 
 def plotSensitivity ( BootstrapInferenceObject, ax=None ):
-    """Visualize a sensitivity analysis to determine expanded bootstrap confidence intervals"""
+    """Visualize a sensitivity analysis to determine expanded bootstrap confidence intervals
+
+    Sensitivity analysis is used for BootstrapInference objects to expand the confidence intervals
+    in order to obtain more realistic coverage. This function calls the sensitivity_analysis() method
+    of the BootstrapInferenceObject with default parameters. If other parameters are requested, the
+    sensitivity_analysis() method should be called manually
+
+    :Parameters:
+        *BootstrapInferenceObject* :
+            Inference object to be analyzed
+        *ax* :
+            pylab axes that should be used for plotting
+    """
     if ax==None:
         ax = p.axes()
 

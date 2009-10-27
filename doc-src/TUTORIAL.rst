@@ -134,6 +134,35 @@ of the model are displayed.
 
 .. image:: BootstrapThresholds.png
 
+Sensitivity Analysis
+--------------------
+
+As noted by Wichmann & Hill (2001b), bootstrap based confidence intervals are in many cases too small.
+That is, a 95% confidence interval contains the true parameter in less than 95% of the cases. Wichmann & Hill
+(2001b) propose a sensitivity analysis to determine the misestimation of confidence intervals and correct
+for this error. The BootstrapInference object can perform a sensitivity analysis. Afterwards, the
+confidence intervals will be expanded to compensate for the underestimation of the confidence intervals.
+
+>>> B.getCI(1)
+array([ 1.64202158,  3.92605858])
+>>> plotSensitivity(B)
+>>> B.getCI(1)
+array([ 1.29922527,  4.17696559])
+
+As you see the second call to the getCI() method returns slightly wider confidence intervals. These
+confidence intervals have been extended to provide more realistic coverage. In addition, the plotSensitivity()
+function should open a plot window showing something like this:
+
+.. image:: BootstrapSensitivity.png
+
+This shows the joint probability distribution of the parameters a and b of the model. The dark shading
+indicates the density of this joint distribution as estimated from the bootstrap parameters. The red dot
+in the center of the cloud of points is the parameter estimate that was determined by maximum likelihood.
+The red diamonds that are connected by red lines are the points at which an additional bootstrap sample
+has been drawn. The expanded bootstrap confidence intervals correspond to the widest confidence intervals
+from all points that are marked in red (i.e. the maximum likelihood estimate and the points marked by
+the red diamonds).
+
 Reparameterizing the model
 --------------------------
 
