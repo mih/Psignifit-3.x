@@ -263,8 +263,10 @@ class BootstrapInference ( PsiInference ):
             ci = []
             for c in conf:
                 k = self.__expandedConf.index(round(c,6))
-                ci.append(self.__expandedCI[cut,conf,:])
-                # TODO: Check this code
+                w = max(1-2*c,1-(1-c)*2)
+                w = list(self.__expandedWidths).index(round(w,6))
+                ci.append(self.__expandedCI[cut,w,k])
+            return N.array(ci)
 
         bias = self.__th_bias[cut]
         acc  = self.__th_acc[cut]
@@ -335,6 +337,7 @@ class BootstrapInference ( PsiInference ):
                 self.__expandedCI[-1].append( self.getCI ( l, (p1,p2) )-self.thres[l] )
                 self.__expandedConf += [round(p1,6),round(p2,6)]
         self.__expandedCI = N.array(self.__expandedCI)
+        self.__expandedWidths = N.array(conf)
 
         # Expand
         self._expansionPoints = []
@@ -377,15 +380,18 @@ class BootstrapInference ( PsiInference ):
                         if verbose:
                             sys.stderr.write("l- ")
                     if thresholdCI[1]>self.__expandedCI[l,pp,1]:
-                        self.__expandedCI[l,pp,0] = thresholdCI[1]
+                        self.__expandedCI[l,pp,1] = thresholdCI[1]
                         if verbose:
                             sys.stderr.write("u+ ")
+
+
             if verbose:
                 sys.stderr.write("\n")
                 sys.stderr.flush()
 
-                # Now we add the threshold back to the ci
-                self.__expandedCI[l] += self.thres[l]
+        # Now we add the threshold back to the ci
+        for l,cut in enumerate(self.cuts):
+            self.__expandedCI[l,pp,:] += self.thres[l]
 
         # Store that we have expanded the CIs
         self.__expanded = True
