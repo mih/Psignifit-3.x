@@ -115,7 +115,7 @@ class BootstrapInference ( PsiInference ):
                     - 'weibull'    2*s*m*(log(x)-log(m))/log(2) + log(log(2))    This will give you a weibull if combined with
                       the gumbel_l sigmoid and a reverse weibull if combined with the gumbel_r sigmoid.
                     - 'poly'       (x/a)**b   Will give you a weibull if combined with an exp sigmoid
-           *priors* :
+            *priors* :
                 a list of prior names. Valid choices are
                     - 'Uniform(%g,%g)'   Uniform distribution on an interval
                     - 'Gauss(%g,%g)'     Gaussian distribution with mean and standard deviation
@@ -137,6 +137,9 @@ class BootstrapInference ( PsiInference ):
                 Any other sequence can be used alternatively. In addition, conf can be 'v1.0'
                 to give the default values of the classical psignifit version (i.e. .023,.159,.841,.977,
                 corresponding to -2,-1,1,2 standard deviations for a gaussian).
+            *parametric* :
+                a boolean indicating wether or not parametric bootstrap should be used
+
 
         :Example:
         Estimate a psychometric function from some example data and derive bootstrap confidence
@@ -167,6 +170,8 @@ class BootstrapInference ( PsiInference ):
                 "priors":  kwargs.setdefault("priors", None),
                 "nafc":    kwargs.setdefault("nafc",    2)
                 }
+
+        self.parametric = kwargs.setdefault ( "parametric", True )
 
         if self.model["core"][:2] == "mw":
             self.parnames = ["m","w"]
@@ -228,7 +233,12 @@ class BootstrapInference ( PsiInference ):
         """
         self.__nsamples = Nsamples
         self.__bdata,self.__bestimate,self.__bdeviance,self.__bthres,self.__th_bias,self.__th_acc,\
-                self.__bRkd,self.__bRpd,self.__outl,self.__infl = _psipy.bootstrap(self.data,self.estimate,Nsamples,cuts=self.cuts,**self.model)
+                self.__bRkd,self.__bRpd,self.__outl,self.__infl = _psipy.bootstrap(self.data,self.estimate,Nsamples,
+                        cuts=self.cuts,**self.model)
+        if not self.parametric:
+            self.__bdata,self.__bestimate,dev,self.__bthres,self.__th_bias,self.__th_acc,\
+                    Rkd,Rpd,outl,infl = _psipy.bootstrap(self.data,self.estimate,Nsamples,
+                            cuts=self.cuts,parametric=False,**self.model)
 
         # Cast sampled data to numpy arrays
         self.__bdata = N.array(self.__bdata)

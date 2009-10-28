@@ -11,13 +11,14 @@
  * A parametric bootstrap is performed by sampling from a binomial distribution with success probability given by the psychometric
  * function. if BCa is true, bias correction and acceleration constant are calculated for the cuts given in cuts.
  */
-BootstrapList parametricbootstrap (
+BootstrapList bootstrap (
 		int B,                        ///< number of bootstrap samples
 		const PsiData * data,         ///< data that are to form the basis of the whole procedure
 		const PsiPsychometric* model, ///< model to be fitted
 		std::vector<double> cuts,     ///< performance levels at which the threshold should be calculated
 		std::vector<double>* param=NULL,   ///< parameter vector on which parametric bootstrap should be based
-		bool BCa=true                 ///< calculate bias correction and acceleration?
+		bool BCa=true,                ///< calculate bias correction and acceleration?
+		bool parametric=true          ///< Perform parametric bootstrap?
 		);
 
 /** \brief perform jackkifing to detect influential observations and outliers

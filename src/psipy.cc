@@ -17,6 +17,7 @@ static PyObject * psibootstrap ( PyObject * self, PyObject * args, PyObject * kw
 	char *corename    = "ab";          // name of the parameterization
 	PyObject *pypriors (Py_None);      // prior specs
 	PyObject *pycuts (Py_None);        // specify cuts
+	int parametric (1);            // perform parametric bootstrap?
 
 	// local variables
 	int Nblocks,Nparams;
@@ -38,10 +39,11 @@ static PyObject * psibootstrap ( PyObject * self, PyObject * args, PyObject * kw
 		"core",
 		"priors",
 		"cuts",
+		"parametric",
 		NULL };
-	if ( !PyArg_ParseTupleAndKeywords ( args, kwargs, "O|OiissOO",
+	if ( !PyArg_ParseTupleAndKeywords ( args, kwargs, "O|OiissOOi",
 				kwlist,
-				&pydata,&pystart,&Nsamples,&Nafc,&sigmoidname,&corename,&pypriors,&pycuts ) )
+				&pydata,&pystart,&Nsamples,&Nafc,&sigmoidname,&corename,&pypriors,&pycuts, &parametric ) )
 		return NULL;
 
 	/************************************************************
@@ -80,7 +82,7 @@ static PyObject * psibootstrap ( PyObject * self, PyObject * args, PyObject * kw
 		start = NULL;
 
 	// Perform the real work
-	BootstrapList boots = parametricbootstrap ( Nsamples, data, pmf, *cuts, start );
+	BootstrapList boots = bootstrap ( Nsamples, data, pmf, *cuts, start, true, bool(parametric) );
 	JackKnifeList jack  = jackknifedata       ( data, pmf );
 
 	/************************************************************

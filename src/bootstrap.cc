@@ -1,9 +1,9 @@
 #include "bootstrap.h"
 #include "rng.h"
 
-#ifdef DEBUG_BOOTSTRAP
+// #ifdef DEBUG_BOOTSTRAP
 #include <iostream>
-#endif
+// #endif
 
 void newsample ( const PsiData * data, const std::vector<double>& p, std::vector<int> * sample ) {
 	/* Draw a new sample from the psychometric function */
@@ -49,7 +49,7 @@ void determineBCa ( const std::vector<double>& l_LF, const std::vector<double>& 
 	*acc  = E_l3 / (6*var_l*var_l*var_l);
 }
 
-BootstrapList parametricbootstrap ( int B, const PsiData * data, const PsiPsychometric* model, std::vector<double> cuts, std::vector<double>* param, bool BCa )
+BootstrapList bootstrap ( int B, const PsiData * data, const PsiPsychometric* model, std::vector<double> cuts, std::vector<double>* param, bool BCa, bool parametric )
 {
 #ifdef DEBUG_BOOTSTRAP
 	std::cerr << "Starting bootstrap\n Cuts size=" << cuts.size() << " "; std::cerr.flush();
@@ -70,7 +70,13 @@ BootstrapList parametricbootstrap ( int B, const PsiData * data, const PsiPsycho
 	} else
 		initialfit = *param;
 	std::vector<double> p          ( data->getNblocks() );       // predicted p-correct for parametric bootstrap
-	for ( k=0; k<data->getNblocks(); k++ ) { p[k] = model->evaluate ( data->getIntensity(k), initialfit ); }
+	if (parametric) {
+		std::cerr << "Parametric bootstrap\n";
+		for ( k=0; k<data->getNblocks(); k++ ) { p[k] = model->evaluate ( data->getIntensity(k), initialfit ); }
+	} else {
+		std::cerr << "Nonparametric bootstrap\n";
+		for ( k=0; k<data->getNblocks(); k++ ) { p[k] = data->getPcorrect( k ); std::cerr << p[k] << "\n"; }
+	}
 
 	std::vector<double> localfit   ( model->getNparams() );
 	std::vector<int>    sample     ( data->getNblocks() );

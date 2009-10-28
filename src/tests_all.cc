@@ -224,7 +224,7 @@ int BootstrapTest ( TestSuite * T ) {
 	pmf->setPrior( 2, new UniformPrior(0.,0.1));
 
 	std::vector<double> cuts (1, 0.5);
-	BootstrapList boots = parametricbootstrap ( 9999, data, pmf, cuts );
+	BootstrapList boots = bootstrap ( 9999, data, pmf, cuts );
 
 	// Check against psignifit results
 	// These values are subject to statistical variation. "equality" is defined relatively coarse

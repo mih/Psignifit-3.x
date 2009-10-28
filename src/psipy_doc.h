@@ -34,6 +34,7 @@ static char psibootstrap_doc [] =
 "  cuts      a single number or a sequence of 'cuts' indicating the performances that should be\n"
 "            considered 'threshold' performances. This means that in a 2AFC task, cuts==0.5 the\n"
 "            'threshold' is somewhere around 75%% correct performance, depending on the lapse rate\n"
+"  parametric boolean to indicate whether or not the bootstrap procedure should be parametric or not.\n"
 "\n"
 ":Output:\n"
 "  samples,estimates,deviance,threshold,bias,acceleration,Rkd,Rpd,outliers,influential\n"
