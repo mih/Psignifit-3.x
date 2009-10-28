@@ -1,6 +1,4 @@
-- What happens if we combine logCore and PsiGumbelL sigmoid?
 - beta binomial models
-- nonparametric bootstrap
 - implement fullmodel, nullmodel
 - Goodness of fit (Correlations?)                                          [OK] but correlations are wrong
 - Unit test with gamma as a free parameter                                 [OK] but only very rough correspondence to psignifit -- should be stricter

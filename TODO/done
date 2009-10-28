@@ -1,3 +1,4 @@
++ nonparametric bootstrap                                                  [OK]
 + Sensitivity analysis                                                     [OK]
 + Add ThresholdPlot to Tutorial                                            [OK]
 + resampling of chains in BayesInference objects                           [OK]
