@@ -1,9 +1,9 @@
 #include "bootstrap.h"
 #include "rng.h"
 
-// #ifdef DEBUG_BOOTSTRAP
+#ifdef DEBUG_BOOTSTRAP
 #include <iostream>
-// #endif
+#endif
 
 void newsample ( const PsiData * data, const std::vector<double>& p, std::vector<int> * sample ) {
 	/* Draw a new sample from the psychometric function */
@@ -71,11 +71,9 @@ BootstrapList bootstrap ( int B, const PsiData * data, const PsiPsychometric* mo
 		initialfit = *param;
 	std::vector<double> p          ( data->getNblocks() );       // predicted p-correct for parametric bootstrap
 	if (parametric) {
-		std::cerr << "Parametric bootstrap\n";
 		for ( k=0; k<data->getNblocks(); k++ ) { p[k] = model->evaluate ( data->getIntensity(k), initialfit ); }
 	} else {
-		std::cerr << "Nonparametric bootstrap\n";
-		for ( k=0; k<data->getNblocks(); k++ ) { p[k] = data->getPcorrect( k ); std::cerr << p[k] << "\n"; }
+		for ( k=0; k<data->getNblocks(); k++ ) { p[k] = data->getPcorrect( k ); }
 	}
 
 	std::vector<double> localfit   ( model->getNparams() );
