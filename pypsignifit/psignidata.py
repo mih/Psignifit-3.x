@@ -418,6 +418,7 @@ class BootstrapInference ( PsiInference ):
     mcthres = property ( fget=lambda self: self.__bthres, doc="Thresholds of the bootstrap replications" )
     mcdensity = property ( fget=lambda self: stats.kde.gaussian_kde ( self.mcestimates[:,:2].T ),
             doc="A gaussian kernel density estimate of the joint density of the first two parameters of the model" )
+    inference = property ( fget=lambda self: "CML-MC", doc="Type of inference performed by the object" )
     @Property
     def nsamples ():
         """number of bootstrap samples (setting this attribute results in resampling!!!)"""
@@ -830,6 +831,7 @@ class BayesInference ( PsiInference ):
 
     ############################################
     # Properties
+    inference = property ( fget=lambda self: "MCMC", doc="Type of inference performed by the object" )
     mcthres = property ( fget=lambda self: self.__pthres, doc="posterior samples of the threshold" )
     nchains = property ( fget=lambda self: len(self.__mcmc_chains), doc="Number of chains that have been sampled" )
     @Property
