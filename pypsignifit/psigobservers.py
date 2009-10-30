@@ -147,6 +147,12 @@ class Observer ( object ):
             else:
                 return [self.a,self.b,self.lapse]
 
+    @Property
+    def thres ():
+        "determine 50%% of the model"
+        def fget ( self ):
+            return float(_psipy.diagnostics ( [], self.params, cuts=0.5, nafc=self.model["nafc"], sigmoid=self.model["sigmoid"], core=self.model["core"] )[3])
+
 class LinearSystemLearner ( Observer ):
     def __init__( self, *params, **model ):
         """A nonstationary observer that learns like a linear system in one or more parameters
