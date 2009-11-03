@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 
+import pypsignifit
 import pylab as p
 
 def check_gof ( InferenceObject ):
     """Check whether the inference object fails in the goodness of fit test"""
-    if InferenceObject.inference == "CML-MC":
+    # if InferenceObject.inference == "CML-MC":
+    if isinstance ( InferenceObject, pypsignifit.BootstrapInference ):
         # Model checking based on deviance
         return InferenceObject.deviance, p.prctile ( InferenceObject.mcdeviance, 97.5 )
     elif InferenceObject.inference == "MCMC":
@@ -78,8 +80,8 @@ def resultsline ( InferenceObject=None ):
     elif InferenceObject.inference == "CML-MC":
         out = ""
         out += "%g\t%g"                % check_gof ( InferenceObject )
-        out += "\t%g\t%g\t%g\t%d"      % check_descriptive ( InferenceObject )
         out += "\t%g\t%g\t%g\t%d"      % check_trend ( InferenceObject )
+        out += "\t%g\t%g\t%g\t%d"      % check_descriptive ( InferenceObject )
         out += "\t%d\t%d"              % ( check_influential ( InferenceObject ), check_outliers ( InferenceObject ) )
         out += "\t%g\t%g\t%g\t%g\t%g"  % check_ci ( InferenceObject )
         out += "\n"
