@@ -84,4 +84,27 @@ class HybridMCMC : public PsiSampler
 		PsiMClist sample ( unsigned int N );                                              ///< draw N samples from the posterior
 };
 
+/**
+ * Model evidence (or marginal likelihood) is given by the following integral
+ *
+ * \int P(D|theta) * P(theta) d theta.
+ *
+ * Model evidence can be used to compare models. If E_1 is the evidence for model 1
+ * and E_2 is the evidence for model 2. The Bayes Factor for comparison of these two
+ * models is
+ *
+ * BF = E_1/E_2.
+ *
+ * This can be interpreted as "How much more likeli is model 1 than model 2 given the
+ * data.
+ *
+ * To estimate model evidence, we note that model evidence can be interpreted as the
+ * expectation of likelihood under the prior distribution. Thus, this function draws
+ * samples from the prior distribution and approximates the above integral as follows:
+ *
+ * \int P(D|theta) * P(theta) d theta ~~ 1/n \sum_{i=1}^n P(D|theta_i).
+ *
+ */
+double ModelEvidence ( const PsiPsychometric* pmf, const PsiData* data );
+
 #endif

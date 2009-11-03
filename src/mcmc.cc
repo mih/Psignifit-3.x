@@ -247,3 +247,37 @@ PsiMClist HybridMCMC::sample ( unsigned int N ) {
 
 	return out;
 }
+
+/**********************************************************************
+ *
+ * Evidence
+ *
+ */
+
+double ModelEvidence ( const PsiPsychometric* pmf, const PsiData* data )
+{
+	std::vector<double> prm ( pmf->getNparams() );
+	double E(0),Eold;
+	int i,k,n(2000);
+
+	for ( i=0; i<n; i++ ) {
+		for ( k=0; k<pmf->getNparams(); k++ )
+			prm[k] = pmf->randPrior ( k );
+
+		E += exp ( - pmf->negllikeli ( prm, data ) );
+	}
+
+	Eold = 2*E;
+
+	while ( fabs(log(E/Eold)) > 1e-10 ) {
+		for ( k=0; k<pmf->getNparams(); k++ )
+			prm[k] = pmf->randPrior(k);
+		Eold = E;
+		E += exp ( - pmf->negllikeli ( prm, data ) );
+		n++;
+	}
+
+	E /= n;
+
+	return E;
+}
