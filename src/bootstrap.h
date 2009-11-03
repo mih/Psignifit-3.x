@@ -5,6 +5,7 @@
 #include <cmath>
 #include "psychometric.h"
 #include "mclist.h"
+#include "optimizer.h"
 
 /** \brief perform a parametric bootstrap
  *

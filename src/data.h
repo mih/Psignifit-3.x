@@ -37,7 +37,7 @@ class PsiData
 			std::vector<double> p,     ///< Fraction of correct trials at the respective stimulus intensities
 			int nAFC                   ///< Number of response alternatives (nAFC=1 ~> yes/no task)
 			);                                   ///< constructor
-
+		~PsiData ( void ) {}
 		void setNcorrect (
 			const std::vector<int>& newNcorrect  ///< new number of correct responses
 			);  ///< set the number of correct responses (is probably only useful for bootstrap)

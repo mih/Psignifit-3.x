@@ -4,8 +4,8 @@
 #include <cmath>
 #include <vector>
 #include <algorithm>
-#include "errors.h"
 #include <iostream>
+#include "errors.h"
 #include "special.h"
 
 /** \brief basic monte carlo samples list
