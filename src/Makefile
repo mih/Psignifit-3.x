@@ -1,10 +1,10 @@
 CC=g++
 CFLAGS=-pg -ggdb
-LFLAGS=-lm -pg
+LFLAGS=-lm -pg -lefence
 
 BUILD=build
 HEADERS=core.h data.h errors.h optimizer.h prior.h psychometric.h sigmoid.h bootstrap.h mclist.h special.h mcmc.h rng.h linalg.h
-OBJECTS=$(BUILD)/core.o $(BUILD)/data.o $(BUILD)/optimizer.o $(BUILD)/psychometric.o $(BUILD)/sigmoid.o $(BUILD)/bootstrap.o $(BUILD)/mclist.o $(BUILD)/special.o $(BUILD)/mcmc.o $(BUILD)/rng.o $(BUILD)/linalg.o
+OBJECTS=$(BUILD)/core.o $(BUILD)/data.o $(BUILD)/optimizer.o $(BUILD)/psychometric.o $(BUILD)/sigmoid.o $(BUILD)/bootstrap.o $(BUILD)/mclist.o $(BUILD)/special.o $(BUILD)/mcmc.o $(BUILD)/rng.o $(BUILD)/linalg.o $(BUILD)/prior.o
 TESTS=tests_all
 
 tests: $(BUILD) tests_all.log
@@ -38,6 +38,8 @@ $(BUILD)/rng.o: rng.cc $(HEADERS)
 	$(CC) -c $(CFLAGS) rng.cc -o $(BUILD)/rng.o
 $(BUILD)/linalg.o: linalg.cc $(HEADERS)
 	$(CC) -c $(CFLAGS) linalg.cc -o $(BUILD)/linalg.o
+$(BUILD)/prior.o: prior.cc $(HEADERS)
+	$(CC) -c $(CFLAGS) prior.cc -o $(BUILD)/prior.o
 
 tests_all: tests_all.cc $(HEADERS) $(OBJECTS) testing.h
 	$(CC) -c $(CFLAGS) tests_all.cc -o $(BUILD)/tests_all.o
