@@ -10,12 +10,13 @@ PsiPsychometric::PsiPsychometric (
 	int nAFC,
 	PsiCore * core,
 	PsiSigmoid * sigmoid
-	) : Nalternatives(nAFC), guessingrate(1./nAFC), priors( (nAFC==1 ? 4 : 3 ) )
+	) : Nalternatives(nAFC), guessingrate(1./nAFC), priors( getNparams() )
 {
 	int k;
 	Core = core;
 	Sigmoid = sigmoid;
-	for (k=0; k<priors.size(); k++)
+	std::cerr << "In constructor: " << getNparams() << "\n"; std::cerr.flush();
+	for (k=0; k<getNparams(); k++)
 		priors[k] = new PsiPrior;
 }
 
@@ -225,7 +226,8 @@ double PsiPsychometric::neglpost ( const std::vector<double>& prm, const PsiData
 	double l;
 	l = negllikeli( prm, data);
 
-	for (i=0; i<prm.size(); i++) {
+	for (i=0; i<getNparams(); i++) {
+		priors[i]->pdf ( 0.5 );
 		l -= log( priors[i]->pdf(prm[i]) );
 	}
 
@@ -427,4 +429,95 @@ double PsiPsychometric::dlposteri ( std::vector<double> prm, const PsiData* data
 		return dllikeli ( prm, data, i ) + priors[i]->dpdf(prm[i]);
 	else
 		return 0;
+}
+
+/******************************** Outlier model *****************************************/
+
+double OutlierModel::getp ( const std::vector<double>& prm ) const
+{
+	if ( getNalternatives()<2 )
+		return prm[4];
+	else
+		return prm[3];
+}
+
+double OutlierModel::negllikeli ( const std::vector<double>& prm, const PsiData* data ) const
+{
+	if ( getNalternatives() != data->getNalternatives() )
+		throw BadArgumentError();
+
+	std::vector<double> x ( data->getNblocks()-1 );
+	std::vector<int>    k ( data->getNblocks()-1 );
+	std::vector<int>    n ( data->getNblocks()-1 );
+	int i,j(0);
+	double ll;
+	double p;
+
+
+	for ( i=0; i<data->getNblocks(); i++ ) {
+		if (i!=jout) {
+			x[j] = data->getIntensity(i);
+			k[j] = data->getNcorrect(i);
+			n[j] = data->getNtrials(i);
+			j++;
+		}
+	}
+
+	PsiData * localdata = new PsiData ( x, n, k, data->getNalternatives() );
+	// for (i=0; i<localdata->getNblocks(); i++) std::cerr << localdata->getIntensity(i) << " " << localdata->getNcorrect(i) << " " << localdata->getNtrials(i) << "\n";
+
+	p = getp( prm );
+
+	ll = PsiPsychometric::negllikeli ( prm, localdata );
+	ll -= data->getNoverK(jout);
+	if (p>0) ll -= data->getNcorrect(jout) * log(p);
+	if (p<1) ll -= ( data->getNtrials(jout)-data->getNcorrect (jout) ) * log ( 1-p );
+
+	delete localdata;
+
+	return ll;
+}
+
+double OutlierModel::deviance ( const std::vector<double>& prm, const PsiData* data ) const
+{
+	int i,n;
+	double D(0);
+	double x,y,p;
+
+	for ( i=0; i<data->getNblocks(); i++ )
+	{
+		n = data->getNtrials(i);
+		y = data->getPcorrect(i);
+		x = data->getIntensity(i);
+		if (i==jout)
+			p = getp( prm );
+		else
+			p = evaluate( x, prm );
+		if (y>0)
+			D += n*y*log(y/p);
+		if (y<1)
+			D += n*(1-y)*log((1-y)/(1-p));
+	}
+
+	if (D!=D)
+		std::cerr << p << "\n";
+
+	D *= 2;
+	return D;
+}
+
+double OutlierModel::neglpost ( const std::vector<double>& prm, const PsiData* data ) const
+{
+	int i;
+	double l;
+	l = negllikeli( prm, data);
+
+	for (i=0; i<getNparams()-1; i++) {
+		l -= log( evalPrior(i, prm[i]) );
+	}
+
+	if ( getp(prm)<0 || getp(prm)> 1 )
+		l += 1e10;
+
+	return l;
 }

@@ -72,8 +72,10 @@ class PsiPsychometric {
 		const PsiCore* getCore ( void ) { return Core; }                ///< get the core of the psychometric function
 		const PsiSigmoid* getSigmoid ( void ) { return Sigmoid; }       ///< get the sigmoid of the psychometric function
 		void setPrior ( int index, PsiPrior* prior );                   ///< set a Prior for the parameter indicated by index
+		double evalPrior ( unsigned int index, double x ) const {return priors[index]->pdf(x);}              ///< evaluate the respective prior at value x
+		virtual double randPrior ( unsigned int index ) const { return priors[index]->rand(); }                            ///< sample form a prior
 		int getNalternatives ( void ) const { return Nalternatives; }         ///< get the number of alternatives (1 means yes/no)
-		int getNparams ( void ) const { return (Nalternatives==1 ? 4 : 3 ); } ///< get the number of free parameters of the psychometric function
+		virtual int getNparams ( void ) const { return (Nalternatives==1 ? 4 : 3 ); } ///< get the number of free parameters of the psychometric function
 		std::vector<double> getStart ( const PsiData* data ) const ;                ///< determine a starting value using logistic regression on a dataset
 		double getThres (
 			const std::vector<double>& prm,                                          ///< parameters of the psychometric function model
@@ -101,6 +103,47 @@ class PsiPsychometric {
 			) const;                                                                 ///< derivative of the negative log posterior with respect to parameter i
 };
 
-#include "optimizer.h"
+/** \brief Psychometric function with one separate data point
+ *
+ * Wichmann & Hill (2001) suggest to detect whether or not a data point x0 is an outlier by
+ * fitting a new model to all data points except for the data point of interest and to use
+ * a separate parameter to fit x0. If p is the number of correct trials at position x0, that is
+ *
+ * Psi(x0) = p
+ * Psi(x)  = guessingrate + (1-guessingrate-lapserate) * Sigmoid ( x | theta ), if x != x0
+ *
+ * This model is then compared to the standard psychometric function model.
+ *
+ * Due to the discontinuity at x0, derivatives in this model are treated with respect to the
+ * fitted function.
+ */
+
+class OutlierModel : public PsiPsychometric {
+	private:
+		unsigned int jout;
+		double getp ( const std::vector<double>& prm ) const;
+	public:
+		OutlierModel (
+			int nAFC,                                                            ///< number of alternatives in the task (1 indicating yes/no)
+			PsiCore * core,                                                      ///< internal part of the nonlinear function
+			PsiSigmoid * sigmoid,                                                ///< "external" saturating part of the nonlinear function
+			unsigned int exclude                                                 ///< index of the data block to be excluded
+			) : PsiPsychometric ( nAFC, core, sigmoid ), jout(exclude) {}; ///< set up a psychometric function model that treats one block separately
+		void setexclude ( unsigned int exclude ) { jout = exclude; }   ///< change the excluded block
+		double negllikeli (
+			const std::vector<double>& prm,                                      ///< parameters of the psychometric function model
+			const PsiData * data                                                 ///< data for which the likelihood should be evaluated
+			) const;                         ///< negative log likelihood
+		double neglpost (
+			const std::vector<double>& prm,                                      ///< parameters of the psychometric function model
+			const PsiData * data                                                 ///< data for which the likelihood should be evaluated
+			) const;                         ///< negative log likelihood
+		double deviance (
+			const std::vector<double>& prm,                                      ///< parameters of the psychometric function model
+			const PsiData* data                                                  ///< data for which the deviance should be evaluated
+			) const;                        ///< deviance
+		int getNparams ( void ) const { return PsiPsychometric::getNparams()+1; }
+		double randPrior ( unsigned int index ) const { return ( index<PsiPsychometric::getNparams() ? PsiPsychometric::randPrior(index) : drand48() ); }                            ///< sample form a prior
+};
 
 #endif
