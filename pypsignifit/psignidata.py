@@ -236,9 +236,7 @@ class BootstrapInference ( PsiInference ):
                 self.__bRkd,self.__bRpd,self.__outl,self.__infl = _psipy.bootstrap(self.data,self.estimate,Nsamples,
                         cuts=self.cuts,**self.model)
         if not self.parametric:
-            self.__bdata,self.__bestimate,dev,self.__bthres,self.__th_bias,self.__th_acc,\
-                    Rkd,Rpd,outl,infl = _psipy.bootstrap(self.data,self.estimate,Nsamples,
-                            cuts=self.cuts,parametric=False,**self.model)
+            self.sample_nonparametric ( Nsamples )
 
         # Cast sampled data to numpy arrays
         self.__bdata = N.array(self.__bdata)
@@ -251,6 +249,17 @@ class BootstrapInference ( PsiInference ):
         self.__bRpd      = N.array(self.__bRpd)
         self.__outl      = N.array(self.__outl,dtype=bool)
         self.__infl      = N.array(self.__infl,dtype=bool)
+
+    def sample_nonparametric ( self, Nsamples=2000 ):
+        """Draw nonparametric bootstrap samples
+
+        :Parameters:
+            *Nsamples* :
+                number of bootstrapsamples to be drawn
+        """
+        self.__bdata,self.__bestimate,dev,self.__bthres,self.__th_bias,self.__th_acc,\
+                Rkd,Rpd,outl,infl = _psipy.bootstrap(self.data,self.estimate,Nsamples,
+                        cuts=self.cuts,parametric=False,**self.model)
 
     def getCI ( self, cut, conf=None ):
         """Determine the confidence interval of a cut
