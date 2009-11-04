@@ -140,9 +140,9 @@ class Observer ( object ):
 
     def __str__ ( self ):
         if self.model["nafc"] < 2:
-            return "< Observer a=%g,b=%g,lapse=%g,guess=%g,core=%s >" % (self.a,self.b,self.lapse,self.guess,self.model["core"],self.model["sigmoid"])
+            return "< Observer a=%g,b=%g,lapse=%g,guess=%g,core=%s,sigmoid=%s >" % (self.a,self.b,self.lapse,self.guess,self.model["core"],self.model["sigmoid"])
         else:
-            return "< Observer a=%g,b=%g,lapse=%g >" % (self.a,self.b,self.lapse,self.guess,self.model["core"],self.model["sigmoid"])
+            return "< Observer a=%g,b=%g,lapse=%g,core=%s,sigmoid=%s >" % (self.a,self.b,self.lapse,self.model["core"],self.model["sigmoid"])
 
     @Property
     def params ():
@@ -200,6 +200,10 @@ class LinearSystemLearner ( Observer ):
         """
         # TODO: An other example for sharper discriminations (b) and for fatigue (lapse)
         Observer.__init__ ( self, *(params[:-1]), **model )
+        self.__parstring = "a=%g,b=%g,lapse=%g" % (self.a,self.b,self.lapse)
+        if self.model["nafc"] < 2:
+            self.__parstring += ",guess=%g" % (self.guess,)
+        self.__parstring += ",core=%s,sigmoid=%s" % (self.model["core"],self.model["sigmoid"])
         self.learn = params[-1]
 
     def DoATrial ( self, stimulus_intensity=1 ):
@@ -246,6 +250,10 @@ class LinearSystemLearner ( Observer ):
         for k in xrange(ntrials):
             resp += self.DoATrial ( stimulus_intensity )
         return resp
+
+    def __str__ ( self ):
+        return "< LinearSystemLearner %s,learning: %s >" % (self.__parstring,self.learn)
+
 
 class CriterionSettingObserver ( Observer ):
     def __init__ ( self, *params, **model ):
@@ -428,6 +436,9 @@ class CriterionSettingObserver ( Observer ):
                 Ec += newtrace
         return Ec
 
+    def __str__ ( self ):
+        return "< CriterionSettingObserver E0=%g,Ds=%g,ds=%g,Dr=%g,dr=%g >" % (self.E0,self.Ds,self.ds,self.Dr,self.dr)
+
 class BetaBinomialObserver ( Observer ):
     def __init__ ( self, *params, **model ):
         """An overdispersed observer that otherwise follows binomial assumptions
@@ -481,6 +492,13 @@ class BetaBinomialObserver ( Observer ):
         self.data.append ( [stimulus_intensity, resp, ntrials] )
 
         return resp
+
+    def __str__ ( self ):
+        if self.model["nafc"] < 2:
+            return "< BetaBinomialObserver a=%g,b=%g,lapse=%g,guess=%g,M=%g >" % (self.a,self.b,self.lapse,self.guess,self.dispersion)
+        else:
+            return "< BetaBinomialObserver a=%g,b=%g,lapse=%g,M=%g >" % (self.a,self.b,self.lapse,self.dispersion)
+
 
 ############################################################
 # Utilities
