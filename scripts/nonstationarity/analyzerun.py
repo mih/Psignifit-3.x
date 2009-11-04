@@ -1,7 +1,11 @@
 #!/usr/bin/env python
 
 import pypsignifit
+import pypsignifit.psigobservers as observers
 import pylab as p
+import sys
+
+__doc__ = """This module provides tools to check the properties of inference objects"""
 
 def check_gof ( InferenceObject ):
     """Check whether the inference object fails in the goodness of fit test"""
@@ -73,6 +77,13 @@ def check_ci ( InferenceObject ):
         ce0,ce1 = InferenceObject.getCI(1)
         return InferenceObject.thres[1],ci0,ci1,ce0,ce1
 
+def check_nonpar_ci ( InferenceObject ):
+    """only show the ci"""
+    if InferenceObject.inference == "CML-MC":
+        InferenceObject.sample_nonparametric()
+        ci0,ci1 = InferenceObject.getCI(1)
+        return ci0,ci1
+
 def resultsline ( InferenceObject=None ):
     """Write a line with the results"""
     if InferenceObject is None:
@@ -84,16 +95,47 @@ def resultsline ( InferenceObject=None ):
         out += "\t%g\t%g\t%g\t%d"      % check_descriptive ( InferenceObject )
         out += "\t%d\t%d"              % ( check_influential ( InferenceObject ), check_outliers ( InferenceObject ) )
         out += "\t%g\t%g\t%g\t%g\t%g"  % check_ci ( InferenceObject )
-        out += "\n"
         return out
 
-if __name__ == "__main__":
-    import pypsignifit
-    import pypsignifit.psigobservers as observers
-    d = observers.Observer ( 4,2,.02 ).DoAnExperiment ( [7,2,3,1,5,7,8] )
-    B = pypsignifit.BootstrapInference ( d, priors=("","","Uniform(0,.1)"), sample=True )
-    print resultsline()
-    print resultsline(B)
+def performbootstrap ( *args, **kwargs ):
+    """perform the full analysis pipeline"""
+    observer = kwargs.setdefault ( "observer", observers.Observer ( 4, 1, .02 ) )
+    stimuli  = kwargs.setdefault ( "stimuli",  [10.,8.,6.,4.,2.,1.] )
+    ntrials  = kwargs.setdefault ( "ntrials",  50 )
+    if isinstance ( ntrials, int ):
+        ntrials = [ntrials]*len(stimuli)
+    core     = kwargs.setdefault ( "core",     "ab" )
+    sigmoid  = kwargs.setdefault ( "sigmoid",  "logistic" )
+    constraints = kwargs.setdefault ( "constraints", ("","","Uniform(0,.1)") )
+    fname = args[0]
 
-    pypsignifit.GoodnessOfFit(B)
-    p.show()
+    f = open ( fname, "w" )
+
+    sys.stderr.write ( "\n" )
+    for k in xrange ( 1000 ):
+        sys.stderr.write ( "\rRun: %d" % (k,) )
+        sys.stderr.flush()
+        d = observer.DoAnExperiment ( stimuli, ntrials )
+
+        Bp = pypsignifit.BootstrapInference ( d, priors=constraints,
+                sigmoid = sigmoid,
+                core = core,
+                nafc = 2,
+                parametric = True,
+                sample=True )
+
+        f.write ( resultsline(Bp) + "\t%g\t%g\n" % check_nonpar_ci ( Bp ) )
+    sys.stderr.write ( " Done\n" )
+    f.close()
+
+if __name__ == "__main__":
+    performbootstrap ( "test.dat" )
+    # import pypsignifit
+    # import pypsignifit.psigobservers as observers
+    # d = observers.Observer ( 4,2,.02 ).DoAnExperiment ( [7,2,3,1,5,7,8] )
+    # B = pypsignifit.BootstrapInference ( d, priors=("","","Uniform(0,.1)"), sample=True )
+    # print resultsline()
+    # print resultsline(B)
+
+    # pypsignifit.GoodnessOfFit(B)
+    # p.show()
