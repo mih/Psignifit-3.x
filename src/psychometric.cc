@@ -15,7 +15,6 @@ PsiPsychometric::PsiPsychometric (
 	int k;
 	Core = core;
 	Sigmoid = sigmoid;
-	std::cerr << "In constructor: " << getNparams() << "\n"; std::cerr.flush();
 	for (k=0; k<getNparams(); k++)
 		priors[k] = new PsiPrior;
 }
