@@ -1,3 +1,4 @@
+- warn if constraint/prior list is too short
 - migrate to boost-python?
 - Check when we need #include <numpy/arrayobject.h> and when #include <Numeric/arrayobject.h>
 - Make sure that sscanf does not use locale for Numbers!
