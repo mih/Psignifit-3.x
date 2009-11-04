@@ -138,6 +138,12 @@ class Observer ( object ):
         """Seed the underlying random number generator to a defined value"""
         N.random.seed ( seed )
 
+    def __str__ ( self ):
+        if self.model["nafc"] < 2:
+            return "< Observer a=%g,b=%g,lapse=%g,guess=%g,core=%s >" % (self.a,self.b,self.lapse,self.guess,self.model["core"],self.model["sigmoid"])
+        else:
+            return "< Observer a=%g,b=%g,lapse=%g >" % (self.a,self.b,self.lapse,self.guess,self.model["core"],self.model["sigmoid"])
+
     @Property
     def params ():
         "parameters of the model"
