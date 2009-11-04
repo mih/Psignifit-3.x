@@ -34,5 +34,6 @@ python-build: $(PYTHONFILES) $(CFILES) $(HFILES) setup.py
 
 python-doc: $(DOCFILES) $(PYTHONFILES)
 	echo "building sphinx documentation"
-	PYTHONPATH=src/ sphinx-build doc-src $(DOCOUT)
+	# PYTHONPATH=pypsignifit/ sphinx-build doc-src $(DOCOUT)
+	sphinx-build doc-src $(DOCOUT)
 

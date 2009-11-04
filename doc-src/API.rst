@@ -4,7 +4,7 @@ psignifit API
 
 Data Types
 ==========
-.. automodule:: psignidata
+.. automodule:: pypsignifit.psignidata
 
 .. autoclass:: BootstrapInference
    :members:
@@ -20,7 +20,7 @@ Default functions
 
 The following functions will be imported by default:
 
-.. automodule:: psigniplot
+.. automodule:: pypsignifit.psigniplot
    :members:
 
 Subfunctions
@@ -28,21 +28,21 @@ Subfunctions
 
 To get access to all plot functions in isolation, they can also be imported separately. Here is the documentation
 
-.. autofunction:: psigniplot.drawaxes
-.. autofunction:: psigniplot.plotRd
-.. autofunction:: psigniplot.plotHistogram
-.. autofunction:: psigniplot.plotPMF
-.. autofunction:: psigniplot.plotThres
-.. autofunction:: psigniplot.plotGeweke
-.. autofunction:: psigniplot.plotChains
-.. autofunction:: psigniplot.plotParameterDist
+.. autofunction:: pypsignifit.psigniplot.drawaxes
+.. autofunction:: pypsignifit.psigniplot.plotRd
+.. autofunction:: pypsignifit.psigniplot.plotHistogram
+.. autofunction:: pypsignifit.psigniplot.plotPMF
+.. autofunction:: pypsignifit.psigniplot.plotThres
+.. autofunction:: pypsignifit.psigniplot.plotGeweke
+.. autofunction:: pypsignifit.psigniplot.plotChains
+.. autofunction:: pypsignifit.psigniplot.plotParameterDist
 
 Simulated Observers
 ===================
 
 psignifit allows to simulate a number of observers to access stability of psychometric functions.
 
-.. automodule:: psigobservers
+.. automodule:: pypsignifit.psigobservers
 
 .. autoclass:: Observer
    :members:
@@ -59,5 +59,5 @@ psignifit allows to simulate a number of observers to access stability of psycho
 Errors
 ======
 
-.. automodule:: psignierrors
+.. automodule:: pypsignifit.psignierrors
     :members:
