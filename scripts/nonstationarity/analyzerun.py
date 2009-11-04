@@ -109,6 +109,7 @@ def performbootstrap ( *args, **kwargs ):
     constraints = kwargs.setdefault ( "constraints", ("","","Uniform(0,.1)") )
     fname = args[0]
 
+    d = observer.DoAnExperiment ( stimuli, ntrials )
     Bp = pypsignifit.BootstrapInference ( d, priors=constraints,
             sigmoid = sigmoid,
             core = core,
@@ -127,10 +128,7 @@ def performbootstrap ( *args, **kwargs ):
     for parname,constraint in zip ( Bp.parnames, constraints ):
         f.write ( "#    %s : %s\n" % (parname,constraint) )
 
-    sys.stderr.write ( "\n" )
     for k in xrange ( 1000 ):
-        sys.stderr.write ( "\rRun: %d" % (k,) )
-        sys.stderr.flush()
         d = observer.DoAnExperiment ( stimuli, ntrials )
 
         Bp = pypsignifit.BootstrapInference ( d, priors=constraints,
@@ -141,7 +139,6 @@ def performbootstrap ( *args, **kwargs ):
                 sample=True )
 
         f.write ( resultsline(Bp) + "\t%g\t%g\n" % check_nonpar_ci ( Bp ) )
-    sys.stderr.write ( " Done\n" )
     f.close()
 
 if __name__ == "__main__":
