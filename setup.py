@@ -16,7 +16,8 @@ psippmodule = Extension ( "_psipy",
             "src/rng.cc",
             "src/sigmoid.cc",
             "src/special.cc",
-            "src/linalg.cc"]
+            "src/linalg.cc",
+            "src/prior.cc"]
         )
 
 setup ( name = "pypsignifit",
