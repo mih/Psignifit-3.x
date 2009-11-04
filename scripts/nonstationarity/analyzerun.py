@@ -109,7 +109,23 @@ def performbootstrap ( *args, **kwargs ):
     constraints = kwargs.setdefault ( "constraints", ("","","Uniform(0,.1)") )
     fname = args[0]
 
+    Bp = pypsignifit.BootstrapInference ( d, priors=constraints,
+            sigmoid = sigmoid,
+            core = core,
+            nafc = 2,
+            parametric = True,
+            sample=False )
+
     f = open ( fname, "w" )
+    f.write("""# Observer: %s
+# stimuli: %s
+# ntrials: %s (total = %d)
+# core:    %s
+# sigmoid: %s
+# constraints:
+""" % ( str(observer), str(stimuli), str(ntrials), p.sum(ntrials), core, sigmoid ) )
+    for parname,constraint in zip ( Bp.parnames, constraints ):
+        f.write ( "#    %s : %s\n" % (parname,constraint) )
 
     sys.stderr.write ( "\n" )
     for k in xrange ( 1000 ):
@@ -129,13 +145,12 @@ def performbootstrap ( *args, **kwargs ):
     f.close()
 
 if __name__ == "__main__":
-    performbootstrap ( "test.dat" )
-    # import pypsignifit
-    # import pypsignifit.psigobservers as observers
-    # d = observers.Observer ( 4,2,.02 ).DoAnExperiment ( [7,2,3,1,5,7,8] )
-    # B = pypsignifit.BootstrapInference ( d, priors=("","","Uniform(0,.1)"), sample=True )
-    # print resultsline()
-    # print resultsline(B)
+    import pypsignifit
+    import pypsignifit.psigobservers as observers
+    d = observers.Observer ( 4,2,.02 ).DoAnExperiment ( [7,2,3,1,5,7,8] )
+    B = pypsignifit.BootstrapInference ( d, priors=("","","Uniform(0,.1)"), sample=True )
+    print resultsline()
+    print resultsline(B)
 
-    # pypsignifit.GoodnessOfFit(B)
-    # p.show()
+    pypsignifit.GoodnessOfFit(B)
+    p.show()
