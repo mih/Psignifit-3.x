@@ -1,6 +1,6 @@
 CC=g++
 CFLAGS=-pg -ggdb
-LFLAGS=-lm -pg -lefence
+LFLAGS=-lm -pg
 
 BUILD=build
 HEADERS=core.h data.h errors.h optimizer.h prior.h psychometric.h sigmoid.h bootstrap.h mclist.h special.h mcmc.h rng.h linalg.h

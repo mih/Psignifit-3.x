@@ -107,4 +107,28 @@ class HybridMCMC : public PsiSampler
  */
 double ModelEvidence ( const PsiPsychometric* pmf, const PsiData* data );
 
+/**
+ * Bayesian Outlier detection
+ *
+ * Similar to the procedure proposed by Wichmann & Hill (2001a), outliers are detected
+ * by performing a series of model comparisons. The fitted psychometric function model
+ * M is compared to a series of models M0,M1,...,Mi, that are modified by incorporating
+ * an additional parameter that perfectly fits the i-th block. That is the models Mi
+ * have on parameter more than model M (which makes them worse) but they also explain
+ * the i-th block perfectly (which makes them better). If the i-th block is not from the
+ * same psychometric function as the other blocks, the improvement of adding an additional
+ * parameter for the i-th block should be large. That means, model Mi should be preferred
+ * to model M. If however, it is plausible that the i-th block comes from the fitted
+ * psychometric (defined by all remaining points together), the gain in descriptive power
+ * from the additional parameter is weak and model M should be preferred. Such model
+ * comparisons can easily be performed using the so called "Bayes Factor", that is
+ * the ratio of the evidences of the two models.
+ * This function determines a Bayes Factor for each block for the comparison between
+ * the model that was based on all blocks and the model that uses a separate parameter
+ * for the block of interest. Bayes Factors > 1 favor the global model, Bayes Factors < 1
+ * favor the model with a special parameter for block i, indicating that block i is
+ * an outlier.
+ */
+std::vector<double> OutlierDetection ( const PsiPsychometric* pmf, OutlierModel* outl, const PsiData* data );
+
 #endif
