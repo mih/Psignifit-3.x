@@ -193,7 +193,7 @@ def plotHistogram ( simdata, observed, xname, shortname=None, ax=None, hideobser
     else:
         return False
 
-def plotPMF ( InferenceObject, xlabel_text="Stimulus intensity", ylabel_text=None,ax=None ):
+def plotPMF ( InferenceObject, xlabel_text="Stimulus intensity", ylabel_text=None,ax=None, showaxes=True, showdesc=True, **kwargs ):
     """Show the psychometric function and data in an axes system
 
     This function plots the best fitting psychometric function and with the
@@ -205,16 +205,37 @@ def plotPMF ( InferenceObject, xlabel_text="Stimulus intensity", ylabel_text=Non
 
     :Parameters:
         *ax* :
-            axes object in which the plot should go
+            axes object in which the plot should go (default: current)
         *xlabel_text* :
             label for the x-axis
         *ylabel_text* :
             label for the y-axis, if this is None, the functions
             determines the correct label from its internal knowledge
             about the task
+        *showaxes* :
+            if this is set to False, no axes will be drawn
+        *showdesc* :
+            if this is set to False, no convergence description is drawn
+        all other keyword arguments will be passed to the plot function.
+
+    :Example:
+    You can use this function to plot multiple psychometric functions. This
+    is demonstrated by the example below:
+    >>> d0 = [[0, 28, 50], [2, 33, 50], [4, 38, 50], [6, 45, 50], [8, 45, 50], [10, 49, 50]]
+    >>> d1 = [[0, 22, 50], [2, 34, 50], [4, 31, 50], [6, 42, 50], [8, 42, 50], [10, 46, 50]]
+    >>> d2 = [[0, 26, 50], [2, 31, 50], [4, 38, 50], [6, 47, 50], [8, 49, 50], [10, 49, 50]]
+    >>> constraints = ("","","Uniform(0,.1)")
+    >>> B0 = BootstrapInference ( d0, priors=constraints )
+    >>> B1 = BootstrapInference ( d1, priors=constraints )
+    >>> B2 = BootstrapInference ( d2, priors=constraints )
+    >>> plotPMF ( B0, showaxes=False, showdesc=False, color='b', outliercolor='b', influentialcolor='b', linewidth=2 )
+    >>> plotPMF ( B1, showaxes=False, showdesc=False, color='r', outliercolor='r', influentialcolor='r' )
+    >>> plotPMF ( B2, showaxes=True,  showdesc=False, color='k', outliercolor='k', influentialcolor='k', linestyle='--' )
+
+    Note that the last call to plotPMF sets showaxes to True and thus draws the axes.
     """
     if ax==None:
-        ax = p.axes()
+        ax = p.gca()
 
     # Plot the psychometric function
     xmin = InferenceObject.data[:,0].min()
@@ -222,19 +243,38 @@ def plotPMF ( InferenceObject, xlabel_text="Stimulus intensity", ylabel_text=Non
     x = N.mgrid[xmin:xmax:100j]
     # psi = N.array(_psipy.diagnostics ( x, self.estimate, sigmoid=self.model["sigmoid"], core=self.model["core"], nafc=self.model["nafc"] ))
     psi = InferenceObject.evaluate ( x )
-    ax.plot(x,psi,'b')
+    ax.plot(x,psi,
+            color     = kwargs.setdefault ( 'color', 'b' ),
+            linestyle = kwargs.setdefault ( 'linestyle', '-' ),
+            linewidth = kwargs.setdefault ( 'linewidths', 1 )
+            )
 
     # Plot the data
     xd = InferenceObject.data[:,0]
     pd = InferenceObject.data[:,1].astype("d")/InferenceObject.data[:,2]
     goodpoints = N.ones(pd.shape,bool)
     if not InferenceObject.outl==None:
-        ax.plot(xd[InferenceObject.outl],pd[InferenceObject.outl],'r^')
+        ax.plot(xd[InferenceObject.outl],pd[InferenceObject.outl],
+                color   = kwargs.setdefault ( 'outliercolor', 'r' ),
+                marker  = kwargs.setdefault ( 'outliermarker', 'd' ),
+                markersize = kwargs.setdefault ( 'markersize', 5 ),
+                linestyle = "None"
+                )
         goodpoints = N.logical_and(goodpoints,N.logical_not(InferenceObject.outl))
     if not InferenceObject.infl==None:
-        ax.plot(xd[InferenceObject.infl],pd[InferenceObject.infl],"rs")
+        ax.plot(xd[InferenceObject.infl],pd[InferenceObject.infl],
+                color    = kwargs.setdefault ( 'influentialcolor', 'r' ),
+                marker   = kwargs.setdefault ( 'influentialmarker', 's' ),
+                markersize = kwargs.setdefault ( 'markersize', 5 ),
+                linestyle = 'None'
+                )
         goodpoints = N.logical_and(goodpoints,N.logical_not(InferenceObject.infl))
-    ax.plot(xd[goodpoints],pd[goodpoints],'bo')
+    ax.plot(xd[goodpoints],pd[goodpoints],
+            color     = kwargs.setdefault ( 'color', 'b' ),
+            marker    = kwargs.setdefault ( 'marker', 'o' ),
+            markersize = kwargs.setdefault ( 'markersize', 5 ),
+            linestyle = 'None'
+            )
 
     # Check axes limits
     if InferenceObject.model["nafc"]>1:
@@ -261,12 +301,14 @@ def plotPMF ( InferenceObject, xlabel_text="Stimulus intensity", ylabel_text=Non
                 ytics.pop(k)
     ytics = N.array(ytics)
 
-    drawaxes ( ax, xtics, "%g", ytics, "%g", xlabel_text, ylabel_text )
+    if showaxes:
+        drawaxes ( ax, xtics, "%g", ytics, "%g", xlabel_text, ylabel_text )
 
     # Write some model information
-    if not InferenceObject.deviance is None:
-        ax.text(0.5*(xmin+xmax),ymin+.05,"D=%g" % ( InferenceObject.deviance, ) )
-    ax.text ( 0.5*(xmin+xmax),ymin+.1,InferenceObject.desc )
+    if showdesc:
+        if not InferenceObject.deviance is None:
+            ax.text(0.5*(xmin+xmax),ymin+.05,"D=%g" % ( InferenceObject.deviance, ) )
+        ax.text ( 0.5*(xmin+xmax),ymin+.1,InferenceObject.desc )
 
 def plotThres ( InferenceObject, ax=None ):
     """Plot thresholds and confidence intervals
@@ -278,7 +320,7 @@ def plotThres ( InferenceObject, ax=None ):
             a pylab.axes object to be used for the plot.
     """
     if ax == None:
-        ax = p.axes()
+        ax = p.gca()
 
     for k,cut in enumerate(InferenceObject.cuts):
         c25,c975 = InferenceObject.getCI ( cut=k, conf=(.025,.975) )

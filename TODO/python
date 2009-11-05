@@ -1,6 +1,5 @@
-- more meaningfull errors if sample based plot functions are used before sampling
 - Influential observations and outliers for Bayes
 - what is going on with type checking in psigniplot.GoodnessOfFit?
 - add a dictionary to the data objects to make them know what they are (stimulus intensity, ...)
-- enable fixing the guessing rate to an arbitrary value (? which?)
+- enable fixing the guessing rate to an arbitrary value (? which?)        <- This is actually possible by putting a strong prior on the guessing rate...
 - ROC curves for 1AFC
