@@ -336,6 +336,10 @@ def GoodnessOfFit ( InferenceObject, warn=True ):
             if warn is set to True, red warning messages are displayed
             whenever the fit does not seem to describe the data well.
     """
+
+    if InferenceObject.mcestimates is None:
+        raise ValueError, "Goodness of fit diagnostics require monte carlo samples. Try to call the sample() method of your inference object."
+
     p.figure(figsize=(10,8))
 
     # First part: Data and fitted function, bottom deviance
@@ -411,6 +415,10 @@ def plotGeweke ( BayesInferenceObject, parameter=0, ax=None, warn=True ):
             should a warning message be displayed if non stationarity
             of the samples is observed?
     """
+
+    if BayesInferenceObject.mcestimates is None:
+        raise ValueError, "Geweke MCMC convergence diagnostic requires monte carlo samples. Try to call the sample() method of your inference object."
+
     stationary,z,bad = BayesInferenceObject.geweke ( parameter )
 
     if ax is None:
@@ -441,6 +449,10 @@ def plotChains ( BayesInferenceObject, parameter=0, ax=None, raw=False, warn=Tru
         *warn* :
             if True, warnings are written into the plot
     """
+
+    if BayesInferenceObject.mcestimates is None:
+        raise ValueError, "Plotting MCMC chains requires monte carlo samples. Try to call the sample() method of your inference object."
+
     # Do we have an appropriate axis?
     if ax==None:
         ax = p.axes()
@@ -478,6 +490,10 @@ def plotParameterDist ( InferenceObject, parameter=0, ax=None ):
         *ax* :
             pylab.axes object where the plot should go
     """
+
+    if InferenceObject.mcestimates is None:
+        raise ValueError, "Plotting distribution of parameters requires monte carlo samples. Try to call the sample() method of your inference object."
+
     if ax is None:
         ax = p.axes()
 
@@ -531,6 +547,10 @@ def plotThresholdDist ( InferenceObject, cut=0, ax=None ):
         *ax* :
             axes object to place the plot in.
     """
+
+    if InferenceObject.mcestimates is None:
+        raise ValueError, "Plotting distributions of thresholds requires monte carlo samples. Try to call the sample() method of your inference object."
+
     if ax is None:
         ax = p.axes()
 
@@ -561,6 +581,10 @@ def ThresholdPlot ( InferenceObject ):
             a BootstrapInference or BayesInference object containing the
             desired data
     """
+
+    if InferenceObject.mcestimates is None:
+        raise ValueError, "Plotting distributions of thresholds requires monte carlo samples. Try to call the sample() method of your inference object."
+
     nthres = len(InferenceObject.cuts)
     axw = 1./nthres
     fig = p.figure ( figsize=(3*nthres,3) )
@@ -577,6 +601,10 @@ def ParameterPlot ( InferenceObject ):
             a BootstrapInference or BayesInference object containing the
             desired data
     """
+
+    if InferenceObject.mcestimates is None:
+        raise ValueError, "Plotting distributions of parameters requires monte carlo samples. Try to call the sample() method of your inference object."
+
     nparams = len(InferenceObject.parnames)
     axw = 1./nparams
     fig = p.figure (figsize=(3*nparams,3))
@@ -598,6 +626,10 @@ def ConvergenceMCMC ( BayesInferenceObject, parameter=0, warn=True ):
         *warn* :
             should warnings be displayed if the samples look suspicious?
     """
+
+    if BayesInferenceObject.mcestimates is None:
+        raise ValueError, "MCMC convergence diagnostics require monte carlo samples. Try to call the sample() method of your inference object."
+
     fig = p.figure ( figsize=[9,3] )
     ax =  p.axes ( [0,0.,0.33,1] )
     plotChains ( BayesInferenceObject, parameter, ax, warn=warn )
@@ -620,6 +652,9 @@ def plotSensitivity ( BootstrapInferenceObject, ax=None ):
         *ax* :
             pylab axes that should be used for plotting
     """
+    if InferenceObject.mcestimates is None:
+        raise ValueError, "Sensitivity analysis requires monte carlo samples. Try to call the sample() method of your inference object."
+
     if ax==None:
         ax = p.axes()
 
