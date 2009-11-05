@@ -1,4 +1,3 @@
-- Inference objects should be able to take relative probabilities
 - more meaningfull errors if sample based plot functions are used before sampling
 - Influential observations and outliers for Bayes
 - what is going on with type checking in psigniplot.GoodnessOfFit?

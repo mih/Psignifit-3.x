@@ -95,7 +95,8 @@ class BootstrapInference ( PsiInference ):
                 responses in the second column, and number of trials in the third
                 column. Each row should correspond to one experimental block. In
                 addition, the sequence of the rows is taken as the sequence of
-                data aquisition.
+                data aquisition. Alternatively, the relative frequencies of correct
+                responses resp YES responses can be given.
             *sample* :
                 if sample is True, bootstrap samples are drawn. If sample is an
                 integer, it gives the number of samples that are drawn
@@ -164,6 +165,10 @@ class BootstrapInference ( PsiInference ):
 
         # Store basic data
         self.data = N.array(data)
+        if self.data[:,1].max() <= 1:
+            # We have relative frequencies
+            self.data[:,1] *= self.data[:,2]
+            self.data[:,1] = N.floor ( self.data[:,1] )
         self.model = {
                 "sigmoid": kwargs.setdefault("sigmoid","logistic"),
                 "core":    kwargs.setdefault("core",   "ab"),
@@ -520,6 +525,10 @@ class BayesInference ( PsiInference ):
 
         # Store basic data
         self.data = N.array(data)
+        if self.data[:,1].max() <= 1:
+            # We have relative frequencies
+            self.data[:,1] *= self.data[:,2]
+            self.data[:,1] = N.floor ( self.data[:,1] )
         self.model = {
                 "sigmoid": kwargs.setdefault("sigmoid","logistic"),
                 "core":    kwargs.setdefault("core",   "mw0.1"),
