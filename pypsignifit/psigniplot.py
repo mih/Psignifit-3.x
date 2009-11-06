@@ -263,6 +263,7 @@ def plotPMF ( InferenceObject, xlabel_text="Stimulus intensity", ylabel_text=Non
     :Example:
     You can use this function to plot multiple psychometric functions. This
     is demonstrated by the example below:
+
     >>> d0 = [[0, 28, 50], [2, 33, 50], [4, 38, 50], [6, 45, 50], [8, 45, 50], [10, 49, 50]]
     >>> d1 = [[0, 22, 50], [2, 34, 50], [4, 31, 50], [6, 42, 50], [8, 42, 50], [10, 46, 50]]
     >>> d2 = [[0, 26, 50], [2, 31, 50], [4, 38, 50], [6, 47, 50], [8, 49, 50], [10, 49, 50]]
@@ -452,27 +453,25 @@ def GoodnessOfFit ( InferenceObject, warn=True ):
     ax = p.axes([.33,.5,.33,.5])
     plotRd ( InferenceObject, ax, "p" )
     ax = p.axes([.33,0,.33,.5])
-    good = plotHistogram ( InferenceObject.mcRpd, InferenceObject.Rpd, distname+" Rpd", "Rpd", ax, reference=InferenceObject.__repr__().split()[1] )
-    if warn==True:
-        if not good and InferenceObject.__repr__().split()[1] == "BootstrapInference":
-            ax.text ( 0, N.mean(p.getp(ax,'ylim')) , "Simulated Rpd differs from observed!\nTry other sigmoid?", \
-                    fontsize=16, color=__warnred, horizontalalignment="center", verticalalignment="center", rotation=45 )
-        elif not good and InferenceObject.__repr__().split()[1] == "BayesInference":
-            ax.text ( 0, N.mean(p.getp(ax,'ylim')) , "Rpd is different from 0!\nTry other sigmoid?", \
-                    fontsize=16, color=__warnred, horizontalalignment="center", verticalalignment="center", rotation=45 )
+    if InferenceObject.__repr__().split()[1] == "BayesInference":
+        good = plotppScatter ( InferenceObject.ppRpd, InferenceObject.mcRpd, "Rpd", "Rpd", ax )
+    elif InferenceObject.__repr__().split()[1] == "BootstrapInference":
+        good = plotHistogram ( InferenceObject.mcRpd, InferenceObject.Rpd, distname+" Rpd", "Rpd", ax, reference=InferenceObject.__repr__().split()[1] )
+    if warn and not good:
+        ax.text ( 0, N.mean(p.getp(ax,'ylim')) , "Simulated Rpd differs from observed!\nTry other sigmoid?", \
+                fontsize=16, color=__warnred, horizontalalignment="center", verticalalignment="center", rotation=45 )
 
     # Third part: Correlations between model prediction and block index
     ax = p.axes([.66,.5,.33,.5])
     plotRd ( InferenceObject, ax, "k" )
     ax = p.axes([.66,0,.33,.5])
-    good = plotHistogram ( InferenceObject.mcRkd, InferenceObject.Rkd, distname+" Rkd", "Rkd", ax, reference=InferenceObject.__repr__().split()[1])
-    if warn==True:
-        if not good and InferenceObject.__repr__().split()[1] == "BootstrapInference":
-            ax.text ( 0, N.mean(p.getp(ax,'ylim')), "Simulated Rkd differs from observed!\nData are nonstationary!",\
-                    fontsize=16, color=__warnred, horizontalalignment="center", verticalalignment="center", rotation=45 )
-        elif not good and InferenceObject.__repr__().split()[1] == "BayesInference":
-            ax.text ( 0, N.mean(p.getp(ax,'ylim')), "Rkd is different from 0!\nData are nonstationary!",\
-                    fontsize=16, color=__warnred, horizontalalignment="center", verticalalignment="center", rotation=45 )
+    if InferenceObject.__repr__().split()[1] == "BayesInference":
+        good = plotppScatter ( InferenceObject.ppRkd, InferenceObject.mcRkd, "Rkd", "Rkd", ax )
+    elif InferenceObject.__repr__().split()[1] == "BootstrapInference":
+        good = plotHistogram ( InferenceObject.mcRkd, InferenceObject.Rkd, distname+" Rkd", "Rkd", ax, reference=InferenceObject.__repr__().split()[1])
+    if warn and not good:
+        ax.text ( 0, N.mean(p.getp(ax,'ylim')), "Simulated Rkd differs from observed!\nData are nonstationary!",\
+                fontsize=16, color=__warnred, horizontalalignment="center", verticalalignment="center", rotation=45 )
 
 def plotGeweke ( BayesInferenceObject, parameter=0, ax=None, warn=True ):
     """Geweke plot of moving average of samples

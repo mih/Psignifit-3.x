@@ -574,6 +574,8 @@ class BayesInference ( PsiInference ):
         self.__mcmc_deviances                      = []
         self.__mcmc_posterior_predictives          = []
         self.__mcmc_posterior_predictive_deviances = []
+        self.__mcmc_posterior_predictive_Rpd       = []
+        self.__mcmc_posterior_predictive_Rkd       = []
 
         self.__pRpd   = None
         self.__pRkd   = None
@@ -619,11 +621,13 @@ class BayesInference ( PsiInference ):
 
         if start is None:
             start = self.mapestimate
-        chain,deviance,ppdata,ppdeviances = _psipy.mcmc ( self.data, start, Nsamples, stepwidths=self._steps, **self.model )
+        chain,deviance,ppdata,ppdeviances,ppRpd,ppRkd = _psipy.mcmc ( self.data, start, Nsamples, stepwidths=self._steps, **self.model )
         self.__mcmc_chains.append(N.array(chain))
         self.__mcmc_deviances.append(N.array(deviance))
         self.__mcmc_posterior_predictives.append(N.array(ppdata))
         self.__mcmc_posterior_predictive_deviances.append(N.array(ppdeviances))
+        self.__mcmc_posterior_predictive_Rpd.append (N.array(ppRpd))
+        self.__mcmc_posterior_predictive_Rkd.append (N.array(ppRkd))
 
         # Resample if bad
         if self.retry:
@@ -671,9 +675,13 @@ class BayesInference ( PsiInference ):
         elif isinstance (Nsamples,int):
             start = self.__mcmc_chains[chain][start,:]
 
-        mcchain,deviance = _psipy.mcmc ( self.data, start, Nsamples, stepwidths=self._steps, **self.model )
+        mcchain,deviance,ppdata,ppdeviances,ppRpd,ppRkd = _psipy.mcmc ( self.data, start, Nsamples, stepwidths=self._steps, **self.model )
         self.__mcmc_chains[chain] = N.array(mcchain)
         self.__mcmc_deviances[chain] = N.array(deviance)
+        self.__mcmc_posterior_predictives[chain] = N.array(ppdata)
+        self.__mcmc_posterior_predictive_deviances[chain] = N.array(ppdeviances)
+        self.__mcmc_posterior_predictive_Rpd[chain] = N.array(ppRpd)
+        self.__mcmc_posterior_predictive_Rkd[chain] = N.array(ppRkd)
 
     def bayesian_p ( self, quantity="deviance" ):
         """Bayesian p value associated with a given quantity
@@ -687,11 +695,12 @@ class BayesInference ( PsiInference ):
 
         :Parameters:
             *quantity* :
-                This is the quantity do be derived. By default only deviance is available. However,
-                if quantity is a function, this will be called on every data set and the respective
+                This is the quantity do be derived. By default only deviance, Rpd and Rkd are available.
+                If quantity is a function, this will be called on every data set and the respective
                 p value will be calculated. The call on every data set takes two arguments:
                 1. a nblocksX3 array of data and
                 2. a parameter vector.
+                This way any other transformation of the data can be realized.
 
         :Output:
             the bayesian p-value
@@ -699,6 +708,10 @@ class BayesInference ( PsiInference ):
         if isinstance ( quantity, str ):
             if quantity.lower() == "deviance":
                 return N.mean ( (self.ppdeviance-self.mcdeviance)>=0 )
+            elif quantity.lower() == "rpd":
+                return N.mean ( (self.ppRpd-self.mcRpd)>=0 )
+            elif quantity.lower() == "rkd":
+                return N.mean ( (self.ppRkd-self.mcRkd)>=0 )
             else:
                 raise ValueError, "unsupported quantity for bayesian p value"
         elif operator.isCallable ( quantity ):
@@ -838,6 +851,74 @@ class BayesInference ( PsiInference ):
                 return self.__mcmc_posterior_predictive_deviances[chain]
             else:
                 return self.__mcmc_posterior_predictive_deviances[chain][self.burnin::self.thin]
+        else:
+            raise ValueError, "chain should be either None or an integer"
+
+    def getppRpd ( self, chain=None, raw=False ):
+        """Get correlations between psychometric function and deviance residuals associated with posterior predictive data
+
+        Posterior predictive data are data samples from the joint posterior over data
+        and parameters. Correlation between the psychometric function and the
+        deviance residuals of these samples is one possible transformation on
+        which a comparison of these data with the observed data could be based.
+
+        :Parameters:
+            *chain* :
+                chain index to be returned. If this is None (the default) all chains
+                are combined.
+            *raw* :
+                if only a single chain is returned, it might be interesting to see
+                the whole chain and ignore burnin and thinning. If raw==True, the
+                chain is requested in this "raw" format.
+
+        :Output:
+            an array of nsamples deviances
+        """
+        if chain==None:
+            # Get all chains
+            chains = []
+            for chain in self.__mcmc_posterior_predictive_Rpd:
+                chains.append ( chain[self.burnin::self.thin] )
+            return N.concatenate ( chains, 0 )
+        elif isinstance ( chain, int ):
+            if raw:
+                return self.__mcmc_posterior_predictive_Rpd[chain]
+            else:
+                return self.__mcmc_posterior_predictive_Rpd[chain][self.burnin::self.thin]
+        else:
+            raise ValueError, "chain should be either None or an integer"
+
+    def getppRkd ( self, chain=None, raw=False ):
+        """Get correlations between block index and deviance residuals associated with posterior predictive data
+
+        Posterior predictive data are data samples from the joint posterior over data
+        and parameters. Correlation between the block index and the deviance residuals
+        of these samples is one possible transformation on which a comparison of these
+        data with the observed data could be based.
+
+        :Parameters:
+            *chain* :
+                chain index to be returned. If this is None (the default) all chains
+                are combined.
+            *raw* :
+                if only a single chain is returned, it might be interesting to see
+                the whole chain and ignore burnin and thinning. If raw==True, the
+                chain is requested in this "raw" format.
+
+        :Output:
+            an array of nsamples deviances
+        """
+        if chain==None:
+            # Get all chains
+            chains = []
+            for chain in self.__mcmc_posterior_predictive_Rkd:
+                chains.append ( chain[self.burnin::self.thin] )
+            return N.concatenate ( chains, 0 )
+        elif isinstance ( chain, int ):
+            if raw:
+                return self.__mcmc_posterior_predictive_Rkd[chain]
+            else:
+                return self.__mcmc_posterior_predictive_Rkd[chain][self.burnin::self.thin]
         else:
             raise ValueError, "chain should be either None or an integer"
 
@@ -1081,6 +1162,8 @@ class BayesInference ( PsiInference ):
     mcdeviance = property ( fget=getmcdeviance , doc="Deviances of monte carlo samples from the posterior" )
     posterior_predictive = property ( fget=getppdata, doc="Posterior predictive data associated with the MCMC samples" )
     ppdeviance = property ( fget=getppdeviance, doc="Deviances associated with the posterior predictive data" )
+    ppRpd = property ( fget=getppRpd, doc="Correlations between psychometric function and deviance residuals associated with posterior predictive data" )
+    ppRkd = property ( fget=getppRkd, doc="Correlations between block index and deviance residuals associated with posterior predictive data" )
 
     @Property
     def mcthres ():
@@ -1195,15 +1278,21 @@ class BayesInference ( PsiInference ):
             mcmc_deviances = self.__mcmc_deviances.copy()
             mcmc_ppdata    = self.__mcmc_posterior_predictives.copy()
             mcmc_ppdeviance= self.__mcmc_posterior_predictive_deviances.copy()
+            mcmc_ppRpd     = self.__mcmc_posterior_predictive_Rpd.copy()
+            mcmc_ppRkd     = self.__mcmc_posterior_predictive_Rkd.copy()
             self.__mcmc_chains    = []
             self.__mcmc_deviances = []
             self.__mcmc_posterior_predictives = []
             self.__mcmc_posterior_predictive_deviances = []
+            self.__mcmc_posterior_predictive_Rpd = []
+            self.__mcmc_posterior_predictive_Rkd = []
         else:
             mcmc_chains = []
             mcmc_deviances = []
             mcmc_ppdata = []
             mcmc_ppdeviance = []
+            mcmc_ppRpd = []
+            mcmc_ppRkd = []
 
         # Determine size of initial test run
         if self.nsamples is None:
@@ -1223,6 +1312,8 @@ class BayesInference ( PsiInference ):
             deviances = self.__mcmc_deviances.pop()
             self.__mcmc_posterior_predictives.pop()
             self.__mcmc_posterior_predictive_deviances.pop()
+            self.__mcmc_posterior_predictive_Rpd.pop()
+            self.__mcmc_posterior_predictive_Rkd.pop()
 
             # Check all desired thresholds
             for q in self.conf:
@@ -1250,6 +1341,8 @@ class BayesInference ( PsiInference ):
             self.__mcmc_deviances = mcmc_deviances
             self.__mcmc_posterior_predictives = mcmc_ppdata
             self.__mcmc_posterior_predictive_deviances = mcmc_ppdeviance
+            self.__mcmc_posterior_predictive_Rpd = mcmc_ppRpd
+            self.__mcmc_posterior_predictive_Rkd = mcmc_ppRkd
 
 if __name__ == "__main__":
     import doctest

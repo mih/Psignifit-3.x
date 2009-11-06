@@ -164,6 +164,8 @@ class MCMCList : public PsiMClist
 	private:
 		std::vector< std::vector<int> > posterior_predictive_data;
 		std::vector<double> posterior_predictive_deviances;
+		std::vector<double> posterior_predictive_Rpd;
+		std::vector<double> posterior_predictive_Rkd;
 	public:
 		MCMCList (
 			unsigned int N,                                                ///< number of samples to be drawn
@@ -171,7 +173,9 @@ class MCMCList : public PsiMClist
 			unsigned int nblocks                                           ///< number of blocks in the experiment
 			) : PsiMClist ( N, nprm),
 				posterior_predictive_data(N,std::vector<int>(nblocks)),
-				posterior_predictive_deviances ( N ) {};      ///< set up MCMCList
+				posterior_predictive_deviances ( N ),
+				posterior_predictive_Rpd ( N ),
+				posterior_predictive_Rkd ( N ) {};      ///< set up MCMCList
 		void setppData (
 			unsigned int i,                                                ///< index of the posterior predictive sample to be set
 			const std::vector<int>& ppdata,                                ///< posterior predictive data sample
@@ -180,6 +184,10 @@ class MCMCList : public PsiMClist
 		std::vector<int> getppData ( unsigned int i ) const;               ///< get a posterior predictive data sample
 		int getppData ( unsigned int i, unsigned int j ) const;
 		double getppDeviance ( unsigned int i ) const;                     ///< get deviance associated with a posterior predictive sample
+		void setppRpd ( unsigned int i, double Rpd );
+		double getppRpd ( unsigned int i ) const;
+		void setppRkd ( unsigned int i, double Rkd );
+		double getppRkd ( unsigned int i ) const;
 		unsigned int getNblocks ( void ) const { return posterior_predictive_data[0].size(); }  ///< get the number of blocks
 };
 

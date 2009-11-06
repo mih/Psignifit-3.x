@@ -283,8 +283,40 @@ int MCMCList::getppData ( unsigned int i, unsigned int j ) const
 
 double MCMCList::getppDeviance ( unsigned int i ) const
 {
-	if ( i>=getNsamples() || i<0 )
+	if ( i>=getNsamples() )
 		throw BadIndexError();
 
 	return posterior_predictive_deviances[i];
+}
+
+void MCMCList::setppRpd ( unsigned int i, double Rpd )
+{
+	if ( i>=getNsamples() )
+		throw BadIndexError();
+
+	posterior_predictive_Rpd[i] = Rpd;
+}
+
+double MCMCList::getppRpd ( unsigned int i ) const
+{
+	if ( i>=getNsamples() )
+		throw BadIndexError();
+
+	return posterior_predictive_Rpd[i];
+}
+
+void MCMCList::setppRkd ( unsigned int i, double Rkd )
+{
+	if ( i>=getNsamples() )
+		throw BadIndexError();
+
+	posterior_predictive_Rkd[i] = Rkd;
+}
+
+double MCMCList::getppRkd ( unsigned int i ) const
+{
+	if ( i>=getNsamples() )
+		throw BadIndexError();
+
+	return posterior_predictive_Rkd[i];
 }

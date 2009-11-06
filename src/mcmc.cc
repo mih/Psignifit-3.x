@@ -104,8 +104,9 @@ MCMCList MetropolisHastings::sample ( unsigned int N ) {
 		newsample ( localdata, probs, &posterior_predictive);
 		localdata->setNcorrect ( posterior_predictive );
 		out.setppData ( i, posterior_predictive, model->deviance ( est, localdata ) );
-		// TODO:
-		// This should be ready. Changes were in mclist and in mcmc
+		probs = model->getDevianceResiduals ( est, localdata );
+		out.setppRpd ( i, model->getRpd ( probs, est, localdata ) );
+		out.setppRkd ( i, model->getRkd ( probs, localdata ) );
 #ifdef DEBUG_MCMC
 		std::cerr << " accept: " << std::setiosflags ( std::ios::fixed ) << double(accept)/(i+1) << "\n";
 #endif

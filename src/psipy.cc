@@ -261,6 +261,8 @@ static PyObject * psimcmc ( PyObject * self, PyObject * args, PyObject * kwargs 
 	PyArrayObject *pydeviance;
 	PyArrayObject *pyposterior_predictive_data;
 	PyArrayObject *pyposterior_predictive_deviances;
+	PyArrayObject *pyposterior_predictive_Rpd;
+	PyArrayObject *pyposterior_predictive_Rkd;
 	int estimatesdim[2] = {Nsamples, Nparams};
 	int datadim[2] = {Nsamples, Nblocks};
 	/*
@@ -271,6 +273,8 @@ static PyObject * psimcmc ( PyObject * self, PyObject * args, PyObject * kwargs 
 	pydeviance                       = (PyArrayObject*) PyArray_SimpleNew ( 1, &Nsamples, NPY_DOUBLE );
 	pyposterior_predictive_data      = (PyArrayObject*) PyArray_SimpleNew ( 2, datadim, NPY_INT );
 	pyposterior_predictive_deviances = (PyArrayObject*) PyArray_SimpleNew ( 1, &Nsamples, NPY_DOUBLE );
+	pyposterior_predictive_Rpd       = (PyArrayObject*) PyArray_SimpleNew ( 1, &Nsamples, NPY_DOUBLE );
+	pyposterior_predictive_Rkd       = (PyArrayObject*) PyArray_SimpleNew ( 1, &Nsamples, NPY_DOUBLE );
 	for ( i=0; i<Nsamples; i++ ) {
 		for ( j=0; j<Nparams; j++ ) {
 			((double*)pyestimates->data)[i*Nparams+j] = post.getEst ( i, j );
@@ -280,14 +284,19 @@ static PyObject * psimcmc ( PyObject * self, PyObject * args, PyObject * kwargs 
 			((int*)pyposterior_predictive_data->data)[i*Nblocks+j] = post.getppData ( i, j );
 		}
 		((double*)pyposterior_predictive_deviances->data)[i] = post.getppDeviance ( i );
+		((double*)pyposterior_predictive_Rpd->data)[i]       = post.getppRpd ( i );
+		((double*)pyposterior_predictive_Rkd->data)[i]       = post.getppRkd ( i );
 	}
 
-	pynumber = Py_BuildValue ( "(OOOO)", pyestimates, pydeviance, pyposterior_predictive_data, pyposterior_predictive_deviances );
+	pynumber = Py_BuildValue ( "(OOOOOO)", pyestimates, pydeviance,
+			pyposterior_predictive_data, pyposterior_predictive_deviances, pyposterior_predictive_Rpd, pyposterior_predictive_Rkd );
 
 	Py_DECREF ( pyestimates );
 	Py_DECREF ( pydeviance );
 	Py_DECREF ( pyposterior_predictive_data );
 	Py_DECREF ( pyposterior_predictive_deviances );
+	Py_DECREF ( pyposterior_predictive_Rpd );
+	Py_DECREF ( pyposterior_predictive_Rkd );
 
 	delete pmf;
 	delete data;
