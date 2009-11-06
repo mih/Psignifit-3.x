@@ -1,2 +1,3 @@
 - list sphinx dependency
 - add a delete/uninstall possibility
+- Update Goodness of Fit for MCMC in Tutorial to incorporate posterior predictive logic
