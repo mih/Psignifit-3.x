@@ -144,6 +144,10 @@ class Observer ( object ):
         else:
             return "< Observer a=%g,b=%g,lapse=%g,core=%s,sigmoid=%s >" % (self.a,self.b,self.lapse,self.model["core"],self.model["sigmoid"])
 
+    def getlevels ( self, cuts ):
+        """Determine stimulus levels that correspond to predefinde levels of performance"""
+        return _psipy.diagnostics ( [[1,2,3]], self.params, self.model["nafc"], self.model["sigmoid"], self.model["core"], cuts )[3]
+
     @Property
     def params ():
         "parameters of the model"
