@@ -12,6 +12,7 @@ Contents:
 
    WELCOME
    TUTORIAL
+   CONTRIBUTING
    API
 
 Indices and tables

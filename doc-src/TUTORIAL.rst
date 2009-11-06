@@ -4,9 +4,9 @@ A quick start to pypsignifit
 
 This document presents two example analyses of psychometric function data using pypsignifit.
 The first example explains how to fit a psychometric function using constrained maximum
-likelihood as described in the papers by Wichmann and Hill (2001a,b). The second example
-deals with a bayesian approach to fitting a psychometric function. Parts of the ideas for
-this can be found in the paper by Kuss et al (2005), however most of this example is new
+likelihood as described in the papers by [Wichmann_and_Hill_2001a]_, [Wichmann_and_Hill_2001b]_.
+The second example deals with a bayesian approach to fitting a psychometric function. Parts of
+the ideas for this can be found in the paper by [Kuss_et_al_2005]_, however most of this example is new
 at the time of this writing.
 
 To get you starting with pypsignifit, open a python interpreter and type the following:
@@ -49,7 +49,7 @@ Psi (x) = guess + (1-guess-lapse) * F ( x | a,b ),
 where guess is the guessing rate, lapse is the lapsing rate, F is a sigmoid function and a and
 b are parameters governing the shape of the sigmoid function. In this example, we will try to fit
 the above data with a logistic function, using the same parameterization as in the original
-psignifit software (Hill, 2001):
+psignifit software [Hill_2001]_:
 
 F ( x | a,b ) = 1. / ( 1 + exp ( - (x-a)/b ) )
 
@@ -137,11 +137,12 @@ of the model are displayed.
 Sensitivity Analysis
 --------------------
 
-As noted by Wichmann & Hill (2001b), bootstrap based confidence intervals are in many cases too small.
-That is, a 95% confidence interval contains the true parameter in less than 95% of the cases. Wichmann & Hill
-(2001b) propose a sensitivity analysis to determine the misestimation of confidence intervals and correct
-for this error. The BootstrapInference object can perform a sensitivity analysis. Afterwards, the
-confidence intervals will be expanded to compensate for the underestimation of the confidence intervals.
+As noted by [Wichmann_and_Hill_2001b]_, bootstrap based confidence intervals are in many cases too small.
+That is, a 95% confidence interval contains the true parameter in less than 95% of the cases.
+[Wichmann_and_Hill_2001b]_ propose a sensitivity analysis to determine the misestimation of confidence
+intervals and correct for this error. The BootstrapInference object can perform a sensitivity analysis.
+Afterwards, the confidence intervals will be expanded to compensate for the underestimation of the
+confidence intervals.
 
 >>> B.getCI(1)
 array([ 1.64202158,  3.92605858])
@@ -266,7 +267,7 @@ are usually not from the posterior distribution but after that the typically are
 it is important to know whether the samples really cover the whole posterior distribution or
 whether they remain in a restricted area of the posterior distribution. These points are summarized
 under the term *convergence*. Although the BayesInference object will in most cases try to
-use sensible parameters for the sampling procedure (using a procedure by Raftery & Lewis, 1996)
+use sensible parameters for the sampling procedure (using a procedure by [Raftery_and_Lewis_1996]_
 to ensure these points, it might be that the chains did not converge.
 
 A good strategy to access convergence is to simply use multiple chains and to check whether they
@@ -285,8 +286,8 @@ We draw two more chains from starting values that are relatively far away from o
 1.0026751756394505
 
 As we can see, now there are three chains. The last line compares all three chains. This value
-is the variance between chains devided by the variance within chains as suggested by Gelman &
-Rubin (1996). If there are large differences between chains, the variance between chains will
+is the variance between chains devided by the variance within chains as suggested by [Gelman_1996]_.
+If there are large differences between chains, the variance between chains will
 be very high and thus R^ will be very high, too. If R^ is larger than 1.1, this is typically an
 indication, that the chains did not converge. In the example above, R^ is nearly exactly 1 for
 parameter 0 (which is m). Thus, we can be quite sure that the samples of m where from the
@@ -311,7 +312,7 @@ colors. These chains should look like a "hairy caterpillar" and they should not 
 from each others.This seems to be the case. In addition, the plot shows The R^ estimate we had
 already seen above.
 
-The second plot in the middle shows a convergence criterion proposed by Geweke (XXXX): Every chain
+The second plot in the middle shows a convergence criterion proposed by [Geweke_1992]_: Every chain
 first Z-standardized to have mean 0 and standard deviation 1. Then the chain is split in 10 segments.
 If one of these chains deviates more than two standard deviations from the mean, this is a sign
 that the chain is not stationary. In that case, it might be that the chain does not sample the
@@ -389,16 +390,11 @@ be used for Bayesian inference.
 
 References
 ==========
-* Hill, NJ (2001): Testing Hypotheses About Psychometric Functions. PhD Thesis, Oxford.
-* Kuss, M, Jäkel, F, Wichmann, FA (2005): Bayesian inference for psychometric functions. J Vis,
-  5, 478-492.
-* Wichmann, FA, Hill, NJ (2001a): The psychometric function: I. Fitting, sampling, and goodness
-  of fit. Perc Psychophys, 63(8), 1293-1313.
-* Wichmann, FA, Hill, NJ (2001b): The psychometric function: II. Bootstrap-based confidence
-  intervals and sampling. Perc Psychophys, 63(8), 1314-1329.
-* Gilks, WR, Richardson, S, Spiegelhalter, DJ (Hrsg,1996): Markov chain Monte Carlo in practice. London:
-  Chapman & Hall.
-* Raftery & Lewis (1996): Implementing MCMC. In Gilks et al (1996).
-* Gelman A (1996): Inference and monitoring convergence. In Gilks et al (1996).
-  J. Geweke. Evaluating the accuracy of sampling-based approaches to calculating posterior moments. In Bernardo et al. [1992], pages 169–193.
-* Geweke, J (1992): Evaluating the accuracy of sampling-based approaches to calculating posterior moments. In Bernardo et al., pp 169-193.
+.. [Hill_2001] Hill, NJ (2001): Testing Hypotheses About Psychometric Functions. PhD Thesis, Oxford.
+.. [Kuss_et_al_2005] Kuss, M, Jäkel, F, Wichmann, FA (2005): Bayesian inference for psychometric functions. J Vis, 5, 478-492.
+.. [Wichmann_and_Hill_2001a] Wichmann, FA, Hill, NJ (2001a): The psychometric function: I. Fitting, sampling, and goodness of fit. Perc Psychophys, 63(8), 1293-1313.
+.. [Wichmann_and_Hill_2001b] Wichmann, FA, Hill, NJ (2001b): The psychometric function: II. Bootstrap-based confidence intervals and sampling. Perc Psychophys, 63(8), 1314-1329.
+.. [Gilks_et_al_1996] Gilks, WR, Richardson, S, Spiegelhalter, DJ (Hrsg,1996): Markov chain Monte Carlo in practice. London: Chapman & Hall.
+.. [Raftery_and_Lewis_1996] Raftery & Lewis (1996): Implementing MCMC. In [Gilks_et_al_1996]_.
+.. [Gelman_1996] Gelman A (1996): Inference and monitoring convergence. In [Gilks_et_al_1996]_.
+.. [Geweke_1992] Geweke, J (1992): Evaluating the accuracy of sampling-based approaches to calculating posterior moments. In Bernardo et al., pp 169-193.
