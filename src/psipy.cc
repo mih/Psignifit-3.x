@@ -253,30 +253,41 @@ static PyObject * psimcmc ( PyObject * self, PyObject * args, PyObject * kwargs 
 		PyErr_Format ( PyExc_ValueError, msg.c_str() );
 		return NULL;
 	}
-	PsiMClist post ( S->sample(Nsamples) );
+	MCMCList post ( S->sample(Nsamples) );
 	delete S;
 
 	// Data and samples
 	PyArrayObject *pyestimates;
 	PyArrayObject *pydeviance;
+	PyArrayObject *pyposterior_predictive_data;
+	PyArrayObject *pyposterior_predictive_deviances;
 	int estimatesdim[2] = {Nsamples, Nparams};
+	int datadim[2] = {Nsamples, Nblocks};
 	/*
 	pyestimates = (PyArrayObject*) PyArray_FromDims ( 2, estimatesdim, PyArray_DOUBLE );
 	pydeviance  = (PyArrayObject*) PyArray_FromDims ( 1, &Nsamples, PyArray_DOUBLE );
 	*/
-	pyestimates = (PyArrayObject*) PyArray_SimpleNew ( 2, estimatesdim, NPY_DOUBLE );
-	pydeviance  = (PyArrayObject*) PyArray_SimpleNew ( 1, &Nsamples, NPY_DOUBLE );
+	pyestimates                      = (PyArrayObject*) PyArray_SimpleNew ( 2, estimatesdim, NPY_DOUBLE );
+	pydeviance                       = (PyArrayObject*) PyArray_SimpleNew ( 1, &Nsamples, NPY_DOUBLE );
+	pyposterior_predictive_data      = (PyArrayObject*) PyArray_SimpleNew ( 2, datadim, NPY_INT );
+	pyposterior_predictive_deviances = (PyArrayObject*) PyArray_SimpleNew ( 1, &Nsamples, NPY_DOUBLE );
 	for ( i=0; i<Nsamples; i++ ) {
 		for ( j=0; j<Nparams; j++ ) {
 			((double*)pyestimates->data)[i*Nparams+j] = post.getEst ( i, j );
 		}
 		((double*)pydeviance->data)[i] = post.getdeviance ( i );
+		for ( j=0; j<Nblocks; j++ ) {
+			((int*)pyposterior_predictive_data->data)[i*Nblocks+j] = post.getppData ( i, j );
+		}
+		((double*)pyposterior_predictive_deviances->data)[i] = post.getppDeviance ( i );
 	}
 
-	pynumber = Py_BuildValue ( "(OO)", pyestimates, pydeviance );
+	pynumber = Py_BuildValue ( "(OOOO)", pyestimates, pydeviance, pyposterior_predictive_data, pyposterior_predictive_deviances );
 
 	Py_DECREF ( pyestimates );
 	Py_DECREF ( pydeviance );
+	Py_DECREF ( pyposterior_predictive_data );
+	Py_DECREF ( pyposterior_predictive_deviances );
 
 	delete pmf;
 	delete data;

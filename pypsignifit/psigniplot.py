@@ -119,6 +119,48 @@ def plotRd ( InferenceObject, ax=None, regressor="p" ):
 
     drawaxes ( ax, xtics, "%g", ytics, "%g", xname, "deviance residuals" )
 
+def plotppScatter ( simdata, observed, quantity, shortname=None, ax=None ):
+    """plot a scatter diagram to compare observed and predicted data
+
+    :Parameters:
+        *simdata* :
+            data simulated from the model (typically data from posterior predictives)
+        *obseved* :
+            observed data (transformed in the same way as the posterior predictives)
+        *quantity* :
+            name of the quantity that is checked
+        *shortname* :
+            abbreviation of the plotted quantity
+        *ax* :
+            pylab axes object where the plot should go.
+    """
+    if ax==None:
+        ax = p.gca()
+
+    ax.plot ( simdata, observed, '.' )
+    xl = ax.get_xlim()
+    yl = ax.get_ylim()
+    axmin = N.min ( list(xl)+list(yl) )
+    axmax = N.max ( list(xl)+list(yl) )
+    ax.plot ( [axmin,axmax],[axmin,axmax], 'k:' )
+    ax.set_xlim ( axmin, axmax )
+    ax.set_ylim ( axmin, axmax )
+
+    xt = ax.get_xticks()
+    yt = ax.get_yticks()
+
+    drawaxes ( ax, xt, "%g", yt, "%g", "predicted "+quantity, "observed "+quantity )
+
+    # Write diagnostics
+    pval = N.mean( (simdata-observed)>=0 )
+    ax.text ( xt.min(), yt.max()+.1, "Bayesian p (%s)=%.3f" % (shortname,pval),\
+            horizontalalignment="left", verticalalignment="bottom", fontsize=8 )
+
+    if pval<0.975 and pval>0.025:
+        return True
+    else:
+        return False
+
 def plotHistogram ( simdata, observed, xname, shortname=None, ax=None, hideobserved=False, reference="bootstrap" ):
     """plot a histogram and compare observed data to it
 
@@ -397,24 +439,14 @@ def GoodnessOfFit ( InferenceObject, warn=True ):
         distname = "bootstrap"
         observed = InferenceObject.deviance
     ax = p.axes ( [0,0,.33,.5] )
-    good = plotHistogram ( InferenceObject.mcdeviance, observed, distname+" deviance", "D", ax )
-    if InferenceObject.__repr__().split()[1] == "BootstrapInference":
-        if warn and not good:
-            ax.text ( N.array(ax.get_xlim()).mean(), N.array(ax.get_ylim()).mean(),
-                    "The fitted model is a bad\ndescription of the data!",
-                    fontsize=16, color=__warnred, horizontalalignment="center", verticalalignment="center", rotation=45 )
-    elif InferenceObject.__repr__().split()[1] == "BayesInference":
-        BF = InferenceObject.evidence / InferenceObject.nullevidence
-        if warn and not BF>1:
-            ax.text ( N.array(ax.get_xlim()).mean(), N.array(ax.get_ylim()).mean(),
-                    "The fitted model describes the data\nas good as the null model!",
-                    fontsize=16, color=__warnred, horizontalalignment="center", verticalalignment="center", rotation=45 )
-        xl = N.array(ax.get_xlim())
-        xr = xl.max()-xl.min()
-        yl = N.array(ax.get_ylim())
-        yr = yl.max()-yl.min()
-        ax.text ( xl.min()+0.5*xr, yl.min()+0.8*yr, "BF(fit/null)=%.1f" % (BF,) )
-
+    if InferenceObject.__repr__().split()[1] == "BayesInference":
+        good = plotppScatter ( InferenceObject.ppdeviance, InferenceObject.mcdeviance, "deviance", "D", ax)
+    elif InferenceObject.__repr__().split()[1] == "BootstrapInference":
+        good = plotHistogram ( InferenceObject.mcdeviance, observed, distname+" deviance", "D", ax )
+    if warn and not good:
+        ax.text ( N.array(ax.get_xlim()).mean(), N.array(ax.get_ylim()).mean(),
+                "The fitted model is a bad\ndescription of the data!",
+                fontsize=16, color=__warnred, horizontalalignment="center", verticalalignment="center", rotation=45 )
 
     # Second part: Correlations between model prediction and residuals
     ax = p.axes([.33,.5,.33,.5])

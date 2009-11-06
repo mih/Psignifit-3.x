@@ -5,16 +5,7 @@
 #include <iostream>
 #endif
 
-void newsample ( const PsiData * data, const std::vector<double>& p, std::vector<int> * sample ) {
-	/* Draw a new sample from the psychometric function */
-	BinomialRandom binomial ( 10, 0.5 );    // Initialize with nonsense parameters
-	int k;                                            // Block index
 
-	for ( k=0; k<data->getNblocks(); k++ ) {
-		binomial.setprm ( data->getNtrials(k), p[k] );
-		(*sample)[k] = binomial.draw ();
-	}
-}
 
 void determineBCa ( const std::vector<double>& l_LF, const std::vector<double>& u_i, double initialthreshold, double *bias, double*acc ) {
 	// Calculate BCa constants

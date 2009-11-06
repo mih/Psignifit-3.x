@@ -1,5 +1,15 @@
 #include "mclist.h"
 
+void newsample ( const PsiData * data, const std::vector<double>& p, std::vector<int> * sample ) {
+	/* Draw a new sample from the psychometric function */
+	BinomialRandom binomial ( 10, 0.5 );    // Initialize with nonsense parameters
+	int k;                                            // Block index
+
+	for ( k=0; k<data->getNblocks(); k++ ) {
+		binomial.setprm ( data->getNtrials(k), p[k] );
+		(*sample)[k] = binomial.draw ();
+	}
+}
 
 /************************************************************
  * PsiMClist methods
@@ -236,4 +246,45 @@ bool JackKnifeList::outlier ( unsigned int block ) const {
 	if ( maxdeviance-getdeviance(block) > 6.63 )
 		return true;
 	return false;
+}
+
+/************************************************************
+ * MCMCList methods
+ */
+
+void MCMCList::setppData ( unsigned int i, const std::vector<int>& ppdata, double ppdeviance )
+{
+	if ( i>=getNsamples() || i<0 )
+		throw BadIndexError ();
+
+	int k;
+	for ( k=0; k<getNblocks(); k++ )
+		posterior_predictive_data[i][k] = ppdata[k];
+	posterior_predictive_deviances[i] = ppdeviance;
+}
+
+std::vector<int> MCMCList::getppData ( unsigned int i ) const
+{
+	if ( i>=getNsamples() || i<0 )
+		throw BadIndexError();
+
+	return posterior_predictive_data[i];
+}
+
+int MCMCList::getppData ( unsigned int i, unsigned int j ) const
+{
+	if ( i>=getNsamples() )
+		throw BadIndexError();
+	if ( j>=getNblocks() )
+		throw BadIndexError();
+
+	return posterior_predictive_data[i][j];
+}
+
+double MCMCList::getppDeviance ( unsigned int i ) const
+{
+	if ( i>=getNsamples() || i<0 )
+		throw BadIndexError();
+
+	return posterior_predictive_deviances[i];
 }

@@ -288,9 +288,9 @@ int MCMCTest ( TestSuite * T ) {
 	S->setstepsize ( 0.0001, 2 );
 
 	srand48(0);
-	PsiMClist post ( S->sample(10000) );
+	MCMCList post ( S->sample(10000) );
 	srand48(0);
-	PsiMClist mhpost ( mhS->sample(10000) );
+	MCMCList mhpost ( mhS->sample(10000) );
 
 	failures += T->isequal ( post.getMean(0), 3.21657, "Hybrid MCMC alpha", .3 );
 	failures += T->isequal ( post.getMean(1), 1.20476, "Hybrid MCMC beta", .2 );

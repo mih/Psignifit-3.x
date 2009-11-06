@@ -19,7 +19,7 @@ class PsiSampler
 		virtual void setstepsize ( double size, unsigned int param ) { throw NotImplementedError(); }  ///< set the size of the steps for parameter param of the sampler
 		virtual void setstepsize ( const std::vector<double>& sizes ) { throw NotImplementedError(); } ///< set all stepsizes of the sampler
 		virtual double getDeviance ( void ) { throw NotImplementedError(); }                           ///< return the model deviance for the current state
-		virtual PsiMClist sample ( unsigned int N ) { throw NotImplementedError(); }                   ///< draw N samples from the posterior
+		virtual MCMCList sample ( unsigned int N ) { throw NotImplementedError(); }                   ///< draw N samples from the posterior
 		const PsiPsychometric * getModel() const { return model; }                                     ///< return the underlying model instance
 		const PsiData         * getData()  const { return data;  }                                     ///< return the underlying data instance
 };
@@ -47,7 +47,7 @@ class MetropolisHastings : public PsiSampler
 		double getDeviance ( void ) { return currentdeviance; }                           ///< get the current deviance
 		void setstepsize ( double size, unsigned int param );                             ///< set the standard deviation of the proposal distribution for parameter param
 		void setstepsize ( const std::vector<double>& sizes );                            ///< set standard deviations of the proposal distribution for all parameters at once
-		PsiMClist sample ( unsigned int N );                                              ///< draw N samples from the posterior
+		MCMCList sample ( unsigned int N );                                               ///< draw N samples from the posterior
 		unsigned int getNparams ( void ) { return newtheta.size(); }                      ///< get the number of parameters for which the sampler is set up
 };
 
@@ -81,7 +81,7 @@ class HybridMCMC : public PsiSampler
 		void setstepsize ( double size, unsigned int param );                             ///< set stepsize of the leapfrog integration for parameter param
 		void setstepsize ( const std::vector<double>& sizes );                            ///< set all stepsizes of leapfrog integration for all parameters at once
 		double getDeviance ( void );                                                      ///< get the current deviance
-		PsiMClist sample ( unsigned int N );                                              ///< draw N samples from the posterior
+		MCMCList sample ( unsigned int N );                                              ///< draw N samples from the posterior
 };
 
 /**

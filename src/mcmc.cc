@@ -85,14 +85,27 @@ void MetropolisHastings::setstepsize ( const std::vector<double>& sizes ) {
 		stepwidths[i] = sizes[i];
 }
 
-PsiMClist MetropolisHastings::sample ( unsigned int N ) {
+MCMCList MetropolisHastings::sample ( unsigned int N ) {
+	const PsiData * data ( getData() );
 	const PsiPsychometric * model ( getModel() );
-	PsiMClist out ( N, model->getNparams() );
-	int i;
+	MCMCList out ( N, model->getNparams(), data->getNblocks() );
+	PsiData *localdata = new PsiData ( data->getIntensities(), data->getNtrials(), data->getNcorrect(), data->getNalternatives() );
+	std::vector<int> posterior_predictive ( data->getNblocks() );
+	std::vector<double> probs ( data->getNblocks() );
+	std::vector<double> est ( model->getNparams() );
+	int i,k;
 
 	for (i=0; i<N; i++) {
-		out.setEst ( i, draw(), 0. );
+		est = draw();
+		out.setEst ( i, est, 0. );
 		out.setdeviance ( i, getDeviance() );
+		for ( k=0; k<data->getNblocks(); k++ )
+			probs[k] = model->evaluate ( data->getIntensity(k), est );
+		newsample ( localdata, probs, &posterior_predictive);
+		localdata->setNcorrect ( posterior_predictive );
+		out.setppData ( i, posterior_predictive, model->deviance ( est, localdata ) );
+		// TODO:
+		// This should be ready. Changes were in mclist and in mcmc
 #ifdef DEBUG_MCMC
 		std::cerr << " accept: " << std::setiosflags ( std::ios::fixed ) << double(accept)/(i+1) << "\n";
 #endif
@@ -101,6 +114,8 @@ PsiMClist MetropolisHastings::sample ( unsigned int N ) {
 #ifdef DEBUG_MCMC
 	std::cerr << "Acceptance rate: " << double(accept)/N << "\n";
 #endif
+
+	delete localdata;
 
 	return out;
 }
@@ -225,8 +240,8 @@ double HybridMCMC::getDeviance ( void ) {
 	return getModel()->deviance ( currenttheta, getData() );
 }
 
-PsiMClist HybridMCMC::sample ( unsigned int N ) {
-	PsiMClist out ( N, getModel()->getNparams() );
+MCMCList HybridMCMC::sample ( unsigned int N ) {
+	MCMCList out ( N, getModel()->getNparams(), getData()->getNblocks() );
 	int i;
 
 	for (i=0; i<N; i++) {

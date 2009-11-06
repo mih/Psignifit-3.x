@@ -7,6 +7,8 @@
 #include <iostream>
 #include "errors.h"
 #include "special.h"
+#include "data.h"
+#include "rng.h"
 
 /** \brief basic monte carlo samples list
  *
@@ -98,7 +100,7 @@ class BootstrapList : public PsiMClist
 		double getThres ( double p, unsigned int cut );                    ///< get the p-th percentile associated with the threshold at cut
 		double getThres_byPos ( unsigned int i, unsigned int cut );        ///< get the threshold for the i-th sample
 		void setThres ( double thres, unsigned int i, unsigned int cut );  ///< set the value of a threshold associated with the threshold at cut
-		int getNblocks ( void ) const { return data[0].size(); }           ///< get the number of blocks in the underlying dataset
+		unsigned int getNblocks ( void ) const { return data[0].size(); }  ///< get the number of blocks in the underlying dataset
 		double getCut ( unsigned int i ) const;                            ///< get the value of cut i
 		double getAcc ( unsigned int i ) const { return acceleration[i]; };///< get the acceleration constant for cut i
 		double getBias ( unsigned int i ) const { return bias[i]; };       ///< get the bias for cut i
@@ -148,5 +150,39 @@ class JackKnifeList : public PsiMClist
 		 */
 		bool outlier ( unsigned int block ) const ; ///< is block an outlier?
 };
+
+/** \brief a list of Bayesian MCMC samples
+ *
+ * This list stores additional data that are important for bayesian analysis.:
+ * 1. For each parameter sample, a sample from the respective psychometric function is stored. These samples
+ *    can be considered samples from the posterior predictive distribution
+ * 2. For each sample from the posterior predictive distribution, the deviance is stored
+ * 3. the list allows to obtain the estimated bayesian p-value
+ */
+class MCMCList : public PsiMClist
+{
+	private:
+		std::vector< std::vector<int> > posterior_predictive_data;
+		std::vector<double> posterior_predictive_deviances;
+	public:
+		MCMCList (
+			unsigned int N,                                                ///< number of samples to be drawn
+			unsigned int nprm,                                             ///< number of parameters in the model
+			unsigned int nblocks                                           ///< number of blocks in the experiment
+			) : PsiMClist ( N, nprm),
+				posterior_predictive_data(N,std::vector<int>(nblocks)),
+				posterior_predictive_deviances ( N ) {};      ///< set up MCMCList
+		void setppData (
+			unsigned int i,                                                ///< index of the posterior predictive sample to be set
+			const std::vector<int>& ppdata,                                ///< posterior predictive data sample
+			double ppdeviance                                              ///< deviance associated with the posterior predictive sample
+			);               ///< store a posterior predictive data set
+		std::vector<int> getppData ( unsigned int i ) const;               ///< get a posterior predictive data sample
+		int getppData ( unsigned int i, unsigned int j ) const;
+		double getppDeviance ( unsigned int i ) const;                     ///< get deviance associated with a posterior predictive sample
+		unsigned int getNblocks ( void ) const { return posterior_predictive_data[0].size(); }  ///< get the number of blocks
+};
+
+void newsample ( const PsiData * data, const std::vector<double>& p, std::vector<int> * sample );
 
 #endif

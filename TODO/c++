@@ -1,3 +1,4 @@
+- posterior predictive Rkd, Rpd
 - beta binomial models
 - implement fullmodel, nullmodel
 - Goodness of fit (Correlations?)                                          [OK] but correlations are wrong

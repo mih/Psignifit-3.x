@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import sys,os
+import operator
 import numpy as N
 import pylab as p
 from scipy import stats,special,optimize
@@ -157,7 +158,7 @@ class BootstrapInference ( PsiInference ):
         >>> B.getThres()
         3.805934094097025
         >>> B.getCI(1)
-        array([ 2.70965902,  4.59895584])
+        array([ 2.79484448,  4.73796576])
         """
         # Call the base constructor
         PsiInference.__init__(self)
@@ -369,14 +370,19 @@ class BootstrapInference ( PsiInference ):
             # The next point in parameter space
             phi = float(2*N.pi*k) / Npoints
             searchaxis = N.array([N.cos(phi),N.sin(phi)])
-            x0,x1 = 0.,max(self.mcestimates[:,0].max()-al,self.mcestimates[:,1].max())
+            x0,x1 = 0.,max(self.mcestimates[:,0].max()-al,self.mcestimates[:,1].max()-bt)
             def f ( prm ):
                 coeffs = prm0+searchaxis*prm
                 return contour.evaluate(coeffs)-0.68*maxcont
             while f(x0)*f(x1)>=0:
-                x1*=2
+                x0 =  x1
+                x1 *= 2
             # We use bisections to find the point on the surface that gives 0.68 the density of the maximum
-            a = optimize.bisect ( f, x0, x1 )
+            try:
+                a = optimize.bisect ( f, x0, x1 )
+            except RuntimeError:
+                # This is definitely a Hack: a has to be between x0 and x1
+                a = 0.5*(x0+x1)
             self._expansionPoints.append(a*searchaxis+prm0)
             if verbose:
                 sys.stderr.write("Bootstrapping point %d ... " % (k,))
@@ -430,7 +436,7 @@ class BootstrapInference ( PsiInference ):
     mcRpd = property ( fget=lambda self: self.__bRpd, doc="A vector of correlations between model prections and deviance residuals in all bootstrap samples" )
     mcRkd = property ( fget=lambda self: self.__bRkd, doc="A vector of correlations between block index and deviance residuals in all bootstrap samples" )
     mcthres = property ( fget=lambda self: self.__bthres, doc="Thresholds of the bootstrap replications" )
-    mcdensity = property ( fget=lambda self: stats.kde.gaussian_kde ( self.mcestimates[:,:2].T ),
+    mcdensity = property ( fget=lambda self: stats.kde.gaussian_kde ( self.mcestimates[N.logical_and(self.mcestimates[:,0]<10000,self.mcestimates[:,1]<10000),:2].T ),
             doc="A gaussian kernel density estimate of the joint density of the first two parameters of the model" )
     inference = property ( fget=lambda self: "CML-MC", doc="Type of inference performed by the object" )
     @Property
@@ -515,11 +521,11 @@ class BayesInference ( PsiInference ):
         >>> mcmc.estimate
         array([ 3.64159245,  5.13138577,  0.02117899])
         >>> mcmc.deviance
-        3.3980533168705693
+        3.2953368439616186
         >>> mcmc.getThres()
-        3.6415924484119446
+        3.6522408270087667
         >>> mcmc.getCI()[1]
-        array([ 2.6650409 ,  3.65213551,  4.51676092])
+        array([ 2.65917603,  3.68535429,  4.56688308])
         """
         PsiInference.__init__(self)
 
@@ -564,8 +570,10 @@ class BayesInference ( PsiInference ):
         self.__meanestimate = None
         self.__meandeviance = None
 
-        self.__mcmc_chains    = []
-        self.__mcmc_deviances = []
+        self.__mcmc_chains                         = []
+        self.__mcmc_deviances                      = []
+        self.__mcmc_posterior_predictives          = []
+        self.__mcmc_posterior_predictive_deviances = []
 
         self.__pRpd   = None
         self.__pRkd   = None
@@ -611,9 +619,11 @@ class BayesInference ( PsiInference ):
 
         if start is None:
             start = self.mapestimate
-        chain,deviance = _psipy.mcmc ( self.data, start, Nsamples, stepwidths=self._steps, **self.model )
+        chain,deviance,ppdata,ppdeviances = _psipy.mcmc ( self.data, start, Nsamples, stepwidths=self._steps, **self.model )
         self.__mcmc_chains.append(N.array(chain))
         self.__mcmc_deviances.append(N.array(deviance))
+        self.__mcmc_posterior_predictives.append(N.array(ppdata))
+        self.__mcmc_posterior_predictive_deviances.append(N.array(ppdeviances))
 
         # Resample if bad
         if self.retry:
@@ -665,6 +675,40 @@ class BayesInference ( PsiInference ):
         self.__mcmc_chains[chain] = N.array(mcchain)
         self.__mcmc_deviances[chain] = N.array(deviance)
 
+    def bayesian_p ( self, quantity="deviance" ):
+        """Bayesian p value associated with a given quantity
+
+        The Bayesian p value of a model compares posterior predictives with the observed data.
+        If the observed data are very unequal to the posterior predictives, this indicates that
+        the model does not describe the data well. To compare observed data and simulated data
+        (posterior predictives), it is common to derive a quantity of interest from the posterior
+        predictives. The Bayesian p value is between 0 and 1 and values close to 0 and close to 1
+        indicate bad model fit. This p value can be interpreted like a two sided test.
+
+        :Parameters:
+            *quantity* :
+                This is the quantity do be derived. By default only deviance is available. However,
+                if quantity is a function, this will be called on every data set and the respective
+                p value will be calculated. The call on every data set takes two arguments:
+                1. a nblocksX3 array of data and
+                2. a parameter vector.
+
+        :Output:
+            the bayesian p-value
+        """
+        if isinstance ( quantity, str ):
+            if quantity.lower() == "deviance":
+                return N.mean ( (self.ppdeviance-self.mcdeviance)>=0 )
+            else:
+                raise ValueError, "unsupported quantity for bayesian p value"
+        elif operator.isCallable ( quantity ):
+            d = self.data.copy()
+            I = 0.
+            for k in xrange ( self.Nsamples ):
+                d[:,1] = self.posterior_predictive[k,:]
+                I += double ( quantity ( d, self.mcestimates[k,:] ) - quantity ( self.data, self.mcestimates[k,:] >= 0 ) )
+            return I/self.Nsamples
+
     def __repr__ ( self ):
         return "< BayesInference object with %d blocks and %d mcmc chains of %d samples each >" % (self.data.shape[0],len(self.__mcmc_chains), self.nsamples)
 
@@ -697,7 +741,7 @@ class BayesInference ( PsiInference ):
         else:
             raise IndexError, "chain should be either None or an integer"
 
-    def getmcdeviance ( self, chain=None ):
+    def getmcdeviance ( self, chain=None, raw=False ):
         """Get samples from the posterior distribution of deviances
 
         :Parameters:
@@ -705,6 +749,10 @@ class BayesInference ( PsiInference ):
                 if chain is None, the samples are combined across all chains
                 sampled so far. If chain is an integer, it is interpreted as
                 the index of the chain to be returned
+            *raw* :
+                is true if deviances for all samples are to be returned (not
+                respecting burnin and thinning). This only has an effect for
+                single chains.
 
         :Output:
             an array of samples from the posterior distribution of deviances. This
@@ -717,7 +765,79 @@ class BayesInference ( PsiInference ):
                 chains.append ( chain[self.burnin::self.thin] )
             return N.concatenate ( chains, 0 )
         elif isinstance ( chain, int ):
-            return self.__mcmc_deviances[chain][self.burnin::self.thin]
+            if raw:
+                return self.__mcmc_deviances[chain]
+            else:
+                return self.__mcmc_deviances[chain][self.burnin::self.thin]
+        else:
+            raise ValueError, "chain should be either None or an integer"
+
+    def getppdata ( self, chain=None, raw=False ):
+        """Get posterior predictive data
+
+        Posterior predictive data are data samples from the joint posterior over
+        data and parameters. These represent data that could be generated by the
+        model. Comparison of posterior predictive data and the observed data forms
+        the basis of bayesian model checking: If posterior predictive data differ
+        systematically from the observed data, the fitted model does not capture
+        all the structure in the data.
+
+        :Parameters:
+            *chain* :
+                chain for which posterior predictive data should be returned
+            *raw* :
+                is true if all data (not respecting burnin and thinning) are to
+                be returned (this only has an effect for single chains!)
+
+        :Output:
+            a array of nsamplesXncorrect predicted data
+        """
+        if chain==None:
+            # Get all chains
+            chains = []
+            for chain in self.__mcmc_posterior_predictives:
+                chains.append ( chain[self.burnin::self.thin] )
+            return N.concatenate ( chains, 0 )
+        elif isinstance ( chain, int ):
+            # Get a single chain
+            if raw:
+                # Get raw data
+                return self.__mcmc_posterior_predictives[chain]
+            else:
+                return self.__mcmc_posterior_predictives[chain][self.burnin::self.thin]
+        else:
+            raise IndexError, "chain should be either None or an integer"
+
+    def getppdeviance ( self, chain=None, raw=False ):
+        """Get deviances associated with posterior predictive data
+
+        Posterior predictive data are data samples from the joint posterior over data
+        and parameters. Deviance of these samples is one possible transformation on
+        which a comparison of these data with the observed data could be based.
+
+        :Parameters:
+            *chain* :
+                chain index to be returned. If this is None (the default) all chains
+                are combined.
+            *raw* :
+                if only a single chain is returned, it might be interesting to see
+                the whole chain and ignore burnin and thinning. If raw==True, the
+                chain is requested in this "raw" format.
+
+        :Output:
+            an array of nsamples deviances
+        """
+        if chain==None:
+            # Get all chains
+            chains = []
+            for chain in self.__mcmc_posterior_predictive_deviances:
+                chains.append ( chain[self.burnin::self.thin] )
+            return N.concatenate ( chains, 0 )
+        elif isinstance ( chain, int ):
+            if raw:
+                return self.__mcmc_posterior_predictive_deviances[chain]
+            else:
+                return self.__mcmc_posterior_predictive_deviances[chain][self.burnin::self.thin]
         else:
             raise ValueError, "chain should be either None or an integer"
 
@@ -959,6 +1079,8 @@ class BayesInference ( PsiInference ):
 
     mcestimates = property ( fget=getsamples, doc="Monte Carlo samples from the posterior distribution of parameters" )
     mcdeviance = property ( fget=getmcdeviance , doc="Deviances of monte carlo samples from the posterior" )
+    posterior_predictive = property ( fget=getppdata, doc="Posterior predictive data associated with the MCMC samples" )
+    ppdeviance = property ( fget=getppdeviance, doc="Deviances associated with the posterior predictive data" )
 
     @Property
     def mcthres ():
@@ -1071,11 +1193,17 @@ class BayesInference ( PsiInference ):
         if len(self.__mcmc_chains)>0:
             mcmc_chains    = self.__mcmc_chains.copy()
             mcmc_deviances = self.__mcmc_deviances.copy()
+            mcmc_ppdata    = self.__mcmc_posterior_predictives.copy()
+            mcmc_ppdeviance= self.__mcmc_posterior_predictive_deviances.copy()
             self.__mcmc_chains    = []
             self.__mcmc_deviances = []
+            self.__mcmc_posterior_predictives = []
+            self.__mcmc_posterior_predictive_deviances = []
         else:
             mcmc_chains = []
             mcmc_deviances = []
+            mcmc_ppdata = []
+            mcmc_ppdeviance = []
 
         # Determine size of initial test run
         if self.nsamples is None:
@@ -1093,6 +1221,8 @@ class BayesInference ( PsiInference ):
             testrun = self.mcthres    # Thresholds from testrun
             samples = self.__mcmc_chains.pop()      # throw the samples away, don't use them for "real" inference
             deviances = self.__mcmc_deviances.pop()
+            self.__mcmc_posterior_predictives.pop()
+            self.__mcmc_posterior_predictive_deviances.pop()
 
             # Check all desired thresholds
             for q in self.conf:
@@ -1118,6 +1248,8 @@ class BayesInference ( PsiInference ):
         if len(mcmc_chains)>0:
             self.__mcmc_chains = mcmc_chains
             self.__mcmc_deviances = mcmc_deviances
+            self.__mcmc_posterior_predictives = mcmc_ppdata
+            self.__mcmc_posterior_predictive_deviances = mcmc_ppdeviance
 
 if __name__ == "__main__":
     import doctest
