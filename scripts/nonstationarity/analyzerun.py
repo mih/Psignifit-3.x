@@ -141,6 +141,10 @@ def performbootstrap ( *args, **kwargs ):
         f.write ( resultsline(Bp) + "\t%g\t%g\n" % check_nonpar_ci ( Bp ) )
     f.close()
 
+def performbootstrap_pos ( args ):
+    performbootstrap ( args[0], stimuli=args[1], ntrials=args[2], observer=args[3] )
+    return 0
+
 if __name__ == "__main__":
     import pypsignifit
     import pypsignifit.psigobservers as observers
