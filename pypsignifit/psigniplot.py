@@ -725,7 +725,7 @@ def plotSensitivity ( BootstrapInferenceObject, ax=None ):
         *ax* :
             pylab axes that should be used for plotting
     """
-    if InferenceObject.mcestimates is None:
+    if BootstrapInferenceObject.mcestimates is None:
         raise ValueError, "Sensitivity analysis requires monte carlo samples. Try to call the sample() method of your inference object."
 
     if ax==None:

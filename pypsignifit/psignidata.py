@@ -629,6 +629,8 @@ class BayesInference ( PsiInference ):
         self.__mcmc_posterior_predictive_Rpd.append (N.array(ppRpd))
         self.__mcmc_posterior_predictive_Rkd.append (N.array(ppRkd))
 
+        self.__recomputeCorrelationsAndThresholds()
+
         # Resample if bad
         if self.retry:
             nprm = self.mapestimate.shape[0]
@@ -682,6 +684,8 @@ class BayesInference ( PsiInference ):
         self.__mcmc_posterior_predictive_deviances[chain] = N.array(ppdeviances)
         self.__mcmc_posterior_predictive_Rpd[chain] = N.array(ppRpd)
         self.__mcmc_posterior_predictive_Rkd[chain] = N.array(ppRkd)
+
+        self.__recomputeCorrelationsAndThresholds()
 
     def bayesian_p ( self, quantity="deviance" ):
         """Bayesian p value associated with a given quantity

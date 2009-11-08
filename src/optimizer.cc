@@ -71,7 +71,7 @@ std::vector<double> PsiOptimizer::optimize ( const PsiPsychometric * model, cons
 				}
 				// fx[k] = testfunction(simplex[k]);
 #ifdef DEBUG_OPTIMIZER
-				// std::cerr << simplex[k][0] << " " << simplex[k][1] << " " << simplex[k][2] << " " << simplex[k][3] << " " << "\n";
+				std::cerr << simplex[k][0] << " " << simplex[k][1] << " " << simplex[k][2] << " " << simplex[k][3] << " " << fx[k] << "\n";
 #endif
 				if (fx[k]<fx[minind]) minind = k;
 				if (fx[k]>fx[maxind]) maxind = k;
