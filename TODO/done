@@ -1,3 +1,4 @@
++ posterior predictive Rkd, Rpd                                            [OK]
 + more meaningfull errors if sample based plot functions are used before sampling [OK]
 + Inference objects take relative probabilities, too                       [OK]
 + nonparametric bootstrap                                                  [OK]

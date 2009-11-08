@@ -1,4 +1,4 @@
-- posterior predictive Rkd, Rpd
+- influential observations should be marked graded with a value < 1 indicating influential observations. How to do that for the ci based bootstrap strategy?
 - beta binomial models
 - implement fullmodel, nullmodel
 - Goodness of fit (Correlations?)                                          [OK] but correlations are wrong
