@@ -2,6 +2,7 @@
 # encoding: utf-8
 
 from distutils.core import setup, Extension
+import numpy
 
 psippmodule = Extension ( "_psipy",
         sources = [
@@ -17,7 +18,8 @@ psippmodule = Extension ( "_psipy",
             "src/sigmoid.cc",
             "src/special.cc",
             "src/linalg.cc",
-            "src/prior.cc"]
+            "src/prior.cc"],
+            include_dirs=[numpy.get_include()]
         )
 
 setup ( name = "pypsignifit",
