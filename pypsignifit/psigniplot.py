@@ -296,28 +296,39 @@ def plotPMF ( InferenceObject, xlabel_text="Stimulus intensity", ylabel_text=Non
     xd = InferenceObject.data[:,0]
     pd = InferenceObject.data[:,1].astype("d")/InferenceObject.data[:,2]
     goodpoints = N.ones(pd.shape,bool)
-    if not InferenceObject.outl==None:
-        ax.plot(xd[InferenceObject.outl],pd[InferenceObject.outl],
-                color   = kwargs.setdefault ( 'outliercolor', 'r' ),
-                marker  = kwargs.setdefault ( 'outliermarker', 'd' ),
-                markersize = kwargs.setdefault ( 'markersize', 5 ),
-                linestyle = "None"
-                )
-        goodpoints = N.logical_and(goodpoints,N.logical_not(InferenceObject.outl))
-    if not InferenceObject.infl==None:
-        ax.plot(xd[InferenceObject.infl],pd[InferenceObject.infl],
-                color    = kwargs.setdefault ( 'influentialcolor', 'r' ),
-                marker   = kwargs.setdefault ( 'influentialmarker', 's' ),
+    if InferenceObject.__repr__().split()[1] == "BayesInference":
+        # For bayes we get KL-Divergence as a measure for influential observations
+        infl = N.zeros ( (len(InferenceObject.infl),3) ,'d' )
+        if not InferenceObject.infl==None:
+            # infl[:,0] = InferenceObject.infl / 10.
+            # infl[:,2] = 1 - InferenceObject.infl / 10.
+            # infl = N.clip(infl,0,1)
+            infl = InferenceObject.infl
+        # ax.scatter ( xd, pd, s=20, edgecolor=infl, linewidth=2 )
+        ax.scatter ( xd, pd, s=2*infl )
+    elif InferenceObject.__repr__().split()[1] == "BootstrapInference":
+        # This is the old part
+        if not InferenceObject.outl==None:
+            ax.plot(xd[InferenceObject.outl],pd[InferenceObject.outl],
+                    color   = kwargs.setdefault ( 'outliercolor', 'r' ),
+                    marker  = kwargs.setdefault ( 'outliermarker', 'd' ),
+                    markersize = kwargs.setdefault ( 'markersize', 5 ),
+                    linestyle = "None"
+                    )
+            goodpoints = N.logical_and(goodpoints,N.logical_not(InferenceObject.outl))
+            ax.plot(xd[InferenceObject.infl],pd[InferenceObject.infl],
+                    color    = kwargs.setdefault ( 'influentialcolor', 'r' ),
+                    marker   = kwargs.setdefault ( 'influentialmarker', 's' ),
+                    markersize = kwargs.setdefault ( 'markersize', 5 ),
+                    linestyle = 'None'
+                    )
+            goodpoints = N.logical_and(goodpoints,N.logical_not(InferenceObject.infl))
+        ax.plot(xd[goodpoints],pd[goodpoints],
+                color     = kwargs.setdefault ( 'color', 'b' ),
+                marker    = kwargs.setdefault ( 'marker', 'o' ),
                 markersize = kwargs.setdefault ( 'markersize', 5 ),
                 linestyle = 'None'
                 )
-        goodpoints = N.logical_and(goodpoints,N.logical_not(InferenceObject.infl))
-    ax.plot(xd[goodpoints],pd[goodpoints],
-            color     = kwargs.setdefault ( 'color', 'b' ),
-            marker    = kwargs.setdefault ( 'marker', 'o' ),
-            markersize = kwargs.setdefault ( 'markersize', 5 ),
-            linestyle = 'None'
-            )
 
     # Check axes limits
     if InferenceObject.model["nafc"]>1:

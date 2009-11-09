@@ -27,7 +27,7 @@ python-install: $(PYTHONFILES) $(CFILES) $(HFILES) setup.py
 	echo "Installing python extension"
 	python setup.py install
 
-python-build: $(PYTHONFILES) $(CFILES) $(HFILES) setup.py
+python-build: $(PYTHONFILES) $(CFILES) $(HFILES) setup.py python-install
 	echo "Building python extension"
 	python setup.py build_ext
 	printf "The module can be used if you set\nPYTHONPATH=%s/src/\n" `pwd`

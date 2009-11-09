@@ -7,7 +7,6 @@ import pylab as p
 from scipy import stats,special,optimize
 import _psipy
 
-import psigniplot as pp
 import pygibbsit
 
 from psignierrors import NosamplesError
@@ -576,6 +575,7 @@ class BayesInference ( PsiInference ):
         self.__mcmc_posterior_predictive_deviances = []
         self.__mcmc_posterior_predictive_Rpd       = []
         self.__mcmc_posterior_predictive_Rkd       = []
+        self.__mcmc_logposterior_ratios            = []
 
         self.__pRpd   = None
         self.__pRkd   = None
@@ -621,13 +621,14 @@ class BayesInference ( PsiInference ):
 
         if start is None:
             start = self.mapestimate
-        chain,deviance,ppdata,ppdeviances,ppRpd,ppRkd = _psipy.mcmc ( self.data, start, Nsamples, stepwidths=self._steps, **self.model )
+        chain,deviance,ppdata,ppdeviances,ppRpd,ppRkd,logpostratios = _psipy.mcmc ( self.data, start, Nsamples, stepwidths=self._steps, **self.model )
         self.__mcmc_chains.append(N.array(chain))
         self.__mcmc_deviances.append(N.array(deviance))
         self.__mcmc_posterior_predictives.append(N.array(ppdata))
         self.__mcmc_posterior_predictive_deviances.append(N.array(ppdeviances))
         self.__mcmc_posterior_predictive_Rpd.append (N.array(ppRpd))
         self.__mcmc_posterior_predictive_Rkd.append (N.array(ppRkd))
+        self.__mcmc_logposterior_ratios.append (N.array(logpostratios) )
 
         self.__recomputeCorrelationsAndThresholds()
 
@@ -677,13 +678,14 @@ class BayesInference ( PsiInference ):
         elif isinstance (Nsamples,int):
             start = self.__mcmc_chains[chain][start,:]
 
-        mcchain,deviance,ppdata,ppdeviances,ppRpd,ppRkd = _psipy.mcmc ( self.data, start, Nsamples, stepwidths=self._steps, **self.model )
+        mcchain,deviance,ppdata,ppdeviances,ppRpd,ppRkd,logpostratios = _psipy.mcmc ( self.data, start, Nsamples, stepwidths=self._steps, **self.model )
         self.__mcmc_chains[chain] = N.array(mcchain)
         self.__mcmc_deviances[chain] = N.array(deviance)
         self.__mcmc_posterior_predictives[chain] = N.array(ppdata)
         self.__mcmc_posterior_predictive_deviances[chain] = N.array(ppdeviances)
         self.__mcmc_posterior_predictive_Rpd[chain] = N.array(ppRpd)
         self.__mcmc_posterior_predictive_Rkd[chain] = N.array(ppRkd)
+        self.__mcmc_logposterior_ratios[chain] = N.array(logpostratios)
 
         self.__recomputeCorrelationsAndThresholds()
 
@@ -1253,10 +1255,16 @@ class BayesInference ( PsiInference ):
         self.__pRpd = N.zeros(samples.shape[0],'d')
         self.__pRkd = N.zeros(samples.shape[0],'d')
         self.__pthres = N.zeros((samples.shape[0],self.Ncuts),'d')
+        self._PsiInference__infl   = N.zeros(self.data.shape[0], 'd' )
 
         for k,theta in enumerate(samples):
             self.__pthres[k,:],self.__pRpd[k],self.__pRkd[k] = _psipy.diagnostics (\
                     self.data, theta, cuts=self.cuts, nafc=self.model["nafc"], sigmoid=self.model["sigmoid"], core=self.model["core"] )[3:]
+        lpr = []
+        for l in self.__mcmc_logposterior_ratios:
+            lpr.append(l[self.burnin::self.thin,:])
+        lpr = N.concatenate ( lpr, 0 )
+        self._PsiInference__infl = N.mean(lpr,0) + N.log(N.mean(N.exp(lpr),0))
 
     def __determineoptimalsampling ( self, noptimizations=10, verbose=False ):
         """Determine optimal sampling parameters using the Raftery&Lewis (1995) procedure
@@ -1284,12 +1292,14 @@ class BayesInference ( PsiInference ):
             mcmc_ppdeviance= self.__mcmc_posterior_predictive_deviances.copy()
             mcmc_ppRpd     = self.__mcmc_posterior_predictive_Rpd.copy()
             mcmc_ppRkd     = self.__mcmc_posterior_predictive_Rkd.copy()
+            mcmc_logpost   = self.__mcmc_logposterior_ratios.copy()
             self.__mcmc_chains    = []
             self.__mcmc_deviances = []
             self.__mcmc_posterior_predictives = []
             self.__mcmc_posterior_predictive_deviances = []
             self.__mcmc_posterior_predictive_Rpd = []
             self.__mcmc_posterior_predictive_Rkd = []
+            self.__mcmc_logposterior_ratios = []
         else:
             mcmc_chains = []
             mcmc_deviances = []
@@ -1297,6 +1307,7 @@ class BayesInference ( PsiInference ):
             mcmc_ppdeviance = []
             mcmc_ppRpd = []
             mcmc_ppRkd = []
+            mcmc_logpost = []
 
         # Determine size of initial test run
         if self.nsamples is None:
@@ -1318,6 +1329,7 @@ class BayesInference ( PsiInference ):
             self.__mcmc_posterior_predictive_deviances.pop()
             self.__mcmc_posterior_predictive_Rpd.pop()
             self.__mcmc_posterior_predictive_Rkd.pop()
+            self.__mcmc_logposterior_ratios.pop()
 
             # Check all desired thresholds
             for q in self.conf:
@@ -1347,6 +1359,7 @@ class BayesInference ( PsiInference ):
             self.__mcmc_posterior_predictive_deviances = mcmc_ppdeviance
             self.__mcmc_posterior_predictive_Rpd = mcmc_ppRpd
             self.__mcmc_posterior_predictive_Rkd = mcmc_ppRkd
+            self.__mcmc_logposterior_ratios = mcmc_logpost
 
 if __name__ == "__main__":
     import doctest

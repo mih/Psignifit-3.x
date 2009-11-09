@@ -166,6 +166,7 @@ class MCMCList : public PsiMClist
 		std::vector<double> posterior_predictive_deviances;
 		std::vector<double> posterior_predictive_Rpd;
 		std::vector<double> posterior_predictive_Rkd;
+		std::vector< std::vector<double> > logratios;       // log ratios of the unnormalized posteriors for the full model and the models with one block omitted
 	public:
 		MCMCList (
 			unsigned int N,                                                ///< number of samples to be drawn
@@ -175,7 +176,8 @@ class MCMCList : public PsiMClist
 				posterior_predictive_data(N,std::vector<int>(nblocks)),
 				posterior_predictive_deviances ( N ),
 				posterior_predictive_Rpd ( N ),
-				posterior_predictive_Rkd ( N ) {};      ///< set up MCMCList
+				posterior_predictive_Rkd ( N ),
+				logratios ( N, std::vector<double>(nblocks ) ) {};      ///< set up MCMCList
 		void setppData (
 			unsigned int i,                                                ///< index of the posterior predictive sample to be set
 			const std::vector<int>& ppdata,                                ///< posterior predictive data sample
@@ -189,6 +191,8 @@ class MCMCList : public PsiMClist
 		void setppRkd ( unsigned int i, double Rkd );
 		double getppRkd ( unsigned int i ) const;
 		unsigned int getNblocks ( void ) const { return posterior_predictive_data[0].size(); }  ///< get the number of blocks
+		void setlogratio ( unsigned int i, unsigned int j, double logratio );              ///< set the log posterior ratio for sample i and block j
+		double getlogratio ( unsigned int i, unsigned int j ) const;                       ///< get the log posterior ratio for sample i and block j
 };
 
 void newsample ( const PsiData * data, const std::vector<double>& p, std::vector<int> * sample );
