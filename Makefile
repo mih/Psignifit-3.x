@@ -27,12 +27,12 @@ python-install: $(PYTHONFILES) $(CFILES) $(HFILES) setup.py
 	echo "Installing python extension"
 	python setup.py install
 
-python-build: $(PYTHONFILES) $(CFILES) $(HFILES) setup.py python-install
+python-build: $(PYTHONFILES) $(CFILES) $(HFILES) setup.py
 	echo "Building python extension"
 	python setup.py build_ext
 	printf "The module can be used if you set\nPYTHONPATH=%s/src/\n" `pwd`
 
-python-doc: $(DOCFILES) $(PYTHONFILES)
+python-doc: $(DOCFILES) $(PYTHONFILES)  python-install
 	echo "building sphinx documentation"
 	# PYTHONPATH=pypsignifit/ sphinx-build doc-src $(DOCOUT)
 	sphinx-build doc-src $(DOCOUT)
