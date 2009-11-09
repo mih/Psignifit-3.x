@@ -100,9 +100,9 @@ static PyObject * psibootstrap ( PyObject * self, PyObject * args, PyObject * kw
 	PyArrayObject *pybias;
 	PyArrayObject *pyacc;
 	std::vector<int> k (Nblocks);
-	int samplesdim[2]   = {Nsamples, Nblocks};
-	int estimatesdim[2] = {Nsamples, Nparams};
-	int thresdim[2]     = {Nsamples, Ncuts};
+	npy_intp samplesdim[2]   = {Nsamples, Nblocks};
+	npy_intp estimatesdim[2] = {Nsamples, Nparams};
+	npy_intp thresdim[2]     = {Nsamples, Ncuts};
 	/*
 	pysamples   = (PyArrayObject*) PyArray_FromDims ( 2, samplesdim, PyArray_INT );
 	pyestimates = (PyArrayObject*) PyArray_FromDims ( 2, estimatesdim, PyArray_DOUBLE );
@@ -117,14 +117,14 @@ static PyObject * psibootstrap ( PyObject * self, PyObject * args, PyObject * kw
 	*/
 	pysamples     = (PyArrayObject*) PyArray_SimpleNew ( 2, samplesdim, NPY_INT );
 	pyestimates   = (PyArrayObject*) PyArray_SimpleNew ( 2, estimatesdim, NPY_DOUBLE );
-	pydeviance    = (PyArrayObject*) PyArray_SimpleNew ( 1, &Nsamples, NPY_DOUBLE );
+	pydeviance    = (PyArrayObject*) PyArray_SimpleNew ( 1, (npy_intp*)&Nsamples, NPY_DOUBLE );
 	pythres       = (PyArrayObject*) PyArray_SimpleNew ( 2, thresdim, NPY_DOUBLE );
-	pyRpd         = (PyArrayObject*) PyArray_SimpleNew ( 1, &Nsamples, NPY_DOUBLE );
-	pyRkd         = (PyArrayObject*) PyArray_SimpleNew ( 1, &Nsamples, NPY_DOUBLE );
-	pyoutliers    = (PyArrayObject*) PyArray_SimpleNew ( 1, &Nblocks,  NPY_BOOL );
-	pyinfluential = (PyArrayObject*) PyArray_SimpleNew ( 1, &Nblocks,  NPY_BOOL );
-	pybias        = (PyArrayObject*) PyArray_SimpleNew ( 1, &Ncuts, NPY_DOUBLE );
-	pyacc         = (PyArrayObject*) PyArray_SimpleNew ( 1, &Ncuts, NPY_DOUBLE );
+	pyRpd         = (PyArrayObject*) PyArray_SimpleNew ( 1, (npy_intp*)&Nsamples, NPY_DOUBLE );
+	pyRkd         = (PyArrayObject*) PyArray_SimpleNew ( 1, (npy_intp*)&Nsamples, NPY_DOUBLE );
+	pyoutliers    = (PyArrayObject*) PyArray_SimpleNew ( 1, (npy_intp*)&Nblocks,  NPY_BOOL );
+	pyinfluential = (PyArrayObject*) PyArray_SimpleNew ( 1, (npy_intp*)&Nblocks,  NPY_BOOL );
+	pybias        = (PyArrayObject*) PyArray_SimpleNew ( 1, (npy_intp*)&Ncuts, NPY_DOUBLE );
+	pyacc         = (PyArrayObject*) PyArray_SimpleNew ( 1, (npy_intp*)&Ncuts, NPY_DOUBLE );
 	for ( i=0; i<Nsamples; i++ ) {
 		k = boots.getData ( i );
 		for ( j=0; j<Nblocks; j++ ) {
@@ -269,12 +269,12 @@ static PyObject * psimcmc ( PyObject * self, PyObject * args, PyObject * kwargs 
 	pyestimates = (PyArrayObject*) PyArray_FromDims ( 2, estimatesdim, PyArray_DOUBLE );
 	pydeviance  = (PyArrayObject*) PyArray_FromDims ( 1, &Nsamples, PyArray_DOUBLE );
 	*/
-	pyestimates                      = (PyArrayObject*) PyArray_SimpleNew ( 2, estimatesdim, NPY_DOUBLE );
-	pydeviance                       = (PyArrayObject*) PyArray_SimpleNew ( 1, &Nsamples, NPY_DOUBLE );
-	pyposterior_predictive_data      = (PyArrayObject*) PyArray_SimpleNew ( 2, datadim, NPY_INT );
-	pyposterior_predictive_deviances = (PyArrayObject*) PyArray_SimpleNew ( 1, &Nsamples, NPY_DOUBLE );
-	pyposterior_predictive_Rpd       = (PyArrayObject*) PyArray_SimpleNew ( 1, &Nsamples, NPY_DOUBLE );
-	pyposterior_predictive_Rkd       = (PyArrayObject*) PyArray_SimpleNew ( 1, &Nsamples, NPY_DOUBLE );
+	pyestimates                      = (PyArrayObject*) PyArray_SimpleNew ( 2, (npy_intp*)estimatesdim, NPY_DOUBLE );
+	pydeviance                       = (PyArrayObject*) PyArray_SimpleNew ( 1, (npy_intp*)&Nsamples, NPY_DOUBLE );
+	pyposterior_predictive_data      = (PyArrayObject*) PyArray_SimpleNew ( 2, (npy_intp*)datadim, NPY_INT );
+	pyposterior_predictive_deviances = (PyArrayObject*) PyArray_SimpleNew ( 1, (npy_intp*)&Nsamples, NPY_DOUBLE );
+	pyposterior_predictive_Rpd       = (PyArrayObject*) PyArray_SimpleNew ( 1, (npy_intp*)&Nsamples, NPY_DOUBLE );
+	pyposterior_predictive_Rkd       = (PyArrayObject*) PyArray_SimpleNew ( 1, (npy_intp*)&Nsamples, NPY_DOUBLE );
 	for ( i=0; i<Nsamples; i++ ) {
 		for ( j=0; j<Nparams; j++ ) {
 			((double*)pyestimates->data)[i*Nparams+j] = post.getEst ( i, j );
@@ -366,8 +366,8 @@ static PyObject * psimapestimate ( PyObject * self, PyObject * args, PyObject * 
 	pyestimate = (PyArrayObject*) PyArray_FromDims ( 1, &Nparams, PyArray_DOUBLE );
 	pythres    = (PyArrayObject*) PyArray_FromDims ( 1, &Ncuts, PyArray_DOUBLE );
 	*/
-	pyestimate = (PyArrayObject*) PyArray_SimpleNew ( 1, &Nparams, NPY_DOUBLE );
-	pythres    = (PyArrayObject*) PyArray_SimpleNew ( 1, &Ncuts, NPY_DOUBLE );
+	pyestimate = (PyArrayObject*) PyArray_SimpleNew ( 1, (npy_intp*)&Nparams, NPY_DOUBLE );
+	pythres    = (PyArrayObject*) PyArray_SimpleNew ( 1, (npy_intp*)&Ncuts, NPY_DOUBLE );
 	for (i=0; i<Nparams; i++)
 		((double*)pyestimate->data)[i] = (*estimate)[i];
 
@@ -447,13 +447,13 @@ static PyObject * psidiagnostics ( PyObject * self, PyObject * args, PyObject * 
 	PyArrayObject *pythres;
 	if ( intensityonly==-1 )
 		// pydevianceresiduals = (PyArrayObject*) PyArray_FromDims ( 1, &Nblocks, PyArray_DOUBLE );
-		pydevianceresiduals = (PyArrayObject*) PyArray_SimpleNew ( 1, &Nblocks, NPY_DOUBLE );
+		pydevianceresiduals = (PyArrayObject*) PyArray_SimpleNew ( 1, (npy_intp*)&Nblocks, NPY_DOUBLE );
 	/*
 	pypredicted = (PyArrayObject*) PyArray_FromDims ( 1, &Nblocks, PyArray_DOUBLE );
 	pythres     = (PyArrayObject*) PyArray_FromDims ( 1, &Ncuts,   PyArray_DOUBLE );
 	*/
-	pypredicted = (PyArrayObject*) PyArray_SimpleNew ( 1, &Nblocks, NPY_DOUBLE );
-	pythres     = (PyArrayObject*) PyArray_SimpleNew ( 1, &Ncuts,   NPY_DOUBLE );
+	pypredicted = (PyArrayObject*) PyArray_SimpleNew ( 1, (npy_intp*)&Nblocks, NPY_DOUBLE );
+	pythres     = (PyArrayObject*) PyArray_SimpleNew ( 1, (npy_intp*)&Ncuts,   NPY_DOUBLE );
 	for (i=0; i<Nblocks; i++) {
 		if ( intensityonly==-1 )
 			((double*)pydevianceresiduals->data)[i] = (*devianceresiduals)[i];
