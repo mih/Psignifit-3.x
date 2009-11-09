@@ -320,3 +320,23 @@ double MCMCList::getppRkd ( unsigned int i ) const
 
 	return posterior_predictive_Rkd[i];
 }
+
+void MCMCList::setlogratio ( unsigned int i, unsigned int j, double logratio )
+{
+	if ( i>=getNsamples() )
+		throw BadIndexError();
+	if ( j>=getNblocks() )
+		throw BadIndexError();
+
+	logratios[i][j] = logratio;
+}
+
+double MCMCList::getlogratio ( unsigned int i, unsigned int j ) const
+{
+	if ( i>=getNsamples() )
+		throw BadIndexError();
+	if ( j>=getNblocks() )
+		throw BadIndexError();
+
+	return logratios[i][j];
+}

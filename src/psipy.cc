@@ -263,6 +263,7 @@ static PyObject * psimcmc ( PyObject * self, PyObject * args, PyObject * kwargs 
 	PyArrayObject *pyposterior_predictive_deviances;
 	PyArrayObject *pyposterior_predictive_Rpd;
 	PyArrayObject *pyposterior_predictive_Rkd;
+	PyArrayObject *pylogposterior_ratios;
 	int estimatesdim[2] = {Nsamples, Nparams};
 	int datadim[2] = {Nsamples, Nblocks};
 	/*
@@ -275,6 +276,7 @@ static PyObject * psimcmc ( PyObject * self, PyObject * args, PyObject * kwargs 
 	pyposterior_predictive_deviances = (PyArrayObject*) PyArray_SimpleNew ( 1, &Nsamples, NPY_DOUBLE );
 	pyposterior_predictive_Rpd       = (PyArrayObject*) PyArray_SimpleNew ( 1, &Nsamples, NPY_DOUBLE );
 	pyposterior_predictive_Rkd       = (PyArrayObject*) PyArray_SimpleNew ( 1, &Nsamples, NPY_DOUBLE );
+	pylogposterior_ratios            = (PyArrayObject*) PyArray_SimpleNew ( 2, datadim, NPY_DOUBLE );
 	for ( i=0; i<Nsamples; i++ ) {
 		for ( j=0; j<Nparams; j++ ) {
 			((double*)pyestimates->data)[i*Nparams+j] = post.getEst ( i, j );
@@ -282,14 +284,15 @@ static PyObject * psimcmc ( PyObject * self, PyObject * args, PyObject * kwargs 
 		((double*)pydeviance->data)[i] = post.getdeviance ( i );
 		for ( j=0; j<Nblocks; j++ ) {
 			((int*)pyposterior_predictive_data->data)[i*Nblocks+j] = post.getppData ( i, j );
+			((double*)pylogposterior_ratios->data)[i*Nblocks+j]    = post.getlogratio ( i, j );
 		}
 		((double*)pyposterior_predictive_deviances->data)[i] = post.getppDeviance ( i );
 		((double*)pyposterior_predictive_Rpd->data)[i]       = post.getppRpd ( i );
 		((double*)pyposterior_predictive_Rkd->data)[i]       = post.getppRkd ( i );
 	}
 
-	pynumber = Py_BuildValue ( "(OOOOOO)", pyestimates, pydeviance,
-			pyposterior_predictive_data, pyposterior_predictive_deviances, pyposterior_predictive_Rpd, pyposterior_predictive_Rkd );
+	pynumber = Py_BuildValue ( "(OOOOOOO)", pyestimates, pydeviance,
+			pyposterior_predictive_data, pyposterior_predictive_deviances, pyposterior_predictive_Rpd, pyposterior_predictive_Rkd,pylogposterior_ratios );
 
 	Py_DECREF ( pyestimates );
 	Py_DECREF ( pydeviance );
@@ -297,6 +300,7 @@ static PyObject * psimcmc ( PyObject * self, PyObject * args, PyObject * kwargs 
 	Py_DECREF ( pyposterior_predictive_deviances );
 	Py_DECREF ( pyposterior_predictive_Rpd );
 	Py_DECREF ( pyposterior_predictive_Rkd );
+	Py_DECREF ( pylogposterior_ratios );
 
 	delete pmf;
 	delete data;

@@ -90,15 +90,23 @@ MCMCList MetropolisHastings::sample ( unsigned int N ) {
 	const PsiPsychometric * model ( getModel() );
 	MCMCList out ( N, model->getNparams(), data->getNblocks() );
 	PsiData *localdata = new PsiData ( data->getIntensities(), data->getNtrials(), data->getNcorrect(), data->getNalternatives() );
+	PsiData *reduceddata;
 	std::vector<int> posterior_predictive ( data->getNblocks() );
 	std::vector<double> probs ( data->getNblocks() );
 	std::vector<double> est ( model->getNparams() );
-	int i,k;
+	int i,j,k,l;
+
+	std::vector<double> reducedx ( data->getNblocks()-1 );
+	std::vector<int> reducedk ( data->getNblocks()-1 );
+	std::vector<int> reducedn ( data->getNblocks()-1 );
 
 	for (i=0; i<N; i++) {
+		// Draw the nest sample
 		est = draw();
 		out.setEst ( i, est, 0. );
 		out.setdeviance ( i, getDeviance() );
+
+		// determine posterior predictives
 		for ( k=0; k<data->getNblocks(); k++ )
 			probs[k] = model->evaluate ( data->getIntensity(k), est );
 		newsample ( localdata, probs, &posterior_predictive);
@@ -107,6 +115,22 @@ MCMCList MetropolisHastings::sample ( unsigned int N ) {
 		probs = model->getDevianceResiduals ( est, localdata );
 		out.setppRpd ( i, model->getRpd ( probs, est, localdata ) );
 		out.setppRkd ( i, model->getRkd ( probs, localdata ) );
+
+		// Store log posterior ratios for reduced data sets
+		for ( k=0; k<data->getNblocks(); k++) {
+			j=0;
+			for ( l=0; l<data->getNblocks(); l++ ) {
+				if ( l!=k ) {
+					reducedx[j] = data->getIntensity(l);
+					reducedk[j] = data->getNcorrect(l);
+					reducedn[j] = data->getNtrials(l);
+					j++;
+				}
+			}
+			reduceddata = new PsiData ( reducedx, reducedn, reducedk, data->getNalternatives() );
+			out.setlogratio ( i, k, model->neglpost(est,data)-model->neglpost(est,reduceddata) );
+			delete reduceddata;
+		}
 #ifdef DEBUG_MCMC
 		std::cerr << " accept: " << std::setiosflags ( std::ios::fixed ) << double(accept)/(i+1) << "\n";
 #endif
