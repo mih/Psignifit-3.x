@@ -1,5 +1,9 @@
-- influential observations should be marked graded with a value < 1 indicating influential observations. How to do that for the ci based bootstrap strategy?
-- beta binomial models
+- IMPORTANT:  Alternate seeds. This might solve problems with optimizers, too. Strategy:
+    determine upper and lower bounds for alpha and beta and search the area spanned by these two on a 10x10 grid.
+    range for alpha: Determine the data point with the lowest %-correct (x_l) and the data point with the highest %-correct (x_h).
+        then alpha should be larger than x_l-(x_h-x_l) and less than x_h+(x_h-x_l).
+    upper bound for beta/w: The psychometric function should not be shallower than rising on the whole range for alpha.
+    lower bound for beta/w: will probably have to be set to a relatively arbitrary value.- beta binomial models
 - implement fullmodel, nullmodel
 - Goodness of fit (Correlations?)                                          [OK] but correlations are wrong
 - Unit test with gamma as a free parameter                                 [OK] but only very rough correspondence to psignifit -- should be stricter
@@ -11,9 +15,3 @@
 - use linalg.h/linalg.cc for Sampler class
 - Bugs with different cores -> no convergence, exceptionally high deviance with ok looking fit, ... This is only due to the logCore-Kernel that returns -inf for contrasts of 0
 - NaN in bootstrap
-- Alternate seeds. This might solve problems with optimizers, too. Strategy:
-    determine upper and lower bounds for alpha and beta and search the area spanned by these two on a 10x10 grid.
-    range for alpha: Determine the data point with the lowest %-correct (x_l) and the data point with the highest %-correct (x_h).
-        then alpha should be larger than x_l-(x_h-x_l) and less than x_h+(x_h-x_l).
-    upper bound for beta/w: The psychometric function should not be shallower than rising on the whole range for alpha.
-    lower bound for beta/w: will probably have to be set to a relatively arbitrary value.
