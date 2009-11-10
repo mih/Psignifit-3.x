@@ -2,9 +2,9 @@
 
 import pylab as p
 import numpy as N
-import pypsignifit
 import re
 from scipy import stats
+import psignidata
 
 __all__ = ["GoodnessOfFit","ConvergenceMCMC","ParameterPlot","ThresholdPlot","plotSensitivity"]
 __warnred = [.7,0,0]
@@ -289,47 +289,14 @@ def plotPMF ( InferenceObject, xlabel_text="Stimulus intensity", ylabel_text=Non
     ax.plot(x,psi,
             color     = kwargs.setdefault ( 'color', 'b' ),
             linestyle = kwargs.setdefault ( 'linestyle', '-' ),
-            linewidth = kwargs.setdefault ( 'linewidths', 1 )
+            linewidth = kwargs.setdefault ( 'linewidth', 1 )
             )
 
     # Plot the data
     xd = InferenceObject.data[:,0]
     pd = InferenceObject.data[:,1].astype("d")/InferenceObject.data[:,2]
-    goodpoints = N.ones(pd.shape,bool)
-    if InferenceObject.__repr__().split()[1] == "BayesInference":
-        # For bayes we get KL-Divergence as a measure for influential observations
-        infl = N.zeros ( (len(InferenceObject.infl),3) ,'d' )
-        if not InferenceObject.infl==None:
-            # infl[:,0] = InferenceObject.infl / 10.
-            # infl[:,2] = 1 - InferenceObject.infl / 10.
-            # infl = N.clip(infl,0,1)
-            infl = InferenceObject.infl
-        # ax.scatter ( xd, pd, s=20, edgecolor=infl, linewidth=2 )
-    elif InferenceObject.__repr__().split()[1] == "BootstrapInference":
-        # This is the old part
-        # if not InferenceObject.outl==None:
-        #     ax.plot(xd[InferenceObject.outl],pd[InferenceObject.outl],
-        #             color   = kwargs.setdefault ( 'outliercolor', 'r' ),
-        #             marker  = kwargs.setdefault ( 'outliermarker', 'd' ),
-        #             markersize = kwargs.setdefault ( 'markersize', 5 ),
-        #             linestyle = "None"
-        #             )
-        #     goodpoints = N.logical_and(goodpoints,N.logical_not(InferenceObject.outl))
-        #     ax.plot(xd[InferenceObject.infl],pd[InferenceObject.infl],
-        #             color    = kwargs.setdefault ( 'influentialcolor', 'r' ),
-        #             marker   = kwargs.setdefault ( 'influentialmarker', 's' ),
-        #             markersize = kwargs.setdefault ( 'markersize', 5 ),
-        #             linestyle = 'None'
-        #             )
-        #     goodpoints = N.logical_and(goodpoints,N.logical_not(InferenceObject.infl))
-        # ax.plot(xd[goodpoints],pd[goodpoints],
-        #         color     = kwargs.setdefault ( 'color', 'b' ),
-        #         marker    = kwargs.setdefault ( 'marker', 'o' ),
-        #         markersize = kwargs.setdefault ( 'markersize', 5 ),
-        #         linestyle = 'None'
-        #         )
-        infl = InferenceObject.infl*10
-    ax.scatter ( xd, pd, s=2*infl )
+    nd = InferenceObject.data[:,2]
+    ax.scatter ( xd, pd, s=nd, c=kwargs.setdefault ( 'color', 'b' ),marker=kwargs.setdefault("markertype", "o") )
 
     # Check axes limits
     if InferenceObject.model["nafc"]>1:
@@ -364,6 +331,8 @@ def plotPMF ( InferenceObject, xlabel_text="Stimulus intensity", ylabel_text=Non
         if not InferenceObject.deviance is None:
             ax.text(0.5*(xmin+xmax),ymin+.05,"D=%g" % ( InferenceObject.deviance, ) )
         ax.text ( 0.5*(xmin+xmax),ymin+.1,InferenceObject.desc )
+
+    return xtics.min(),xtics.max()
 
 def plotThres ( InferenceObject, ax=None ):
     """Plot thresholds and confidence intervals
@@ -774,5 +743,51 @@ def plotSensitivity ( BootstrapInferenceObject, ax=None ):
 
     # Draw axes
     drawaxes ( ax, ax.get_xticks(), "%g", ax.get_yticks(), "%g", BootstrapInferenceObject.parnames[0], BootstrapInferenceObject.parnames[1] )
+
+def plotInfluential ( InferenceObject ):
+    """Diagnostic plot for detecting influential observations
+
+    Determining influential observations follows a different logic for bootstrap
+    and for bayes inference. A block is labelled an influential observation if
+    the fit for a dataset without that point is significantly different from the
+    fit including that point. For BootstrapInference objects, this is quantified
+    using a normed distance of the maximum likelihood fit including the block and
+    withouth that block. This distance is normed in the following way: If the
+    maximum likelihood fit for the reduced dataset remains inside the 95% confidence
+    limits of the maximum likelihood fit for the full dataset, the influence
+    value is below 1. Thus, influence values large than 1 indicate a problem with
+    the data set. For BayesInference objects, the influence of a block is simply
+    quantified as the Kullbach-Leibler divergence of the posterior for the full
+    data set from the posterior for the reduced data set.
+
+    :Parameters:
+        *InferenceObject* :
+            Data set for which the influential observations are to be plotted
+    """
+    maxinfl = N.argmax(InferenceObject.infl)
+    ind = range ( InferenceObject.data.shape[0] )
+    ind.pop(maxinfl)
+    influencedDataset = psignidata.BootstrapInference( InferenceObject.data[ind,:], priors=InferenceObject.model["priors"],
+            sample=False, start=InferenceObject.estimate )
+
+    p.figure ( figsize=(6,8) )
+    ax = p.axes ( (0.0,.5,.9,.5) )
+    if InferenceObject.__repr__().split()[1] == "BayesInference":
+        InferenceObject.drawposteriorexamples ( ax=ax )
+    plotPMF ( InferenceObject, ax=ax, showaxes=False, showdesc=False, color="b", linewidth=2 )
+    ax.plot ( [InferenceObject.data[maxinfl,0]], [InferenceObject.data[maxinfl,1].astype("d")/InferenceObject.data[maxinfl,2]],
+            'rx', markersize=20, markeredgewidth=5 )
+    xl = plotPMF ( influencedDataset, ax=ax, showdesc=False, showaxes=True, color="r", markertype=([(0,0)],0), linewidth=2 )
+
+    ax = p.axes ( (0.0, 0., .9, .5) )
+    if InferenceObject.__repr__().split()[1] == "BootstrapInference":
+        ax.plot ( [InferenceObject.data[:,0].min(),InferenceObject.data[:,0].max()], [1,1], 'k:' )
+        yname = "Influence"
+    else:
+        yname = "D_KL( full || reduced )"
+    ax.plot ( InferenceObject.data[:,0], InferenceObject.infl, 'bo' )
+    ax.set_xlim(xl)
+    drawaxes ( ax, ax.get_xticks(), "%g", ax.get_yticks(), "%g", "stimulus intensity", yname )
+
 
 gof = GoodnessOfFit
