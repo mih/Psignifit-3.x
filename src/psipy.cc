@@ -316,6 +316,7 @@ static PyObject * psimapestimate ( PyObject * self, PyObject * args, PyObject * 
 	char *corename    = "ab";          // name of the parameterization
 	PyObject *pypriors (Py_None);      // prior specs
 	PyObject *pycuts (Py_None);        // cuts
+	PyObject *pystart (Py_None);       // starting value for the optimizer
 
 	PyObject * pyout;
 	int i, Nparams, Nblocks;
@@ -331,10 +332,11 @@ static PyObject * psimapestimate ( PyObject * self, PyObject * args, PyObject * 
 		"core",
 		"priors",
 		"cuts",
+		"start",
 		NULL };
-	if ( !PyArg_ParseTupleAndKeywords ( args, kwargs, "O|issOO",
+	if ( !PyArg_ParseTupleAndKeywords ( args, kwargs, "O|issOOO",
 				kwlist,
-				&pydata,&Nafc,&sigmoidname,&corename,&pypriors,&pycuts ) )
+				&pydata,&Nafc,&sigmoidname,&corename,&pypriors,&pycuts,&pystart ) )
 		return NULL;
 
 	try {
@@ -360,8 +362,15 @@ static PyObject * psimapestimate ( PyObject * self, PyObject * args, PyObject * 
 	}
 
 	std::vector<double> *estimate = new std::vector<double> (Nparams);
+	std::vector<double> *start;
 	PsiOptimizer * opt = new PsiOptimizer ( pmf, data );
-	*estimate = opt->optimize ( pmf, data );
+	if ( pystart == Py_None ) {
+		*estimate = opt->optimize ( pmf, data );
+	} else {
+		start = getcuts ( pystart, &Nparams );
+		*estimate = opt->optimize ( pmf, data, start );
+		delete start;
+	}
 	delete opt;
 
 	PyArrayObject *pyestimate;

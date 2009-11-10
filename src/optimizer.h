@@ -25,7 +25,8 @@ class PsiOptimizer
 		~PsiOptimizer ( void );                                   ///< clean up everything
 		std::vector<double> optimize (
 			const PsiPsychometric * model,           ///< model to be fitted
-			const PsiData * data                     ///< data to be fitted
+			const PsiData * data,                    ///< data to be fitted
+			const std::vector<double>* startingvalue=NULL    ///< starting value for optimization
 			); ///< Start the optimization process
 };
 

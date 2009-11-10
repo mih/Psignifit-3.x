@@ -83,7 +83,7 @@ BootstrapList bootstrap ( int B, const PsiData * data, const PsiPsychometric* mo
 		bootstrapsamples.setData ( b, sample ); // store the new sample in the mc object
 
 		// Fit
-		localfit = opt.optimize (model, localdataset );
+		localfit = opt.optimize (model, localdataset, &initialfit );
 #ifdef DEBUG_BOOTSTRAP
 		for (l=0; l<sample.size(); l++)
 			std::cerr << " " << sample[l] << "\n";

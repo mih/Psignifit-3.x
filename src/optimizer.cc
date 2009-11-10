@@ -27,9 +27,13 @@ double testfunction(const std::vector<double>& x) {
 	return out;
 }
 
-std::vector<double> PsiOptimizer::optimize ( const PsiPsychometric * model, const PsiData * data )
+std::vector<double> PsiOptimizer::optimize ( const PsiPsychometric * model, const PsiData * data, const std::vector<double>* startingvalue )
 {
-	start = model->getStart(data);
+	if (startingvalue==NULL) {
+		start = model->getStart(data);
+	} else {
+		start = std::vector<double>(*startingvalue);
+	}
 
 	int k, l, reoptimization;
 
