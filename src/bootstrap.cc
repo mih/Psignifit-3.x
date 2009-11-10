@@ -140,7 +140,7 @@ JackKnifeList jackknifedata ( const PsiData * data, const PsiPsychometric* model
 	PsiOptimizer *opt = new PsiOptimizer( model, data );
 	std::vector<double> mlestimate ( opt->optimize( model, data ) );
 	delete opt;
-	JackKnifeList jackknife ( data->getNblocks(), model->getNparams(), model->deviance(mlestimate, data) );
+	JackKnifeList jackknife ( data->getNblocks(), model->getNparams(), model->deviance(mlestimate, data), mlestimate );
 	PsiData * localdata;
 
 	std::vector<double> x ( data->getNblocks()-1 );

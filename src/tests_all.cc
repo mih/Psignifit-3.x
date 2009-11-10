@@ -249,7 +249,7 @@ int BootstrapTest ( TestSuite * T ) {
 
 	for ( i=0; i<6; i++ ) {
 		sprintf(testname,"influential %d",i);
-		failures += T->conditional(!jackknife.influential(i,ci_lower,ci_upper),testname);
+		failures += T->conditional(jackknife.influential(i,ci_lower,ci_upper)<1,testname);
 		sprintf(testname,"outliers %d",i);
 		failures += T->conditional(!jackknife.outlier(i),testname);
 	}

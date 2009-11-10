@@ -227,16 +227,22 @@ double BootstrapList::percRkd ( double p ) {
  * JackKnifeList methods
  */
 
-bool JackKnifeList::influential ( unsigned int block, const std::vector<double>& ci_lower, const std::vector<double>& ci_upper ) const {
+double JackKnifeList::influential ( unsigned int block, const std::vector<double>& ci_lower, const std::vector<double>& ci_upper ) const {
 	int prm;
 	double est;
+	double infl(0),x;
 
 	for ( prm=0; prm<getNparams(); prm++ ) {
 		est = getEst(block,prm);
-		if ( est<ci_lower[prm] || est>ci_upper[prm] )
-			return true;   // This block is an influential observation for parameter prm
+		if ( est<mlestimate[prm] ) {
+			x = ( mlestimate[prm]-est ) / ( mlestimate[prm]-ci_lower[prm] );
+		} else {
+			x = ( est-mlestimate[prm] ) / ( ci_upper[prm]-mlestimate[prm] );
+		}
+		if ( x>infl )
+			infl = x;
 	}
-	return false;
+	return infl;
 }
 
 bool JackKnifeList::outlier ( unsigned int block ) const {

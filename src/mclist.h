@@ -123,24 +123,27 @@ class JackKnifeList : public PsiMClist
 {
 	private:
 		double maxdeviance;
+		std::vector<double> mlestimate;
 	public:
 		JackKnifeList (
 			unsigned int nblocks,                                             ///< number of blocks in the experiment
 			unsigned int nprm,                                                ///< number of parameters in the model
-			double maxlest                                                    ///< deviance of the maximum likelihood estimate on the full dataset
-			) : PsiMClist ( nblocks, nprm ), maxdeviance(maxlest) {}    ///< constructor
+			double maxldev,                                                   ///< deviance of the maximum likelihood estimate on the full dataset
+			std::vector<double> maxlest                                       ///< maximum likelihood estimate of the full dataset
+			) : PsiMClist ( nblocks, nprm ), maxdeviance(maxldev), mlestimate(maxlest) {}    ///< constructor
 		unsigned int getNblocks ( void ) const { return getNsamples(); } ///< get the number of blocks in the current experiment
 		/** determination of influential observations is performed by checking whether a parameter changes significantly (as defined by
 		 * the confidence intervals) if one observation is omitted. Thus, if leaving out one observation results in significant changes
 		 * in the estimated parameters, this observation is considered "influential".
 		 *
 		 * \param block     index of the block to be checked
+		 * \param estimate  point estimate of the parameters in the model
 		 * \param ci_lower  lower confidence limits for each parameter in the model
 		 * \param ci_upper  upper confidence limits for each parameter in the model
 		 *
-		 * \return true if block presents an influential observation
+		 * \return a number indicating the influence of the block. Values > 1 correspond to point estimates for that block that are precisely on the CI limits
 		 */
-		bool influential ( unsigned int block, const std::vector<double>& ci_lower, const std::vector<double>& ci_upper ) const ;
+		double influential ( unsigned int block, const std::vector<double>& ci_lower, const std::vector<double>& ci_upper ) const;
 		/** determination of outliers is based on the following idea: We add a new parameter that fits the data in block perfectly.
 		 * If this "modified" model is significantly better than the original model, then this block is considered an outlier.
 		 *

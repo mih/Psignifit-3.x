@@ -253,7 +253,7 @@ class BootstrapInference ( PsiInference ):
         self.__bRkd      = N.array(self.__bRkd)
         self.__bRpd      = N.array(self.__bRpd)
         self.__outl      = N.array(self.__outl,dtype=bool)
-        self.__infl      = N.array(self.__infl,dtype=bool)
+        self.__infl      = N.array(self.__infl)
 
     def sample_nonparametric ( self, Nsamples=2000 ):
         """Draw nonparametric bootstrap samples

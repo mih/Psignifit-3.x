@@ -122,7 +122,7 @@ static PyObject * psibootstrap ( PyObject * self, PyObject * args, PyObject * kw
 	pyRpd         = (PyArrayObject*) PyArray_SimpleNew ( 1, (npy_intp*)&Nsamples, NPY_DOUBLE );
 	pyRkd         = (PyArrayObject*) PyArray_SimpleNew ( 1, (npy_intp*)&Nsamples, NPY_DOUBLE );
 	pyoutliers    = (PyArrayObject*) PyArray_SimpleNew ( 1, (npy_intp*)&Nblocks,  NPY_BOOL );
-	pyinfluential = (PyArrayObject*) PyArray_SimpleNew ( 1, (npy_intp*)&Nblocks,  NPY_BOOL );
+	pyinfluential = (PyArrayObject*) PyArray_SimpleNew ( 1, (npy_intp*)&Nblocks,  NPY_DOUBLE );
 	pybias        = (PyArrayObject*) PyArray_SimpleNew ( 1, (npy_intp*)&Ncuts, NPY_DOUBLE );
 	pyacc         = (PyArrayObject*) PyArray_SimpleNew ( 1, (npy_intp*)&Ncuts, NPY_DOUBLE );
 	for ( i=0; i<Nsamples; i++ ) {
@@ -147,7 +147,7 @@ static PyObject * psibootstrap ( PyObject * self, PyObject * args, PyObject * kw
 	}
 	for ( i=0; i<Nblocks; i++ ) {
 		((bool*)pyoutliers->data)[i]   = bool(jack.outlier ( i ));
-		((bool*)pyinfluential->data)[i]= bool(jack.influential ( i, *ci_lower, *ci_upper ));
+		((double*)pyinfluential->data)[i]= double(jack.influential ( i, *ci_lower, *ci_upper ));
 	}
 	delete ci_lower;
 	delete ci_upper;
