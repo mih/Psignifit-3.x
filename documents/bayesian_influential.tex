@@ -46,7 +46,7 @@ In chapter 11 of the book by Bishop we learn that for samples $\theta^{(\ell)}, 
 the density $f$, we can obtain the ratio of the partition functions using importance sampling
 %
 $$
-\frac{Z_g}{Z_f} \approx \frac{1}{N} \sum_{\ell=1}^N \exp(-F(\theta^{(\ell)} + G(\theta^{(\ell)}) ),
+\frac{Z_g}{Z_f} \approx -\frac{1}{N} \sum_{\ell=1}^N \exp(-F(\theta^{(\ell)} + G(\theta^{(\ell)}) ),
 $$
 %
 where in our case, we can use the MCMC samples from the full data set fit.
