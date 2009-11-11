@@ -147,21 +147,25 @@ std::vector<double> PsiOptimizer::optimize ( const PsiPsychometric * model, cons
 				break;
 			}
 		}
-	}
 
-	// Evaluate model at every simplex node and determine minimum
-	minind = 0;
-	for (k=0; k<nparameters+1; k++) {
-		if (modified[k]) {
-			fx[k] = model->neglpost(simplex[k], data );
-			modified[k] = false;
+		// Evaluate model at every simplex node and determine minimum
+		minind = 0;
+		for (k=0; k<nparameters+1; k++) {
+			if (modified[k]) {
+				fx[k] = model->neglpost(simplex[k], data );
+				modified[k] = false;
+			}
+			// fx[k] = testfunction(simplex[k]);
+			if (fx[k]<fx[minind]) minind = k;
 		}
-		// fx[k] = testfunction(simplex[k]);
-		if (fx[k]<fx[minind]) minind = k;
-	}
 
-	for (k=0; k<nparameters; k++)
-	    start[k] = simplex[minind][k];
+		for (k=0; k<nparameters; k++) {
+			start[k] = simplex[minind][k];
+			simplex[minind][k] = simplex[minind][0];
+			simplex[0][k] = start[k];
+			modified[k] = true;
+		}
+	}
 
 	/*
 	// Perform some Gradient descent steps
