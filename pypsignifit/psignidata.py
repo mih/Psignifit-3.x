@@ -1267,7 +1267,7 @@ class BayesInference ( PsiInference ):
         for l in self.__mcmc_logposterior_ratios:
             lpr.append(l[self.burnin::self.thin,:])
         lpr = N.concatenate ( lpr, 0 )
-        self._PsiInference__infl = N.mean(lpr,0) + N.log(N.mean(N.exp(lpr),0))
+        self._PsiInference__infl = -N.mean(lpr,0) + N.log(N.mean(N.exp(lpr),0))
 
     def __determineoptimalsampling ( self, noptimizations=10, verbose=False ):
         """Determine optimal sampling parameters using the Raftery&Lewis (1995) procedure
