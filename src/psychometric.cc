@@ -236,13 +236,32 @@ double PsiPsychometric::neglpost ( const std::vector<double>& prm, const PsiData
 std::vector<double> PsiPsychometric::getStart ( const PsiData* data ) const
 {
 	int i;
-	double a,b;
+	double a,b,a0,b0,abest,bbest;
+	double alpha,beta,alpha0,beta0,minpost,post;
 	std::vector<double> x (data->getIntensities());
 	std::vector<double> p (data->getPcorrect());
 	double minp(1000), maxp(-1000);
 	double meanx(0), meanp(0);
 	double varx(0),covxp(0);
+	std::vector<int> relevant (data->nonasymptotic());
+	double alphamin = 1e10;
+	double alphamax = -1e10;
+	double pmax=0;
+	double pmin=1;
+	double pp;
+	double imax,imin;
+	for ( i=0; i<relevant.size(); i++ ) {
+		a = data->getIntensity(i);
+		pp = data->getPcorrect(i);
+		if (a>alphamax) alphamax=a;
+		if (a<alphamin) alphamin=a;
+		if (pp>pmax) { pmax=pp; imax=i; }
+		if (pp<pmin) { pmin=pp; imin=i; }
+	}
+	double betamax = (data->getIntensity(imax)-data->getIntensity(imin));
+	double betamin = (data->getIntensity(imax)>data->getIntensity(imin) ? 1 : -1 ) * 0.01;
 
+	// First find the best values using logistic regression
 	// Scale the data to the interval (0,1)
 	for (i=0; i<x.size(); i++)
 		if (minp>p[i]) minp = p[i];
@@ -292,15 +311,54 @@ std::vector<double> PsiPsychometric::getStart ( const PsiData* data ) const
 		covxp += (x[i]-meanx)*(p[i]-meanp);
 	}
 
-	b = covxp/varx;
-	a = meanp - meanx*b;
+	b0 = covxp/varx;
+	a0 = meanp - meanx*b;
+	
+	alpha0 = a0/b0;
+	beta0  = 1./b0;
+	abest = a0;
+	bbest = b0;
 
-	std::vector<double> out (Core->transform( getNparams(), a,b));
+	std::vector<double> out;
+	out = Core->transform ( getNparams(), abest, bbest );
 	if (Nalternatives==1) {
 		out[2] = 0.02;
-		out[3] = .02;
+		out[3] = 0.02;
 	} else {
-	    out[2] = 0.02;
+		out[2] = 0.02;
+	}
+	minpost = neglpost ( out, data );
+
+
+	// Now perform a little grid search to maybe improve the parameters
+	for ( beta=betamin; beta<=betamax; beta+= (betamax-betamin)/10. ) {
+		for ( alpha=alphamin; alpha<=alphamax; alpha+= (alphamax-alphamin)/10. ) {
+			// a = alpha/beta - beta0;
+			a = -alpha/beta;
+			b = 1./beta;
+			out = Core->transform( getNparams(), a,b);
+			if (Nalternatives==1) {
+				out[2] = 0.02;
+				out[3] = .02;
+			} else {
+				out[2] = 0.02;
+			}
+			post = neglpost ( out, data );
+			if ( post < minpost ) {
+				abest = a;
+				bbest = b;
+				minpost = post;
+			}
+		}
+	}
+
+	// Store the super best parameters in the end
+	out = Core->transform ( getNparams(), abest, bbest );
+	if (Nalternatives==1) {
+		out[2] = 0.02;
+		out[3] = 0.02;
+	} else {
+		out[2] = 0.02;
 	}
 
 	return out;
