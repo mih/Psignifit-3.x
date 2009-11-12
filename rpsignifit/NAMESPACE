@@ -1,0 +1,2 @@
+useDynLib (psignifit)
+export(BayesInference,BootstrapInference)
