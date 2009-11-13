@@ -4,6 +4,8 @@
 #include <vector>
 #include <cstdio>
 
+#include <iostream>
+
 PsiSigmoid * determine_sigmoid ( char *sigmoid ) {
 	if ( !strcmp(sigmoid,"logistic") ) {
 		return new PsiLogistic ();
@@ -63,24 +65,7 @@ PsiPrior * determine_prior ( char *prior ) {
 	}
 }
 
-extern "C" {
-////////////////////////////////////
-// Functions go here
-////////////////////////////////////
-
-void mapestimate (
-		double * x,    // stimulus intensities
-		int *k,        // response counts of correct- (nAFC) or Yes-responses (Yes/No)
-		int *n,        // numbers of trials per block
-		int *K,        // number of blocks
-		char **sigmoid,// the sigmoid to be used
-		char **core,   // core description
-		int *nafc,     // number of alternatives in the task (a value < 2 indicates Yes/No)
-		double *estimate, // output array for the estimated values
-		int *nparams,     // number of parameters
-		double *deviance, // output: deviance
-		char **priors
-		) {
+PsiData * determine_data ( double *x, int *k, int *n, int *K, int *nafc ) {
 	std::vector<double> stimulus_intensities ( *K );
 	std::vector<int>    number_of_trials     ( *K );
 	std::vector<int>    number_of_correct    ( *K );
@@ -92,26 +77,65 @@ void mapestimate (
 		number_of_correct[i]    = k[i];
 	}
 
-	PsiData *data = new PsiData ( stimulus_intensities, number_of_trials, number_of_correct, *nafc );
+	return new PsiData ( stimulus_intensities, number_of_trials, number_of_correct, *nafc );
+}
+
+void get_fitting_setup ( double *x, int *k, int *n, int *K,
+		char **sigmoid, char **core, int *nafc, int *nparams, char **priors,
+		PsiData** dataout, PsiPsychometric** pmfout )
+{
+	int i;
+	*dataout = determine_data ( x, k, n, K, nafc );
 
 	PsiSigmoid *Sigmoid = determine_sigmoid ( *sigmoid );
-	if (Sigmoid==NULL) { delete data; return; }
+	if (Sigmoid==NULL) { delete *dataout; throw -1; }
 
-	PsiCore *Core = determine_core ( * core, Sigmoid, data );
-	if (Core==NULL) { delete data; delete Sigmoid; return; }
+	PsiCore *Core = determine_core ( *core, Sigmoid, *dataout );
+	if (Core==NULL) { delete *dataout; delete Sigmoid; throw -1; }
 
-	PsiPsychometric * pmf = new PsiPsychometric ( *nafc, Core, Sigmoid );
-	if (*nparams != pmf->getNparams() ) {
+	*pmfout = new PsiPsychometric ( *nafc, Core, Sigmoid );
+	if (*nparams != (*pmfout)->getNparams() ) {
 		Rprintf ( "WARNING: output vector length does not match number of parameters!" );
-		delete data;
+		delete dataout;
 		delete Sigmoid;
 		delete Core;
-		delete pmf;
-		return;
+		delete *pmfout;
+		throw -1;
 	}
 
 	for ( i=0; i<*nparams; i++ ) {
-		pmf->setPrior ( i, determine_prior ( priors[i] ) );
+		(*pmfout)->setPrior ( i, determine_prior ( priors[i] ) );
+	}
+}
+
+extern "C" {
+////////////////////////////////////
+// Functions go here
+////////////////////////////////////
+
+void mapestimate (
+		double *x,        // stimulus intensities
+		int *k,           // response counts of correct- (nAFC) or Yes-responses (Yes/No)
+		int *n,           // numbers of trials per block
+		int *K,           // number of blocks
+		char **sigmoid,   // the sigmoid to be used
+		char **core,      // core description
+		int *nafc,        // number of alternatives in the task (a value < 2 indicates Yes/No)
+		char **priors,    // priors
+		int *nparams,     // number of parameters
+		double *estimate, // output array for the estimated values
+		double *deviance, // output: deviance
+		double *Rpd,      // output: correlation between model prediction and deviance residuals
+		double *Rkd       // output: correlation between block index and deviance residuals
+		) {
+	int i;
+	PsiData * data;
+	PsiPsychometric *pmf;
+
+	try {
+		get_fitting_setup ( x, k, n, K, sigmoid, core, nafc, nparams, priors, &data, &pmf );
+	} catch (int) {
+		return;
 	}
 
 	PsiOptimizer *opt = new PsiOptimizer ( pmf, data );
@@ -122,7 +146,10 @@ void mapestimate (
 	for ( i=0; i<*nparams; i++ )
 		estimate[i] = est[i];
 
+	std::vector<double> devianceresiduals ( pmf->getDevianceResiduals ( est, data ) );
 	*deviance = pmf->deviance(est,data);
+	*Rpd      = pmf->getRpd ( devianceresiduals, est, data );
+	*Rkd      = pmf->getRkd ( devianceresiduals, data );
 
 	delete data;
 	delete pmf;
@@ -130,10 +157,85 @@ void mapestimate (
 	return;
 }
 
-/*
-void bootstrap ( ... ) {
+void performbootstrap (
+		double *x,          // stimulus intensities
+		int *k,             // response counts of correct- (nAFC) or Yes-responses (Yes/No)
+		int *n,             // numbers of trials per block
+		int *K,             // number of blocks
+		char **sigmoid,     // the sigmoid to be used
+		char **core,        // core description
+		int *nafc,          // number of alternatives in the task (a value < 2 indicates Yes/No)
+		char **priors,      // priors
+		double *generating, // generating probabilites (if generating[0]==-999, non parametric bootstrap is performed)
+		int *nparams,       // number of parameters
+		int *nsamples,      // number of bootstrap samples to be drawn
+		double *cuts,       // cuts at which the thresholds should be determined
+		int *ncuts,         // number of cuts
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		int *bdata,         // output: bootstrap samples (needs to be 'reshaped')
+		double *bestimates, // output: bootstrap estimates (needs to be reshaped)
+		double *bdeviances, // output: deviances of the bootstrap samples
+		double *bRpd,       // output: correlations between model prediction and deviance residuals for all bootstrap samples
+		double *bRkd,       // output: correlations between block index and deviance residuals for all bootstrap samples
+		double *bthres,     // output: thresholds of the bootstrap samples
+		double *acc,        // output: acceleration constants
+		double *bias        // output: bias correction constants
+		) {
+	int i,j;
+	PsiData * data;
+	PsiPsychometric * pmf;
+	std::vector<double> *start;
+	bool parametric;
+
+	try {
+		get_fitting_setup ( x, k, n, K, sigmoid, core, nafc, nparams, priors, &data, &pmf );
+	} catch (int) {
+		return;
+	}
+
+	std::vector<double> Cuts ( *ncuts );
+	for ( i=0; i<*ncuts; i++ ) Cuts[i] = cuts[i];
+
+	if (generating[0]==-999) {
+		start = NULL;
+		parametric = false;
+	} else {
+		start = new std::vector<double> (*nparams);
+		for ( i=0; i<*nparams; i++ ) {
+			(*start)[i] = generating[i];
+		}
+		parametric = true;
+	}
+
+	BootstrapList bslist ( bootstrap (*nsamples,data,pmf,Cuts,start,true, parametric) );
+
+	for ( i=0; i<*nsamples; i++ ) {
+		for ( j=0; j<*K; j++ ) {
+			bdata[*K*i + j] = bslist.getData(i)[j];
+		}
+		for ( j=0; j<*nparams; j++ ) {
+			bestimates[*nparams*i + j] = bslist.getEst(i, j);
+		}
+		bdeviances[i] = bslist.getdeviance(i);
+		bRpd[i]       = bslist.getRpd(i);
+		bRkd[i]       = bslist.getRkd(i);
+		for ( j=0; j<*ncuts; j++ ) {
+			bthres[*ncuts*i + j] = bslist.getThres_byPos (i,j);
+		}
+	}
+	for ( j=0; j<*ncuts; j++ ) {
+		acc[j] = bslist.getAcc(j);
+		bias[j] = bslist.getBias(j);
+	}
+
+	delete data;
+	delete pmf;
+	delete start;
+
+	return;
 }
 
+/*
 void mcmc ( ... ) {
 }
 */
