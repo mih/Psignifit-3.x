@@ -178,6 +178,7 @@ void performbootstrap (
 		double *bRpd,       // output: correlations between model prediction and deviance residuals for all bootstrap samples
 		double *bRkd,       // output: correlations between block index and deviance residuals for all bootstrap samples
 		double *bthres,     // output: thresholds of the bootstrap samples
+		double *influential,// output: influence of the different blocks
 		double *acc,        // output: acceleration constants
 		double *bias        // output: bias correction constants
 		) {
@@ -208,6 +209,7 @@ void performbootstrap (
 	}
 
 	BootstrapList bslist ( bootstrap (*nsamples,data,pmf,Cuts,start,true, parametric) );
+	JackKnifeList jack   ( jackknifedata ( data, pmf ) );
 
 	for ( i=0; i<*nsamples; i++ ) {
 		for ( j=0; j<*K; j++ ) {
@@ -228,6 +230,16 @@ void performbootstrap (
 		bias[j] = bslist.getBias(j);
 	}
 
+	std::vector<double> ci_lower ( *nparams );
+	std::vector<double> ci_upper ( *nparams );
+	for ( j=0; j<*nparams; j++ ) {
+		ci_lower[i] = bslist.getPercentile(0.025,j);
+		ci_upper[i] = bslist.getPercentile(0.975,j);
+	}
+	for ( j=0; j<*K; j++ ) {
+		influential[j] = jack.influential ( j, ci_lower, ci_upper );
+	}
+
 	delete data;
 	delete pmf;
 	delete start;
@@ -235,10 +247,64 @@ void performbootstrap (
 	return;
 }
 
-/*
-void mcmc ( ... ) {
+void performmcmc (
+		double *x,          // stimulus intensities
+		int *k,             // response counts of correct- (nAFC) or Yes-responses (Yes/No)
+		int *n,             // numbers of trials per block
+		int *K,             // number of blocks
+		char **sigmoid,     // the sigmoid to be used
+		char **core,        // core description
+		int *nafc,          // number of alternatives in the task (a value < 2 indicates Yes/No)
+		char **priors,      // priors
+		double *proposal,   // standard deviances of the proposal distributions
+		double *start,      // starting value of the sampler
+		int *nparams,       // number of parameters
+		int *nsamples,      // number of bootstrap samples to be drawn
+		double *cuts,       // cuts at which the thresholds should be determined
+		int *ncuts,         // number of cuts
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		double *mcmcestimates, // output: bootstrap estimates (needs to be reshaped)
+		double *mcmcdeviances, // output: deviances of the bootstrap samples
+		int *ppdata,           // output: bootstrap samples (needs to be 'reshaped')
+		double *ppRpd,         // output: correlations between model prediction and deviance residuals for all bootstrap samples
+		double *ppRkd,         // output: correlations between block index and deviance residuals for all bootstrap samples
+		double *ppdeviances,   // output: acceleration constants
+		double *logpratio      // output: logposterior ratio (for determination of influential observations)
+		) {
+	int i,j;
+	PsiData * data;
+	PsiPsychometric * pmf;
+
+	try {
+		get_fitting_setup ( x, k, n, K, sigmoid, core, nafc, nparams, priors, &data, &pmf );
+	} catch (int) {
+		return;
+	}
+
+	MetropolisHastings S ( pmf, data, new GaussRandom () );
+	for ( i=0; i<*nparams; i++ ) S.setstepsize ( proposal[i], i );
+
+	MCMCList mcmclist ( S.sample( *nsamples ) );
+
+	for ( i=0; i<*nsamples; i++ ) {
+		for ( j=0; j<*nparams; j++ ) {
+			mcmcestimates[*nparams*i + j] = mcmclist.getEst (i, j);
+		}
+		mcmcdeviances[i] = mcmclist.getdeviance ( i );
+
+		for ( j=0; j<*K; j++ ) {
+			ppdata[*K*i + j] = mcmclist.getppData ( i, j );
+		}
+		ppRpd[i] = mcmclist.getppRpd ( i );
+		ppRkd[i] = mcmclist.getppRkd ( i );
+		ppdeviances[i] = mcmclist.getppDeviance ( i );
+
+		for ( j=0; j<*K; j++ ) {
+			logpratio[*K*i + j] = mcmclist.getlogratio ( i, j );
+		}
+	}
+
 }
-*/
 
 // Some more?
 }
