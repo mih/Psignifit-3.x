@@ -311,7 +311,7 @@ def plotPMF ( InferenceObject, xlabel_text="Stimulus intensity", ylabel_text=Non
     # Determine tics
     p.setp(ax,frame_on=False,ylim=(ymin,ymax))
     xtics = p.getp(ax,'xticks')
-    ytics = p.getp(ax,'yticks').tolist()
+    ytics = list(p.getp(ax,'yticks'))
     # Clean up ytics
     if InferenceObject.model["nafc"]==1:
         for k,yt in enumerate(ytics):
