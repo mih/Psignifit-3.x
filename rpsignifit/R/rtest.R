@@ -80,4 +80,35 @@ mcmc <- .C ( "performmcmc",
     logratios=as.double(vector("numeric",length(k)*2000))
     )
 
+diag <- .C ( "getdiagnostics",
+    stimulus.intensities=as.double(x),
+    number.of.correct=as.integer(k),
+    number.of.trials=as.integer(n),
+    number.of.blocks=as.integer(length(k)),
+    sigmoid=as.character("logistic"),
+    core=as.character("mw0.1"),
+    number.of.alternatives=as.integer(2),
+    priors=as.character(priors),
+    number.of.paramters=as.integer(3),
+    cuts=as.double(0.5),
+    number.of.cuts=as.integer(1),
+    parameters=as.double(map$estimate),
+    deviance=as.double(0),
+    Rpd=as.double(0),
+    Rkd=as.double(0),
+    thres=as.double(vector("numeric",1)),
+    deviance.residuals=as.double(vector("numeric",length(k)))
+    )
+
+xx <- seq(0,10,100)
+Fx <- .C (
+    stimulus.intensities=as.double(xx),
+    N=as.integer(length(xx)),
+    parameters=as.double(map$estimate),
+    number.of.parameters=as.integer(3),
+    sigmoid=as.character("logistic"),
+    core=as.character("mw0.1"),
+    number.of.alternatives=as.integer(2),
+    f.x=as.double(vector("numeric",length(xx))
+    )
 

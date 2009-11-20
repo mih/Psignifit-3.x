@@ -303,8 +303,92 @@ void performmcmc (
 			logpratio[*K*i + j] = mcmclist.getlogratio ( i, j );
 		}
 	}
-
 }
+
+void getdiagnostics (
+		double *x,        // stimulus intensities
+		int *k,           // response counts of correct- (nAFC) or Yes-responses (Yes/No)
+		int *n,           // numbers of trials per block
+		int *K,           // number of blocks
+		char **sigmoid,   // the sigmoid to be used
+		char **core,      // core description
+		int *nafc,        // number of alternatives in the task (a value < 2 indicates Yes/No)
+		char **priors,    // priors
+		int *nparams,     // number of parameters
+		double *cuts,     // cuts at which the thresholds should be determined
+		int *ncuts,       // number of cuts
+		double *estimate, // array of the estimated values
+		double *deviance, // output: deviance
+		double *Rpd,      // output: correlation between model prediction and deviance residuals
+		double *Rkd,      // output: correlation between block index and deviance residuals
+		double *thres,    // output: thresholds at the respective cuts
+		double *devianceresiduals // output: deviance residuals
+		) {
+	int i;
+	PsiData * data;
+	PsiPsychometric * pmf;
+	std::vector<double> theta ( *nparams );
+	for ( i=0; i<*nparams; i++ ) theta[i] = estimate[i];
+
+	try {
+		get_fitting_setup ( x, k, n, K, sigmoid, core, nafc, nparams, priors, &data, &pmf );
+	} catch (int) {
+		return;
+	}
+
+	std::vector<double> dr ( pmf->getDevianceResiduals ( theta, data ) );
+
+	*deviance = pmf->deviance ( theta, data );
+	*Rpd      = pmf->getRpd   ( dr, theta, data );
+	*Rkd      = pmf->getRkd   ( dr, data );
+
+	for ( i=0; i<*K; i++ ) {
+		devianceresiduals[i] = dr[i];
+	}
+
+	for ( i=0; i<*ncuts; i++ ) {
+		thres[i] = pmf->getThres ( theta, cuts[i] );
+	}
+
+	delete data;
+	delete pmf;
+
+	return;
+}
+
+void pmfevaluate (
+		double *x,        // x values at which the psychometric function should be evaluated
+		int *lenx,        // length of x
+		double *params,   // parameter values
+		double *nparams,  // number of parameters
+		char **sigmoid,   // the sigmoid to be used
+		char **core,      // core description
+		int *nafc,        // number of alternatives in the task (a value < 2 indicates Yes/No)
+		double *Fx        // output: output of the psychometric function
+		) {
+	int i;
+	std::vector<double> x ( 2 );
+	std::vector<int> k ( 2 );
+	std::vector<int> n ( 2 );
+	PsiData * dummydata = new PsiData ( x, k, n, *nafc );
+	PsiPsychometric * pmf;
+	std::vector<double> theta ( *nparams );
+	for ( i=0; i<*nparams; i++ ) theta[i] = params[i];
+
+	PsiSigmoid *Sigmoid = determine_sigmoid ( sigmoid );
+	PsiCore *   Core    = determine_core ( core, Sigmoid, dummydata );
+	delete dummydata;
+	pmf = new PsiPsychometric ( *nafc, Corre, Sigmoid );
+
+	for ( i=0; i<*lenx; i++  ) {
+		Fx[i] = pmf->evaluate ( x[i], theta );
+	}
+
+	delete pmf;
+
+	return;
+}
+
 
 // Some more?
 }
