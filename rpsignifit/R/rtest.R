@@ -100,15 +100,15 @@ diag <- .C ( "getdiagnostics",
     deviance.residuals=as.double(vector("numeric",length(k)))
     )
 
-xx <- seq(0,10,100)
-Fx <- .C (
+xx <- seq(0,10,length.out=100)
+Fx <- .C ( "pmfevaluate",
     stimulus.intensities=as.double(xx),
-    N=as.integer(length(xx)),
+    number.of.intensities=as.integer(length(xx)),
     parameters=as.double(map$estimate),
     number.of.parameters=as.integer(3),
     sigmoid=as.character("logistic"),
     core=as.character("mw0.1"),
     number.of.alternatives=as.integer(2),
-    f.x=as.double(vector("numeric",length(xx))
+    f.x=as.double(vector("numeric",length(xx)))
     )
 

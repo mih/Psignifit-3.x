@@ -31,6 +31,7 @@ PsiCore * determine_core ( char *core, const PsiSigmoid* Sigmoid, const PsiData*
 		return  new abCore();
 	} else if ( !strncmp(core,"mw",2) ) {
 		sscanf(core, "mw%lf", &dummy);
+		std::cerr << "Determined mw-core with parameter " << dummy << "\n";
 		return  new mwCore(Sigmoid->getcode(), dummy);
 	} else if ( !strcmp(core,"linear") ) {
 		return  new linearCore();
@@ -360,28 +361,29 @@ void pmfevaluate (
 		double *x,        // x values at which the psychometric function should be evaluated
 		int *lenx,        // length of x
 		double *params,   // parameter values
-		double *nparams,  // number of parameters
+		int *nparams,  // number of parameters
 		char **sigmoid,   // the sigmoid to be used
 		char **core,      // core description
 		int *nafc,        // number of alternatives in the task (a value < 2 indicates Yes/No)
 		double *Fx        // output: output of the psychometric function
 		) {
 	int i;
-	std::vector<double> x ( 2 );
-	std::vector<int> k ( 2 );
-	std::vector<int> n ( 2 );
-	PsiData * dummydata = new PsiData ( x, k, n, *nafc );
+	std::vector<double> xx ( 2 );
+	std::vector<int> kk ( 2 );
+	std::vector<int> nn ( 2 );
+	PsiData * dummydata = new PsiData ( xx, kk, nn, *nafc );
 	PsiPsychometric * pmf;
 	std::vector<double> theta ( *nparams );
 	for ( i=0; i<*nparams; i++ ) theta[i] = params[i];
 
-	PsiSigmoid *Sigmoid = determine_sigmoid ( sigmoid );
-	PsiCore *   Core    = determine_core ( core, Sigmoid, dummydata );
+	PsiSigmoid *Sigmoid = determine_sigmoid ( *sigmoid );
+	PsiCore *   Core    = determine_core ( *core, Sigmoid, dummydata );
 	delete dummydata;
-	pmf = new PsiPsychometric ( *nafc, Corre, Sigmoid );
+	pmf = new PsiPsychometric ( *nafc, Core, Sigmoid );
 
 	for ( i=0; i<*lenx; i++  ) {
 		Fx[i] = pmf->evaluate ( x[i], theta );
+		std::cerr << i << " " << x[i] << " " << Fx[i] <<  "\n";
 	}
 
 	delete pmf;
