@@ -359,17 +359,22 @@ saturation correspond to samples from the posterior distribution. The saturation
 is proportional to the likelihood of the psychometric function, that is the part of the posterior
 distribution that represents the influence of the data.
 
-The plot on the lower left is the posterior distribution of deviance. Note that in this case, the
-distribution does not correspond to a null hypothesis but to the posterior distribution induced by the
-data. Thus, values lower than the deviance corresponding to the maximum likelihood will not be
-possible by definition. The two plots of posterior correlation between model prediction and deviance
-residuals and between block index and deviance residuals are essentially the same as for the constrained
-maximum likelihood case only that model predictions and deviance residuals correspond to the mean of
-the posterior distribution in this case. The posterior histograms of correlation between model
-prediction and deviance residuals and block index and deviance residuals have to be interpreted in
-a slightly different way: These histograms now represent the *posterior* distribution of the respective
-correlations. Thus, the value 0 should be in the 95% credibility interval of these posterior
-distributions to indicate the absense of systematic model errors.
+The plot on the lower left shows posterior predictive deviances. For each sample from the posterior
+distribution, a data set has been generated. The deviance associated the posterior samples and the
+observed data set is plotted against the deviance of these simulated data sets for the psychometric
+functions associated with the samples from the posterior distribution. If the observed data are
+likeli to come from the fitted model, all the  points in this plot should lie around the diagnonal. If
+the plots are mainly above the diagonal, the deviances of the observed data are higher than expected for
+data the originate from the fitted model. It is possible to calculate a "Bayesian p-value" that lies
+between 0 and 1. Values close to 0 or 1 indicate a bad fit in this case.
+
+The two plots of posterior correlation between model prediction and deviance residuals and between block
+index and deviance residuals are essentially the same as this plot. The only difference is, that
+in this case it is not the deviance that is calculated for each posterior predictive sample but it is
+the respective correlation. Interpretation of these plots is analog to the interpretation of the respective
+plot for the posterior deviance.
+
+We can observe that in all cases, the fitted model describes the data reasonably well.
 
 Posterior distributions
 -----------------------
