@@ -6,7 +6,7 @@ import re
 from scipy import stats
 import psignidata
 
-__all__ = ["GoodnessOfFit","ConvergenceMCMC","ParameterPlot","ThresholdPlot","plotSensitivity"]
+__all__ = ["GoodnessOfFit","ConvergenceMCMC","ParameterPlot","ThresholdPlot","plotSensitivity","plotInfluential"]
 __warnred = [.7,0,0]
 
 def drawaxes ( ax, xtics, xfmt, ytics, yfmt, xname, yname ):
