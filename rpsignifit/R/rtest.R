@@ -1,114 +1,221 @@
-x <- c(0,2,4,6,8,10)
-k <- c(24,22,33,50,47,50)
-n <- rep(50,length(k))
-priors <- vector("character",3)
-priors[1] <- "Gauss(0,10)"
-priors[2] <- "Gamma(1,4)"
-priors[3] <- "Beta(2,40)"
-
 dyn.load("rpsignifit.so")
-map <- .C( "mapestimate",
-    stimulus.intensities=as.double(x),
-    number.of.correct=as.integer(k),
-    number.of.trials=as.integer(n),
-    number.of.blocks=as.integer(length(k)),
-    sigmoid=as.character("logistic"),
-    core=as.character("mw0.1"),
-    number.of.alternatives=as.integer(2),
-    priors=as.character(priors),
-    number.of.parameters=as.integer(3),
-    estimate=as.double(vector("numeric",3)),
-    deviance=as.double(0),
-    Rpd=as.double(0),
-    Rkd=as.double(0)
-    )
 
-boots <- .C ( "performbootstrap",
-    stimulus.intensities=as.double(x),
-    number.of.correct=as.integer(k),
-    number.of.trials=as.integer(n),
-    number.of.blocks=as.integer(length(k)),
-    sigmoid=as.character("logistic"),
-    core=as.character("mw0.1"),
-    number.of.alternatives=as.integer(2),
-    priors=as.character(priors),
-    generating=as.double(map$estimate),
-    number.of.parameters=as.integer(3),
-    number.of.samples=as.integer(1000),
-    cuts=as.double(0.5),
-    number.of.cuts=as.integer(1),
-    bootstrap.data=as.integer(vector("numeric",length(k)*1000)),
-    bootstrap.estimates=as.double(vector("numeric",3*1000)),
-    bootstrap.deviances=as.double(vector("numeric",1000)),
-    bootstrap.Rpd=as.double(vector("numeric",1000)),
-    bootstrap.Rkd=as.double(vector("numeric",1000)),
-    bootstrap.thresholds=as.double(vector("numeric",1*1000)),
-    influential=as.double(vector("numeric",length(k))),
-    acceleration=as.double(vector("numeric",1)),
-    bias=as.double(vector("numeric",1))
-    )
-bootstrap.data       <- matrix(boots$bootstrap.data,boots$number.of.samples,boots$number.of.blocks,TRUE)
-bootstrap.estimate   <- matrix(boots$bootstrap.estimates,boots$number.of.samples,boots$number.of.parameters,TRUE)
-bootstrap.thresholds <- matrix(boots$bootstrap.thresholds,boots$number.of.samples,boots$number.of.cuts,TRUE)
+###################### PsigniSetup ###################################
+# Basic data information and fitting directions
+#
+PsigniSetup <- function ( x, k, n,
+    priors=list("","","Uniform(0,.1)"),
+    sigmoid="logistic",
+    core="mw0.1",
+    number.of.alternatives=2 ) {
 
-proposal <- vector("numeric",3)
-proposal[1] = .4
-proposal[2] = .4
-proposal[3] = .01
+    data <- list ( stimulus.intensities=as.double(x),
+        number.of.correct=as.integer(k),
+        number.of.trials=as.integer(n),
+        number.of.blocks=as.integer(length(k)),
+        sigmoid=as.character(sigmoid),
+        core=as.character(core),
+        number.of.alternatives=as.integer(number.of.alternatives),
+        priors=priors,
+        cuts=0.5)
+    attr(data,"class") <- "psignisetup"
 
-mcmc <- .C ( "performmcmc",
-    stimulus.intensities=as.double(x),
-    number.of.correct=as.integer(k),
-    number.of.trials=as.integer(n),
-    number.of.blocks=as.integer(length(k)),
-    sigmoid=as.character("logistic"),
-    core=as.character("mw0.1"),
-    number.of.alternatives=as.integer(2),
-    priors=as.character(priors),
-    proposal=as.double(proposal),
-    start=as.double(map$estimate),
-    number.of.parameters=as.integer(3),
-    number.of.samples=as.integer(2000),
-    cuts=as.double(0.5),
-    number.of.cuts=as.integer(1),
-    posterior.samples=as.double(vector("numeric",3*2000)),
-    posterior.deviances=as.double(vector("numeric",2000)),
-    predicted.data=as.integer(vector("numeric",length(k)*2000)),
-    predicted.Rpd=as.double(vector("numeric",2000)),
-    predicted.Rkd=as.double(vector("numeric",2000)),
-    predicted.deviances=as.double(vector("numeric",2000)),
-    logratios=as.double(vector("numeric",length(k)*2000))
-    )
+    return (data)
+}
 
-diag <- .C ( "getdiagnostics",
-    stimulus.intensities=as.double(x),
-    number.of.correct=as.integer(k),
-    number.of.trials=as.integer(n),
-    number.of.blocks=as.integer(length(k)),
-    sigmoid=as.character("logistic"),
-    core=as.character("mw0.1"),
-    number.of.alternatives=as.integer(2),
-    priors=as.character(priors),
-    number.of.paramters=as.integer(3),
-    cuts=as.double(0.5),
-    number.of.cuts=as.integer(1),
-    parameters=as.double(map$estimate),
-    deviance=as.double(0),
-    Rpd=as.double(0),
-    Rkd=as.double(0),
-    thres=as.double(vector("numeric",1)),
-    deviance.residuals=as.double(vector("numeric",length(k)))
-    )
+print.psignisetup <- function ( data ) {
+    nprm <- if (data$number.of.alternatives<2) 4 else 3
+    parnames <- c("alpha","beta","lambda","gamma")
+    if ( substr(data$core,1,2)=="mw" ) {
+        parnames[1] = "m    "
+        parnames[2] = "w    "
+    }
+    cat ( paste ("Data from ", data$number.of.alternatives, "-AFC experiment with ", data$number.of.blocks," blocks\n", sep="") )
+    cat ( paste ("Intended fit is with",data$sigmoid,"sigmoid and",data$core,"core\n") )
+    cat ( "Priors:\n" )
+    for ( i in 1:nprm ) {
+        cat ( paste ( "  ", parnames[i], "\t", priors[i], "\n" ) )
+    }
 
-xx <- seq(0,10,length.out=100)
-Fx <- .C ( "pmfevaluate",
-    stimulus.intensities=as.double(xx),
-    number.of.intensities=as.integer(length(xx)),
-    parameters=as.double(map$estimate),
-    number.of.parameters=as.integer(3),
-    sigmoid=as.character("logistic"),
-    core=as.character("mw0.1"),
-    number.of.alternatives=as.integer(2),
-    f.x=as.double(vector("numeric",length(xx)))
-    )
+    print ( data.frame ( stimulus.intensities=data$stimulus.intensities, number.of.correct=data$number.of.correct, number.of.trials=data$number.of.trials ) )
+}
+
+############################################################
+#            psiginference methods                         #
+############################################################
+
+
+
+############################################################
+#             psiginference types                          #
+############################################################
+
+MAPestimation <- function ( psignidata ) {
+    nprm <- if (psignidata$number.of.alternatives<2) 4 else 3
+    map <- .C ( "mapestimate",
+        stimulus.intensities=as.double(psignidata$stimulus.intensities),
+        number.of.correct=as.integer(psignidata$number.of.correct),
+        number.of.trials=as.integer(psignidata$number.of.trials),
+        number.of.blocks=as.integer(psignidata$number.of.blocks),
+        sigmoid=as.character(psignidata$sigmoid),
+        core=as.character(psignidata$core),
+        number.of.alternatives=as.integer(number.of.alternatives),
+        priors=as.character(psignidata$priors),
+        number.of.parameters=as.integer(nprm),
+        estimate=as.double( vector("numeric", nprm) ),
+        deviance=as.double(0),
+        Rpd=as.double(0),
+        Rkd=as.double(0)
+        )
+    map$data.samples <- NULL
+    map$parameter.samples <- NULL
+    map$deviance.samples <- NULL
+    map$Rpd.samples <- NULL
+    map$Rkd.samples <- NULL
+    map$threshold.samples <- NULL
+    map$influential <- NULL
+    map$acceleration <- NULL
+    map$bias <- NULL
+    attr(map,"class") <- "psiginference"
+    attr(map,"inference") <- "point"
+    return (map)
+}
+
+PsigBootstrap <- function ( psignidata, number.of.samples=2000, generating=-999 ) {
+    nprm <- if (psignidata$number.of.alternatives<2) 4 else 3
+    boots <- .C ( "performbootstrap",
+        stimulus.intensities=as.double(psignidata$stimulus.intensities),
+        number.of.correct=as.integer(psignidata$number.of.correct),
+        number.of.trials=as.integer(psignidata$number.of.trials),
+        number.of.blocks=as.integer(psignidata$number.of.blocks),
+        sigmoid=as.character(psignidata$sigmoid),
+        core=as.character(psignidata$core),
+        number.of.alternatives=as.integer(psignidata$number.of.alternatives),
+        priors=as.character(psignidata$priors),
+        generating=as.double(generating),
+        number.of.parameters=as.integer(nprm),
+        number.of.samples=as.integer(number.of.samples),
+        cuts=as.double(psignidata$cuts),
+        number.of.cuts=as.integer(length(psignidata$cuts)),
+        data.samples=as.integer(vector("numeric",psignidata$number.of.blocks*number.of.samples)),
+        parameter.samples=as.double(vector("numeric",nprm*number.of.samples)),
+        deviance.samples=as.double(vector("numeric",number.of.samples)),
+        Rpd.samples=as.double(vector("numeric",number.of.samples)),
+        Rkd.samples=as.double(vector("numeric",number.of.samples)),
+        threshold.samples=as.double(vector("numeric",length(psignidata$cuts)*number.of.samples)),
+        influential=as.double(vector("numeric",psignidata$number.of.blocks)),
+        acceleration=as.double(vector("numeric",length(psignidata$cuts))),
+        bias=as.double(vector("numeric",1),length(psignidata$cuts))
+        )
+    boots$data.samples <- matrix(boots$data.samples, boots$number.of.samples,boots$number.of.blocks, TRUE)
+    boots$parameter.samples <- matrix(boots$parameter.samples, boots$number.of.samples, boots$number.of.parameters, TRUE)
+    boots$threshold.samples <- matrix(boots$threshold.samples, boots$number.of.samples, boots$number.of.cuts, TRUE)
+
+    map <- MAPestimation ( psignidata )
+    boots$estimate <- map$estimate
+    boots$deviance <- map$deviance
+    boots$Rpd <- map$Rpd
+    boots$Rkd <- map$Rkd
+    boots$logratios <- NULL
+    boots$proposal <- NULL
+    boots$deviance.predictions <- NULL
+    attr(boots,"class") <- "psiginference"
+    attr(boots,"inference") <- "bootstrap"
+    return (boots)
+}
+
+PsigBayes <- function ( psignidata, number.of.samples=2000, start=NULL, proposal=NULL ) {
+    nprm <- if (psignidata$number.of.alternatives<2) 4 else 3
+    if (proposal==NULL) {
+        # Use Raftery/Lewis instead? Would have to be implemented...
+        proposal <- if (nprm==4) c(.4,.4,.01,.01) else c(.4,.4,.01)
+    } else {
+        if (length(proposal<nprm) {
+            cat ("Error in PsigBayes: Wrong length of proposal argument\n")
+            return (NULL)
+        }
+    }
+
+    if (start==NULL) {
+        start <- MAPestimation$estimate
+    }
+
+    mcmc <- .C ( "performmcmc",
+        stimulus.intensities=as.double(psignidata$stimulus.intensities),
+        number.of.correct=as.integer(psignidata$number.of.correct),
+        number.of.trials=as.integer(psignidata$number.of.trials),
+        number.of.blocks=as.integer(psignidata$number.of.blocks),
+        sigmoid=as.character(psignidata$sigmoid),
+        core=as.character(psignidata$core),
+        number.of.alternatives=as.integer(psignidata$number.of.alternatives),
+        priors=as.character(psignidata$priors),
+        proposal=as.double(proposal),
+        generating=as.double(start),
+        number.of.parameters=as.integer(nprm),
+        number.of.samples=as.integer(number.of.samples),
+        cuts=as.double(psignidata$cuts),
+        number.of.cuts=as.integer(length(psignidata$cuts)),
+        parameter.samples=as.double(vector("numeric",nprm*number.of.samples)),
+        deviance.samples=as.double(vector("numeric",number.of.samples)),
+        data.samples=as.integer(vector("numeric",number.of.blocks*number.of.samples),
+        Rpd.samples=as.double(vector("numeric",number.of.samples)),
+        Rkd.samples=as.double(vector("numeric",number.of.samples)),
+        deviance.predictions=as.double(vector("numeric",number.of.samples)),
+        logratios=as.double(vector("numeric",number.of.blocks*number.of.samples))
+        )
+    mcmc$data.samples <- matrix(mcmc$data.samples, mcmc$number.of.samples, mcmc$number.of.blocks, TRUE)
+    mcmc$parameter.samples <- matrix(mcmc$parameter.samples, mcmc$number.of.samples, mcmc$number.of.blocks, TRUE)
+
+# TODO: MCMC mit thresholds?
+    mcmc$threshold.samples <- NULL
+
+    mcmc$logratios <- matrix(mcmc$logratios, mcmc$number.of.samples, mcmc$number.of.blocks, TRUE)
+
+    return (mcmc)
+}
+
+PsigDiagnostics <- function ( parameters, psignidata ) {
+    nprm <- if (psignidata$number.of.alternatives<2) 4 else 3
+
+    diag <- .C ( "getdiagnostics",
+        stimulus.intensities=as.double(psignidata$stimulus.intensities),
+        number.of.correct=as.integer(psignidata$number.of.correct),
+        number.of.trials=as.integer(psignidata$number.of.trials),
+        number.of.blocks=as.integer(psignidata$number.of.blocks),
+        sigmoid=as.character(psignidata$sigmoid),
+        core=as.character(psignidata$core),
+        number.of.alternatives=as.integer(psignidata$number.of.alternatives),
+        priors=as.character(psignidata$priors),
+        number.of.parameters=as.integer(nprm),
+        cuts=as.double(psignidata$cuts),
+        number.of.cuts=as.integer(length(psignidata$cuts)),
+        parameters=as.double(parameters),
+        deviance=as.double(0),
+        Rpd=as.double(0),
+        Rkd=as.double(0),
+        thres=as.double(vector("numeric",length(psignidata$cuts))),
+        deviance.residuals=as.double(vector("numeric",psignidata$number.of.blocks))
+        )
+    attr(diag,"class") <- "psigdiagnostics"
+
+    return (diag)
+}
+
+PsigEvaluate <- function ( parameters, psignidata, x=NULL ) {
+    if (is.null(x)) x <- seq(min(psignidata$stimulus.intensities), max(psignidata$stimulus.intensities), length.out=100)
+    nprm <- if (psignidata$number.of.alternatives<2) 4 else 3
+
+    Fx <- .C ( "pmfevaluate",
+        stimulus.intensities=as.double(x),
+        number.of.intensities=as.integer(length(x)),
+        parameters=as.double(parameters),
+        number.of.parameters=as.integer(nprm),
+        sigmoid=as.character(psignidata$sigmoid),
+        core=as.character(psignidata$core),
+        number.of.alternatives=as.integer(psignidata$number.of.alternatives),
+        f.x=as.double(vector("numeric",length(x)))
+        )
+
+    return (Fx$f.x)
+}
 

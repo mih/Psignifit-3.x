@@ -139,6 +139,8 @@ void mapestimate (
 		return;
 	}
 
+	std::vector<double> startest = pmf->getStart ( data );
+	std::cerr << startest[0] << " " << startest[1] << " " << startest[2] << "\n";
 	PsiOptimizer *opt = new PsiOptimizer ( pmf, data );
 	std::vector<double> est = opt->optimize ( pmf, data );
 	delete opt;

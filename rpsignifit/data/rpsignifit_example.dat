@@ -1,0 +1,9 @@
+x <- c(0,2,4,6,8,10)
+k <- c(24,22,33,45,48,50)
+n <- rep(50,length(k))
+priors <- vector("character",3)
+priors[1] <- "Gauss(0,10)"
+priors[2] <- "Gamma(1,4)"
+priors[3] <- "Beta(2,40)"
+
+
