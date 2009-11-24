@@ -7,7 +7,8 @@ PsigniSetup <- function ( x, k, n,
     priors=list("","","Uniform(0,.1)"),
     sigmoid="logistic",
     core="mw0.1",
-    number.of.alternatives=2 ) {
+    number.of.alternatives=2,
+    cuts=0.5) {
 
     data <- list ( stimulus.intensities=as.double(x),
         number.of.correct=as.integer(k),
@@ -17,7 +18,7 @@ PsigniSetup <- function ( x, k, n,
         core=as.character(core),
         number.of.alternatives=as.integer(number.of.alternatives),
         priors=priors,
-        cuts=0.5)
+        cuts=cuts)
     attr(data,"class") <- "psignisetup"
 
     return (data)
