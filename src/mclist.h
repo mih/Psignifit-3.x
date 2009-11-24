@@ -165,6 +165,8 @@ class JackKnifeList : public PsiMClist
 class MCMCList : public PsiMClist
 {
 	private:
+		std::vector<double> posterior_Rpd;
+		std::vector<double> posterior_Rkd;
 		std::vector< std::vector<int> > posterior_predictive_data;
 		std::vector<double> posterior_predictive_deviances;
 		std::vector<double> posterior_predictive_Rpd;
@@ -176,6 +178,8 @@ class MCMCList : public PsiMClist
 			unsigned int nprm,                                             ///< number of parameters in the model
 			unsigned int nblocks                                           ///< number of blocks in the experiment
 			) : PsiMClist ( N, nprm),
+				posterior_Rpd(N),
+				posterior_Rkd(N),
 				posterior_predictive_data(N,std::vector<int>(nblocks)),
 				posterior_predictive_deviances ( N ),
 				posterior_predictive_Rpd ( N ),
@@ -193,6 +197,10 @@ class MCMCList : public PsiMClist
 		double getppRpd ( unsigned int i ) const;
 		void setppRkd ( unsigned int i, double Rkd );
 		double getppRkd ( unsigned int i ) const;
+		void setRpd ( unsigned int i, double Rpd );
+		double getRpd ( unsigned int i ) const;
+		void setRkd ( unsigned int i, double Rkd );
+		double getRkd ( unsigned int i ) const;
 		unsigned int getNblocks ( void ) const { return posterior_predictive_data[0].size(); }  ///< get the number of blocks
 		void setlogratio ( unsigned int i, unsigned int j, double logratio );              ///< set the log posterior ratio for sample i and block j
 		double getlogratio ( unsigned int i, unsigned int j ) const;                       ///< get the log posterior ratio for sample i and block j

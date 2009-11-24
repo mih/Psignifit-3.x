@@ -327,6 +327,39 @@ double MCMCList::getppRkd ( unsigned int i ) const
 	return posterior_predictive_Rkd[i];
 }
 
+void MCMCList::setRpd ( unsigned int i, double Rpd )
+{
+	if ( i>=getNsamples() )
+		throw BadIndexError();
+
+	posterior_Rpd[i] = Rpd;
+}
+
+double MCMCList::getRpd ( unsigned int i ) const
+{
+	if ( i>=getNsamples() )
+		throw BadIndexError();
+
+	return posterior_Rpd[i];
+}
+
+void MCMCList::setRkd ( unsigned int i, double Rkd )
+{
+	if ( i>=getNsamples() )
+		throw BadIndexError();
+
+	posterior_Rkd[i] = Rkd;
+}
+
+double MCMCList::getRkd ( unsigned int i ) const
+{
+	if ( i>=getNsamples() )
+		throw BadIndexError();
+
+	return posterior_Rkd[i];
+}
+
+
 void MCMCList::setlogratio ( unsigned int i, unsigned int j, double logratio )
 {
 	if ( i>=getNsamples() )
