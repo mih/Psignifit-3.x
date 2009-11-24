@@ -31,7 +31,6 @@ PsiCore * determine_core ( char *core, const PsiSigmoid* Sigmoid, const PsiData*
 		return  new abCore();
 	} else if ( !strncmp(core,"mw",2) ) {
 		sscanf(core, "mw%lf", &dummy);
-		std::cerr << "Determined mw-core with parameter " << dummy << "\n";
 		return  new mwCore(Sigmoid->getcode(), dummy);
 	} else if ( !strcmp(core,"linear") ) {
 		return  new linearCore();
@@ -140,7 +139,6 @@ void mapestimate (
 	}
 
 	std::vector<double> startest = pmf->getStart ( data );
-	std::cerr << startest[0] << " " << startest[1] << " " << startest[2] << "\n";
 	PsiOptimizer *opt = new PsiOptimizer ( pmf, data );
 	std::vector<double> est = opt->optimize ( pmf, data );
 	delete opt;
@@ -183,7 +181,8 @@ void performbootstrap (
 		double *bthres,     // output: thresholds of the bootstrap samples
 		double *influential,// output: influence of the different blocks
 		double *acc,        // output: acceleration constants
-		double *bias        // output: bias correction constants
+		double *bias,       // output: bias correction constants
+		double *thresholdci // output: 95% confidence intervals for thresholds
 		) {
 	int i,j;
 	PsiData * data;
@@ -231,13 +230,16 @@ void performbootstrap (
 	for ( j=0; j<*ncuts; j++ ) {
 		acc[j] = bslist.getAcc(j);
 		bias[j] = bslist.getBias(j);
+		thresholdci[3*j]   = bslist.getThres(0.025, j);
+		thresholdci[3*j+1] = bslist.getThres(0.5, j);
+		thresholdci[3*j+2] = bslist.getThres(0.975, j);
 	}
 
 	std::vector<double> ci_lower ( *nparams );
 	std::vector<double> ci_upper ( *nparams );
 	for ( j=0; j<*nparams; j++ ) {
-		ci_lower[i] = bslist.getPercentile(0.025,j);
-		ci_upper[i] = bslist.getPercentile(0.975,j);
+		ci_lower[j] = bslist.getPercentile(0.025,j);
+		ci_upper[j] = bslist.getPercentile(0.975,j);
 	}
 	for ( j=0; j<*K; j++ ) {
 		influential[j] = jack.influential ( j, ci_lower, ci_upper );
@@ -268,6 +270,8 @@ void performmcmc (
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		double *mcmcestimates, // output: bootstrap estimates (needs to be reshaped)
 		double *mcmcdeviances, // output: deviances of the bootstrap samples
+		double *mcmcRpd,       // output: correlations between model prediction and deviance residuals for mcmc sammples
+		double *mcmcRkd,       // output: correlations between block index and deviance residuals for all mcmc samples
 		int *ppdata,           // output: bootstrap samples (needs to be 'reshaped')
 		double *ppRpd,         // output: correlations between model prediction and deviance residuals for all bootstrap samples
 		double *ppRkd,         // output: correlations between block index and deviance residuals for all bootstrap samples
@@ -294,6 +298,8 @@ void performmcmc (
 			mcmcestimates[*nparams*i + j] = mcmclist.getEst (i, j);
 		}
 		mcmcdeviances[i] = mcmclist.getdeviance ( i );
+		mcmcRpd[i] = mcmclist.getRpd ( i );
+		mcmcRkd[i] = mcmclist.getRkd ( i );
 
 		for ( j=0; j<*K; j++ ) {
 			ppdata[*K*i + j] = mcmclist.getppData ( i, j );
@@ -385,7 +391,6 @@ void pmfevaluate (
 
 	for ( i=0; i<*lenx; i++  ) {
 		Fx[i] = pmf->evaluate ( x[i], theta );
-		std::cerr << i << " " << x[i] << " " << Fx[i] <<  "\n";
 	}
 
 	delete pmf;

@@ -37,6 +37,7 @@ print.psignisetup <- function ( data ) {
     for ( i in 1:nprm ) {
         cat ( paste ( "  ", parnames[i], "\t", priors[i], "\n" ) )
     }
+    cat ("\n")
 
     print ( data.frame ( stimulus.intensities=data$stimulus.intensities, number.of.correct=data$number.of.correct, number.of.trials=data$number.of.trials ) )
 }
@@ -45,6 +46,187 @@ print.psignisetup <- function ( data ) {
 #            psiginference methods                         #
 ############################################################
 
+print.psiginference <- function ( inference ) {
+    parnames <- c("alpha","beta","lambda","gamma")
+    if ( substr(inference$core,1,2)=="mw" ) {
+        parnames[1] = "m    "
+        parnames[2] = "w    "
+    }
+
+    if ( attr(inference,"inference")=="point" ) {
+        cat ( "Point estimate of psychometric function\n" )
+    } else if ( attr(inference,"inference")=="bootstrap" ) {
+        cat ( "Bootstrap inference on psychometric function\n" )
+    } else if ( attr(inference,"inference")=="mcmc" ) {
+        cat ( "Bayesian inference (MCMC) on psychometric function\n" )
+    }
+    cat ( paste ( "Fit performed with", inference$sigmoid, "sigmoid and", inference$core, "core\n" ) )
+
+    cat ( paste ( "\nDeviance:", inference$deviance ) )
+    if ( attr(inference,"inference") == "point" ) {
+        cat ( paste ( " (asymptotic upper 95% limit:", inference$number.of.parameters-1,")" ) )
+    } else if ( attr(inference,"inference") == "bootstrap" ) {
+        cat ( paste ( " (monte-carlo upper 95% limit:", quantile(inference$deviance.samples,.95), ")" ) )
+    } else if ( attr(inference,"inference") == "mcmc" ) {
+        cat ( paste ( " (Bayesian p-value for deviance:", mean (
+            as.double(inference$deviance.samples<inference$deviance.predictions)[mcmc$burnin:mcmc$number.of.samples] ),")" ) )
+    }
+
+    cat ( "\n\nParameter\tEstimate\t2.5%\t50%\t97.5%\n" )
+    for ( i in 1:inference$number.of.parameters ) {
+        cat ( paste ( "  ", parnames[i], "\t", round(inference$estimate[i],3), "\t" ) )
+        if ( attr(inference,"inference") != "point" ) {
+            for ( j in 1:3 ) {
+                cat ( paste ( "\t", round(inference$parameter.ci[i,j], 3) ) )
+            }
+        }
+        cat ( "\n" )
+    }
+
+    cat ( "\nThreshold\tEstimate\t2.5%\t50%\t97.5%\n" )
+    for ( i in 1:inference$number.of.cuts ) {
+        cat ( paste ( "  ", round(inference$cuts[i],2), " \t", round(inference$threshold[i],3), "\t" ) )
+        if ( attr(inference,"inference") != "point" ) {
+            for ( j in c(1,2,3) ) {
+                cat ( paste ( "\t", round(inference$threshold.ci[i,j], 3) ) )
+            }
+        }
+        cat ( "\n" )
+    }
+}
+
+bootstrap.goodness.of.fit <- function ( inference ) {
+    diag <- PsigDiagnostics ( inference$estimate, inference )
+    m <- matrix(seq(1,6),2,3,TRUE)
+    layout(m)
+
+    plot ( inference$stimulus.intensities, inference$number.of.correct/inference$number.of.trials,
+        type="n",
+        xlab="Stimulus intensity",
+        ylab=if(inference$number.of.alternatives<2) "prob(YES)" else "prob(correct)",
+        main="Psychometric function"
+        )
+    points ( inference$stimulus.intensities, inference$number.of.correct/inference$number.of.trials, col="blue", pch=19,
+        cex=0.05*inference$number.of.trials )
+    psi <- PsigEvaluate ( inference$estimate, inference )
+    lines ( psi$x, psi$Psi.x, col="blue" )
+    for ( i in 1:inference$number.of.cuts ) {
+        lines ( inference$threshold.ci[i,],
+            rep( PsigEvaluate(inference$estimate,inference,inference$threshold[i])$Psi.x, length(inference$threshold.ci[i,]) ),
+            col="blue")
+    }
+
+    Psi.x <- PsigEvaluate(inference$estimate, inference, inference$stimulus.intensities)$Psi.x
+    plot ( Psi.x, diag$deviance.residuals,
+        type="n",
+        xlab="Model prediction",
+        ylab="Deviance residuals",
+        main=paste ("Rpd =", signif(diag$Rpd)) )
+    points ( Psi.x, diag$deviance.residuals )
+    abline(reg=lm( diag$deviance.residuals~Psi.x ), lty=3 )
+
+    plot ( seq(1,inference$number.of.blocks), diag$deviance.residuals,
+        type="n",
+        xlab="Block index",
+        ylab="Deviance residuals",
+        main=paste ("Rkd =", signif(diag$Rkd)) )
+    points ( seq(1,inference$number.of.blocks), diag$deviance.residuals )
+    abline(reg=lm( diag$deviance.residuals~seq(1,inference$number.of.blocks) ), lty=3 )
+
+    h <- hist ( inference$deviance.samples, xlab="deviance", main="Expected deviance" )
+    abline ( v=inference$deviance, col="red" )
+    abline ( v=quantile(inference$deviance.samples, .95 ), lty=3)
+
+    h <- hist ( inference$Rpd.samples, xlab="Rpd", main="Expected Rpd", xlim=c(-1,1) )
+    abline ( v=inference$Rpd, col="red" )
+    abline ( v=quantile(inference$Rpd.samples,c(.025,.975),na.rm=TRUE), lty=3 )
+
+    h <- hist ( inference$Rkd.samples, xlab="Rkd", main="Expected Rkd", xlim=c(-1,1) )
+    abline ( v=inference$Rkd, col="red" )
+    abline ( v=quantile(inference$Rkd.samples,c(.025,.975),na.rm=TRUE), lty=3 )
+
+}
+
+bayes.goodness.of.fit <- function ( inference ) {
+    diag <- PsigDiagnostics ( inference$estimate, inference )
+    m <- matrix(seq(1,6),2,3,TRUE)
+    layout(m)
+
+    plot ( inference$stimulus.intensities, inference$number.of.correct/inference$number.of.trials,
+        type="n",
+        xlab="Stimulus intensity",
+        ylab=if(inference$number.of.alternatives<2) "prob(YES)" else "prob(correct)",
+        main="Psychometric function"
+        )
+
+    for ( i in 1:20 ) {
+        index.parameters <- round ( runif(1, min=mcmc$burnin,max=mcmc$number.of.samples) )
+        psi <- PsigEvaluate ( inference$parameter.samples[index.parameters,], inference )
+        lines ( psi$x, psi$Psi.x, col="light blue" )
+    }
+
+    points ( inference$stimulus.intensities, inference$number.of.correct/inference$number.of.trials, col="blue", pch=19,
+        cex=0.05*inference$number.of.trials )
+    psi <- PsigEvaluate ( inference$estimate, inference )
+    lines ( psi$x, psi$Psi.x, col="blue" )
+    for ( i in 1:inference$number.of.cuts ) {
+        lines ( inference$threshold.ci[i,],
+            rep( PsigEvaluate(inference$estimate,inference,inference$threshold[i])$Psi.x, length(inference$threshold.ci[i,]) ),
+            col="blue")
+    }
+
+    Psi.x <- PsigEvaluate(inference$estimate, inference, inference$stimulus.intensities)$Psi.x
+    plot ( Psi.x, diag$deviance.residuals,
+        type="n",
+        xlab="Model prediction",
+        ylab="Deviance residuals",
+        main=paste ("Rpd =", signif(diag$Rpd)) )
+    points ( Psi.x, diag$deviance.residuals )
+    abline(reg=lm( diag$deviance.residuals~Psi.x ), lty=3 )
+
+    plot ( seq(1,inference$number.of.blocks), diag$deviance.residuals,
+        type="n",
+        xlab="Block index",
+        ylab="Deviance residuals",
+        main=paste ("Rkd =", signif(diag$Rkd)) )
+    points ( seq(1,inference$number.of.blocks), diag$deviance.residuals )
+    abline(reg=lm( diag$deviance.residuals~seq(1,inference$number.of.blocks) ), lty=3 )
+
+
+    st <- inference$burnin
+    sp <- inference$number.of.samples
+    plot ( inference$deviance.predictions[st:sp], inference$deviance.samples[st:sp],
+        type="n",
+        xlab="predicted deviance",
+        ylab="observed deviance",
+        main="Posterior predictions for deviance" )
+    points ( inference$deviance.predictions[st:sp], inference$deviance.samples[st:sp] )
+    abline(a=0,b=1,lty=3)
+
+    plot ( inference$Rpd.predictions[st:sp], inference$Rpd.samples[st:sp],
+        type="n",
+        xlab="predicted Rpd",
+        ylab="observed Rpd",
+        main="Posterior predictions for Rpd" )
+    points ( inference$Rpd.predictions[st:sp], inference$Rkd.samples[st:sp] )
+    abline(a=0,b=1,lty=3)
+
+    plot ( inference$Rkd.predictions[st:sp], inference$Rkd.samples[st:sp],
+        type="n",
+        xlab="predicted Rkd",
+        ylab="observed Rkd",
+        main="Posterior predictions for Rkd" )
+    points ( inference$Rkd.predictions[st:sp], inference$Rkd.samples[st:sp] )
+    abline(a=0,b=1,lty=3)
+}
+
+plot.psiginference <- function ( inference ) {
+    if ( attr(inference,"inference") == "bootstrap" ) {
+        bootstrap.goodness.of.fit ( inference )
+    } else if ( attr(inference,"inference") == "bayes" ) {
+        bayes.goodness.of.fit ( inference )
+    }
+}
 
 
 ############################################################
@@ -60,7 +242,7 @@ MAPestimation <- function ( psignidata ) {
         number.of.blocks=as.integer(psignidata$number.of.blocks),
         sigmoid=as.character(psignidata$sigmoid),
         core=as.character(psignidata$core),
-        number.of.alternatives=as.integer(number.of.alternatives),
+        number.of.alternatives=as.integer(psignidata$number.of.alternatives),
         priors=as.character(psignidata$priors),
         number.of.parameters=as.integer(nprm),
         estimate=as.double( vector("numeric", nprm) ),
@@ -77,6 +259,10 @@ MAPestimation <- function ( psignidata ) {
     map$influential <- NULL
     map$acceleration <- NULL
     map$bias <- NULL
+    map$parameter.ci <- NULL
+    map$cuts <- psignidata$cuts
+    map$number.of.cuts <- length(psignidata$cuts)
+    map$threshold <- PsigDiagnostics( map$estimate, psignidata )$threshold
     attr(map,"class") <- "psiginference"
     attr(map,"inference") <- "point"
     return (map)
@@ -106,20 +292,27 @@ PsigBootstrap <- function ( psignidata, number.of.samples=2000, generating=-999 
         threshold.samples=as.double(vector("numeric",length(psignidata$cuts)*number.of.samples)),
         influential=as.double(vector("numeric",psignidata$number.of.blocks)),
         acceleration=as.double(vector("numeric",length(psignidata$cuts))),
-        bias=as.double(vector("numeric",1),length(psignidata$cuts))
+        bias=as.double(vector("numeric",length(psignidata$cuts))),
+        threshold.ci=as.double(vector("numeric",length(psignidata$cuts)*3))
         )
     boots$data.samples <- matrix(boots$data.samples, boots$number.of.samples,boots$number.of.blocks, TRUE)
     boots$parameter.samples <- matrix(boots$parameter.samples, boots$number.of.samples, boots$number.of.parameters, TRUE)
     boots$threshold.samples <- matrix(boots$threshold.samples, boots$number.of.samples, boots$number.of.cuts, TRUE)
+    boots$threshold.ci <- matrix(boots$threshold.ci, boots$number.of.cuts, 3)
 
     map <- MAPestimation ( psignidata )
     boots$estimate <- map$estimate
     boots$deviance <- map$deviance
     boots$Rpd <- map$Rpd
     boots$Rkd <- map$Rkd
+    boots$threshold <- map$threshold
     boots$logratios <- NULL
     boots$proposal <- NULL
     boots$deviance.predictions <- NULL
+    boots$parameter.ci <- matrix ( nrow=boots$number.of.parameters, ncol=3 )
+    for ( i in 1:nprm ) {
+        boots$parameter.ci[i,] = quantile ( boots$parameter.samples[,i], c(.05,.5,.95) )
+    }
     attr(boots,"class") <- "psiginference"
     attr(boots,"inference") <- "bootstrap"
     return (boots)
@@ -127,18 +320,18 @@ PsigBootstrap <- function ( psignidata, number.of.samples=2000, generating=-999 
 
 PsigBayes <- function ( psignidata, number.of.samples=2000, start=NULL, proposal=NULL ) {
     nprm <- if (psignidata$number.of.alternatives<2) 4 else 3
-    if (proposal==NULL) {
+    if (is.null(proposal)) {
         # Use Raftery/Lewis instead? Would have to be implemented...
         proposal <- if (nprm==4) c(.4,.4,.01,.01) else c(.4,.4,.01)
     } else {
-        if (length(proposal<nprm) {
+        if (length(proposal)<nprm) {
             cat ("Error in PsigBayes: Wrong length of proposal argument\n")
             return (NULL)
         }
     }
 
-    if (start==NULL) {
-        start <- MAPestimation$estimate
+    if (is.null(start)) {
+        start <- MAPestimation(psignidata)$estimate
     }
 
     mcmc <- .C ( "performmcmc",
@@ -158,19 +351,43 @@ PsigBayes <- function ( psignidata, number.of.samples=2000, start=NULL, proposal
         number.of.cuts=as.integer(length(psignidata$cuts)),
         parameter.samples=as.double(vector("numeric",nprm*number.of.samples)),
         deviance.samples=as.double(vector("numeric",number.of.samples)),
-        data.samples=as.integer(vector("numeric",number.of.blocks*number.of.samples),
         Rpd.samples=as.double(vector("numeric",number.of.samples)),
         Rkd.samples=as.double(vector("numeric",number.of.samples)),
+        data.samples=as.integer(vector("numeric",psignidata$number.of.blocks*number.of.samples)),
+        Rpd.predictions=as.double(vector("numeric",number.of.samples)),
+        Rkd.predictions=as.double(vector("numeric",number.of.samples)),
         deviance.predictions=as.double(vector("numeric",number.of.samples)),
-        logratios=as.double(vector("numeric",number.of.blocks*number.of.samples))
+        logratios=as.double(vector("numeric",psignidata$number.of.blocks*number.of.samples))
         )
     mcmc$data.samples <- matrix(mcmc$data.samples, mcmc$number.of.samples, mcmc$number.of.blocks, TRUE)
-    mcmc$parameter.samples <- matrix(mcmc$parameter.samples, mcmc$number.of.samples, mcmc$number.of.blocks, TRUE)
+    mcmc$parameter.samples <- matrix(mcmc$parameter.samples, mcmc$number.of.samples, mcmc$number.of.parameters, TRUE)
 
 # TODO: MCMC mit thresholds?
-    mcmc$threshold.samples <- NULL
-
     mcmc$logratios <- matrix(mcmc$logratios, mcmc$number.of.samples, mcmc$number.of.blocks, TRUE)
+
+    mcmc$burnin <- as.integer(0.5*mcmc$number.of.samples)
+    mcmc$thin   <- 1
+    mcmc$estimate <- apply ( mcmc$parameter.samples, 2, mean )
+    diag <- PsigDiagnostics( mcmc$estimate, psignidata )
+    mcmc$deviance <- diag$deviance
+    mcmc$threshold <- diag$threshold
+
+    mcmc$parameter.ci <- matrix( nrow=mcmc$number.of.parameters, ncol=3 )
+    for ( i in 1:nprm ) {
+        mcmc$parameter.ci[i,] = quantile ( mcmc$parameter.samples[,i], c(.05,.5,.95) )
+    }
+
+    prm2thres <- function ( parameters, psignidata ) {
+        return ( PsigDiagnostics ( parameters, psignidata )$threshold )
+    }
+    mcmc$threshold.samples <- t(apply(mcmc$parameter.samples,1,prm2thres,D))
+    mcmc$threshold.ci <- matrix(nrow=mcmc$number.of.cuts,ncol=3)
+    for ( i in 1:mcmc$number.of.cuts ) {
+        mcmc$threshold.ci[i,] <- quantile ( mcmc$threshold.samples[mcmc$burnin:mcmc$number.of.samples,i], c(0.025, 0.5, 0.975) )
+    }
+
+    attr(mcmc,"class") <- "psiginference"
+    attr(mcmc,"inference") <- "mcmc"
 
     return (mcmc)
 }
@@ -194,7 +411,7 @@ PsigDiagnostics <- function ( parameters, psignidata ) {
         deviance=as.double(0),
         Rpd=as.double(0),
         Rkd=as.double(0),
-        thres=as.double(vector("numeric",length(psignidata$cuts))),
+        threshold=as.double(vector("numeric",length(psignidata$cuts))),
         deviance.residuals=as.double(vector("numeric",psignidata$number.of.blocks))
         )
     attr(diag,"class") <- "psigdiagnostics"
@@ -217,6 +434,6 @@ PsigEvaluate <- function ( parameters, psignidata, x=NULL ) {
         f.x=as.double(vector("numeric",length(x)))
         )
 
-    return (Fx$f.x)
+    return (list(x=x,Psi.x=Fx$f.x))
 }
 
