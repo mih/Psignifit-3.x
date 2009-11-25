@@ -100,22 +100,28 @@ bootstrap.goodness.of.fit <- function ( inference ) {
     m <- matrix(seq(1,6),2,3,TRUE)
     layout(m)
 
+    ##############################
+    # Psychometric function plot
     plot ( inference$stimulus.intensities, inference$number.of.correct/inference$number.of.trials,
         type="n",
         xlab="Stimulus intensity",
         ylab=if(inference$number.of.alternatives<2) "prob(YES)" else "prob(correct)",
         main="Psychometric function"
         )
-    points ( inference$stimulus.intensities, inference$number.of.correct/inference$number.of.trials, col="blue", pch=19,
+    # Data
+    points ( inference$stimulus.intensities, inference$number.of.correct/inference$number.of.trials,
         cex=0.05*inference$number.of.trials )
+    # Fitted curve
     psi <- PsigEvaluate ( inference$estimate, inference )
-    lines ( psi$x, psi$Psi.x, col="blue" )
+    lines ( psi$x, psi$Psi.x )
+    # Confidence limits
     for ( i in 1:inference$number.of.cuts ) {
         lines ( inference$threshold.ci[i,],
-            rep( PsigEvaluate(inference$estimate,inference,inference$threshold[i])$Psi.x, length(inference$threshold.ci[i,]) ),
-            col="blue")
+            rep( PsigEvaluate(inference$estimate,inference,inference$threshold[i])$Psi.x, length(inference$threshold.ci[i,]) ))
     }
 
+    ##############################
+    # Rpd plot
     Psi.x <- PsigEvaluate(inference$estimate, inference, inference$stimulus.intensities)$Psi.x
     plot ( Psi.x, diag$deviance.residuals,
         type="n",
@@ -162,17 +168,16 @@ bayes.goodness.of.fit <- function ( inference ) {
     for ( i in 1:20 ) {
         index.parameters <- round ( runif(1, min=mcmc$burnin,max=mcmc$number.of.samples) )
         psi <- PsigEvaluate ( inference$parameter.samples[index.parameters,], inference )
-        lines ( psi$x, psi$Psi.x, col="light blue" )
+        lines ( psi$x, psi$Psi.x, col="gray70" )
     }
 
-    points ( inference$stimulus.intensities, inference$number.of.correct/inference$number.of.trials, col="blue", pch=19,
+    points ( inference$stimulus.intensities, inference$number.of.correct/inference$number.of.trials,
         cex=0.05*inference$number.of.trials )
     psi <- PsigEvaluate ( inference$estimate, inference )
-    lines ( psi$x, psi$Psi.x, col="blue" )
+    lines ( psi$x, psi$Psi.x )
     for ( i in 1:inference$number.of.cuts ) {
         lines ( inference$threshold.ci[i,],
-            rep( PsigEvaluate(inference$estimate,inference,inference$threshold[i])$Psi.x, length(inference$threshold.ci[i,]) ),
-            col="blue")
+            rep( PsigEvaluate(inference$estimate,inference,inference$threshold[i])$Psi.x, length(inference$threshold.ci[i,]) ))
     }
 
     Psi.x <- PsigEvaluate(inference$estimate, inference, inference$stimulus.intensities)$Psi.x
