@@ -139,6 +139,19 @@ print.psiginference <- function ( inference ) {
         }
         cat ( "\n" )
     }
+
+    # Influential observations
+    if ( attr(inference,"inference") != "point" ) {
+        cat ( "\nBlock data and influences\n" )
+        d.and.infl <- data.frame (
+            stimulus.intensities = inference$stimulus.intensities,
+            number.of.correct    = inference$number.of.correct,
+            number.of.trials     = inference$number.of.trials,
+            influence            = inference$influential
+            )
+        print(d.and.infl)
+    }
+
 }
 
 ######################################################################
@@ -503,6 +516,14 @@ PsigBayes <- function ( psignidata, number.of.samples=2000, start=NULL, proposal
     for ( i in 1:mcmc$number.of.cuts ) {
         mcmc$threshold.ci[i,] <- quantile ( mcmc$threshold.samples[mcmc$burnin:mcmc$number.of.samples,i], c(0.025, 0.5, 0.975) )
     }
+
+    # Determine influential observations
+    lpr <- mcmc$logratios[mcmc$burnin:mcmc$number.of.samples,]
+    KL_determine <- function ( logratios ) {
+        return ( -mean(logratios) + log(mean(exp(logratios))) )
+    }
+    mcmc$influential = apply ( lpr, 2, KL_determine )
+
 
     # Store attributes
     attr(mcmc,"class") <- "psiginference"
