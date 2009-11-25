@@ -86,7 +86,6 @@ void MetropolisHastings::setstepsize ( const std::vector<double>& sizes ) {
 }
 
 MCMCList MetropolisHastings::sample ( unsigned int N ) {
-	srand48(0);
 	const PsiData * data ( getData() );
 	const PsiPsychometric * model ( getModel() );
 	MCMCList out ( N, model->getNparams(), data->getNblocks() );
