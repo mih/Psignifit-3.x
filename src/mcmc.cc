@@ -86,6 +86,7 @@ void MetropolisHastings::setstepsize ( const std::vector<double>& sizes ) {
 }
 
 MCMCList MetropolisHastings::sample ( unsigned int N ) {
+	srand48(0);
 	const PsiData * data ( getData() );
 	const PsiPsychometric * model ( getModel() );
 	MCMCList out ( N, model->getNparams(), data->getNblocks() );
@@ -101,7 +102,7 @@ MCMCList MetropolisHastings::sample ( unsigned int N ) {
 	std::vector<int> reducedn ( data->getNblocks()-1 );
 
 	for (i=0; i<N; i++) {
-		// Draw the nest sample
+		// Draw the next sample
 		est = draw();
 		out.setEst ( i, est, 0. );
 		out.setdeviance ( i, getDeviance() );
@@ -112,9 +113,10 @@ MCMCList MetropolisHastings::sample ( unsigned int N ) {
 		newsample ( localdata, probs, &posterior_predictive);
 		localdata->setNcorrect ( posterior_predictive );
 		out.setppData ( i, posterior_predictive, model->deviance ( est, localdata ) );
-		probs = model->getDevianceResiduals ( est, localdata );
+		probs = model->getDevianceResiduals ( est, data );
 		out.setRpd ( i, model->getRpd ( probs, est, data ) );
 		out.setRkd ( i, model->getRkd ( probs, data ) );
+		probs = model->getDevianceResiduals ( est, localdata );
 		out.setppRpd ( i, model->getRpd ( probs, est, localdata ) );
 		out.setppRkd ( i, model->getRkd ( probs, localdata ) );
 
