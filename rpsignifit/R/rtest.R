@@ -91,12 +91,12 @@ print.psiginference <- function ( inference ) {
     if ( attr(inference,"inference") == "point" ) {
         cat ( paste ( " (asymptotic upper 95% limit:", inference$number.of.parameters-1,")" ) )
     } else if ( attr(inference,"inference") == "bootstrap" ) {
-        cat ( paste ( " (monte-carlo upper 95% limit:", quantile(inference$deviance.samples,.95), ")" ) )
+        cat ( paste ( " (monte-carlo upper 95% limit:", quantile(inference$deviance.samples,.95, na.rm=TRUE), ")" ) )
     } else if ( attr(inference,"inference") == "mcmc" ) {
         cat ( paste ( " (Bayesian p-value for deviance:", mean (
             as.double(inference$deviance.samples<inference$deviance.predictions)[mcmc$burnin:mcmc$number.of.samples], na.rm=TRUE ),")" ) )
     }
-    cat ( "n" )
+    cat ( "\n" )
 
     # Correlations
     Rpdline <-  paste ( "Rpd =", inference$Rpd )
@@ -105,8 +105,8 @@ print.psiginference <- function ( inference ) {
         Rpdline <- paste ( Rpdline, "\n" )
         Rkdline <- paste ( Rkdline, "\n" )
     } else if ( attr(inference,"inference")=="bootstrap" ) {
-        Rpdline <- paste ( Rpdline, "95%-CI: ", quantile( inference$Rpd.samples, c(.025,.975) ), "\n" )
-        Rkdline <- paste ( Rkdline, "95%-CI: ", quantile( inference$Rkd.samples, c(.025,.975) ), "\n" )
+        Rpdline <- paste ( Rpdline, "95%-CI: ", paste(quantile( inference$Rpd.samples, c(.025,.975), na.rm=TRUE ),collapse=","), "\n" )
+        Rkdline <- paste ( Rkdline, "95%-CI: ", paste(quantile( inference$Rkd.samples, c(.025,.975), na.rm=TRUE ),collapse=","), "\n" )
     } else if ( attr(inference,"inference")=="mcmc") {
         st <- inference$burnin
         sp <- inference$number.of.samples
