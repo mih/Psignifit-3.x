@@ -414,6 +414,38 @@ PsigBootstrap <- function ( psignidata, number.of.samples=2000, generating=-999 
     boots$Rkd <- map$Rkd
     boots$threshold <- map$threshold
 
+    if ( generating==-999 ) {
+        # We did a nonparametric bootstrap but the goodness of fit data should be parametric in any case
+        boots.parametric <- .C ( "performbootstrap",
+            stimulus.intensities   = as.double(psignidata$stimulus.intensities),
+            number.of.correct      = as.integer(psignidata$number.of.correct),
+            number.of.trials       = as.integer(psignidata$number.of.trials),
+            number.of.blocks       = as.integer(psignidata$number.of.blocks),
+            sigmoid                = as.character(psignidata$sigmoid),
+            core                   = as.character(psignidata$core),
+            number.of.alternatives = as.integer(psignidata$number.of.alternatives),
+            priors                 = as.character(psignidata$priors),
+            generating             = as.double(map$estimate),
+            number.of.parameters   = as.integer(nprm),
+            number.of.samples      = as.integer(number.of.samples),
+            cuts                   = as.double(psignidata$cuts),
+            number.of.cuts         = as.integer(length(psignidata$cuts)),
+            data.samples           = as.integer(vector("numeric",psignidata$number.of.blocks*number.of.samples)),
+            parameter.samples      = as.double(vector("numeric",nprm*number.of.samples)),
+            deviance.samples       = as.double(vector("numeric",number.of.samples)),
+            Rpd.samples            = as.double(vector("numeric",number.of.samples)),
+            Rkd.samples            = as.double(vector("numeric",number.of.samples)),
+            threshold.samples      = as.double(vector("numeric",length(psignidata$cuts)*number.of.samples)),
+            influential            = as.double(vector("numeric",psignidata$number.of.blocks)),
+            acceleration           = as.double(vector("numeric",length(psignidata$cuts))),
+            bias                   = as.double(vector("numeric",length(psignidata$cuts))),
+            threshold.ci           = as.double(vector("numeric",length(psignidata$cuts)*3))
+            )
+        boots$deviance.samples <- boots.parametric$deviance.samples
+        boots$Rpd.samples      <- boots.parametric$Rpd.samples
+        boots$Rkd.samples      <- boots.parametric$Rkd.samples
+    }
+
     # These are not used
     boots$logratios <- NULL
     boots$proposal <- NULL
