@@ -11,7 +11,7 @@
 }
 \arguments{
 \item{x}{Stimulus intensities at which stimuli were presented. This should be a sequence in the order in which the stimuli were presented
-    during the experiment.
+    during the experiment.}
 \item{k}{Number of correct responses (in nAFC trials) or number of YES responses (in Yes/No trials). These numbers should correspond to the
     entries in x.}
 \item{n}{Number of repetitions of the respective stimuli.}
@@ -35,7 +35,7 @@
 \item{number.of.alternatives}{Is the number of stimuli presented in an nAFC task. If number.of.alternatives<2, a Yes/No task is assumed and both lower
     and upper asymptote are fitted.}
 \item{cuts}{A sequence of cuts at which the thresholds should be determined. These thresholds are given as the inverse of the sigmoid applied to the
-    inverse of the core. In a 2AFC task with no lapsing, the cuts correspond to the stimulus levels that yield "(0.5+0.5*cut)*100%" performance.}
+    inverse of the core. In a 2AFC task with no lapsing, the cuts correspond to the stimulus levels that yield (0.5+0.5*cut)*100\% performance.}
 }
 \references{
     Wichmann, FA & Hill, NJ ( 2001 ): The psychometric function: I. Fitting, sampling, and goodness of fit. Perception & Psychophysics, 63(8), 1293-1313.
@@ -47,5 +47,5 @@
     k <- c(34,32,40,48,50,48)   # Numbers of correct responses
     n <- rep(50,6)              # Numbers of stimuli presented
     D <- PsigniSetup ( x, k, n, list("Gauss(0,100)","Gauss(0,100)","Beta(2,50)"), cuts=seq(.25,.75,.25) )
-    print (D)
+    \dontrun{print (D)}
 }
