@@ -112,9 +112,11 @@ MCMCList MetropolisHastings::sample ( unsigned int N ) {
 		newsample ( localdata, probs, &posterior_predictive);
 		localdata->setNcorrect ( posterior_predictive );
 		out.setppData ( i, posterior_predictive, model->deviance ( est, localdata ) );
+
 		probs = model->getDevianceResiduals ( est, data );
 		out.setRpd ( i, model->getRpd ( probs, est, data ) );
 		out.setRkd ( i, model->getRkd ( probs, data ) );
+
 		probs = model->getDevianceResiduals ( est, localdata );
 		out.setppRpd ( i, model->getRpd ( probs, est, localdata ) );
 		out.setppRkd ( i, model->getRkd ( probs, localdata ) );
