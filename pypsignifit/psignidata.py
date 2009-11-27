@@ -590,10 +590,10 @@ class BayesInference ( PsiInference ):
         self.thin   = 1
         self.nsamples = None
 
-        if self.model["nafc"] < 2:
-            self._steps = (.4,4,.01,.01)
-        else:
-            self._steps = (.4,4,.01)
+        # We assume that parameter variation is proportional to the
+        # estimated parameters
+        self._steps = 0.1*self.mapestimate * 500/N.sum(self.data[:,2])
+        print self._steps
 
         if automatic:
             self.__determineoptimalsampling ()
@@ -1326,6 +1326,7 @@ class BayesInference ( PsiInference ):
         for n in xrange ( noptimizations ):
             self.sample ()           # Test run
             testrun = self.mcthres    # Thresholds from testrun
+
             samples = self.__mcmc_chains.pop()      # throw the samples away, don't use them for "real" inference
             deviances = self.__mcmc_deviances.pop()
             self.__mcmc_posterior_predictives.pop()
@@ -1345,6 +1346,7 @@ class BayesInference ( PsiInference ):
                     self.thin   = max ( self.thin,   mcmcpars.thin )
                     self.nsamples = max ( self.nsamples, mcmcpars.Nsamples )
             self._steps = N.sqrt(N.diag(N.cov ( samples[self.burnin::self.thin].T )))
+            print self._steps
 
             if verbose:
                 print "Burnin:",self.burnin,"Thinning:",self.thin,"Nsamples:",self.nsamples
