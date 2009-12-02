@@ -334,7 +334,7 @@ def plotPMF ( InferenceObject, xlabel_text="Stimulus intensity", ylabel_text=Non
 
     return xtics.min(),xtics.max()
 
-def plotThres ( InferenceObject, ax=None ):
+def plotThres ( InferenceObject, ax=None, color="b" ):
     """Plot thresholds and confidence intervals
 
     :Parameters:
@@ -342,6 +342,8 @@ def plotThres ( InferenceObject, ax=None ):
             either a BootstrapInference object or a BayesInference object
         *ax* :
             a pylab.axes object to be used for the plot.
+        *color* :
+            a pylab color marker
     """
     if ax == None:
         ax = p.gca()
@@ -350,7 +352,7 @@ def plotThres ( InferenceObject, ax=None ):
         c25,c975 = InferenceObject.getCI ( cut=k, conf=(.025,.975) )
         thres = InferenceObject.getThres ( cut )
         ylev = InferenceObject.evaluate ( [thres] )
-        ax.plot ( [c25,thres,c975],[ylev]*3, 'b-|' )
+        ax.plot ( [c25,thres,c975],[ylev]*3, '-|', color=color )
 
 def GoodnessOfFit ( InferenceObject, warn=True ):
     """Draw a diagnostic figure to help assessing goodness of fit
