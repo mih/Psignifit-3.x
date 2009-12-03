@@ -105,10 +105,10 @@ al,bt,lm = fmin(model,prm0,args=(x,k,n))
 		deviance += devianceresiduals[i]*devianceresiduals[i];
 	}
 
-	failures += T->isequal(start[0],3.99317998,"Model->getStart 2AFC alpha",1e-4);
-	failures += T->isequal(start[1],0.88126645,"Model->getStart 2AFC beta",1e-4);
+	failures += T->isequal(start[0],3.2,"Model->getStart 2AFC alpha",1e-4);
+	failures += T->isequal(start[1],0.809,"Model->getStart 2AFC beta",1e-4);
 
-	failures += T->isequal(solution[0],3.2963951658293693,"OptimizerSolution 2AFC alpha",1e-4);
+	failures += T->isequal(solution[0],3.2967,"OptimizerSolution 2AFC alpha",1e-4);
 	failures += T->isequal(solution[1],0.95916747050675411,"OptimizerSolution 2AFC beta",1e-4);
 	failures += T->isequal(solution[2],0.019132769792808153,"OptimizerSolution 2AFC lambda",1e-4);
 
@@ -138,8 +138,8 @@ al,bt,lm = fmin(model,prm0,args=(x,k,n))
 	// Set up psychometric function
 	pmf = new PsiPsychometric ( 1, new abCore(), new PsiLogistic() );
 	prm[0] = 4; prm[1] = 0.8; prm[2] = 0.02; prm[3] = 0.1;
-	pmf->setPrior( 2, new UniformPrior(0.,0.1));
-	// pmf->setPrior( 3, new UniformPrior(0.,1.));
+	pmf->setPrior( 2, new UniformPrior(0.,0.05));
+	pmf->setPrior( 3, new UniformPrior(0.,.05));
 	start = pmf->getStart( data );
 
 	// Optimizer
@@ -183,13 +183,16 @@ al,bt,lm,gm = fmin(model,prm0,args=(x,k,n))
 		deviance += devianceresiduals[i]*devianceresiduals[i];
 	}
 
-	failures += T->isequal(start[0],4.11079579,"Model->getStart Y/N alpha",1e-4);
-	failures += T->isequal(start[1],0.54401123599182111,"Model->getStart Y/N beta",1e-4);
+	failures += T->isequal(start[0],3.,"Model->getStart Y/N alpha",1e-4);
+	failures += T->isequal(start[1],1.208,"Model->getStart Y/N beta",1e-4);
 
-	failures += T->isequal(solution[0],3.4435404356684396,"OptimizerSolution Y/N alpha",2*1e-2);
-	failures += T->isequal(solution[1],0.99142691236758229,"OptimizerSolution Y/N beta",2*1e-2);
-	failures += T->isequal(solution[2],8.4692705817775732e-09,"OptimizerSolution Y/N lambda",1e-2);
-	failures += T->isequal(solution[3],0.029071443401547103,"OptimizerSolution Y/N gamma",1e-2);
+	failures += T->isequal(solution[0],3.39466,"OptimizerSolution Y/N alpha",2*1e-2);
+	failures += T->isequal(solution[1],1.01232,"OptimizerSolution Y/N beta",2*1e-2);
+	failures += T->isequal(solution[2],1.7001e-07,"OptimizerSolution Y/N lambda",2*1e-2);
+	failures += T->isequal(solution[3],0.0202447,"OptimizerSolution Y/N gamma",2*1e-2);
+	// failures += T->isequal(solution[1],0.99142691236758229,"OptimizerSolution Y/N beta",2*1e-2);
+	// failures += T->isequal(solution[2],8.4692705817775732e-09,"OptimizerSolution Y/N lambda",1e-2);
+	// failures += T->isequal(solution[3],0.029071443401547103,"OptimizerSolution Y/N gamma",1e-2);
 
 	failures += T->isequal(pmf->deviance(solution,data),2.08172,"OptimizerSolution Y/N deviance",2*1e-1);
 	failures += T->isequal(pmf->deviance(solution,data),deviance,"OptimizerSolution Y/N deviance sum", 1e-7);
