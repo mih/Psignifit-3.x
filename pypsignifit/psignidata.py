@@ -122,6 +122,7 @@ class BootstrapInference ( PsiInference ):
                     - 'Gauss(%g,%g)'     Gaussian distribution with mean and standard deviation
                     - 'Beta(%g,%g)'      Beta distribution
                     - 'Gamma(%g,%g)'     Gamma distribution
+                    - 'nGamma(%g,%g)'    Gamma distribution on the negative axis
                 If no valid prior is selected, the parameter remains unconstrained.
                 Alternatively, priors can be given as a dictionary that only specifies
                 priors for those parameters you want to set in that case you can use
@@ -488,6 +489,7 @@ class BayesInference ( PsiInference ):
                     - 'Gauss(%g,%g)'     Gaussian distribution with mean and standard deviation
                     - 'Beta(%g,%g)'      Beta distribution
                     - 'Gamma(%g,%g)'     Gamma distribution
+                    - 'nGamma(%g,%g)'    Gamma distribution on the negative axis
                 If no valid prior is selected, the parameter remains unconstrained.
                 Alternatively, priors can be given as a dictionary that only specifies
                 priors for those parameters you want to set in that case you can use

@@ -127,6 +127,9 @@ void setpriors ( PyObject * pypriors, PsiPsychometric * pmf ) {
 				sscanf ( PyString_AsString(singleprior), "Gamma(%lf,%lf)", priorpars,priorpars+1 );
 				pmf->setPrior ( i, new GammaPrior ( priorpars[0], priorpars[1] ) );
 				// std::cerr << "Using Gamma Prior with params " << priorpars[0] << " " << priorpars[1] << " for parameter " << i << "\n";
+			} else if ( !strncmp ( PyString_AsString(singleprior), "nGamma", 7 ) ) {
+				sscanf ( PyString_AsString(singleprior), "nGamma(%lf,%lf)", priorpars,priorpars+1 );
+				pmf->setPrior ( i, new nGammaPrior ( priorpars[0], priorpars[1] ) );
 			} else {
 				// std::cerr << "Imposing no constraints on parameter " << i << "\n";
 			}
