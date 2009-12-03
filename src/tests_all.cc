@@ -351,6 +351,18 @@ int PriorTest ( TestSuite * T ) {
 	failures += T->isequal ( prior->dpdf ( 1.5 ), 0., "GammaPrior derivative at 1.5" );
 	delete prior;
 
+	prior = new nGammaPrior ( 1.5, 3. );
+	failures += T->isequal ( prior->pdf ( 0.5 ), 0., "nGammaPrior at 0.5" );
+	failures += T->isequal ( prior->pdf ( -0.5 ), 0.12997977, "nGammaPrior at -0.5" );
+	failures += T->isequal ( prior->pdf ( -1.0 ), 0.15559955, "nGammaPrior at -1.0" );
+	failures += T->isequal ( prior->pdf ( -1.5 ), 0.16131382, "nGammaPrior at -1.5" );
+	failures += T->isequal ( prior->dpdf ( 0.5 ), 0., "nGammaPrior derivative at 0.5" );
+	failures += T->isequal ( prior->dpdf ( -0.5 ), 0.08665318, "nGammaPrior derivative at -0.5" );
+	failures += T->isequal ( prior->dpdf ( -1.0 ), 0.02593326, "nGammaPrior derivative at -1.0" );
+	failures += T->isequal ( prior->dpdf ( -1.5 ), 0., "nGammaPrior derivative at -1.5" );
+	delete prior;
+
+
 	return failures;
 }
 

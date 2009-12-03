@@ -107,9 +107,27 @@ class GammaPrior : public PsiPrior
 		UniformRandom rng;
 	public:
 		GammaPrior ( double shape, double scale ) : k(shape), theta(scale), normalization(pow(scale,shape)*exp(gammaln(shape))) {}                         ///< Initialize a gamma prior
-		double pdf ( double x ) { return (x>0 ? pow(x,k-1)*exp(-x/theta)/normalization : 0 );}                                                             ///< return pdf at position x
-		double dpdf ( double x ) { return (x>0 ? ( (k-1)*pow(x,k-2)*exp(-x/theta)-pow(x,k-1)*exp(-x/theta)/theta)/normalization : 0 ); }                   ///< return derivative of pdf
-		double rand ( void );
+		virtual double pdf ( double x ) { return (x>0 ? pow(x,k-1)*exp(-x/theta)/normalization : 0 );}                                                             ///< return pdf at position x
+		virtual double dpdf ( double x ) { return (x>0 ? ( (k-1)*pow(x,k-2)*exp(-x/theta)-pow(x,k-1)*exp(-x/theta)/theta)/normalization : 0 ); }                   ///< return derivative of pdf
+		virtual double rand ( void );
+};
+
+/** \brief negative gamma prior
+ *
+ * This defines a gamma prior that is defined for the negative axis. Thus, the pdf is defined by
+ *
+ \f[
+ f(x) = (-x)^{k-1} \frac{\exp(x/\theta)}{\theta^k\Gamma(k)},
+ \f]
+ * for negative numbers and is zero otherwise.
+ */
+class nGammaPrior : public GammaPrior
+{
+	public:
+		nGammaPrior ( double shape, double scale ) : GammaPrior(shape,scale) {}
+		double pdf ( double x ) { return GammaPrior::pdf ( -x ); }
+		double dpdf ( double x ) { return GammaPrior::dpdf ( -x ); }
+		double rand ( void ) { return -GammaPrior::rand(); }
 };
 
 #endif
