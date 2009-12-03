@@ -1,3 +1,4 @@
+- negative Gamma prior
 - seed the random number generator
 - Goodness of fit (Correlations?)                                          [OK] but correlations are wrong
 - Unit test with gamma as a free parameter                                 [OK] but only very rough correspondence to psignifit -- should be stricter
