@@ -103,7 +103,7 @@ static PyObject * psibootstrap ( PyObject * self, PyObject * args, PyObject * kw
 	npy_intp samplesdim[2]   = {Nsamples, Nblocks};
 	npy_intp estimatesdim[2] = {Nsamples, Nparams};
 	npy_intp thresdim[2]     = {Nsamples, Ncuts};
-	npy_intp nNsamples (Nsample);
+	npy_intp nNsamples (Nsamples);
 	npy_intp nNblocks (Nblocks);
 	npy_intp nNcuts (Ncuts);
 	/*
