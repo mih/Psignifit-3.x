@@ -29,7 +29,10 @@ environment R and there might be some users that are interested in using a R ver
 Similar to the matlab interface, we provide a basic R version of psignifit 2.0. Again, we do not
 guarantee support for this R library.
 
-TODO: R library
+A very rudimentary R library is found in the folder rpsignifit. this is definitely work in progress.
+The current aim of development is mainly to get a proper version of psignifit running
+at all. This version will be in python as mentioned above. However, After the python version is
+running properly, there will also be an R version.
 
 We would be glad to find developers that are interested in supporting these non-python interfaces
 to the psignifit engine.
