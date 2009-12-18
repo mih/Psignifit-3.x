@@ -347,7 +347,7 @@ We can now use the same goodness of fit function as for the BootstrapInference o
 
 .. image:: BayesGoodnessOfFit.png
 
-The structure of the plot looks very similar to the goodness of fit plot for the BootstrapInference
+The structure of the plot is very similar to the goodness of fit plot for the BootstrapInference
 object. However, the interpretations should now be taken from a bayesian perspective.
 
 The upper left panel shows psychometric functions sampled from the posterior distribution, data, and
@@ -360,7 +360,7 @@ is proportional to the likelihood of the psychometric function, that is the part
 distribution that represents the influence of the data.
 
 The plot on the lower left shows posterior predictive deviances. For each sample from the posterior
-distribution, a data set has been generated. The deviance associated the posterior samples and the
+distribution, a data set has been generated. The deviance associated with the posterior samples and the
 observed data set is plotted against the deviance of these simulated data sets for the psychometric
 functions associated with the samples from the posterior distribution. If the observed data are
 likeli to come from the fitted model, all the  points in this plot should lie around the diagnonal. If
