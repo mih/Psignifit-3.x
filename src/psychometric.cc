@@ -135,10 +135,11 @@ Matrix * PsiPsychometric::ddnegllikeli ( const std::vector<double>& prm, const P
 
 	// Fill I
 	for (z=0; z<data->getNblocks(); z++) {
-		rz = data->getNcorrect(z);
 		nz = data->getNtrials(z);
 		xz = data->getIntensity(z);
 		pz = evaluate(xz,prm);
+		// rz = data->getNcorrect(z);
+		rz = pz*nz;     // expected Fisher Information matrix
 		fac1 = rz/pz - (nz-rz)/(1-pz);
 		fac2 = rz/(pz*pz) + (nz-rz)/((1-pz)*(1-pz));
 
@@ -150,16 +151,15 @@ Matrix * PsiPsychometric::ddnegllikeli ( const std::vector<double>& prm, const P
 			}
 			for (j=2; j<prm.size(); j++) {
 				(*I)(i,j) -= fac1 * Sigmoid->df(Core->g(xz,prm)) * Core->dg(xz,prm,i);
-				(*I)(i,j) += fac2 * (1-guessingrate-prm[2]) * Sigmoid->df(Core->g(xz,prm)) * Core->dg(xz,prm,i) * ( (j==2 ? 1 : 0) - Sigmoid->f(Core->g(xz,prm)) );
+				(*I)(i,j) -= fac2 * (1-guessingrate-prm[2]) * Sigmoid->df(Core->g(xz,prm)) * Core->dg(xz,prm,i) * ( (j==2 ? 0 : 1) - Sigmoid->f(Core->g(xz,prm)) );
+			}
+		}
+		for ( i=2; i<prm.size(); i++ ) {
+			for ( j=2; j<prm.size(); j++ ) {
+				(*I)(i,j) -= fac2 * ( (j==2 ? 0 : 1) - Sigmoid->f(Core->g(xz,prm)) ) * ( (i==2 ? 0 : 1 ) - Sigmoid->f(Core->g(xz,prm)) );
 			}
 		}
 	}
-
-	// Average
-	// TODO: Do we really need this step?
-	for (i=0; i<prm.size(); i++)
-		for (j=i; j<prm.size(); j++)
-			(*I)(i,j) /= data->getNblocks();
 
 	// The remaining parts of I can be copied
 	for (i=1; i<prm.size(); i++)
