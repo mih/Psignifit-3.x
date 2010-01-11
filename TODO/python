@@ -1,5 +1,6 @@
 - axes should incompass all measurements and the whole range of the CI
 - plotting example for multiple PMFs should also show how to display CI
+- out of bounds for CI: arrow and a number for the end.
 - python setup install works on Mac
 - enable fixing the guessing rate to an arbitrary value (? which?)        <- This is actually possible by putting a strong prior on the guessing rate...
 - proposal distribution for parameters in initial fit should be somehow related to the parameter size and the expected variability
