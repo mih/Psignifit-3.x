@@ -12,6 +12,7 @@ Contents:
 
    WELCOME
    TUTORIAL
+   INFLUENTIAL
    CONTRIBUTING
    API
 

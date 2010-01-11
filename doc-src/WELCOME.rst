@@ -1,5 +1,5 @@
 ========================
-Welcome to psignifit 2.0
+Welcome to psignifit 3.0
 ========================
 
 psignifit is a toolbox to fit psychometric functions an test hypotheses on psychometric data.
@@ -10,14 +10,14 @@ model selection and goodness of fit assessment. Furthermore, a new philosophy of
 shape of the psychometric function allows for considerably more flexibility in specifiing
 psychometric function models.
 
-The primary interface for psignifit 2.0 is no longer matlab but is python. In contrast to
+The primary interface for psignifit 3.0 is no longer matlab but is python. In contrast to
 matlab, python is a complete programming language that supports virtually all features you
 might wish for. python allows you to perform numerical computations as flexible and fast as
 in matlab. In addition, python allows for a number of additional features like object
 oriented programming and simple creation of graphical user interfaces. python is easy to
 learn: even users with no prior programming experience often master python within two weeks,
 python is similar to matlab but it is not the same. Therefore, we also provide a matlab
-version of psignifit 2.0. However, we do not guarantee support for this toolbox in future
+version of psignifit 3.0. However, we do not guarantee support for this toolbox in future
 releases and we encourage users to use the python version as this will usually be more up
 to date. python also offers a further advantage to matlab: python is free (and that means
 both, free as in "free beer" and free as in "free speech").
@@ -26,7 +26,7 @@ TODO: matlab toolbox
 
 We also noted that a growing number of statistical toolboxes are designed for the statistics
 environment R and there might be some users that are interested in using a R version of psignifit.
-Similar to the matlab interface, we provide a basic R version of psignifit 2.0. Again, we do not
+Similar to the matlab interface, we provide a basic R version of psignifit 3.0. Again, we do not
 guarantee support for this R library.
 
 A very rudimentary R library is found in the folder rpsignifit. this is definitely work in progress.

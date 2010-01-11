@@ -1,7 +1,7 @@
 from numpy import *
-import psignidata as D
-import psigniplot as P
-from pylab import show, savefig, axes, plot, setp, fill, figure
+import pypsignifit.psignidata as D
+import pypsignifit.psigniplot as P
+from pylab import show, savefig, axes, plot, setp, fill, figure, rc
 
 x = [0.,2.,4.,6.,8.,10.]
 k = [34,32,40,50,48,50]
@@ -41,9 +41,13 @@ ax.plot ( x, psi, 'b-', linewidth=2 )
 # fill ( [x0-.2,1.7,1.7,x0-.2],[.53,.53,.64,.64], facecolor=[1,1,1], edgecolor=[1,1,1], alpha=.5, zorder=51 )
 
 ax.text ( x0, .71, "psignifit", color="k", fontsize=28, horizontalalignment="left", verticalalignment="center", zorder=52 )
-ax.text ( 7., .60, "2.0", color="k", fontsize=18, horizontalalignment="center", verticalalignment="center" )
+
+ax.text ( 6.4, .55, r"3.0", color="k", fontsize=17, horizontalalignment="center", verticalalignment="center" )
+rc("text",usetex=True)
+ax.text ( 9.6,.5, r"$\beta$", color="k", fontsize=14, horizontalalignment="center",verticalalignment="center" )
 
 setp ( ax, xlim=(x0-.5,10+.5), ylim=(.4,1.1) )
 
-savefig ( "psignifit_logo.svg" )
+# savefig ( "psignifit_logo.svg" )
+savefig ( "psignifit_logo.png" )
 show()

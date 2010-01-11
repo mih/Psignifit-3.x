@@ -1,9 +1,9 @@
 =============================
-Contributing to psignifit 2.0
+Contributing to psignifit 3.0
 =============================
 
-psignifit 2.0 is free software. You are free to modify the software under the terms of the license
-that is distributed with psignifit 2.0. We welcome developers that want to contribute to psignifit 2.0.
+psignifit 3.0 is free software. You are free to modify the software under the terms of the license
+that is distributed with psignifit 3.0. We welcome developers that want to contribute to psignifit 3.0.
 A development snapshot of psignifit can be obtained like this
 
 TODO: command to clone git repo
