@@ -289,7 +289,8 @@ def plotPMF ( InferenceObject, xlabel_text="Stimulus intensity", ylabel_text=Non
     ax.plot(x,psi,
             color     = kwargs.setdefault ( 'color', 'b' ),
             linestyle = kwargs.setdefault ( 'linestyle', '-' ),
-            linewidth = kwargs.setdefault ( 'linewidth', 1 )
+            linewidth = kwargs.setdefault ( 'linewidth', 1 ),
+            label     = kwargs.setdefault ( 'label', 'psychometric function' )
             )
 
     # Plot the data
