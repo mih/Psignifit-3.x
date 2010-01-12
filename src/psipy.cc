@@ -377,8 +377,12 @@ static PyObject * psimapestimate ( PyObject * self, PyObject * args, PyObject * 
 	}
 	delete opt;
 
+	Matrix * H = pmf->ddnegllikeli ( *estimate, data );
+	Matrix * I = H->inverse();
+
 	PyArrayObject *pyestimate;
 	PyArrayObject *pythres;
+	PyArrayObject *pyvars;
 	npy_intp nNparams (Nparams);
 	npy_intp nNcuts (Ncuts);
 	/*
@@ -387,20 +391,26 @@ static PyObject * psimapestimate ( PyObject * self, PyObject * args, PyObject * 
 	*/
 	pyestimate = (PyArrayObject*) PyArray_SimpleNew ( 1, &nNparams, NPY_DOUBLE );
 	pythres    = (PyArrayObject*) PyArray_SimpleNew ( 1, &nNcuts, NPY_DOUBLE );
-	for (i=0; i<Nparams; i++)
+	pyvars     = (PyArrayObject*) PyArray_SimpleNew ( 1, &nNparams, NPY_DOUBLE );
+	for (i=0; i<Nparams; i++) {
 		((double*)pyestimate->data)[i] = (*estimate)[i];
+		((double*)pyvars->data)[i] = (*I)(i,i);
+	}
 
 	for (i=0; i<Ncuts; i++)
 		((double*)pythres->data)[i] = pmf->getThres ( *estimate, (*cuts)[i] );
 
-	pyout = Py_BuildValue ( "OOd", pyestimate, pythres, pmf->deviance ( *estimate, data ) );
+	pyout = Py_BuildValue ( "OOOd", pyestimate, pyvars, pythres, pmf->deviance ( *estimate, data ) );
 
 	delete estimate;
 	delete data;
 	delete pmf;
 	delete cuts;
+	delete H;
+	delete I;
 	Py_DECREF ( pyestimate );
 	Py_DECREF ( pythres );
+	Py_DECREF ( pyvars );
 
 	return pyout;
 }

@@ -199,7 +199,7 @@ class BootstrapInference ( PsiInference ):
             self.conf = conf
 
         # Store point estimates
-        self.estimate,self.thres,self.deviance = _psipy.mapestimate(self.data,cuts=self.cuts,start=start,**self.model)
+        self.estimate,self.asympvar,self.thres,self.deviance = _psipy.mapestimate(self.data,cuts=self.cuts,start=start,**self.model)
         self.predicted,self.devianceresiduals,self.deviance,thres,self.Rpd,self.Rkd = _psipy.diagnostics(self.data,self.estimate, \
                 nafc=self.model["nafc"],sigmoid=self.model["sigmoid"],core=self.model["core"])
 
@@ -557,7 +557,9 @@ class BayesInference ( PsiInference ):
         if self.model["nafc"]<2:
             self.parnames.append("guess")
 
-        self.mapestimate,thres,self.mapdeviance = _psipy.mapestimate(self.data,**self.model)
+        self.afac = kwargs.setdefault ( "afac", 0.4 )
+
+        self.mapestimate,self.asympvar,thres,self.mapdeviance = _psipy.mapestimate(self.data,start=None,**self.model)
 
         if cuts is None:
             self.cuts = (.25,.5,.75)
@@ -595,7 +597,7 @@ class BayesInference ( PsiInference ):
         # We assume that parameter variation is proportional to the
         # estimated parameters
         self._steps = 0.1*self.mapestimate * 500/N.sum(self.data[:,2])
-        print self._steps
+        # print self._steps
 
         if automatic:
             self.__determineoptimalsampling ()
@@ -1290,29 +1292,31 @@ class BayesInference ( PsiInference ):
             return
         mcmcpars = {}
 
-        if len(self.__mcmc_chains)>0:
-            mcmc_chains    = self.__mcmc_chains.copy()
-            mcmc_deviances = self.__mcmc_deviances.copy()
-            mcmc_ppdata    = self.__mcmc_posterior_predictives.copy()
-            mcmc_ppdeviance= self.__mcmc_posterior_predictive_deviances.copy()
-            mcmc_ppRpd     = self.__mcmc_posterior_predictive_Rpd.copy()
-            mcmc_ppRkd     = self.__mcmc_posterior_predictive_Rkd.copy()
-            mcmc_logpost   = self.__mcmc_logposterior_ratios.copy()
-            self.__mcmc_chains    = []
-            self.__mcmc_deviances = []
-            self.__mcmc_posterior_predictives = []
-            self.__mcmc_posterior_predictive_deviances = []
-            self.__mcmc_posterior_predictive_Rpd = []
-            self.__mcmc_posterior_predictive_Rkd = []
-            self.__mcmc_logposterior_ratios = []
-        else:
-            mcmc_chains = []
-            mcmc_deviances = []
-            mcmc_ppdata = []
-            mcmc_ppdeviance = []
-            mcmc_ppRpd = []
-            mcmc_ppRkd = []
-            mcmc_logpost = []
+        verbose = True
+
+        # if len(self.__mcmc_chains)>0:
+        #     mcmc_chains    = self.__mcmc_chains.copy()
+        #     mcmc_deviances = self.__mcmc_deviances.copy()
+        #     mcmc_ppdata    = self.__mcmc_posterior_predictives.copy()
+        #     mcmc_ppdeviance= self.__mcmc_posterior_predictive_deviances.copy()
+        #     mcmc_ppRpd     = self.__mcmc_posterior_predictive_Rpd.copy()
+        #     mcmc_ppRkd     = self.__mcmc_posterior_predictive_Rkd.copy()
+        #     mcmc_logpost   = self.__mcmc_logposterior_ratios.copy()
+        #     self.__mcmc_chains    = []
+        #     self.__mcmc_deviances = []
+        #     self.__mcmc_posterior_predictives = []
+        #     self.__mcmc_posterior_predictive_deviances = []
+        #     self.__mcmc_posterior_predictive_Rpd = []
+        #     self.__mcmc_posterior_predictive_Rkd = []
+        #     self.__mcmc_logposterior_ratios = []
+        # else:
+        #     mcmc_chains = []
+        #     mcmc_deviances = []
+        #     mcmc_ppdata = []
+        #     mcmc_ppdeviance = []
+        #     mcmc_ppRpd = []
+        #     mcmc_ppRkd = []
+        #     mcmc_logpost = []
 
         # Determine size of initial test run
         if self.nsamples is None:
@@ -1322,51 +1326,59 @@ class BayesInference ( PsiInference ):
                 NN = max(NN,Nmin)
             self.nsamples = NN
 
+        a = self.afac*N.sqrt(self.asympvar)
+        print a
+
+        chain,deviance,ppdata,ppdeviances,ppRpd,ppRkd,logpostratios = _psipy.mcmc ( self.data, self.mapestimate, NN, stepwidths=a, **self.model )
+        # a = 2.3*N.sqrt(N.diag(N.cov(chain.T)))
+
         oldburnin = 0
         oldthin   = 1
         oldnsamples = NN
         for n in xrange ( noptimizations ):
-            self.sample ()           # Test run
-            testrun = self.mcthres    # Thresholds from testrun
+            # self.sample ()           # Test run
+            samples,deviances,ppdata,ppdeviances,ppRpd,ppRkd,logpostratios = _psipy.mcmc ( self.data, self.mapestimate, NN, stepwidths=a, **self.model )
+            # testrun = self.mcthres    # Thresholds from testrun
 
-            samples = self.__mcmc_chains.pop()      # throw the samples away, don't use them for "real" inference
-            deviances = self.__mcmc_deviances.pop()
-            self.__mcmc_posterior_predictives.pop()
-            self.__mcmc_posterior_predictive_deviances.pop()
-            self.__mcmc_posterior_predictive_Rpd.pop()
-            self.__mcmc_posterior_predictive_Rkd.pop()
-            self.__mcmc_logposterior_ratios.pop()
+            # samples = self.__mcmc_chains.pop()      # throw the samples away, don't use them for "real" inference
+            # deviances = self.__mcmc_deviances.pop()
+            # self.__mcmc_posterior_predictives.pop()
+            # self.__mcmc_posterior_predictive_deviances.pop()
+            # self.__mcmc_posterior_predictive_Rpd.pop()
+            # self.__mcmc_posterior_predictive_Rkd.pop()
+            # self.__mcmc_logposterior_ratios.pop()
 
             # Check all desired thresholds
             for q in self.conf:
-                for k in xrange ( self.Ncuts ):
+                for k in xrange ( len(self.mapestimate) ):
                     try:
-                        mcmcpars = pygibbsit.gibbsit ( testrun[:,k], q=q )
+                        mcmcpars = pygibbsit.gibbsit ( samples[:,k], q=q )
                     except IndexError:
                         continue
                     self.burnin = max ( self.burnin, mcmcpars.burnin )
                     self.thin   = max ( self.thin,   mcmcpars.thin )
                     self.nsamples = max ( self.nsamples, mcmcpars.Nsamples )
-            self._steps = N.sqrt(N.diag(N.cov ( samples[self.burnin::self.thin].T )))
-            print self._steps
+            # a = 2.3*N.sqrt(N.diag(N.cov ( samples[self.burnin::self.thin].T )))
+            # print self._steps
 
             if verbose:
                 print "Burnin:",self.burnin,"Thinning:",self.thin,"Nsamples:",self.nsamples
-                print "Steps:",self._steps
+                print "Steps:",a
             if oldburnin==self.burnin and oldthin==self.thin and oldnsamples==self.nsamples:
                 break
             else:
                 oldburnin,oldthin,oldnsamples = self.burnin,self.thin,self.nsamples
         self.mcmcpars = mcmcpars
+        self._steps = a
 
-        if len(mcmc_chains)>0:
-            self.__mcmc_chains = mcmc_chains
-            self.__mcmc_deviances = mcmc_deviances
-            self.__mcmc_posterior_predictives = mcmc_ppdata
-            self.__mcmc_posterior_predictive_deviances = mcmc_ppdeviance
-            self.__mcmc_posterior_predictive_Rpd = mcmc_ppRpd
-            self.__mcmc_posterior_predictive_Rkd = mcmc_ppRkd
-            self.__mcmc_logposterior_ratios = mcmc_logpost
+        # if len(mcmc_chains)>0:
+        #     self.__mcmc_chains = mcmc_chains
+        #     self.__mcmc_deviances = mcmc_deviances
+        #     self.__mcmc_posterior_predictives = mcmc_ppdata
+        #     self.__mcmc_posterior_predictive_deviances = mcmc_ppdeviance
+        #     self.__mcmc_posterior_predictive_Rpd = mcmc_ppRpd
+        #     self.__mcmc_posterior_predictive_Rkd = mcmc_ppRkd
+        #     self.__mcmc_logposterior_ratios = mcmc_logpost
 
 if __name__ == "__main__":
     import doctest
