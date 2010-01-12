@@ -166,6 +166,8 @@ Matrix * PsiPsychometric::ddnegllikeli ( const std::vector<double>& prm, const P
 		for (j=0; j<i; j++)
 			(*I)(i,j) = (*I)(j,i);
 
+	I->scale(-1);
+
 	return I;
 }
 
