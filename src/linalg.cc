@@ -1,5 +1,39 @@
 #include "linalg.h"
 
+double sign ( double x ) {
+	return x/fabs(x);
+}
+
+double househ ( const std::vector<double> *x, std::vector<double> *u ) {
+	int i;
+	double h;
+
+	h = 0;
+	for ( i=0; i<x->size(); i++ ) {
+		h += (*x)[i]*(*x)[i];
+		(*u)[i] = (*x)[i];
+	}
+	h = sqrt(h);
+
+	if ( (*x)[0] == 0 ) (*u)[0] = h;
+	else                (*u)[0] = (*x)[0] + sign((*x)[0])*h;
+
+	for ( i=u->size()-1; i>=0; i-- ) {
+		(*u)[i] /= (*u)[0];
+	}
+
+	return 1+fabs((*x)[0])/h;
+}
+
+double uuA ( const std::vector<double> *u, const Matrix *A, int j, int k, int l ) {
+	int i, ii;
+	std::vector<double> uA ( A->getncols() - j, 0 );
+	for ( i=0; i<uA.size(); i++ )
+		for ( ii=0; ii<u->size(); ii++ )
+			uA[i] += (*u)[ii] * (*A)(j+ii,j+i);
+	return (*u)[k] * uA[l];
+}
+
 Matrix::Matrix ( const std::vector< std::vector<double> >& A )
 	: nrows(A.size()), ncols(A[0].size())
 {
@@ -104,6 +138,125 @@ Matrix* Matrix::lu_dec ( void ) const {
 	return LU;
 }
 
+Matrix* Matrix::qr_dec ( void ) const {
+	Matrix *A = new Matrix ( *this );
+
+	A->print();
+
+	int i, j, k, l;
+	int m ( A->getnrows() ), n ( A->getncols() );
+	std::vector<double> *u, *x;
+	Matrix *uuAmat;
+	double c,y;
+	int min ( m-1>n ? n : m-1 );
+
+	for ( j=0; j<min; j++ ) {
+
+		x = new std::vector<double> ( m-j );
+		u = new std::vector<double> ( m-j );
+		uuAmat = new Matrix ( m-j,n-j );
+
+		for ( i=j; i<m; i++ ) {
+			(*x)[i-j] = (*A)(i,j);
+		}
+		c = househ ( x, u );
+
+		for ( k=j; k<m; k++ ) {
+			for ( l=j; l<n; l++ ) {
+				(*uuAmat)(k-j,l-j) = uuA(u,A,j,k-j,l-j);
+			}
+	}
+
+		for ( k=j; k<m; k++ ) {
+			for ( l=j; l<n; l++ ) {
+				(*A)(k,l) -= c * (*uuAmat)(k-j,l-j);
+			}
+		}
+
+		delete x;
+		delete u;
+		delete uuAmat;
+	}
+
+	return A;
+}
+
+Matrix * Matrix::regularized_inverse ( double alpha ) const {
+	// Tichonov regularized inverse
+	if (nrows!=ncols)
+		throw MatrixError ();
+	int N(getnrows());
+
+	Matrix *AAT = new Matrix (N,N);
+	Matrix *rInv = new Matrix (N,N);
+	std::vector<double> ATb (N);
+	std::vector<double> x (N);
+
+	int i,j,k;
+
+	// Compute AAT
+	for (i=0; i<N; i++) {
+		for (j=0; j<N; j++) {
+			(*AAT)(i,j) = 0;
+			for ( k=0; k<N; k++ )
+				(*AAT)(i,j) += (*this)(i,k)*(*this)(k,j);
+		}
+	}
+
+	// Regularize
+	for (k=0; k<N; k++) (*AAT)(k,k) += alpha;
+
+	// Solve for unit vectors
+	for (i=0; i<N; i++) {
+		for (j=0; j<N; j++) {
+			ATb[j] = (*this)(j,i);
+		}
+		x = AAT->solve(ATb);
+		for (j=0; j<N; j++) {
+			(*rInv)(i,j) = x[j];
+		}
+	}
+
+	delete AAT;
+
+	return rInv;
+}
+
+Matrix *Matrix::inverse_qr ( void ) const {
+	if ( getnrows() != getncols() )
+		throw MatrixError();
+
+	Matrix *A = new Matrix ( getnrows(), getncols()*2 );
+	Matrix *inv = new Matrix ( getnrows(), getncols() );
+
+	int i,j,k;
+
+	for ( i=0; i<getnrows(); i++ ) {
+		for ( j=0; j<getncols(); j++ ) {
+			(*A) (i,j) = (*this)(i,j);
+			(*A) (i,j+getncols()) = i==j;
+		}
+	}
+
+	Matrix * QR = A->qr_dec ();
+
+	QR->print();
+
+	for ( k=getncols()-1; k>=0; k-- ) {
+		for ( i=getnrows()-1; i>=0; i-- ) {
+			for ( j=getncols()-1; j>i; j-- ) {
+				(*QR)(i,k+getncols()) -= (*QR)(i,j)*(*QR)(j,k+getncols());
+			}
+			(*QR)(i,k+getncols()) /= (*QR)(i,i);
+			(*inv)(i,k) = (*QR)(i,k+getncols());
+		}
+		std::cout << "QR(" << k << ") = ";
+		QR->print();
+	}
+
+	return inv;
+}
+
 std::vector<double> Matrix::solve ( const std::vector<double>& b ) {
 	Matrix *LU = lu_dec();
 
@@ -176,7 +329,6 @@ Matrix* Matrix::inverse ( void ) {
 
 	return Inv;
 }
-
 
 std::vector<double> Matrix::operator* ( std::vector<double>& x ) {
 	if (x.size() != ncols)

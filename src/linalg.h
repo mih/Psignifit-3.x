@@ -38,6 +38,9 @@ class Matrix
 		unsigned int getncols ( void ) const { return ncols; }       ///< get the number of columns
 		Matrix* cholesky_dec ( void ) const;                         ///< return a pointer to a newly allocated Matrix L, such that L*L^T = A
 		Matrix* lu_dec ( void ) const;                               ///< return a pointer to a newly allocated Matrix LU. If you construct a matrix L from the elements of LU below the diagnonal and L_ii = 1, and a matrix U from the elements above the diagnonal, then A=LU
+		Matrix * qr_dec ( void ) const;                              ///< QR-decomposition of a matrix, where Q is orthogonal and R is upper right triangular
+		Matrix * inverse_qr ( void ) const;                          ///< Matrix inversion based on QR decomposition (more stable but slower)
+		Matrix * regularized_inverse ( double alpha ) const;         ///< Matrix inversion with Tichonov regularization (regularization factor alpha)
 		std::vector<double> solve ( const std::vector<double>& b );  ///< solve a linear equation Ax=b for x
 		Matrix* inverse ( void );                                    ///< return a pointer to the (newly allocated) inverse Matrix
 		std::vector<double> operator* ( std::vector<double>& x );    ///< right multiplication with a vector
