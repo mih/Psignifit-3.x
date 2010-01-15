@@ -199,7 +199,7 @@ class BootstrapInference ( PsiInference ):
             self.conf = conf
 
         # Store point estimates
-        self.estimate,self.asympvar,self.thres,self.deviance = _psipy.mapestimate(self.data,cuts=self.cuts,start=start,**self.model)
+        self.estimate,self.fisher,self.thres,self.deviance = _psipy.mapestimate(self.data,cuts=self.cuts,start=start,**self.model)
         self.predicted,self.devianceresiduals,self.deviance,thres,self.Rpd,self.Rkd = _psipy.diagnostics(self.data,self.estimate, \
                 nafc=self.model["nafc"],sigmoid=self.model["sigmoid"],core=self.model["core"])
 
@@ -559,7 +559,7 @@ class BayesInference ( PsiInference ):
 
         self.afac = kwargs.setdefault ( "afac", 0.4 )
 
-        self.mapestimate,self.asympvar,thres,self.mapdeviance = _psipy.mapestimate(self.data,start=None,**self.model)
+        self.mapestimate,self.fisher,thres,self.mapdeviance = _psipy.mapestimate(self.data,start=None,**self.model)
 
         if cuts is None:
             self.cuts = (.25,.5,.75)
@@ -1245,6 +1245,22 @@ class BayesInference ( PsiInference ):
             meandev = self.mcdeviance.mean()
             return 2*meandev-self.deviance
 
+    @Property
+    def farstart ():
+        """A proper starting value for the Rhat statistic
+
+        This is a starting value for the mcmc process, that is relatively far away from the posterior density.
+        In order to have a reasonably interpretable Rhat statistic. There should be multiple chains and these chains
+        should have overdispersed starting values. farstart will always correspond to an overdispersed starting value.
+        """
+        def fget ( self ):
+            k = N.random.randint(2)
+            l = N.random.randint(2)
+            x = self.mapestimate
+            x[l] = p.prctile ( self.mcestimates[:,l], (2.5,97.5)[k] )
+            print x
+            return x
+
     ############################################
     # Private methods
     def __recomputeCorrelationsAndThresholds ( self ):
@@ -1326,7 +1342,28 @@ class BayesInference ( PsiInference ):
                 NN = max(NN,Nmin)
             self.nsamples = NN
 
-        a = self.afac*N.sqrt(self.asympvar)
+        A = N.matrix(self.fisher)
+        fisherinv = N.linalg.solve ( A.T*A+0.01*N.eye(A.shape[0]), A.T )
+        cond = abs(A.A).sum(1).max() * abs(fisherinv.A).sum(1).max()
+        print "Condition of Fisher Information Matrix:",cond
+        print A
+
+        if cond > 1e6:
+            for k in xrange(20):
+                localdata = self.data.copy()
+                localdata[:,1] = N.random.binomial ( self.data[:,2], self.data[:,1].astype('d')/self.data[:,2] )
+                AA = N.matrix(_psipy.mapestimate(localdata,start=None,**self.model)[1])
+                AAinv = N.linalg.solve ( A.T*A+0.01*N.eye(A.shape[0]), A.T )
+                cond = abs(AA.A).sum(1).max() * abs(AAinv.A).sum(1).max()
+                print "Condition of Fisher Information Matrix:",cond
+                print A
+                if cond < 1e6:
+                    A = AA
+                    fisherinv = AAinv
+                    break
+
+        asympvar = N.diag(fisherinv)
+        a = self.afac*N.sqrt(asympvar)
         print a
 
         chain,deviance,ppdata,ppdeviances,ppRpd,ppRkd,logpostratios = _psipy.mcmc ( self.data, self.mapestimate, NN, stepwidths=a, **self.model )
@@ -1358,13 +1395,14 @@ class BayesInference ( PsiInference ):
                     self.burnin = max ( self.burnin, mcmcpars.burnin )
                     self.thin   = max ( self.thin,   mcmcpars.thin )
                     self.nsamples = max ( self.nsamples, mcmcpars.Nsamples )
-            # a = 2.3*N.sqrt(N.diag(N.cov ( samples[self.burnin::self.thin].T )))
-            # print self._steps
+            a = N.sqrt(N.diag(N.cov ( samples[self.burnin::self.thin].T )))
+            print self._steps
 
             if verbose:
                 print "Burnin:",self.burnin,"Thinning:",self.thin,"Nsamples:",self.nsamples
                 print "Steps:",a
-            if oldburnin==self.burnin and oldthin==self.thin and oldnsamples==self.nsamples:
+            if self.nsamples >= oldnsamples:
+            # if oldburnin==self.burnin and oldthin==self.thin and oldnsamples==self.nsamples:
                 break
             else:
                 oldburnin,oldthin,oldnsamples = self.burnin,self.thin,self.nsamples

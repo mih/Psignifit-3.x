@@ -323,7 +323,7 @@ static PyObject * psimapestimate ( PyObject * self, PyObject * args, PyObject * 
 	PyObject *pystart (Py_None);       // starting value for the optimizer
 
 	PyObject * pyout;
-	int i, Nparams, Nblocks;
+	int i,j, Nparams, Nblocks;
 	PsiData * data;
 	PsiPsychometric * pmf;
 	PsiCore * core;
@@ -378,39 +378,45 @@ static PyObject * psimapestimate ( PyObject * self, PyObject * args, PyObject * 
 	delete opt;
 
 	Matrix * H = pmf->ddnegllikeli ( *estimate, data );
-	Matrix * I = H->inverse();
+	// Matrix * I = H->inverse_qr();
 
 	PyArrayObject *pyestimate;
 	PyArrayObject *pythres;
-	PyArrayObject *pyvars;
+	// PyArrayObject *pyvars;
+	PyArrayObject *pyfisher;
 	npy_intp nNparams (Nparams);
 	npy_intp nNcuts (Ncuts);
+	npy_intp Hdim[2] = {Nparams, Nparams};
 	/*
 	pyestimate = (PyArrayObject*) PyArray_FromDims ( 1, &Nparams, PyArray_DOUBLE );
 	pythres    = (PyArrayObject*) PyArray_FromDims ( 1, &Ncuts, PyArray_DOUBLE );
 	*/
 	pyestimate = (PyArrayObject*) PyArray_SimpleNew ( 1, &nNparams, NPY_DOUBLE );
 	pythres    = (PyArrayObject*) PyArray_SimpleNew ( 1, &nNcuts, NPY_DOUBLE );
-	pyvars     = (PyArrayObject*) PyArray_SimpleNew ( 1, &nNparams, NPY_DOUBLE );
+	// pyvars     = (PyArrayObject*) PyArray_SimpleNew ( 1, &nNparams, NPY_DOUBLE );
+	pyfisher   = (PyArrayObject*) PyArray_SimpleNew ( 2, Hdim, NPY_DOUBLE );
 	for (i=0; i<Nparams; i++) {
 		((double*)pyestimate->data)[i] = (*estimate)[i];
-		((double*)pyvars->data)[i] = (*I)(i,i);
+		// ((double*)pyvars->data)[i] = (*I)(i,i);
+		for ( j=0; j<Nparams; j++) {
+			((double*)pyfisher->data)[i*Nparams+j] = (*H)(i,j);
+		}
 	}
 
 	for (i=0; i<Ncuts; i++)
 		((double*)pythres->data)[i] = pmf->getThres ( *estimate, (*cuts)[i] );
 
-	pyout = Py_BuildValue ( "OOOd", pyestimate, pyvars, pythres, pmf->deviance ( *estimate, data ) );
+	pyout = Py_BuildValue ( "OOOd", pyestimate, pyfisher, pythres, pmf->deviance ( *estimate, data ) );
 
 	delete estimate;
 	delete data;
 	delete pmf;
 	delete cuts;
 	delete H;
-	delete I;
+	// delete I;
 	Py_DECREF ( pyestimate );
 	Py_DECREF ( pythres );
-	Py_DECREF ( pyvars );
+	Py_DECREF ( pyfisher );
 
 	return pyout;
 }
