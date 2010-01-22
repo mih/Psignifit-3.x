@@ -241,6 +241,7 @@ class BootstrapInference ( PsiInference ):
                 number of bootstrapsamples to be drawn
         """
         self.__nsamples = Nsamples
+        # print self.estimate
         self.__bdata,self.__bestimate,self.__bdeviance,self.__bthres,self.__th_bias,self.__th_acc,\
                 self.__bRkd,self.__bRpd,self.__outl,self.__infl = _psipy.bootstrap(self.data,self.estimate,Nsamples,
                         cuts=self.cuts,**self.model)
@@ -650,7 +651,7 @@ class BayesInference ( PsiInference ):
                     allok = True
                     ok,z,bad = self.geweke ( k )
                     if not bad is None:
-                        print "Resampling"
+                        # print "Resampling"
                         for b in bad:
                             self.resample ( b )
                         resampled += 1
@@ -1258,7 +1259,7 @@ class BayesInference ( PsiInference ):
             l = N.random.randint(2)
             x = self.mapestimate
             x[l] = p.prctile ( self.mcestimates[:,l], (2.5,97.5)[k] )
-            print x
+            # print x
             return x
 
     ############################################
@@ -1310,30 +1311,6 @@ class BayesInference ( PsiInference ):
 
         verbose = True
 
-        # if len(self.__mcmc_chains)>0:
-        #     mcmc_chains    = self.__mcmc_chains.copy()
-        #     mcmc_deviances = self.__mcmc_deviances.copy()
-        #     mcmc_ppdata    = self.__mcmc_posterior_predictives.copy()
-        #     mcmc_ppdeviance= self.__mcmc_posterior_predictive_deviances.copy()
-        #     mcmc_ppRpd     = self.__mcmc_posterior_predictive_Rpd.copy()
-        #     mcmc_ppRkd     = self.__mcmc_posterior_predictive_Rkd.copy()
-        #     mcmc_logpost   = self.__mcmc_logposterior_ratios.copy()
-        #     self.__mcmc_chains    = []
-        #     self.__mcmc_deviances = []
-        #     self.__mcmc_posterior_predictives = []
-        #     self.__mcmc_posterior_predictive_deviances = []
-        #     self.__mcmc_posterior_predictive_Rpd = []
-        #     self.__mcmc_posterior_predictive_Rkd = []
-        #     self.__mcmc_logposterior_ratios = []
-        # else:
-        #     mcmc_chains = []
-        #     mcmc_deviances = []
-        #     mcmc_ppdata = []
-        #     mcmc_ppdeviance = []
-        #     mcmc_ppRpd = []
-        #     mcmc_ppRkd = []
-        #     mcmc_logpost = []
-
         # Determine size of initial test run
         if self.nsamples is None:
             NN = 0
@@ -1342,48 +1319,20 @@ class BayesInference ( PsiInference ):
                 NN = max(NN,Nmin)
             self.nsamples = NN
 
-        A = N.matrix(self.fisher)
-        fisherinv = N.linalg.solve ( A.T*A+0.01*N.eye(A.shape[0]), A.T )
-        cond = abs(A.A).sum(1).max() * abs(fisherinv.A).sum(1).max()
-        print "Condition of Fisher Information Matrix:",cond
-        print A
+        a = self.__roughvariance ()
+        # asympvar = N.diag(fisherinv)
+        # a = self.afac*N.sqrt(asympvar)
+        # print a
 
-        if cond > 1e6:
-            for k in xrange(20):
-                localdata = self.data.copy()
-                localdata[:,1] = N.random.binomial ( self.data[:,2], self.data[:,1].astype('d')/self.data[:,2] )
-                AA = N.matrix(_psipy.mapestimate(localdata,start=None,**self.model)[1])
-                AAinv = N.linalg.solve ( A.T*A+0.01*N.eye(A.shape[0]), A.T )
-                cond = abs(AA.A).sum(1).max() * abs(AAinv.A).sum(1).max()
-                print "Condition of Fisher Information Matrix:",cond
-                print A
-                if cond < 1e6:
-                    A = AA
-                    fisherinv = AAinv
-                    break
-
-        asympvar = N.diag(fisherinv)
-        a = self.afac*N.sqrt(asympvar)
-        print a
-
-        chain,deviance,ppdata,ppdeviances,ppRpd,ppRkd,logpostratios = _psipy.mcmc ( self.data, self.mapestimate, NN, stepwidths=a, **self.model )
-        # a = 2.3*N.sqrt(N.diag(N.cov(chain.T)))
+        # chain,deviance,ppdata,ppdeviances,ppRpd,ppRkd,logpostratios = _psipy.mcmc ( self.data, self.mapestimate, NN, stepwidths=a, **self.model )
+        # a = N.sqrt(N.diag(N.cov(chain.T)))
+        # print a
 
         oldburnin = 0
         oldthin   = 1
         oldnsamples = NN
         for n in xrange ( noptimizations ):
-            # self.sample ()           # Test run
             samples,deviances,ppdata,ppdeviances,ppRpd,ppRkd,logpostratios = _psipy.mcmc ( self.data, self.mapestimate, NN, stepwidths=a, **self.model )
-            # testrun = self.mcthres    # Thresholds from testrun
-
-            # samples = self.__mcmc_chains.pop()      # throw the samples away, don't use them for "real" inference
-            # deviances = self.__mcmc_deviances.pop()
-            # self.__mcmc_posterior_predictives.pop()
-            # self.__mcmc_posterior_predictive_deviances.pop()
-            # self.__mcmc_posterior_predictive_Rpd.pop()
-            # self.__mcmc_posterior_predictive_Rkd.pop()
-            # self.__mcmc_logposterior_ratios.pop()
 
             # Check all desired thresholds
             for q in self.conf:
@@ -1395,28 +1344,57 @@ class BayesInference ( PsiInference ):
                     self.burnin = max ( self.burnin, mcmcpars.burnin )
                     self.thin   = max ( self.thin,   mcmcpars.thin )
                     self.nsamples = max ( self.nsamples, mcmcpars.Nsamples )
-            a = N.sqrt(N.diag(N.cov ( samples[self.burnin::self.thin].T )))
-            print self._steps
+            b = N.sqrt(N.diag(N.cov ( samples[self.burnin::self.thin].T )))
+            if b.max() < 1e-10:
+                a = self.__roughvariance ()
+            else:
+                a = b
 
             if verbose:
                 print "Burnin:",self.burnin,"Thinning:",self.thin,"Nsamples:",self.nsamples
                 print "Steps:",a
-            if self.nsamples >= oldnsamples:
+            if self.nsamples <= oldnsamples:
             # if oldburnin==self.burnin and oldthin==self.thin and oldnsamples==self.nsamples:
                 break
             else:
                 oldburnin,oldthin,oldnsamples = self.burnin,self.thin,self.nsamples
         self.mcmcpars = mcmcpars
         self._steps = a
+        if verbose:
+            print "Steps(final):",N.sqrt(N.diag(N.cov( samples[self.burnin::self.thin].T )))
 
-        # if len(mcmc_chains)>0:
-        #     self.__mcmc_chains = mcmc_chains
-        #     self.__mcmc_deviances = mcmc_deviances
-        #     self.__mcmc_posterior_predictives = mcmc_ppdata
-        #     self.__mcmc_posterior_predictive_deviances = mcmc_ppdeviance
-        #     self.__mcmc_posterior_predictive_Rpd = mcmc_ppRpd
-        #     self.__mcmc_posterior_predictive_Rkd = mcmc_ppRkd
-        #     self.__mcmc_logposterior_ratios = mcmc_logpost
+    def __roughvariance ( self ):
+        # Determine an initial variance estimate using the Fisher Information Matrix
+        fisherI = N.matrix(self.fisher)
+        fisherIinv = N.linalg.solve ( fisherI.T*fisherI+0.01*N.eye(fisherI.shape[0]), fisherI.T )
+        cond = abs(fisherI.A).sum(1).max() * abs(fisherIinv.A).sum(1).max()
+        # print "Condition of Fisher Information Matrix:",cond
+        # print fisherI
+
+        if cond > 1e6:
+            for k in xrange(20):
+                localdata = self.data.copy()
+                localdata[:,1] = N.random.binomial ( self.data[:,2], self.data[:,1].astype('d')/self.data[:,2] )
+                fisherII = N.matrix(_psipy.mapestimate(localdata,start=None,**self.model)[1])
+                fisherIIinv = N.linalg.solve ( fisherII.T*fisherII+0.01*N.eye(fisherII.shape[0]), fisherII.T )
+                cond = abs(fisherII.A).sum(1).max() * abs(fisherIIinv.A).sum(1).max()
+                # print "Condition of Fisher Information Matrix:",cond
+                # print fisherI
+                if cond < 1e6:
+                    fisherI = fisherII
+                    fisherIinv = fisherIIinv
+                    break
+
+        a = N.sqrt(N.diag(fisherIinv))
+        # print "a =",a
+
+        if abs(a).min() < 1e-10 or abs(a).max() > 1e10 or a[2] > 0.5:
+            # It seems as if the Variance estimation via the Fisher Matrix failed
+            bsamples = _psipy.bootstrap(self.data,self.estimate,100,cuts=self.cuts,**self.model)[1]
+            a = bsamples.std(0)
+            # print "a_boots =",a
+
+        return a
 
 if __name__ == "__main__":
     import doctest
