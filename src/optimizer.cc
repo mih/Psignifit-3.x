@@ -1,7 +1,11 @@
 #include "optimizer.h"
 
+// #define DEBUG_OPTIMIZER
+
 #ifdef DEBUG_OPTIMIZER
 #include <iostream>
+#include <fstream>
+std::ofstream logfile ( "optimizer.log" );
 #endif
 
 const double maxstep (1e-7);
@@ -44,9 +48,10 @@ std::vector<double> PsiOptimizer::optimize ( const PsiPsychometric * model, cons
 	}
 
 #ifdef DEBUG_OPTIMIZER
-	std::cerr << "Starting values for optimization:\n";
+	logfile << "Starting values for optimization:\n";
 	for (k=0; k<nparameters; k++)
-		std::cerr << start[k] << "\n";
+		logfile << start[k] << "\n";
+	logfile.flush();
 #endif
 
 
@@ -59,6 +64,7 @@ std::vector<double> PsiOptimizer::optimize ( const PsiPsychometric * model, cons
 	double fstepsize(1);// Measure of size of a step in function values
 	int iter(0);        // Number of simplex iterations
 	int run;            // the model should be rerun after convergence
+	std::vector<double> output ( start );
 
 
 	for (run=0; run<2; run++) {
@@ -75,7 +81,10 @@ std::vector<double> PsiOptimizer::optimize ( const PsiPsychometric * model, cons
 				}
 				// fx[k] = testfunction(simplex[k]);
 #ifdef DEBUG_OPTIMIZER
-				std::cerr << simplex[k][0] << " " << simplex[k][1] << " " << simplex[k][2] << " " << simplex[k][3] << " " << fx[k] << "\n";
+				for (l=0; l<nparameters; l++)
+					logfile << simplex[k][l] << " ";
+				logfile << fx[k] << "\n";
+				logfile.flush();
 #endif
 				if (fx[k]<fx[minind]) minind = k;
 				if (fx[k]>fx[maxind]) maxind = k;
@@ -88,22 +97,23 @@ std::vector<double> PsiOptimizer::optimize ( const PsiPsychometric * model, cons
 			// Simplex size
 			if (stepsize<maxstep) {
 #ifdef DEBUG_OPTIMIZER
-				std::cerr << "Terminating optimization due to small simplex size (" << stepsize << ") after " << iter << " iterations\n";
-				std::cout << "\n";
+				logfile << "Terminating optimization due to small simplex size (" << stepsize << ") after " << iter << " iterations\n";
+				logfile.flush();
 #endif
 				break;
 			}
 			// function value differences
 			if ((fstepsize=(fx[maxind]-fx[minind])) < maxfstep ) {
 #ifdef DEBUG_OPTIMIZER
-				std::cerr << "Terminating optimization due to small function value variation (" << fstepsize << ") after " << iter << " iterations\n";
-				std::cout << "\n";
+				logfile << "Terminating optimization due to small function value variation (" << fstepsize << ") after " << iter << " iterations\n";
+				logfile.flush();
 #endif
 				break;
 			}
 
 #ifdef DEBUG_OPTIMIZER
-			std::cout << iter << " " << fx[minind] << " " << stepsize << "\n";
+			logfile << iter << " " << fx[minind] << " " << stepsize << "\n";
+			logfile.flush();
 #endif
 
 			// Calculate the average of the non maximal nodes
@@ -141,8 +151,8 @@ std::vector<double> PsiOptimizer::optimize ( const PsiPsychometric * model, cons
 			// Also cancel if the number of iterations gets to large
 			if (iter++ > maxiter) {
 #ifdef DEBUG_OPTIMIZER
-				std::cerr << "Terminating optimization due to large number of iterations (" << iter << "). Final stepsize: " << stepsize << "\n";
-				std::cout << "\n";
+				logfile << "Terminating optimization due to large number of iterations (" << iter << "). Final stepsize: " << stepsize << "\n";
+				logfile.flush();
 #endif
 				break;
 			}
@@ -161,6 +171,7 @@ std::vector<double> PsiOptimizer::optimize ( const PsiPsychometric * model, cons
 
 		for (k=0; k<nparameters; k++) {
 			start[k] = simplex[minind][k];
+			output[k] = start[k];
 			simplex[minind][k] = simplex[minind][0];
 			simplex[0][k] = start[k];
 			modified[k] = true;
@@ -182,5 +193,11 @@ std::vector<double> PsiOptimizer::optimize ( const PsiPsychometric * model, cons
 	}
 	*/
 
-	return start;
+#ifdef DEBUG_OPTIMIZER
+	logfile << "Returning\n"; logfile.flush();
+	for (l=0; l<nparameters; l++) logfile << output[l] << " ";
+	logfile << "\n"; logfile.flush();
+#endif
+
+	return output;
 }
