@@ -1,3 +1,4 @@
+- Plotting function for only data and fit or fitting data and fit separately ~> refactoring?
 - axes should incompass all measurements and the whole range of the CI
 - plotting example for multiple PMFs should also show how to display CI
 - out of bounds for CI: arrow and a number for the end.
