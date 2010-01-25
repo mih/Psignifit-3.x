@@ -300,12 +300,10 @@ def plotPMF ( InferenceObject, xlabel_text="Stimulus intensity", ylabel_text=Non
     ax.scatter ( xd, pd, s=nd, c=kwargs.setdefault ( 'color', 'b' ),marker=kwargs.setdefault("markertype", "o") )
 
     # Check axes limits
+    ymin,ymax = -.05,1.05
     if InferenceObject.model["nafc"]>1:
-        ymin,ymax = 1./InferenceObject.model["nafc"]-.05,1.05
-        if ylabel_text is None:
-            ylabel_text = "P(correct)"
+        ylabel_text = "P(correct)"
     else:
-        ymin,ymax = -.05,1.05
         if ylabel_text is None:
             ylabel_text = "P(Yes)"
 
