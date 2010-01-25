@@ -320,7 +320,7 @@ def plotPMF ( InferenceObject, xlabel_text="Stimulus intensity", ylabel_text=Non
                 ytics.pop(k)
     else:
         for k,yt in enumerate(ytics):
-            if yt<(1./InferenceObject.model["nafc"]) or yt>1:
+            if yt<0 or yt>1:
                 ytics.pop(k)
     ytics = N.array(ytics)
 
