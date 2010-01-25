@@ -347,11 +347,38 @@ def plotThres ( InferenceObject, ax=None, color="b" ):
     if ax == None:
         ax = p.gca()
 
+    # Determine the range where the data live
+    datarange = InferenceObject.data[:,0].min(),InferenceObject.data[:,0].max()
+    dataw = datarange[1]-datarange[0]
+
     for k,cut in enumerate(InferenceObject.cuts):
         c25,c975 = InferenceObject.getCI ( cut=k, conf=(.025,.975) )
         thres = InferenceObject.getThres ( cut )
         ylev = InferenceObject.evaluate ( [thres] )
-        ax.plot ( [c25,thres,c975],[ylev]*3, '-|', color=color )
+        if c25 < datarange[0]-dataw*0.2:
+            bar = [ datarange[0]-dataw*0.2 ]
+            markers = ["<"]
+            c25out = True
+            ax.text ( datarange[0]-dataw*0.2,ylev,"%g"%(c25,), horizontalalignment="center", fontsize=7 )
+        else:
+            bar = [ c25 ]
+            c25out = False
+            markers = ["|"]
+        if thres > datarange[0] and thres < datarange[1]:
+            bar.append(thres)
+            markers.append("|")
+        if c975 > datarange[1]+dataw*0.2:
+            bar.append(datarange[1]+dataw*0.2)
+            c975out = True
+            ax.text ( datarange[1]+dataw*0.2,ylev,"%g"%(c975,), horizontalalignment="center", fontsize=7 )
+            markers.append(">")
+        else:
+            bar.append(c975)
+            c975out = False
+            markers.append("|")
+        ax.plot ( bar,[ylev]*len(bar), '-', color=color )
+        for x,m in zip(bar,markers):
+            ax.plot ( x, ylev, marker=m, color=color )
 
 def GoodnessOfFit ( InferenceObject, warn=True ):
     """Draw a diagnostic figure to help assessing goodness of fit
