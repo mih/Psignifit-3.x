@@ -235,7 +235,7 @@ def plotHistogram ( simdata, observed, xname, shortname=None, ax=None, hideobser
     else:
         return False
 
-def plotPMF ( InferenceObject, xlabel_text="Stimulus intensity", ylabel_text=None,ax=None, showaxes=True, showdesc=True, **kwargs ):
+def plotPMF ( InferenceObject, xlabel_text="Stimulus intensity", ylabel_text=None,ax=None, showaxes=True, showdesc=False, **kwargs ):
     """Show the psychometric function and data in an axes system
 
     This function plots the best fitting psychometric function and with the
@@ -441,7 +441,7 @@ def GoodnessOfFit ( InferenceObject, warn=True ):
     if InferenceObject.__repr__().split()[1] == "BayesInference":
         InferenceObject.drawposteriorexamples ( ax=ax )
     plotThres ( InferenceObject, ax=ax )
-    plotPMF   ( InferenceObject, ax=ax )
+    plotPMF   ( InferenceObject, ax=ax, showdesc=True )
     if InferenceObject.__repr__().split()[1] == "BayesInference":
         distname = "posterior"
         observed = -2*N.log(InferenceObject.nullevidence)
