@@ -812,5 +812,48 @@ def plotInfluential ( InferenceObject ):
     ax.set_xlim(xl)
     drawaxes ( ax, ax.get_xticks(), "%g", ax.get_yticks(), "%g", "stimulus intensity", yname )
 
+def plotMultiplePMFs ( *InferenceObjects, **kwargs ):
+    """
+    Plot multiple psychometric functions
+
+    :Parameters:
+        *InferenceObjectsJ* :
+            The Inference Objects that should be plotted. If the inference objects contain information about themselves,
+            this information is used.
+    """
+    ax = kwargs.setdefault ( "ax", None )
+    if ax is None:
+        ax = p.axes([0,0,1,1])
+    pmflines = []
+    pmflabels= []
+    pmfdata  = []
+
+    for pmf in InferenceObjects:
+        l,d = plotPMF ( pmf, showaxes=False, showdesc=False, ax=ax )[:2]
+        pmflines.append(l)
+        pmfdata.append(d)
+        pmflabels.append(pmf.label)
+
+    ylabel_text = kwargs.setdefault("ylabel", None)
+    if ylabel_text is None:
+        if pmf.model["nafc"] < 2:
+            ylabel_text = "P(Yes)"
+        else:
+            ylabel_text = "P(correct)"
+
+    # Determine tics
+    p.setp(ax,frame_on=False,ylim=(-.05,1.05))
+    xtics = p.getp(ax,'xticks')
+    ytics = list(p.getp(ax,'yticks'))
+    # Clean up ytics
+    for k,yt in enumerate(ytics):
+        if yt<0 or yt>1:
+            ytics.pop(k)
+    ytics = N.array(ytics)
+    drawaxes ( ax, xtics, "%g", ytics, "%g", kwargs.setdefault("xlabel", "stimulus intensity"), ylabel_text )
+
+    # Draw legend
+    p.legend (pmflines,pmflabels)
+
 
 gof = GoodnessOfFit
