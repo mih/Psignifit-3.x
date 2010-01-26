@@ -312,14 +312,9 @@ def plotPMF ( InferenceObject, xlabel_text="Stimulus intensity", ylabel_text=Non
     xtics = p.getp(ax,'xticks')
     ytics = list(p.getp(ax,'yticks'))
     # Clean up ytics
-    if InferenceObject.model["nafc"]==1:
-        for k,yt in enumerate(ytics):
-            if yt<0 or yt>1:
-                ytics.pop(k)
-    else:
-        for k,yt in enumerate(ytics):
-            if yt<0 or yt>1:
-                ytics.pop(k)
+    for k,yt in enumerate(ytics):
+        if yt<0 or yt>1:
+            ytics.pop(k)
     ytics = N.array(ytics)
 
     if showaxes:
