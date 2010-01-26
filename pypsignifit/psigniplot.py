@@ -888,3 +888,7 @@ def plotMultiplePMFs ( *InferenceObjects, **kwargs ):
 
 
 gof = GoodnessOfFit
+
+if __name__ == "__main__":
+    import doctest
+    doctest.testmod()
