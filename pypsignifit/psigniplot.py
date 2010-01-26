@@ -326,7 +326,7 @@ def plotPMF ( InferenceObject, xlabel_text="Stimulus intensity", ylabel_text=Non
             ax.text(0.5*(xmin+xmax),ymin+.05,"D=%g" % ( InferenceObject.deviance, ) )
         ax.text ( 0.5*(xmin+xmax),ymin+.1,InferenceObject.desc )
 
-    return xtics.min(),xtics.max()
+    return pmfline,pmfpoints,(xtics.min(),xtics.max())
 
 def plotThres ( InferenceObject, ax=None, color="b" ):
     """Plot thresholds and confidence intervals
@@ -800,7 +800,7 @@ def plotInfluential ( InferenceObject ):
     plotPMF ( InferenceObject, ax=ax, showaxes=False, showdesc=False, color="b", linewidth=2 )
     ax.plot ( [InferenceObject.data[maxinfl,0]], [InferenceObject.data[maxinfl,1].astype("d")/InferenceObject.data[maxinfl,2]],
             'rx', markersize=20, markeredgewidth=5 )
-    xl = plotPMF ( influencedDataset, ax=ax, showdesc=False, showaxes=True, color="r", markertype=([(0,0)],0), linewidth=2 )
+    xl = plotPMF ( influencedDataset, ax=ax, showdesc=False, showaxes=True, color="r", markertype=([(0,0)],0), linewidth=2 )[-1]
 
     ax = p.axes ( (0.0, 0., .9, .5) )
     if InferenceObject.__repr__().split()[1] == "BootstrapInference":
