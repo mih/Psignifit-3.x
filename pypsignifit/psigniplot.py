@@ -286,18 +286,18 @@ def plotPMF ( InferenceObject, xlabel_text="Stimulus intensity", ylabel_text=Non
     x = N.mgrid[xmin:xmax:100j]
     # psi = N.array(_psipy.diagnostics ( x, self.estimate, sigmoid=self.model["sigmoid"], core=self.model["core"], nafc=self.model["nafc"] ))
     psi = InferenceObject.evaluate ( x )
-    ax.plot(x,psi,
-            color     = kwargs.setdefault ( 'color', 'b' ),
-            linestyle = kwargs.setdefault ( 'linestyle', '-' ),
-            linewidth = kwargs.setdefault ( 'linewidth', 1 ),
-            label     = kwargs.setdefault ( 'label', 'psychometric function' )
+    pmfline = ax.plot(x,psi,
+            color     = kwargs.setdefault ( 'color', InferenceObject.color ),
+            linestyle = kwargs.setdefault ( 'linestyle', InferenceObject.linestyle ),
+            linewidth = kwargs.setdefault ( 'linewidth', InferenceObject.linewidth ),
+            label     = kwargs.setdefault ( 'label', InferenceObject.label )
             )
 
     # Plot the data
     xd = InferenceObject.data[:,0]
     pd = InferenceObject.data[:,1].astype("d")/InferenceObject.data[:,2]
     nd = InferenceObject.data[:,2]
-    ax.scatter ( xd, pd, s=nd, c=kwargs.setdefault ( 'color', 'b' ),marker=kwargs.setdefault("markertype", "o") )
+    pmfpoints = ax.scatter ( xd, pd, s=nd, c=kwargs.setdefault ( 'color', InferenceObject.color ),marker=kwargs.setdefault("markertype", InferenceObject.marker) )
 
     # Check axes limits
     ymin,ymax = -.05,1.05

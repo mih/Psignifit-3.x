@@ -45,7 +45,7 @@ def Property(function):
 
 ##############################################################################################################################
 class PsiInference ( object ):
-    def __init__ ( self ):
+    def __init__ ( self, plotting={} ):
         """This is just a dummy function"""
         self.data = None
         self.model = {
@@ -61,6 +61,10 @@ class PsiInference ( object ):
         self.Rkd               = None
         self.__outl            = None
         self.__infl            = None
+        self.__plotting        = plotting
+        defaults = {"label": "Psychometric function fit","color": "b", "linestyle": "-", "marker": "o", "linewidth": 1 }
+        for k in defaults.keys():
+            self.__plotting.setdefault ( k, defaults[k] )
 
     def evaluate ( self, x, prm=None ):
         """Evaluate the psychometric function model at positions given by x"""
@@ -83,9 +87,45 @@ class PsiInference ( object ):
     outl = property ( fget=lambda self: self.__outl, doc="A boolean array indicating whether or not a block was an outlier" )
     infl = property ( fget=lambda self: self.__infl, doc="A boolean array indicating whether or not a block was an influential observation" )
 
+    @Property
+    def label ():
+        "Condition label used in plots"
+        def fget ( self ):
+            return self.__plotting["label"]
+        def fset ( self, v ):
+            self.__plotting["label"] = v
+    @Property
+    def color ():
+        "Color used in plots"
+        def fget ( self ):
+            return self.__plotting["color"]
+        def fset ( self, v ):
+            self.__plotting["color"] = v
+    @Property
+    def linestyle ():
+        "Linestyle used in plots"
+        def fget ( self ):
+            return self.__plotting["linestyle"]
+        def fset ( self, v ):
+            self.__plotting["linestyle"] = v
+    @Property
+    def linewidth ():
+        "Linewidth used in plots"
+        def fget ( self ):
+            return self.__plotting["linewidth"]
+        def fset ( self ):
+            self.__plotting["linewidth"] = v
+    @Property
+    def marker ():
+        "Data marker used in plots"
+        def fget ( self ):
+            return self.__plotting["marker"]
+        def fset ( self, v ):
+            self.__plotting["marker"] = v
+
 ##############################################################################################################################
 class BootstrapInference ( PsiInference ):
-    def __init__ ( self, data, sample=False, cuts=(.25,.5,.75), conf=(.025,.975), **kwargs ):
+    def __init__ ( self, data, sample=False, cuts=(.25,.5,.75), conf=(.025,.975), plotprm={}, **kwargs ):
         """Set up an object of bootstrapped data
 
         :Parameters:
@@ -141,6 +181,10 @@ class BootstrapInference ( PsiInference ):
                 corresponding to -2,-1,1,2 standard deviations for a gaussian).
             *parametric* :
                 a boolean indicating wether or not parametric bootstrap should be used
+            *plotprm* :
+                a dictionary to take parameters for plotting data. Currently supported are the arguments
+                'label', 'color', 'linestyle', 'linewidth' and 'marker'. These can all be set after creating
+                an Inference instance, too. By using the respective properties.
 
 
         :Example:
@@ -161,7 +205,7 @@ class BootstrapInference ( PsiInference ):
         array([ 2.79484448,  4.73796576])
         """
         # Call the base constructor
-        PsiInference.__init__(self)
+        PsiInference.__init__(self,plotprm)
         self.__nsamples = 0
 
         start = kwargs.setdefault ( "start", None )
@@ -454,7 +498,7 @@ class BootstrapInference ( PsiInference ):
 
 ##############################################################################################################################
 class BayesInference ( PsiInference ):
-    def __init__ ( self, data, sample=True, cuts=(.25,.5,.75), conf=(.025,.975), automatic=True, resample=False, **kwargs ):
+    def __init__ ( self, data, sample=True, cuts=(.25,.5,.75), conf=(.025,.975), automatic=True, resample=False, plotprm={}, **kwargs ):
         """Bayesian Inference for psychometric functions using MCMC
 
         :Parameters:
@@ -512,6 +556,10 @@ class BayesInference ( PsiInference ):
             *resample* :
                 if a chain is considered "bad" in terms of convergence should it
                 automatically be resampled?
+            *plotprm* :
+                a dictionary to take parameters for plotting data. Currently supported are the arguments
+                'label', 'color', 'linestyle', 'linewidth' and 'marker'. These can all be set after creating
+                an Inference instance, too. By using the respective properties.
 
         :Example:
         Use MCMC to estimate a psychometric function from some example data and derive posterior
@@ -532,7 +580,7 @@ class BayesInference ( PsiInference ):
         >>> mcmc.getCI()[1]
         array([ 2.65917603,  3.68535429,  4.56688308])
         """
-        PsiInference.__init__(self)
+        PsiInference.__init__(self,plotprm)
 
         # Store basic data
         self.data = N.array(data)
