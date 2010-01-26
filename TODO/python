@@ -1,5 +1,5 @@
-- optimize automatic proposal distribution generation
 - plotting example for multiple PMFs should also show how to display CI
+- optimize automatic proposal distribution generation
 - python setup install works on Mac
 - enable fixing the guessing rate to an arbitrary value (? which?)        <- This is actually possible by putting a strong prior on the guessing rate...
 - what is going on with type checking in psigniplot.GoodnessOfFit?
