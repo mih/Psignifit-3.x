@@ -258,22 +258,33 @@ def plotPMF ( InferenceObject, xlabel_text="Stimulus intensity", ylabel_text=Non
             if this is set to False, no axes will be drawn
         *showdesc* :
             if this is set to False, no convergence description is drawn
-        all other keyword arguments will be passed to the plot function.
+
+    :Return:
+        returns a tuple (line,points,lims)
+        *line* :
+            the matplotlib.lines.Line2D object representing the fitted curve
+        *points* :
+            the matplotlib.collections.CircleCollection object representing
+            the fitted data points
+        *lims* :
+            limits of the drawn x axis.
 
     :Example:
-    You can use this function to plot multiple psychometric functions. This
-    is demonstrated by the example below:
+    You can use this function to plot multiple psychometric functions. However,
+    keep in mind that the function plotMultiplePMFs does the same job more
+    conveniently for you. However, plotPMF will typically allow for more control
+    over the plotting process. this is demonstrated below:
 
     >>> d0 = [[0, 28, 50], [2, 33, 50], [4, 38, 50], [6, 45, 50], [8, 45, 50], [10, 49, 50]]
     >>> d1 = [[0, 22, 50], [2, 34, 50], [4, 31, 50], [6, 42, 50], [8, 42, 50], [10, 46, 50]]
     >>> d2 = [[0, 26, 50], [2, 31, 50], [4, 38, 50], [6, 47, 50], [8, 49, 50], [10, 49, 50]]
     >>> constraints = ("","","Uniform(0,.1)")
-    >>> B0 = BootstrapInference ( d0, priors=constraints )
-    >>> B1 = BootstrapInference ( d1, priors=constraints )
-    >>> B2 = BootstrapInference ( d2, priors=constraints )
-    >>> plotPMF ( B0, showaxes=False, showdesc=False, color='b', outliercolor='b', influentialcolor='b', linewidth=2 )
-    >>> plotPMF ( B1, showaxes=False, showdesc=False, color='r', outliercolor='r', influentialcolor='r' )
-    >>> plotPMF ( B2, showaxes=True,  showdesc=False, color='k', outliercolor='k', influentialcolor='k', linestyle='--' )
+    >>> B0 = BootstrapInference ( d0, priors=constraints, plotting={'color': 'r'} )
+    >>> B1 = BootstrapInference ( d1, priors=constraints, plotting={'color': 'b'} )
+    >>> B2 = BootstrapInference ( d2, priors=constraints, plotting={'color': 'k'} )
+    >>> plotPMF ( B0, showaxes=False )
+    >>> plotPMF ( B1, showaxes=False )
+    >>> plotPMF ( B2, showaxes=True  )
 
     Note that the last call to plotPMF sets showaxes to True and thus draws the axes.
     """
@@ -820,6 +831,24 @@ def plotMultiplePMFs ( *InferenceObjects, **kwargs ):
         *InferenceObjectsJ* :
             The Inference Objects that should be plotted. If the inference objects contain information about themselves,
             this information is used.
+        *ax* :
+            the axis object where the plot should go
+        *xlabel* :
+            text to be written on the y axis
+        *ylabel* :
+            text to be written on the x axis
+
+    :Example:
+    This example shows how to plot multiple psychometric functions
+
+    >>> d0 = [[0, 28, 50], [2, 33, 50], [4, 38, 50], [6, 45, 50], [8, 45, 50], [10, 49, 50]]
+    >>> d1 = [[0, 22, 50], [2, 34, 50], [4, 31, 50], [6, 42, 50], [8, 42, 50], [10, 46, 50]]
+    >>> d2 = [[0, 26, 50], [2, 31, 50], [4, 38, 50], [6, 47, 50], [8, 49, 50], [10, 49, 50]]
+    >>> constraints = ("","","Uniform(0,.1)")
+    >>> B0 = BootstrapInference ( d0, priors=constraints,plotprm={"color": "r", "label": "Condition 0"} )
+    >>> B1 = BootstrapInference ( d1, priors=constraints, plotprm={"color": "b","label": "Condition 1"} )
+    >>> B2 = BootstrapInference ( d2, priors=constraints, plotprm={"color": "b","label": "Condition 2"} )
+    >>> plotMultiplePMFs ( B0, B1, B2 )
     """
     ax = kwargs.setdefault ( "ax", None )
     if ax is None:
@@ -854,6 +883,8 @@ def plotMultiplePMFs ( *InferenceObjects, **kwargs ):
 
     # Draw legend
     p.legend (pmflines,pmflabels)
+
+    return pmflines,pmfdata
 
 
 gof = GoodnessOfFit
