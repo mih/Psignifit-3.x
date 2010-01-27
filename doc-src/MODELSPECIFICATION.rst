@@ -58,15 +58,15 @@ as the correct response rate might change. So which of these two should be fitte
 psychometric function? There are two general objectives that an optimal observer could
 follow in a yes-no task.
 
-    1. maximize the hit rate while keeping a fixed false alarm rate. In this case, we would
-       like to fit the hit rate with a psychometric function (the false alarm rate is
-       constant anyhow). Thus, if we want to fit the hit rate with a psychometric function,
-       we should check that the observers maintained a more of less fixed false alarm
-       rate. A future release of psignifit will contain more formal tools for this check.
-    2. maximize the number of correct responses. In this case, we would like to fit
-       the correct response rate with a psychometric function. To check that an observer
-       really uses this strategy, we should check that the false alarm rate decreases with
-       the hit rate.
+1. maximize the hit rate while keeping a fixed false alarm rate. In this case, we would
+   like to fit the hit rate with a psychometric function (the false alarm rate is
+   constant anyhow). Thus, if we want to fit the hit rate with a psychometric function,
+   we should check that the observers maintained a more of less fixed false alarm
+   rate. A future release of psignifit will contain more formal tools for this check.
+2. maximize the number of correct responses. In this case, we would like to fit
+   the correct response rate with a psychometric function. To check that an observer
+   really uses this strategy, we should check that the false alarm rate decreases with
+   the hit rate.
 
 Signal detection theory also offers a number of criterion free discriminability parameters,
 like area under the ROC curve and the famous d' index. However, these indices can not generally
