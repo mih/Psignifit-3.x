@@ -41,6 +41,21 @@ to the psignifit engine.
 How to install
 ==============
 
+If you want to install psignifit on your computer make sure that you have all the dependencies installed.
+Currently this documentation only deals with the installation of the python version of psignifit.
+Installation instructions for matlab and R are going to follow as soon as these toolboxes are
+ready for use.
+
+The C++ core of psignifit does the real work. It is completely coded in C++ and does not require any
+additional libraries installed.
+
+The python version of psignifit requires the following packages installed:
+
+    * `numpy <http://numpy.scipy.org/>`_ / `scipy <http://www.scipy.org/>`_
+    * `matplotlib <http://matplotlib.sourceforge.net/>`_
+
+To also build the documentation yourself, you will need `sphinx <http://sphinx.pocoo.org/>`_.
+
 Linux
 -----
 
@@ -66,5 +81,9 @@ setup-scripts, you can also use special options for the installation.
 Mac OSX
 -------
 
-TODO: Valentin, you did that, didn't you?
+A simple
 
+python setup.py install
+
+should install the python toolbox for you. However, keep in mind that you need the abovementioned
+dependencies.
