@@ -829,14 +829,17 @@ def plotMultiplePMFs ( *InferenceObjects, **kwargs ):
 
     :Parameters:
         *InferenceObjectsJ* :
-            The Inference Objects that should be plotted. If the inference objects contain information about themselves,
-            this information is used.
+            The Inference Objects that should be plotted. If the inference objects contain
+            information about themselves, this information is used.
         *ax* :
             the axis object where the plot should go
         *xlabel* :
             text to be written on the y axis
         *ylabel* :
             text to be written on the x axis
+        *ci* :
+            boolean indicating whether credibility intervals should be drawn
+            by default, this is False
 
     :Example:
     This example shows how to plot multiple psychometric functions
@@ -862,6 +865,8 @@ def plotMultiplePMFs ( *InferenceObjects, **kwargs ):
         pmflines.append(l)
         pmfdata.append(d)
         pmflabels.append(pmf.label)
+        if kwargs.setdefault ( "ci", False ):
+            plotThres ( pmf, ax, color=pmf.color )
 
     ylabel_text = kwargs.setdefault("ylabel", None)
     if ylabel_text is None:
