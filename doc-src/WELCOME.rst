@@ -2,7 +2,7 @@
 Welcome to psignifit 3.0
 ========================
 
-psignifit is a toolbox to fit psychometric functions an test hypotheses on psychometric data.
+psignifit is a toolbox to fit psychometric functions and test hypotheses on psychometric data.
 Compared to the old "classical" version of psignifit, this package a number of  new features
 for fitting psychometric functions. These include detection of outliers and influential
 observations and a full bayesian treatment of psychometric functions that includes bayesian
