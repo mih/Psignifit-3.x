@@ -1,3 +1,7 @@
+/*
+ *   See COPYING file distributed along with the psignifit package for
+ *   the copyright and license terms
+ */
 #include "special.h"
 
 const double SQRT2PI ( sqrt(2*M_PI) );

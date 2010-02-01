@@ -1,3 +1,7 @@
+/*
+ *   See COPYING file distributed along with the psignifit package for
+ *   the copyright and license terms
+ */
 #ifndef MCMC_H
 #define MCMC_H
 

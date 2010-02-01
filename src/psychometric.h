@@ -1,3 +1,7 @@
+/*
+ *   See COPYING file distributed along with the psignifit package for
+ *   the copyright and license terms
+ */
 #ifndef PSYCHOMETRIC_H
 #define PSYCHOMETRIC_H
 

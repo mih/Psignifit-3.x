@@ -181,6 +181,9 @@ poly
     core performs something clearly different: g(x,a,b) = (x/a)^b. In combination with a exp
     sigmoid, this gives the parameterization used in the classical psignifit version.
 
+Combining sigmoids and cores
+----------------------------
+
 
 
 References

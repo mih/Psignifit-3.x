@@ -1,3 +1,7 @@
+/*
+ *   See COPYING file distributed along with the psignifit package for
+ *   the copyright and license terms
+ */
 #include "mclist.h"
 
 void newsample ( const PsiData * data, const std::vector<double>& p, std::vector<int> * sample ) {
