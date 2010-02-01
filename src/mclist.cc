@@ -67,7 +67,6 @@ double PsiMClist::getPercentile ( double p, int prm ) {
 	return mcestimates[prm][position];
 }
 
-
 void PsiMClist::setdeviance ( int i, double deviance ) {
 	if ( i>=getNsamples() )
 		throw BadIndexError();

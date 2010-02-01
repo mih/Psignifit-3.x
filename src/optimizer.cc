@@ -196,6 +196,7 @@ std::vector<double> PsiOptimizer::optimize ( const PsiPsychometric * model, cons
 #ifdef DEBUG_OPTIMIZER
 	logfile << "Returning\n"; logfile.flush();
 	for (l=0; l<nparameters; l++) logfile << output[l] << " ";
+	logfile.flush();
 	logfile << "\n"; logfile.flush();
 #endif
 
