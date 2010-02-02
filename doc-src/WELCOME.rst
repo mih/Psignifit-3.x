@@ -54,6 +54,10 @@ The python version of psignifit requires the following packages installed:
     * `numpy <http://numpy.scipy.org/>`_ / `scipy <http://www.scipy.org/>`_
     * `matplotlib <http://matplotlib.sourceforge.net/>`_
 
+Download the current version of psignifit from
+
+`<http://sourceforge.net/projects/psignifit/>`_
+
 To also build the documentation yourself, you will need `sphinx <http://sphinx.pocoo.org/>`_.
 
 Linux
@@ -62,18 +66,18 @@ Linux
 On the command line, navigate to the root directory of the psignifit distribution. By default,
 the installation process will install the psignifit documentation into the root directory into
 a folder called doc-html . To change this behavior, you might want to modify the Makefile (this
-should be self-explaining). Now, you can simply type
+should be self-explaining). Now, you can simply type::
 
-make install
+    make install
 
 as root and everythin will be installed to the right place. If you don't want the documentation
-be installed, you can also say
+be installed, you can also say::
 
-make python-install
+    make python-install
 
-which will internally call
+which will internally call::
 
-python setup.py install
+    python setup.py install
 
 So, if you want a special flavor of the python installation and are familiar with using python
 setup-scripts, you can also use special options for the installation.
@@ -81,9 +85,9 @@ setup-scripts, you can also use special options for the installation.
 Mac OSX
 -------
 
-A simple
+A simple::
 
-python setup.py install
+    python setup.py install
 
 should install the python toolbox for you. However, keep in mind that you need the abovementioned
 dependencies.

@@ -170,7 +170,7 @@ htmlhelp_basename = 'pypsignifitdoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, document class [howto/manual]).
 latex_documents = [
-  ('index', 'pypsignifit.tex', ur'pypsignifit Documentation',
+  ('index', 'pypsignifit.tex', ur'psignifit Documentation',
    ur'Ingo Fründ & Valentin Haenel', 'manual'),
 ]
 

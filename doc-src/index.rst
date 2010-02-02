@@ -5,6 +5,8 @@
 Welcome to pypsignifit's documentation!
 =======================================
 
+Note that the "old" version of psignifit can still be found at `<http://www.bootstrap-software.org/psignifit/>`_.
+
 Contents:
 
 .. toctree::
