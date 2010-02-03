@@ -184,6 +184,84 @@ poly
 Combining sigmoids and cores
 ----------------------------
 
+As already mentioned above, combinations of 'sigmoid' and 'core' determine the shape of the nonlinear
+function F( x; alpha, beta ). There are some shapes that are particularly interesting in psychophysical
+applications. This section explains how to obtain these typical shapes.
+
+Logistic function
+.................
+
+In this case, we combine the 'logistic' sigmoid with one of the linear cores (ab,mw,linear). Depending
+on the core used, this results in different parameterizations.
+
+logistic + ab
+    This is the standard parameterization of the old psignifit version that was based on bootstrapping.
+    Here we obtain:
+
+    F ( x; alpha, beta ) = 1/(1+exp( -(x-alpha)/beta ) )
+
+    Thus, alpha can be interpreted as the 75% threshold and beta as a scaling factor that is inversely
+    related to the slope of the psychometric function
+logistic + mw
+    This parameterization was used in [Kuss_et_al_2005]_ for bayesian inference on psychometric functions.
+    It reads:
+
+    F ( x; m, w ) = 1/(1+exp( - z(alpha)/w * (x-m) ) ),
+
+    where z(alpha) = 2*ln(1/alpha -1). This allows m to be interpreted as the 75% threshold and w as the
+    width of the interval in which F(x;m,w) rises from alpha to 1-alpha. A typical choice for alpha is 0.1.
+logistic + linear
+    This parameterization corresponds to the classical parameterization used in the literature about
+    generalized linear models. Here, the psychometric function is modeled as
+
+    F ( x; a, b ) = 1/(1+exp( - (a*x + b) ) ).
+
+    This parameterization does not allow a psychophysically meaningful interpretation of the parameters.
+
+Cumulative Gaussian
+...................
+
+The cumulative gaussian is obtained by combining the gauss sigmoid with one of the linear cores (ab,mw,linear).
+The parameterizations are precisely the same as for the logistic function with one exception:
+The scaling factor z(alpha) for the mw parameterization is z(alpha) = invPhi(1-alpha)-invPhi(alpha), where invPhi
+is the inverse of the the cumulative gaussian.
+
+Cumulative Gumbel
+.................
+
+Also for the cumulative Gumbel sigmoids, the parameterizations are similar to the logistic function. However,
+the Gumbel distribution is skewed. This implies that the alpha parameter of the ab parameterization can
+*not* be interpreted as a 75% threshold. For the mw parameterization this is solved in a different way.
+The lgumbel + mw function is parameterized as follows:
+
+F ( x; m, w ) = 1-exp(-exp( (z(alpha)-z(1-alpha))/w * (x-m) + z(0.5) ) ),
+
+where z(alpha) = ln(-ln(alpha)).
+
+Weibull
+.......
+
+There are a number of ways to parameterize the Weibull function. 
+
+exp + poly
+    The classical way is probably
+
+    F ( x; alpha, beta ) = 1-exp ( - (x/alpha)^beta ),
+
+    which is implemented using the combination of an exp-sigmoid and a poly-core.
+gumbel + weibull
+    The Weibull function is equivalent to a Gumbel sigmoid on logarithmic coordinates. Thus,
+    [Kuss_et_al_2005]_ suggested a parameterization in terms of the 75% threshold m and the slope
+    at the threshold s. This results in the following equivalent form
+
+    F ( x; m, s ) = 1-exp(-exp( 2*s*m/ln(2) * (ln(x) - ln(m)) + ln(ln(2)) )).
+
+gumbel + log
+    As the Weibull is a Gumbel fitted on log coordinates, a Weibull can also be obtained
+    using a gumbel sigmoid and the log-core, which results in the following parameterization
+
+    F ( x; a, b ) = 1-exp(-exp( a*ln(x) + b ) ).
+
 
 
 References
@@ -192,4 +270,5 @@ References
 .. [Green_and_Swets_1966] Green, DM and Swets, JA (1966): Signal Detection Theory and
     Psychophysics. New York: Wiley.
 .. [Graham_1989] Graham, NVS (1989): Visual Pattern Analyzers. New York: Oxford University.
-
+.. [Kuss_et_al_2005] Kuss, M and Jäkel, F and Wichmann, FA: Bayesian inference for psychometric functions
+    Journal of Vision, 5, 478-492.
