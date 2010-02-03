@@ -10,6 +10,12 @@
 #include "testing.h"
 #include "mcmc.h"
 
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <signal.h>
+
+
 int PsychometricValues ( TestSuite* T ) {
 	int failures(0),i;
 	char message[40];
@@ -672,6 +678,27 @@ int LinalgTests ( TestSuite * T ) {
 	return failures;
 }
 
+int ReturnTest ( TestSuite * T ) {
+	// In some cases, jackkifing doesn't terminate
+	PsiPsychometric *pmf = new PsiPsychometric ( 2, new mwCore(1,0.1), new PsiLogistic() );
+	std::vector<double> x (5);      x[0] = 1; x[1] = 2; x[2] = 3; x[3] = 4; x[4] = 5;
+	std::vector<int>    k (5,10);   k[1] = 9; k[2] = 8;
+	std::vector<int>    n (5,10);
+	PsiData * data = new PsiData ( x, n, k, 2 );
+
+
+	pid_t childpid;
+	int hang;
+
+	if ((childpid = fork()) == 0) {
+		JackKnifeList jack = jackknifedata ( data, pmf );
+	}
+	sleep(3);
+	hang = kill ( childpid, 9 );
+
+	return T->isequal ( hang, -1, "jackknifedata hung" );
+}
+
 int main ( int argc, char ** argv ) {
 	TestSuite Tests ( "tests_all.log" );
 	Tests.addTest(&PsychometricValues,"Values of the psychometric function");
@@ -682,5 +709,6 @@ int main ( int argc, char ** argv ) {
 	Tests.addTest(&MCMCTest,          "MCMC");
 	Tests.addTest(&PriorTest,         "Priors");
 	Tests.addTest(&LinalgTests,       "Linear algebra routines");
+	Tests.addTest(&ReturnTest,        "Testing return bug in jackknifedata");
 	Tests.runTests();
 }
