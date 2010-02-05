@@ -1,5 +1,4 @@
 - initial parameter guessing: allow for negative slopes when guessing
-- PIVOTING for matrix operations!
 - enable symmetric priors i.e. gamma==lambda
 - seed the random number generator
 - Goodness of fit (Correlations?)                                          [OK] but correlations are wrong
