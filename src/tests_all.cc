@@ -673,6 +673,17 @@ int LinalgTests ( TestSuite * T ) {
 			failures += T->isequal ( (*I)(i,j), 2*(*M)(i,j), "matrix scaling" );
 	delete I;
 
+	// Test that should only give the right solution with pivoting
+	(*M)(0,0) = 11; (*M)(0,1) = 44; (*M)(0,2) = 1;
+	(*M)(1,0) = .1; (*M)(1,1) = .4; (*M)(1,2) = 3;
+	(*M)(2,0) =  0; (*M)(2,1) =  1; (*M)(2,2) =-1;
+	b[0] = b[1] = b[2] = 1;
+	x = M->solve(b);
+	// We need pivoting only to make sure that we are not blown off completely.
+	failures += T->isequal ( x[0], -5.26445,  "pivot Ax=b, x[0]", .025 );
+	failures += T->isequal ( x[1],  1.33131,  "pivot Ax=b, x[1]", .02 );
+	failures += T->isequal ( x[2],  0.331307, "pivot Ax=b, x[2]", .02 );
+
 	delete M;
 
 	return failures;

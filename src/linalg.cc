@@ -131,6 +131,26 @@ Matrix* Matrix::lu_dec ( void ) const {
 	double pivot;
 
 	for (i=0; i<nrows-1; i++) {
+		// Search Pivot element
+		pivot = (*LU)(i,i);
+		pivotindex = i;
+		for (k=i+1; k<nrows; k++) {
+			if ( fabs((*LU)(k,i))>pivot ) {
+				pivot = fabs((*LU)(k,i));
+				pivotindex = k;
+			}
+		}
+		// Check that the pivot element does not vanish
+		if ( pivot<1e-8 )
+			throw std::string ( "Matrix is numerically singular" );
+		// Swap pivot elements
+		for (j=i; j<ncols; j++) {
+			pivot = (*LU)(pivotindex,j);
+			(*LU)(pivotindex,j) = (*LU)(i,j);
+			(*LU)(i,j) = pivot;
+		}
+
+		// Eliminate
 		for (k=i+1; k<nrows; k++) {
 			c = (*LU)(k,i) / (*LU)(i,i);
 			(*LU)(k,i) = c;
