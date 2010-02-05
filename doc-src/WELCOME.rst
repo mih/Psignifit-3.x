@@ -20,7 +20,7 @@ learn: even users with no prior programming experience often master python withi
 However, even though python is similar to matlab, it is not the same. Therefore, we also
 provide a matlab version of psignifit 3.0. However, we do not guarantee support for this
 toolbox in future releases and we encourage users to use the python version as this will be up
-to date. python also offers a further advantage to matlab: python is free[1]_.
+to date. python also offers a further advantage to matlab: python is free [1]_.
 
 TODO: matlab toolbox
 
