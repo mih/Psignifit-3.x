@@ -614,7 +614,10 @@ def plotParameterDist ( InferenceObject, parameter=0, ax=None ):
                 elif dist.lower () == "beta":
                     p.plot(x,stats.beta.pdf(x,prm1,prm2))
                 elif dist.lower () == "gamma":
-                    p.plot(x,stats.gamma.pdf(x,prm2,scale=prm1))
+                    p.plot(x,stats.gamma.pdf(x,prm1,scale=prm2))
+                elif dist.lower () == "ngamma":
+                    p.plot(x,stats.gamma.pdf(-x,prm1,scale=prm2))
+
                 elif dist.lower () == "uniform":
                     p.plot(x,stats.uniform.pdf(x,prm1,prm2))
 
