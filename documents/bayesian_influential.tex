@@ -58,18 +58,16 @@ will it be that block $k_0$ is an influential observation anyhow.
 The Kullbach-Leibler divergence of $f$ and $g$ is
 %
 \begin{align*}
-    D_{KL}(f|g) := \E_f (\log \frac{f}{g} ) &= \E_f ( \log \frac{\tilde{f}}{Z_f}\cdot \frac{Z_g}{\tilde{g}} )
-    = \E_f ( \log \frac{\tilde{f}}{\tilde{g}} + \log \frac{Z_g}{Z_f} )
-    =\E_f ( \log \frac{\tilde{f}}{\tilde{g}} ) + \log \frac{Z_g}{Z_f}\\
-    &\approx \frac{1}{N} \sum_{\ell=1}^N \log \frac{\tilde{f}(\theta^{(\ell)})}{\tilde{g}(\theta^{(\ell)})} +
-    \log \Big( \frac{1}{N} \sum_{\ell=1}^N \exp(-F(\theta^{(\ell)})) + G(\theta^{(\ell)}) \Big) \\
-    &= \frac{1}{N} \sum_{\ell=1}^N \log \frac{\exp(-F(\theta^{(\ell)}))}{\exp(-G(\theta^{(\ell)}))} +
-    \log \Big( \frac{1}{N} \sum_{\ell=1}^N \exp(-F(\theta^{(\ell)})) + G(\theta^{(\ell)}) \Big) \\
-    &= \frac{1}{N} \Big(\sum_{\ell=1}^N -F(\theta^{(\ell)})) + G(\theta^{(\ell)})\Big) +
-    \log \Big( \frac{1}{N} \sum_{\ell=1}^N \exp(-F(\theta^{(\ell)})) + G(\theta^{(\ell)}) \Big).
-\end{align*}
+    D_{KL}(f||g) := -\E_f (\log \frac{g}{f} ) &= -\E_f ( \log \frac{\tilde{g}}{Z_g}\cdot \frac{Z_f}{\tilde{f}} ) \\
+    &= -\E_f ( \log \frac{\tilde{g}}{\tilde{f}} ) - \E_f (\log \frac{Z_f}{Z_g})\\
+    &= -\E_f ( \log \frac{\exp(-G)}{\exp(-F)} ) - \E_f (-\log\frac{Z_g}{Z_f})\\
+    &= -\E_f ( -G+F ) + \log \frac{Z_g}{Z_f} \\
+    &= -\E_f ( -G+F ) + \log \E_f\big(\exp ( -G+F )\big)\\
+    &\approx -\frac{1}{N} \sum_{\ell=1}^N \big( -G(\theta^{(\ell)})+F(\theta^{(\ell)}) \big) +
+        \log \Big( \frac{1}{N}\sum_{\ell=1}^N \exp\big( -G(\theta^{(\ell)})+F(\theta^{(\ell)}) \Big).
+    \end{align*}
 %
 This can be evaluated without sampling from $G$ at all.
-We just need to store $-F(\theta^{(\ell)}) + G(\theta^{(\ell)})$ with each sample $\theta^{(\ell)}$.
+We just need to store $F(\theta^{(\ell)}) - G(\theta^{(\ell)})$ with each sample $\theta^{(\ell)}$.
 
 \end{document}
