@@ -96,7 +96,14 @@ double PsiPsychometric::leastfavourable ( const std::vector<double>& prm, const 
 	I = ddnegllikeli ( prm, data );
 
 	// Now we have to solve I*delta = du for delta
-	delta = I->solve ( du );
+	try {
+		delta = I->solve ( du );
+	} catch (std::string){
+		// In this case, the matrix is numerically singular
+		// Thats bad. We simply
+		return 0;
+		// in that case
+	}
 
 	// I is not needed anymore
 	delete I;
