@@ -55,7 +55,7 @@ def Property(function):
 
 ##############################################################################################################################
 class PsiInference ( object ):
-    def __init__ ( self, plotting={} ):
+    def __init__ ( self, plotting=None ):
         """This is just a dummy function"""
         self.data = None
         self.model = {
@@ -71,7 +71,10 @@ class PsiInference ( object ):
         self.Rkd               = None
         self.__outl            = None
         self.__infl            = None
-        self.__plotting        = plotting
+        if plotting is None:
+            self.__plotting        = {}
+        else:
+            self.__plotting = plotting
         defaults = {"label": "Psychometric function fit","color": "b", "linestyle": "-", "marker": "o", "linewidth": 1 }
         for k in defaults.keys():
             self.__plotting.setdefault ( k, defaults[k] )
@@ -135,7 +138,7 @@ class PsiInference ( object ):
 
 ##############################################################################################################################
 class BootstrapInference ( PsiInference ):
-    def __init__ ( self, data, sample=False, cuts=(.25,.5,.75), conf=(.025,.975), plotprm={}, **kwargs ):
+    def __init__ ( self, data, sample=False, cuts=(.25,.5,.75), conf=(.025,.975), plotprm=None, **kwargs ):
         """Set up an object of bootstrapped data
 
         :Parameters:
@@ -508,7 +511,7 @@ class BootstrapInference ( PsiInference ):
 
 ##############################################################################################################################
 class BayesInference ( PsiInference ):
-    def __init__ ( self, data, sample=True, cuts=(.25,.5,.75), conf=(.025,.975), automatic=True, resample=False, plotprm={}, **kwargs ):
+    def __init__ ( self, data, sample=True, cuts=(.25,.5,.75), conf=(.025,.975), automatic=True, resample=False, plotprm=None, **kwargs ):
         """Bayesian Inference for psychometric functions using MCMC
 
         :Parameters:
