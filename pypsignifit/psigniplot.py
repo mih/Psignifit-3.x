@@ -43,30 +43,45 @@ def drawaxes ( ax, xtics, xfmt, ytics, yfmt, xname, yname ):
             label for the y-axis
     """
 
-    # Data ranges
-    yr = ytics.max()-ytics.min()
-    xr = xtics.max()-xtics.min()
+    # New Implementation using spines
+    for loc, spine in ax.spines.iteritems():
+        if loc in ['left','bottom']:
+            spine.set_position( ('outward', 10) )   # Outward by 10 points
+        elif loc in ['right','top']:
+            spine.set_color('none')                 # no 'spine'
+        else:
+            raise ValueError ( 'unknown spine location: %s' % loc )
+    ax.xaxis.set_ticks_position('bottom')
+    ax.yaxis.set_ticks_position('left')
 
-    # x axis
-    yt = ytics.min()
-    ax.plot ( [xtics.min(),xtics.max()], [yt-.05*yr]*2, 'k-' )
-    for xt in xtics:
-        ax.plot ( [xt]*2, [yt-.05*yr,yt-.03*yr], 'k-' )
-        ax.text ( xt, yt-.08*yr, xfmt % (xt,), horizontalalignment="center", verticalalignment="top",fontsize=10 )
-    ax.text ( xtics.mean(), yt-.14*yr, xname, horizontalalignment="center", verticalalignment="top", fontsize=16 )
+    ax.set_xlabel ( xname )
+    ax.set_ylabel ( yname )
 
-    # y axis
-    xt = xtics.min()
-    ax.plot ( [xt-.05*xr]*2, [ytics.min(),ytics.max()] ,'k-' )
-    for yt in ytics:
-        ax.plot ( [xt-.05*xr,xt-.03*xr], [yt]*2, 'k-' )
-        ax.text ( xt-.06*xr, yt, yfmt % (yt,), horizontalalignment="right", verticalalignment="center", fontsize=10 )
-    ax.text ( xt-.18*xr, ytics.mean(), yname, horizontalalignment="right", verticalalignment="center", fontsize=16, rotation=90 )
 
-    # Delete all the ugly parts of the axis
-    p.setp(ax, frame_on=False,\
-            xticks=(), xlim=(xtics.min()-.3*xr,xtics.max()+.1*xr), \
-            yticks=(), ylim=(ytics.min()-.3*yr,ytics.max()+.1*yr) )
+    # # Data ranges
+    # yr = ytics.max()-ytics.min()
+    # xr = xtics.max()-xtics.min()
+
+    # # x axis
+    # yt = ytics.min()
+    # ax.plot ( [xtics.min(),xtics.max()], [yt-.05*yr]*2, 'k-' )
+    # for xt in xtics:
+    #     ax.plot ( [xt]*2, [yt-.05*yr,yt-.03*yr], 'k-' )
+    #     ax.text ( xt, yt-.08*yr, xfmt % (xt,), horizontalalignment="center", verticalalignment="top",fontsize=10 )
+    # ax.text ( xtics.mean(), yt-.14*yr, xname, horizontalalignment="center", verticalalignment="top", fontsize=16 )
+
+    # # y axis
+    # xt = xtics.min()
+    # ax.plot ( [xt-.05*xr]*2, [ytics.min(),ytics.max()] ,'k-' )
+    # for yt in ytics:
+    #     ax.plot ( [xt-.05*xr,xt-.03*xr], [yt]*2, 'k-' )
+    #     ax.text ( xt-.06*xr, yt, yfmt % (yt,), horizontalalignment="right", verticalalignment="center", fontsize=10 )
+    # ax.text ( xt-.18*xr, ytics.mean(), yname, horizontalalignment="right", verticalalignment="center", fontsize=16, rotation=90 )
+
+    # # Delete all the ugly parts of the axis
+    # p.setp(ax, frame_on=False,\
+    #         xticks=(), xlim=(xtics.min()-.3*xr,xtics.max()+.1*xr), \
+    #         yticks=(), ylim=(ytics.min()-.3*yr,ytics.max()+.1*yr) )
 
 def plotRd ( InferenceObject, ax=None, regressor="p" ):
     """plot deviance residuals against a regressor
@@ -329,7 +344,7 @@ def plotPMF ( InferenceObject, xlabel_text="Stimulus intensity", ylabel_text=Non
             ylabel_text = "P(Yes)"
 
     # Determine tics
-    p.setp(ax,frame_on=False,ylim=(ymin,ymax))
+    p.setp(ax,ylim=(ymin,ymax))
     xtics = p.getp(ax,'xticks')
     ytics = list(p.getp(ax,'yticks'))
     # Clean up ytics
@@ -338,8 +353,7 @@ def plotPMF ( InferenceObject, xlabel_text="Stimulus intensity", ylabel_text=Non
             ytics.pop(k)
     ytics = N.array(ytics)
 
-    if showaxes:
-        drawaxes ( ax, xtics, "%g", ytics, "%g", xlabel_text, ylabel_text )
+    drawaxes ( ax, xtics, "%g", ytics, "%g", xlabel_text, ylabel_text )
 
     # Write some model information
     if showdesc:
@@ -453,7 +467,8 @@ def GoodnessOfFit ( InferenceObject, warn=True ):
     p.figure(figsize=(10,8))
 
     # First part: Data and fitted function, bottom deviance
-    ax = p.axes([0,.5,.33,.5] )
+    # ax = p.axes([0,.5,.33,.5] )
+    ax = p.subplot ( 231 )
     if InferenceObject.__repr__().split()[1] == "BayesInference":
         InferenceObject.drawposteriorexamples ( ax=ax )
     plotThres ( InferenceObject, ax=ax )
@@ -464,7 +479,8 @@ def GoodnessOfFit ( InferenceObject, warn=True ):
     else:
         distname = "bootstrap"
         observed = InferenceObject.deviance
-    ax = p.axes ( [0,0,.33,.5] )
+    # ax = p.axes ( [0,0,.33,.5] )
+    ax = p.subplot ( 234 )
     if InferenceObject.__repr__().split()[1] == "BayesInference":
         good = plotppScatter ( InferenceObject.ppdeviance, InferenceObject.mcdeviance, "deviance", "D", ax)
     elif InferenceObject.__repr__().split()[1] == "BootstrapInference":
@@ -475,9 +491,11 @@ def GoodnessOfFit ( InferenceObject, warn=True ):
                 fontsize=16, color=__warnred, horizontalalignment="center", verticalalignment="center", rotation=45 )
 
     # Second part: Correlations between model prediction and residuals
-    ax = p.axes([.33,.5,.33,.5])
+    # ax = p.axes([.33,.5,.33,.5])
+    ax = p.subplot ( 232 )
     plotRd ( InferenceObject, ax, "p" )
-    ax = p.axes([.33,0,.33,.5])
+    # ax = p.axes([.33,0,.33,.5])
+    ax = p.subplot ( 235 )
     if InferenceObject.__repr__().split()[1] == "BayesInference":
         good = plotppScatter ( InferenceObject.ppRpd, InferenceObject.mcRpd, "Rpd", "Rpd", ax )
     elif InferenceObject.__repr__().split()[1] == "BootstrapInference":
@@ -487,9 +505,11 @@ def GoodnessOfFit ( InferenceObject, warn=True ):
                 fontsize=16, color=__warnred, horizontalalignment="center", verticalalignment="center", rotation=45 )
 
     # Third part: Correlations between model prediction and block index
-    ax = p.axes([.66,.5,.33,.5])
+    # ax = p.axes([.66,.5,.33,.5])
+    ax = p.subplot ( 233 )
     plotRd ( InferenceObject, ax, "k" )
-    ax = p.axes([.66,0,.33,.5])
+    # ax = p.axes([.66,0,.33,.5])
+    ax = p.subplot ( 236 )
     if InferenceObject.__repr__().split()[1] == "BayesInference":
         good = plotppScatter ( InferenceObject.ppRkd, InferenceObject.mcRkd, "Rkd", "Rkd", ax )
     elif InferenceObject.__repr__().split()[1] == "BootstrapInference":
@@ -691,7 +711,7 @@ def ThresholdPlot ( InferenceObject ):
     fig = p.figure ( figsize=(3*nthres,3) )
 
     for k in xrange ( nthres ):
-        ax = p.axes ( [axw*k,0,axw,1] )
+        ax = p.subplot ( 1,nthres,k+1 )
         plotThresholdDist ( InferenceObject, k, ax )
 
 def ParameterPlot ( InferenceObject ):
@@ -711,7 +731,7 @@ def ParameterPlot ( InferenceObject ):
     fig = p.figure (figsize=(3*nparams,3))
 
     for k in xrange ( nparams ):
-        ax = p.axes ( [axw*k,0,axw,1] )
+        ax = p.subplot ( 1, nparams, k+1 )
         plotParameterDist ( InferenceObject, k, ax )
 
 def ConvergenceMCMC ( BayesInferenceObject, parameter=0, warn=True ):
@@ -732,11 +752,14 @@ def ConvergenceMCMC ( BayesInferenceObject, parameter=0, warn=True ):
         raise ValueError, "MCMC convergence diagnostics require monte carlo samples. Try to call the sample() method of your inference object."
 
     fig = p.figure ( figsize=[9,3] )
-    ax =  p.axes ( [0,0.,0.33,1] )
+    # ax =  p.axes ( [0,0.,0.33,1] )
+    ax = p.subplot ( 1, 3, 1 )
     plotChains ( BayesInferenceObject, parameter, ax, warn=warn )
-    ax = p.axes ( [.33,0,.33,1] )
+    # ax = p.axes ( [.33,0,.33,1] )
+    ax = p.subplot ( 1, 3, 2 )
     plotGeweke ( BayesInferenceObject, parameter, ax, warn=warn )
-    ax = p.axes ( [.66,0,.33,1] )
+    # ax = p.axes ( [.66,0,.33,1] )
+    ax = p.subplot ( 1, 3, 3 )
     plotParameterDist ( BayesInferenceObject, parameter, ax )
 
 def plotSensitivity ( BootstrapInferenceObject, ax=None ):
@@ -818,7 +841,8 @@ def plotInfluential ( InferenceObject ):
             sample=False)
 
     p.figure ( figsize=(6,8) )
-    ax = p.axes ( (0.0,.5,.9,.5) )
+    # ax = p.axes ( (0.0,.5,.9,.5) )
+    ax = p.subplot ( 2,1,1 )
     if InferenceObject.__repr__().split()[1] == "BayesInference":
         InferenceObject.drawposteriorexamples ( ax=ax )
     plotPMF ( InferenceObject, ax=ax, showaxes=False, showdesc=False, color="b", linewidth=2 )
@@ -826,7 +850,8 @@ def plotInfluential ( InferenceObject ):
             'rx', markersize=20, markeredgewidth=5 )
     xl = plotPMF ( influencedDataset, ax=ax, showdesc=False, showaxes=True, color="r", markertype=([(0,0)],0), linewidth=2 )[-1]
 
-    ax = p.axes ( (0.0, 0., .9, .5) )
+    # ax = p.axes ( (0.0, 0., .9, .5) )
+    ax = p.subplot ( 2,1,2, sharex=ax )
     if InferenceObject.__repr__().split()[1] == "BootstrapInference":
         ax.plot ( [InferenceObject.data[:,0].min(),InferenceObject.data[:,0].max()], [1,1], 'k:' )
         yname = "Influence"
@@ -868,7 +893,7 @@ def plotMultiplePMFs ( *InferenceObjects, **kwargs ):
     """
     ax = kwargs.setdefault ( "ax", None )
     if ax is None:
-        ax = p.axes([0,0,1,1])
+        ax = p.axes()
     pmflines = []
     pmflabels= []
     pmfdata  = []
@@ -889,7 +914,7 @@ def plotMultiplePMFs ( *InferenceObjects, **kwargs ):
             ylabel_text = "P(correct)"
 
     # Determine tics
-    p.setp(ax,frame_on=False,ylim=(-.05,1.05))
+    # p.setp(ax,frame_on=False,ylim=(-.05,1.05))
     xtics = p.getp(ax,'xticks')
     ytics = list(p.getp(ax,'yticks'))
     # Clean up ytics

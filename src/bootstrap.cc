@@ -127,6 +127,7 @@ BootstrapList bootstrap ( int B, const PsiData * data, const PsiPsychometric* mo
 		}
 	}
 
+
 	// Calculate BCa constants
 	double bias, acc;
 	for (cut=0; cut<cuts.size(); cut++) {
