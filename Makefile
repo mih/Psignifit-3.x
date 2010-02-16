@@ -32,8 +32,10 @@ python-build: $(PYTHONFILES) $(CFILES) $(HFILES) setup.py
 	python setup.py build_ext
 	printf "The module can be used if you set\nPYTHONPATH=%s/src/\n" `pwd`
 
-python-doc: $(DOCFILES) $(PYTHONFILES)  python-install
+python-doc: $(DOCFILES) $(PYTHONFILES) python-build
 	echo "building sphinx documentation"
-	# PYTHONPATH=pypsignifit/ sphinx-build doc-src $(DOCOUT)
-	sphinx-build doc-src $(DOCOUT)
+	PYTHONPATH=build/$( ls -1 build |& grep lib ) sphinx-build doc-src $(DOCOUT)
 
+clean-python-doc:
+	echo "clean sphinx documentation"
+	rm -rv $(DOCOUT)
