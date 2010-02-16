@@ -92,4 +92,21 @@ A simple::
 should install the python toolbox for you. However, keep in mind that you need the abovementioned
 dependencies.
 
+Execute without Installation
+----------------------------
+
+If you wish to build and execute pypsignifit in place, you must add the results
+of the build process to the ``$PYTHONPATH``.
+
+Build with::
+
+    python setup.py build
+
+Execute with::
+
+    PYTHONPATH=build/lib.macosx-10.3-i386-2.5 python -c "import pypsignifit"
+
+But remember to replace ``lib.macosx-10.3-i386-2.5`` with whatever is appropriate to
+your operating system. You will find this in the ``build`` directory.
+
 .. [1] That means both, free as in "free beer" and free as in "free speech".
