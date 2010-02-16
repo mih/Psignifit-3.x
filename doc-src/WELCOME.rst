@@ -70,7 +70,7 @@ should be self-explaining). Now, you can simply type::
 
     make install
 
-as root and everythin will be installed to the right place. If you don't want the documentation
+as root and everything will be installed to the right place. If you don't want the documentation
 be installed, you can also say::
 
     make python-install
