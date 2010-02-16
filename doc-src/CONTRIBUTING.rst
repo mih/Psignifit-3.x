@@ -14,12 +14,12 @@ Commits
 To make it easier to keep track of the development of psignifit, we use a number of marks for commits.
 Use the following marks for commits:
 
-[NF]    new feature
-[BF]    bug fix
-[RF]    refactoring
-[FO]    code formatting (adding spaces etc.)
-[UT]    unit tests
-[DOC]   documentation
+* [NF]    new feature
+* [BF]    bug fix
+* [RF]    refactoring
+* [FO]    code formatting (adding spaces etc.)
+* [UT]    unit tests
+* [DOC]   documentation
 
 Extending
 ---------
