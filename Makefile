@@ -43,3 +43,5 @@ python-doc: $(DOCFILES) $(PYTHONFILES) python-build
 clean-python-doc:
 	echo "clean sphinx documentation"
 	rm -rv $(DOCOUT)
+
+clean: clean-python-doc clean-python-build
