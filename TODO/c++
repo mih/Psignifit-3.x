@@ -5,7 +5,6 @@
 - Unit test with gamma as a free parameter                                 [OK] but only very rough correspondence to psignifit -- should be stricter
 - BCa confidence limits for slope (and widths?)
 - Bugs with different cores -> no convergence, exceptionally high deviance with ok looking fit, ... This is only due to the logCore-Kernel that returns -inf for contrasts of 0
-- use linalg.h/linalg.cc for Sampler class
 
 MayBe:
 - implement fullmodel, nullmodel
