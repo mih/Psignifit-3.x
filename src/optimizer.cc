@@ -3,6 +3,7 @@
  *   the copyright and license terms
  */
 #include "optimizer.h"
+#include <limits>
 
 // #define DEBUG_OPTIMIZER
 
@@ -94,6 +95,15 @@ std::vector<double> PsiOptimizer::optimize ( const PsiPsychometric * model, cons
 				if (fx[k]>fx[maxind]) maxind = k;
 			}
 
+			// Avoid inf
+			for ( k=0; k<nparameters+1; k++ ) {
+				if ( fx[k] == std::numeric_limits<double>::infinity() ) {
+					for ( l=0; l<nparameters; l++ )
+						simplex[k][l] = start[l];
+					fx[k] = model->neglpost(simplex[k], data );
+				}
+			}
+
 			// Check Stoping criteria based on simplex and function values
 			stepsize = 0;
 			for (k=0; k<nparameters; k++)
@@ -174,10 +184,10 @@ std::vector<double> PsiOptimizer::optimize ( const PsiPsychometric * model, cons
 		}
 
 		for (k=0; k<nparameters; k++) {
-			start[k] = simplex[minind][k];
-			output[k] = start[k];
+			output[k] = simplex[minind][k];
+			// output[k] = start[k];
 			simplex[minind][k] = simplex[minind][0];
-			simplex[0][k] = start[k];
+			simplex[0][k] = output[k];
 			modified[k] = true;
 		}
 	}
