@@ -49,13 +49,13 @@ class PsiData
 		const std::vector<int>&    getNtrials ( void ) const;            ///< get the numbers of trials at the respective stimulus intensities
 		const std::vector<int>&    getNcorrect ( void ) const;           ///< get the numbers of correct trials at the respective stimulus intensities
 		const std::vector<double>& getPcorrect ( void ) const;           ///< get the fraction of correct trials at the respective stimulus intensities
-		double getIntensity ( int i ) const;                             ///< get the stimulus intensity for block i
-		int getNtrials ( int i ) const;                                  ///< get the numbers of trials  for block i
-		int getNcorrect ( int i ) const;                                 ///< get the numbers of correct trials for block i
-		double getPcorrect ( int i ) const;                              ///< get the fraction of correct trials for block i
+		double getIntensity ( unsigned int i ) const;                             ///< get the stimulus intensity for block i
+		int getNtrials ( unsigned int i ) const;                                  ///< get the numbers of trials  for block i
+		int getNcorrect ( unsigned int i ) const;                                 ///< get the numbers of correct trials for block i
+		double getPcorrect ( unsigned int i ) const;                              ///< get the fraction of correct trials for block i
 		int getNalternatives ( void ) const;                             ///< get the number of response alternatives (1 means yes/no task)
-		int getNblocks ( void ) const { return intensities.size(); }     ///< get the number of blocks in the data set
-		double getNoverK (int i ) const;                                 ///< return the log of NoverK for block i
+		unsigned int getNblocks ( void ) const { return intensities.size(); }     ///< get the number of blocks in the data set
+		double getNoverK (unsigned int i ) const;                                 ///< return the log of NoverK for block i
 		std::vector<int> nonasymptotic ( void ) const;                   ///< a vector of indices of those blocks for which the data are not in either asymptote
 };
 

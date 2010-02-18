@@ -30,7 +30,7 @@ PsiOptimizer::~PsiOptimizer ( void ) {}
 
 double testfunction(const std::vector<double>& x) {
 	double out(0);
-	int k;
+	unsigned int k;
 	for (k=0; k<x.size(); k++)
 		out += x[k]*x[k];
 	return out;
@@ -44,7 +44,7 @@ std::vector<double> PsiOptimizer::optimize ( const PsiPsychometric * model, cons
 		start = std::vector<double>(*startingvalue);
 	}
 
-	int k, l, reoptimization;
+	int k, l;
 
 	for ( k=0; k<nparameters+1; k++ ) {
 		for ( l=0; l<nparameters; l++)
@@ -59,8 +59,6 @@ std::vector<double> PsiOptimizer::optimize ( const PsiPsychometric * model, cons
 	logfile.flush();
 #endif
 
-
-	double dl;
 
 	double ffx;         // function value at potential new point
 	int maxind(0);      // Index of simplex node with maximal function value

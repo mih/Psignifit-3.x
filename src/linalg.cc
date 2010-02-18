@@ -9,7 +9,7 @@ double sign ( double x ) {
 }
 
 double househ ( const std::vector<double> *x, std::vector<double> *u ) {
-	int i;
+	unsigned int i;
 	double h;
 
 	h = 0;
@@ -30,7 +30,7 @@ double househ ( const std::vector<double> *x, std::vector<double> *u ) {
 }
 
 double uuA ( const std::vector<double> *u, const Matrix *A, int j, int k, int l ) {
-	int i, ii;
+	unsigned int i, ii;
 	std::vector<double> uA ( A->getncols() - j, 0 );
 	for ( i=0; i<uA.size(); i++ )
 		for ( ii=0; ii<u->size(); ii++ )
@@ -43,7 +43,7 @@ Matrix::Matrix ( const std::vector< std::vector<double> >& A )
 {
 	data = new double [nrows*ncols];
 
-	int i,j;
+	unsigned int i,j;
 	for (i=0; i<nrows; i++) {
 		for (j=0; j<ncols; j++) {
 			this->operator() (i,j) = A[i][j];
@@ -55,7 +55,7 @@ Matrix::Matrix ( unsigned int n, unsigned int m )
 	: nrows(n), ncols(m)
 {
 	data = new double [nrows*ncols];
-	int i;
+	unsigned int i;
 	for (i=0; i<nrows*ncols; i++)
 		data[i] = 0;
 }
@@ -65,7 +65,7 @@ Matrix::Matrix ( const Matrix& A )
 {
 	data = new double [nrows*ncols];
 
-	int i,j;
+	unsigned int i,j;
 	for (i=0; i<nrows; i++) {
 		for (j=0; j<ncols; j++) {
 			this->operator() (i,j) = A(i,j);
@@ -73,16 +73,17 @@ Matrix::Matrix ( const Matrix& A )
 	}
 }
 
-double& Matrix::operator() ( unsigned row, unsigned col ) const
+double& Matrix::operator() ( unsigned int row, unsigned int col ) const
 {
 	//row --; col --;
-	if (row>=nrows || col>=ncols)
+	if (row>=nrows || col>=ncols) {
 		throw MatrixError();
+	}
 	return data[row+nrows*col];
 }
 
 void Matrix::print ( void ) {
-	int i,j;
+	unsigned int i,j;
 	std::cout << "[ ";
 	for (i=0; i<nrows; i++) {
 		std::cout << "[";
@@ -97,7 +98,7 @@ Matrix* Matrix::cholesky_dec ( void ) const {
 		throw MatrixError();
 
 	Matrix *L = new Matrix (nrows,nrows);
-	int k,j,K;
+	unsigned int k,j,K;
 
 	for (K=0; K<nrows; K++) {
 		// l_{KK} = (a_{KK} - \sum_{k=1}^{K-1} l_{KK}^2)^{1/2}
@@ -120,14 +121,15 @@ Matrix* Matrix::cholesky_dec ( void ) const {
 }
 
 Matrix* Matrix::lu_dec ( void ) const {
-	if (nrows!=ncols)
+	if (nrows!=ncols) {
 		throw MatrixError ();
+	}
 
 	Matrix *LU = new Matrix (*this);
 
-	int i,j,k;
+	unsigned int i,j,k;
 	double c;
-	int pivotindex;
+	unsigned int pivotindex;
 	double pivot;
 
 	for (i=0; i<nrows-1; i++) {
@@ -154,10 +156,12 @@ Matrix* Matrix::lu_dec ( void ) const {
 		for (k=i+1; k<nrows; k++) {
 			c = (*LU)(k,i) / (*LU)(i,i);
 			(*LU)(k,i) = c;
-			for (j=i+1; j<nrows; j++)
+			for (j=i+1; j<nrows; j++) {
 				(*LU)(k,j) = (*LU)(k,j) - c * (*LU)(i,j);
+			}
 		}
 	}
+
 
 	return LU;
 }
@@ -171,7 +175,7 @@ Matrix* Matrix::qr_dec ( void ) const {
 	int m ( A->getnrows() ), n ( A->getncols() );
 	std::vector<double> *u, *x;
 	Matrix *uuAmat;
-	double c,y;
+	double c;
 	int min ( m-1>n ? n : m-1 );
 
 	for ( j=0; j<min; j++ ) {
@@ -253,7 +257,7 @@ Matrix *Matrix::inverse_qr ( void ) const {
 	Matrix *A = new Matrix ( getnrows(), getncols()*2 );
 	Matrix *inv = new Matrix ( getnrows(), getncols() );
 
-	int i,j,k;
+	unsigned int i,j,k;
 
 	for ( i=0; i<getnrows(); i++ ) {
 		for ( j=0; j<getncols(); j++ ) {
@@ -286,8 +290,6 @@ std::vector<double> Matrix::solve ( const std::vector<double>& b ) {
 
 	std::vector<double> x ( nrows );
 	std::vector<double> y ( nrows );
-	int i,k;
-	double s;
 
 	y = forward ( LU, b);
 	x = backward ( LU, y );
@@ -298,7 +300,7 @@ std::vector<double> Matrix::solve ( const std::vector<double>& b ) {
 }
 
 std::vector<double> Matrix::forward ( const Matrix *LU, const std::vector<double>& b ) {
-	int i,k;
+	unsigned int i,k;
 	double s;
 	std::vector<double> y (nrows);
 
@@ -313,7 +315,8 @@ std::vector<double> Matrix::forward ( const Matrix *LU, const std::vector<double
 }
 
 std::vector<double> Matrix::backward ( const Matrix *LU, const std::vector<double>& y ) {
-	int i,k;
+	int i;
+	unsigned int k;
 	double s;
 	std::vector<double> x (nrows);
 
@@ -335,7 +338,7 @@ Matrix* Matrix::inverse ( void ) {
 	Matrix *Inv = new Matrix ( nrows, nrows );
 	std::vector<double> x ( nrows, 0);
 	std::vector<double> y ( nrows, 0);
-	int i,j;
+	unsigned int i,j;
 
 	for ( i=0; i<ncols; i++ ) {
 		for (j=0; j<nrows; j++)
@@ -359,7 +362,7 @@ std::vector<double> Matrix::operator* ( std::vector<double>& x ) {
 		throw MatrixError();
 
 	std::vector<double> out ( nrows, 0 );
-	int i,j;
+	unsigned int i,j;
 
 	for (i=0; i<nrows; i++) {
 		for (j=0; j<ncols; j++) {
@@ -371,14 +374,14 @@ std::vector<double> Matrix::operator* ( std::vector<double>& x ) {
 }
 
 void Matrix::scale ( double a ) {
-	int i;
+	unsigned int i;
 
 	for (i=0; i<nrows*ncols; i++)
 		data[i] *= a;
 }
 
 bool Matrix::symmetric ( void ) {
-	int i,j;
+	unsigned int i,j;
 	for ( i=0; i<nrows; i++ ) {
 		for ( j=i; j<ncols; j++ ) {
 			if ((*this)(i,j)!=(*this)(j,i))

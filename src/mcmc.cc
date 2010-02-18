@@ -17,9 +17,9 @@
 
 MetropolisHastings::MetropolisHastings ( const PsiPsychometric * pmf, const PsiData * dat, PsiRandom * proposal )
 	: PsiSampler ( pmf, dat ),
+	propose(proposal),
 	currenttheta(pmf->getNparams(),0),
 	newtheta(pmf->getNparams(),0),
-	propose(proposal),
 	stepwidths(pmf->getNparams(),.1),
 	qold(1),
 	accept(0)
@@ -84,7 +84,7 @@ void MetropolisHastings::setstepsize ( double size, unsigned int param ) {
 }
 
 void MetropolisHastings::setstepsize ( const std::vector<double>& sizes ) {
-	int i;
+	unsigned int i;
 	for (i=0; i<stepwidths.size(); i++)
 		stepwidths[i] = sizes[i];
 }
@@ -98,7 +98,7 @@ MCMCList MetropolisHastings::sample ( unsigned int N ) {
 	std::vector<int> posterior_predictive ( data->getNblocks() );
 	std::vector<double> probs ( data->getNblocks() );
 	std::vector<double> est ( model->getNparams() );
-	int i,j,k,l;
+	unsigned int i,j,k,l;
 
 	std::vector<double> reducedx ( data->getNblocks()-1 );
 	std::vector<int> reducedk ( data->getNblocks()-1 );
@@ -168,8 +168,8 @@ HybridMCMC::HybridMCMC ( const PsiPsychometric* Model, const PsiData* Data, int 
 	gradient (     Model->getNparams(), 0 ),
 	currentgradient ( Model->getNparams(), 0 ),
 	stepsizes (    Model->getNparams(), .001),
-	Naccepted (0),
-	Nleapfrog(Nleap)
+	Nleapfrog(Nleap),
+	Naccepted (0)
 {
 	proposal = new GaussRandom;
 
@@ -181,7 +181,7 @@ HybridMCMC::HybridMCMC ( const PsiPsychometric* Model, const PsiData* Data, int 
 }
 
 std::vector<double> HybridMCMC::draw ( void ) {
-	int i;
+	unsigned int i;
 	const PsiPsychometric * model ( getModel() );
 	const PsiData *         data  ( getData() );
 
@@ -224,7 +224,7 @@ std::vector<double> HybridMCMC::draw ( void ) {
 }
 
 void HybridMCMC::setTheta ( const std::vector<double>& theta ) {
-	int i;
+	unsigned int i;
 	currenttheta = theta;
 
 	for (i=0; i<getModel()->getNparams(); i++) {
@@ -276,7 +276,7 @@ double HybridMCMC::getDeviance ( void ) {
 
 MCMCList HybridMCMC::sample ( unsigned int N ) {
 	MCMCList out ( N, getModel()->getNparams(), getData()->getNblocks() );
-	int i;
+	unsigned int i;
 
 	for (i=0; i<N; i++) {
 		out.setEst ( i, draw(), 0. );
@@ -307,7 +307,7 @@ double ModelEvidence ( const PsiPsychometric* pmf, const PsiData* data )
 {
 	std::vector<double> prm ( pmf->getNparams() );
 	double E(0);
-	int i,k,n(50000);
+	unsigned int i,k,n(50000);
 
 	for ( i=0; i<n; i++ ) {
 		for ( k=0; k<pmf->getNparams(); k++ )
@@ -323,7 +323,7 @@ double ModelEvidence ( const PsiPsychometric* pmf, const PsiData* data )
 
 std::vector<double> OutlierDetection ( const PsiPsychometric* pmf, OutlierModel* outl, const PsiData* data )
 {
-	int i;
+	unsigned int i;
 	std::vector<double> out ( data->getNblocks() );
 	double E ( ModelEvidence ( pmf, data ) );
 

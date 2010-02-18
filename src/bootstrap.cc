@@ -44,13 +44,13 @@ void determineBCa ( const std::vector<double>& l_LF, const std::vector<double>& 
 	*acc  = E_l3 / (6*var_l*var_l*var_l);
 }
 
-BootstrapList bootstrap ( int B, const PsiData * data, const PsiPsychometric* model, std::vector<double> cuts, std::vector<double>* param, bool BCa, bool parametric )
+BootstrapList bootstrap ( unsigned int B, const PsiData * data, const PsiPsychometric* model, std::vector<double> cuts, std::vector<double>* param, bool BCa, bool parametric )
 {
 #ifdef DEBUG_BOOTSTRAP
 	std::cerr << "Starting bootstrap\n Cuts size=" << cuts.size() << " "; std::cerr.flush();
 #endif
 	BootstrapList bootstrapsamples ( B, model->getNparams(), data->getNblocks(), cuts );
-	int b,k,l,cut;                               // iteration variables for bootstrap sample, block, l-general purpose third level iteration, cut
+	unsigned int b,k,cut;                               // iteration variables for bootstrap sample, block, l-general purpose third level iteration, cut
 	std::vector< std::vector<double> > l_LF (cuts.size(), std::vector<double>(B));   // vector of double-vectors
 	std::vector< std::vector<double> > u_i  (cuts.size(), std::vector<double>(B));
 	PsiOptimizer opt ( model, data );                          // for ML-Fitting
@@ -151,7 +151,7 @@ JackKnifeList jackknifedata ( const PsiData * data, const PsiPsychometric* model
 	std::vector<double> x ( data->getNblocks()-1 );
 	std::vector<int> k ( data->getNblocks()-1 );
 	std::vector<int> n ( data->getNblocks()-1 );
-	int i,j,l,exclude(0);
+	unsigned int i,j,l,exclude(0);
 
 	for ( i=0; i<data->getNblocks(); i++ ) {
 		exclude=i;

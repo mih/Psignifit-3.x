@@ -172,7 +172,7 @@ double logCore::g ( double x, const std::vector<double>& prm )
 }
 
 logCore::logCore ( const PsiData* data ) : scale(0) {
-	int i;
+	unsigned int i;
 	// we need this to scale starting values obtained from logistic regression so that they are correct "on average"
 	for (i=0; i<data->getNblocks(); i++)
 		scale += data->getIntensity(i)/log(data->getIntensity(i));
@@ -223,7 +223,7 @@ weibullCore::weibullCore ( const PsiData * data ) : twooverlog2(2./log(2)) , log
 	// approximate log(x)~ax+b by a linear function over the range of x values in data
 	double covxlogx(0),varx(0);
 	double meanx(0), meanlogx(0);
-	int i;
+	unsigned int i;
 	for (i=0; i<data->getNblocks(); i++) {
 		meanx += data->getIntensity(i);
 		meanlogx += log(data->getIntensity(i));
@@ -306,7 +306,7 @@ std::vector<double> weibullCore::transform ( int nprm, double a, double b )
 polyCore::polyCore ( const PsiData * data )
 {
 	double meanx (0),varx(0);
-	int i;
+	unsigned int i;
 
 	for (i=0; i<data->getNblocks(); i++) {
 		meanx += data->getIntensity(i);
@@ -343,13 +343,13 @@ double polyCore::ddg ( double x, const std::vector<double>& prm, int i, int j )
 		return 0;
 	else {
 		if (i==j) {
-			if (i=0)
+			if (i==0)
 				return prm[1]*x*(prm[1]+1)*pow(x/prm[0],prm[1]-1)/(prm[0]*prm[0]*prm[0]);
 			else if (i==1)
 				return pow(x/prm[0],prm[1]) * pow(log(x/prm[0]),2);
 			else
 				return 0;
-		} else if ( (i==0 && j==1) || (j==0 & i==1) ) {
+		} else if ( (i==0 && j==1) || (j==0 && i==1) ) {
 			return - pow(x/prm[0],prm[1]-1)*(1-prm[1]*log(x/prm[0]))/prm[0];
 		} else
 			return 0;

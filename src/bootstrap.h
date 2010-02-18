@@ -17,7 +17,7 @@
  * function. if BCa is true, bias correction and acceleration constant are calculated for the cuts given in cuts.
  */
 BootstrapList bootstrap (
-		int B,                        ///< number of bootstrap samples
+		unsigned int B,                        ///< number of bootstrap samples
 		const PsiData * data,         ///< data that are to form the basis of the whole procedure
 		const PsiPsychometric* model, ///< model to be fitted
 		std::vector<double> cuts,     ///< performance levels at which the threshold should be calculated

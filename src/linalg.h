@@ -36,7 +36,7 @@ class Matrix
 		Matrix ( unsigned int n, unsigned int m );                   ///< Construct a matrix with given dimensions initialized to 0
 		Matrix ( const Matrix& A );                                  ///< copy a matrix
 		~Matrix ( void ) { delete [] data; }                         ///< delete a matrix
-		double& operator() ( unsigned i, unsigned j ) const;         ///< data access to the element in row i and column j (indices starting with 0!)
+		double& operator() ( unsigned int i, unsigned int j ) const; ///< data access to the element in row i and column j (indices starting with 0!)
 		void print ( void );                                         ///< print the matrix to stdout
 		unsigned int getnrows ( void ) const { return nrows; }       ///< get the number of rows
 		unsigned int getncols ( void ) const { return ncols; }       ///< get the number of columns

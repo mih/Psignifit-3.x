@@ -13,13 +13,13 @@ PsiData::PsiData (
 	std::vector<int>    k,
 	int nAFC
 	) :
-	intensities(x), Ntrials(N), Ncorrect(k), Pcorrect(k.size()), Nalternatives(nAFC), logNoverK(k.size())
+	intensities(x), Ntrials(N), Ncorrect(k), Pcorrect(k.size()), logNoverK(k.size()), Nalternatives(nAFC)
 {
-	int i,n;
+	unsigned int i,n;
 	for ( i=0; i<k.size(); i++ ) {
 		Pcorrect[i] = double(Ncorrect[i])/Ntrials[i];
 		logNoverK[i] = 0;
-		for ( n=1; n<=k[i]; n++ )
+		for ( n=1; n<=(unsigned int) (k[i]); n++ )
 			logNoverK[i] += log(N[i]+1-n) - log(n);
 	}
 }
@@ -32,7 +32,7 @@ PsiData::PsiData (
 	) :
 	intensities(x), Ntrials(N), Ncorrect(p.size()), Pcorrect(p), Nalternatives(nAFC)
 {
-	int i;
+	unsigned int i;
 	double k;
 	for ( i=0; i<p.size(); i++ ) {
 		k = Ntrials[i] * Pcorrect[i];
@@ -49,7 +49,7 @@ PsiData::PsiData (
 void PsiData::setNcorrect ( const std::vector<int>& newNcorrect )
 {
 	Ncorrect = newNcorrect;
-	int i;
+	unsigned int i;
 	for ( i=0; i<Ncorrect.size(); i++ )
 		Pcorrect[i] = double(Ncorrect[i])/Ntrials[i];
 }
@@ -80,7 +80,7 @@ const std::vector<double>& PsiData::getPcorrect ( void ) const
     return Pcorrect;
 }
 
-double PsiData::getIntensity ( int i ) const
+double PsiData::getIntensity ( unsigned int i ) const
 {
 	if ( i>=0 && i<intensities.size() )
 		return intensities[i];
@@ -88,7 +88,7 @@ double PsiData::getIntensity ( int i ) const
 		throw BadIndexError();
 }
 
-int PsiData::getNtrials ( int i ) const
+int PsiData::getNtrials ( unsigned int i ) const
 {
 	if ( i>=0 && i<Ntrials.size() )
 		return Ntrials[i];
@@ -96,7 +96,7 @@ int PsiData::getNtrials ( int i ) const
 		throw BadIndexError();
 }
 
-int PsiData::getNcorrect ( int i ) const
+int PsiData::getNcorrect ( unsigned int i ) const
 {
 	if ( i>=0 && i<Ncorrect.size() )
 		return Ncorrect[i];
@@ -104,7 +104,7 @@ int PsiData::getNcorrect ( int i ) const
 		throw BadIndexError();
 }
 
-double PsiData::getPcorrect ( int i ) const
+double PsiData::getPcorrect ( unsigned int i ) const
 {
 	if ( i>=0 && i<Pcorrect.size() )
 		return Pcorrect[i];
@@ -112,7 +112,7 @@ double PsiData::getPcorrect ( int i ) const
 		throw BadIndexError();
 }
 
-double PsiData::getNoverK ( int i ) const
+double PsiData::getNoverK ( unsigned int i ) const
 {
 	if ( i>=0 && i<logNoverK.size() )
 		return logNoverK[i];
@@ -127,7 +127,7 @@ int PsiData::getNalternatives ( void ) const
 
 std::vector<int> PsiData::nonasymptotic ( void ) const
 {
-	int i,j,Ngood(0);
+	unsigned int i,j,Ngood(0);
 	double guess ( 1./Nalternatives );
 	if ( Nalternatives<2 )
 		guess = 0;

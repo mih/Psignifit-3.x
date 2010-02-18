@@ -16,7 +16,7 @@ PsiPsychometric::PsiPsychometric (
 	PsiSigmoid * sigmoid
 	) : Nalternatives(nAFC), guessingrate(1./nAFC), priors( getNparams() )
 {
-	int k;
+	unsigned int k;
 	Core = core;
 	Sigmoid = sigmoid;
 	for (k=0; k<getNparams(); k++)
@@ -25,7 +25,7 @@ PsiPsychometric::PsiPsychometric (
 
 PsiPsychometric::~PsiPsychometric ( void )
 {
-	int k;
+	unsigned int k;
 	delete Core;
 	delete Sigmoid;
 	for (k=0; k<priors.size(); k++) {
@@ -50,7 +50,8 @@ double PsiPsychometric::evaluate ( double x, const std::vector<double>& prm ) co
 
 double PsiPsychometric::negllikeli ( const std::vector<double>& prm, const PsiData* data ) const
 {
-	int i,n,k;
+	unsigned int i;
+	int n,k;
 	double l(0);
 	double x,p,lognoverk;
 
@@ -84,8 +85,8 @@ double PsiPsychometric::leastfavourable ( const std::vector<double>& prm, const 
 	double ythres;
 	double rz,nz,xz,pz,fac1;
 	double l_LF(0);
-	double c,s;
-	int i,j,k,z;
+	double s;
+	unsigned int i,z;
 
 	// Fill u
 	ythres = Sigmoid->inv(cut);
@@ -142,7 +143,7 @@ Matrix * PsiPsychometric::ddnegllikeli ( const std::vector<double>& prm, const P
 	Matrix * I = new Matrix ( prm.size(), prm.size() );
 
 	double rz,nz,pz,xz,fac1,fac2;
-	int z,i,j;
+	unsigned int z,i,j;
 
 	// Fill I
 	for (z=0; z<data->getNblocks(); z++) {
@@ -186,7 +187,7 @@ std::vector<double> PsiPsychometric::dnegllikeli ( const std::vector<double>& pr
 {
 	std::vector<double> out (prm.size());
 	double rz,xz,pz,nz,fac1;
-	int z,i;
+	unsigned int z,i;
 
 	for (z=0; z<data->getNblocks(); z++) {
 		rz = data->getNcorrect(z);
@@ -206,7 +207,8 @@ std::vector<double> PsiPsychometric::dnegllikeli ( const std::vector<double>& pr
 
 double PsiPsychometric::deviance ( const std::vector<double>& prm, const PsiData* data ) const
 {
-	int i,n;
+	unsigned int i;
+	int n;
 	double D(0);
 	double x,y,p;
 
@@ -234,7 +236,7 @@ void PsiPsychometric::setPrior ( int index, PsiPrior* prior )
 
 double PsiPsychometric::neglpost ( const std::vector<double>& prm, const PsiData* data ) const
 {
-	int i;
+	unsigned int i;
 	double l;
 	l = negllikeli( prm, data);
 
@@ -248,7 +250,7 @@ double PsiPsychometric::neglpost ( const std::vector<double>& prm, const PsiData
 
 std::vector<double> PsiPsychometric::getStart ( const PsiData* data ) const
 {
-	int i;
+	unsigned int i;
 	double a,b,a0,b0,abest,bbest;
 	double alpha,beta,alpha0,beta0,minpost,post;
 	std::vector<double> x (data->getIntensities());
@@ -325,7 +327,7 @@ std::vector<double> PsiPsychometric::getStart ( const PsiData* data ) const
 	}
 
 	b0 = covxp/varx;
-	a0 = meanp - meanx*b;
+	a0 = meanp - meanx*b0;
 	
 	alpha0 = a0/b0;
 	beta0  = 1./b0;
@@ -379,7 +381,8 @@ std::vector<double> PsiPsychometric::getStart ( const PsiData* data ) const
 
 std::vector<double> PsiPsychometric::getDevianceResiduals ( const std::vector<double>& prm, const PsiData* data ) const
 {
-	int i, n;
+	unsigned int i;
+	int n;
 	double x,y,p;
 	std::vector<double> out (data->getNblocks());
 
@@ -401,7 +404,7 @@ std::vector<double> PsiPsychometric::getDevianceResiduals ( const std::vector<do
 }
 
 double PsiPsychometric::getRpd ( const std::vector<double>& devianceresiduals, const std::vector<double>& prm, const PsiData* data ) const {
-	int i,k,N(data->getNblocks());
+	int k,N(data->getNblocks());
 	double Ed(0),Ep(0),vard(0),varp(0),R(0);
 	std::vector<double> p ( N );
 
@@ -434,7 +437,7 @@ double PsiPsychometric::getRpd ( const std::vector<double>& devianceresiduals, c
 
 double PsiPsychometric::getRkd ( const std::vector<double>& devianceresiduals, const PsiData* data ) const
 {
-	int i,k,N(devianceresiduals.size());
+	int i,k;
 	double Ed(0), Ek(0), vard(0), vark(0), R(0);
 	std::vector<int> ofinterest ( data->nonasymptotic() );
 	int M ( ofinterest.size() );
@@ -519,7 +522,7 @@ double OutlierModel::negllikeli ( const std::vector<double>& prm, const PsiData*
 	std::vector<double> x ( data->getNblocks()-1 );
 	std::vector<int>    k ( data->getNblocks()-1 );
 	std::vector<int>    n ( data->getNblocks()-1 );
-	int i,j(0);
+	unsigned int i,j(0);
 	double ll;
 	double p;
 
@@ -550,7 +553,8 @@ double OutlierModel::negllikeli ( const std::vector<double>& prm, const PsiData*
 
 double OutlierModel::deviance ( const std::vector<double>& prm, const PsiData* data ) const
 {
-	int i,n;
+	unsigned int i;
+	int n;
 	double D(0);
 	double x,y,p;
 
@@ -578,7 +582,7 @@ double OutlierModel::deviance ( const std::vector<double>& prm, const PsiData* d
 
 double OutlierModel::neglpost ( const std::vector<double>& prm, const PsiData* data ) const
 {
-	int i;
+	unsigned int i;
 	double l;
 	l = negllikeli( prm, data);
 

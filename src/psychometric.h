@@ -79,7 +79,7 @@ class PsiPsychometric {
 		double evalPrior ( unsigned int index, double x ) const {return priors[index]->pdf(x);}              ///< evaluate the respective prior at value x
 		virtual double randPrior ( unsigned int index ) const { return priors[index]->rand(); }                            ///< sample form a prior
 		int getNalternatives ( void ) const { return Nalternatives; }         ///< get the number of alternatives (1 means yes/no)
-		virtual int getNparams ( void ) const { return (Nalternatives==1 ? 4 : 3 ); } ///< get the number of free parameters of the psychometric function
+		virtual unsigned int getNparams ( void ) const { return (Nalternatives==1 ? 4 : 3 ); } ///< get the number of free parameters of the psychometric function
 		std::vector<double> getStart ( const PsiData* data ) const ;                ///< determine a starting value using logistic regression on a dataset
 		double getThres (
 			const std::vector<double>& prm,                                          ///< parameters of the psychometric function model
@@ -146,7 +146,7 @@ class OutlierModel : public PsiPsychometric {
 			const std::vector<double>& prm,                                      ///< parameters of the psychometric function model
 			const PsiData* data                                                  ///< data for which the deviance should be evaluated
 			) const;                        ///< deviance
-		int getNparams ( void ) const { return PsiPsychometric::getNparams()+1; }
+		unsigned int getNparams ( void ) const { return PsiPsychometric::getNparams()+1; }
 		double randPrior ( unsigned int index ) const { return ( index<PsiPsychometric::getNparams() ? PsiPsychometric::randPrior(index) : drand48() ); }                            ///< sample form a prior
 };
 

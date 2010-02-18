@@ -30,27 +30,27 @@ class PsiMClist
 			) : mcestimates(nprm, std::vector<double>(N) ), deviances(N) {};   ///< Initialize the list to take N samples of nprm parameters
 		PsiMClist ( const PsiMClist& mclist ) : mcestimates ( mclist.mcestimates ), deviances ( mclist.deviances ) {};   ///< copy a list of mcsamples
 		~PsiMClist ( ) {} ///< destructor
-		std::vector<double> getEst ( int i ) const;       ///< get a single parameter estimate at sample i
+		std::vector<double> getEst ( unsigned int i ) const;       ///< get a single parameter estimate at sample i
 		double getEst (
-			int i,                                        ///< sample index
-			int prm                                       ///< parameter index
+			unsigned int i,                                        ///< sample index
+			unsigned int prm                                       ///< parameter index
 			) const;                                                           ///< get a single sample of a single parameter
 		void setEst (
-			int i,                                        ///< index of the sample to be set
+			unsigned int i,                                        ///< index of the sample to be set
 			const std::vector<double> est,                ///< parameter vector to be set at index
 			double deviance                               ///< deviance associated with the sample
 			);                                                                 ///< set a sample of parameters
-		virtual void setdeviance ( int i, double deviance );                   ///< set the deviance separately for sample i
+		virtual void setdeviance ( unsigned int i, double deviance );                   ///< set the deviance separately for sample i
 		virtual double getPercentile (
 			double p,                                     ///< desired percentile (in the range (0,1))
-			int prm                                       ///< index of the paramter of interest
+			unsigned int prm                                       ///< index of the paramter of interest
 			);                                                                 ///< get a percentile for parameter prm
 		virtual double getMean (
 			unsigned int prm                              ///< index of the parameter of interest
 			) const ;                                                          ///< get the average of parameter prm
-		double getdeviance ( int i ) const;                                    ///< get the deviance of sample i
-		int getNsamples ( void ) const { return mcestimates[0].size(); }       ///< get the total number of samples
-		int getNparams ( void ) const { return mcestimates.size(); }           ///< get the number of parameters
+		double getdeviance ( unsigned int i ) const;                                    ///< get the deviance of sample i
+		unsigned int getNsamples ( void ) const { return mcestimates[0].size(); }       ///< get the total number of samples
+		unsigned int getNparams ( void ) const { return mcestimates.size(); }           ///< get the number of parameters
 		double getDeviancePercentile ( double p );                             ///< get the p-percentile of the deviance (p in the range (0,1) )
 };
 

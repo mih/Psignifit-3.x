@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS=-pg -ggdb
+CFLAGS=-pg -ggdb -Wall
 LFLAGS=-lm -pg
 
 BUILD=build

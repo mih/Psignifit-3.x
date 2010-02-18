@@ -49,8 +49,8 @@ int PsychometricValues ( TestSuite* T ) {
 }
 
 int OptimizerSolution ( TestSuite * T ) {
-	int failures(0),i;
-	char message[40];
+	int failures(0);
+	unsigned int i;
 	double deviance(0);
 
 	/************************
@@ -219,7 +219,8 @@ al,bt,lm,gm = fmin(model,prm0,args=(x,k,n))
 
 int BootstrapTest ( TestSuite * T ) {
 	srand48( 0 );
-	int failures(0),i;
+	int failures(0);
+	unsigned int i;
 	std::vector<double> x ( 6 );
 	std::vector<int>    n ( 6, 50 );
 	std::vector<int>    k ( 6 );
@@ -692,22 +693,26 @@ int LinalgTests ( TestSuite * T ) {
 int ReturnTest ( TestSuite * T ) {
 	// In some cases, jackkifing doesn't terminate
 	PsiPsychometric *pmf = new PsiPsychometric ( 2, new mwCore(1,0.1), new PsiLogistic() );
-	std::vector<double> x (5);      x[0] = 1; x[1] = 2; x[2] = 3; x[3] = 4; x[4] = 5;
-	std::vector<int>    k (5,10);   k[1] = 9; k[2] = 8;
-	std::vector<int>    n (5,10);
+	// std::vector<double> x (5);      x[0] = 1; x[1] = 2; x[2] = 3; x[3] = 4; x[4] = 5;
+	// std::vector<int>    k (5,10);   k[1] = 9; k[2] = 8;
+	// std::vector<int>    n (5,10);
+	std::vector<double> x (3);      x[0] = 3.8091348774813367; x[1] = 4.3712635982077179; x[2] = 6.0913291693220737;
+	std::vector<int>    k (3,20);   k[0] = 16;
+	std::vector<int>    n (3,20);
 	PsiData * data = new PsiData ( x, n, k, 2 );
-
 
 	pid_t childpid;
 	int hang;
 
 	if ((childpid = fork()) == 0) {
-		JackKnifeList jack = jackknifedata ( data, pmf );
+		// JackKnifeList jack = jackknifedata ( data, pmf );
+		PsiOptimizer *opt = new PsiOptimizer ( pmf, data );
+		std::vector<double> solution ( opt->optimize ( pmf, data ) );
 	}
 	sleep(3);
 	hang = kill ( childpid, 9 );
 
-	return T->isequal ( hang, -1, "jackknifedata hung" );
+	return T->isequal ( hang, -1, "optimizer hung" );
 }
 
 int main ( int argc, char ** argv ) {

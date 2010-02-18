@@ -7,7 +7,7 @@
 void newsample ( const PsiData * data, const std::vector<double>& p, std::vector<int> * sample ) {
 	/* Draw a new sample from the psychometric function */
 	BinomialRandom binomial ( 10, 0.5 );    // Initialize with nonsense parameters
-	int k;                                            // Block index
+	unsigned int k;                                            // Block index
 
 	for ( k=0; k<data->getNblocks(); k++ ) {
 		binomial.setprm ( data->getNtrials(k), p[k] );
@@ -19,13 +19,13 @@ void newsample ( const PsiData * data, const std::vector<double>& p, std::vector
  * PsiMClist methods
  */
 
-std::vector<double> PsiMClist::getEst ( int i ) const
+std::vector<double> PsiMClist::getEst ( unsigned int i ) const
 {
 	// Check that the call does not ask for something we don't have
 	if ( i>=getNsamples() )
 		throw BadIndexError();
 
-	int k;
+	unsigned int k;
 	std::vector<double> out ( getNparams() );
 
 	for (k=0; k<getNparams(); k++)
@@ -34,7 +34,7 @@ std::vector<double> PsiMClist::getEst ( int i ) const
 	return out;
 }
 
-double PsiMClist::getEst ( int i, int prm ) const
+double PsiMClist::getEst ( unsigned int i, unsigned int prm ) const
 {
 	// check that the call does not ask for something we don't have
 	if ( i>=getNsamples() )
@@ -45,19 +45,19 @@ double PsiMClist::getEst ( int i, int prm ) const
 	return mcestimates[prm][i];
 }
 
-void PsiMClist::setEst ( int i, const std::vector<double> est, double deviance )
+void PsiMClist::setEst ( unsigned int i, const std::vector<double> est, double deviance )
 {
 	// Check that the call does not ask for something we can't do
 	if ( i>=getNsamples() )
 		throw BadIndexError();
 
-	int k;
+	unsigned int k;
 	for ( k=0; k<getNparams(); k++ )
 		mcestimates[k][i] = est[k];
 	deviances[i] = deviance;
 }
 
-double PsiMClist::getPercentile ( double p, int prm ) {
+double PsiMClist::getPercentile ( double p, unsigned int prm ) {
 	if ( prm>=getNparams() )
 		throw BadIndexError();
 	if ( p>1 || p<0 )
@@ -71,14 +71,14 @@ double PsiMClist::getPercentile ( double p, int prm ) {
 	return mcestimates[prm][position];
 }
 
-void PsiMClist::setdeviance ( int i, double deviance ) {
+void PsiMClist::setdeviance ( unsigned int i, double deviance ) {
 	if ( i>=getNsamples() )
 		throw BadIndexError();
 
 	deviances[i] = deviance;
 }
 
-double PsiMClist::getdeviance ( int i ) const {
+double PsiMClist::getdeviance ( unsigned int i ) const {
 	if ( i>=getNsamples() )
 		throw BadIndexError();
 
@@ -98,7 +98,7 @@ double PsiMClist::getDeviancePercentile ( double p ) {
 
 double PsiMClist::getMean ( unsigned int prm ) const {
 	double m(0);
-	int i,Nsamples(getNsamples());
+	unsigned int i,Nsamples(getNsamples());
 	if ( prm>=getNparams() )
 		throw BadIndexError();
 
@@ -118,7 +118,7 @@ void BootstrapList::setData ( unsigned int i, const std::vector<int>& newdata )
 	if ( i>=getNsamples() || i<0 )
 		throw BadIndexError();
 
-	int k;
+	unsigned int k;
 	for ( k=0; k<getNblocks(); k++ )
 		data[i][k] = newdata[k];
 }
@@ -231,7 +231,7 @@ double BootstrapList::percRkd ( double p ) {
  */
 
 double JackKnifeList::influential ( unsigned int block, const std::vector<double>& ci_lower, const std::vector<double>& ci_upper ) const {
-	int prm;
+	unsigned int prm;
 	double est;
 	double infl(0),x;
 
@@ -266,7 +266,7 @@ void MCMCList::setppData ( unsigned int i, const std::vector<int>& ppdata, doubl
 	if ( i>=getNsamples() || i<0 )
 		throw BadIndexError ();
 
-	int k;
+	unsigned int k;
 	for ( k=0; k<getNblocks(); k++ )
 		posterior_predictive_data[i][k] = ppdata[k];
 	posterior_predictive_deviances[i] = ppdeviance;

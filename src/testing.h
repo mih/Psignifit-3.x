@@ -20,7 +20,7 @@ class TestSuite
 		void addTest ( int (*test)(TestSuite*), const char* testname ) { tests.push_back ( test ); names.push_back ( std::string(testname) ); }
 		int runTests ( void ) {
 			int failed(0);
-			int i;
+			unsigned int i;
 			// std::list< int (*)(TestSuite*) > i;
 			// for ( i=tests.begin(); i!=tests.end(); ++i )
 			// 	failed += (*i)(this);
