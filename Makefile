@@ -38,10 +38,14 @@ clean-python-build:
 
 python-doc: $(DOCFILES) $(PYTHONFILES) python-build
 	echo "building sphinx documentation"
-	PYTHONPATH=build/$( ls -1 build |& grep lib ) sphinx-build doc-src $(DOCOUT)
+	PYTHONPATH=build/`ls -1 build | grep lib` sphinx-build doc-src $(DOCOUT)
 
 clean-python-doc:
 	echo "clean sphinx documentation"
 	rm -rv $(DOCOUT)
+
+test-cpp:
+	cd src
+
 
 clean: clean-python-doc clean-python-build
