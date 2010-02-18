@@ -17,8 +17,8 @@ static PyObject * psibootstrap ( PyObject * self, PyObject * args, PyObject * kw
 	int Nafc ( 2 );                    // Number of response alternatives
 	PyObject *pydata;                  // python object holding the data
 	PyObject *pystart (Py_None);       // python object holding the starting values
-	char *sigmoidname = "logistic";    // name of the sigmoid
-	char *corename    = "ab";          // name of the parameterization
+	char sigmoidname[30] = "logistic";    // name of the sigmoid
+	char corename[30]    = "ab";          // name of the parameterization
 	PyObject *pypriors (Py_None);      // prior specs
 	PyObject *pycuts (Py_None);        // specify cuts
 	int parametric (1);            // perform parametric bootstrap?
@@ -35,15 +35,15 @@ static PyObject * psibootstrap ( PyObject * self, PyObject * args, PyObject * kw
 	 * Parse command line
 	 */
 	static char *kwlist[] = {
-		"data",
-		"start",
-		"nsamples",
-		"nafc",
-		"sigmoid",
-		"core",
-		"priors",
-		"cuts",
-		"parametric",
+		(char*)"data",
+		(char*)"start",
+		(char*)"nsamples",
+		(char*)"nafc",
+		(char*)"sigmoid",
+		(char*)"core",
+		(char*)"priors",
+		(char*)"cuts",
+		(char*)"parametric",
 		NULL };
 	if ( !PyArg_ParseTupleAndKeywords ( args, kwargs, "O|OiissOOi",
 				kwlist,
@@ -190,8 +190,8 @@ static PyObject * psimcmc ( PyObject * self, PyObject * args, PyObject * kwargs 
 	int Nafc ( 2 );                    // Number of response alternatives
 	PyObject *pydata;                  // python object holding the data
 	PyObject *pystart (Py_None);       // python object holding the starting values
-	char *sigmoidname = "logistic";    // name of the sigmoid
-	char *corename    = "mw0.1";          // name of the parameterization
+	char sigmoidname[30] = "logistic";    // name of the sigmoid
+	char corename[30]    = "mw0.1";          // name of the parameterization
 	PyObject *pypriors (Py_None);      // prior specs
 	PyObject *pysteps (Py_None);       // stepwidths of the proposal distribution
 
@@ -203,14 +203,14 @@ static PyObject * psimcmc ( PyObject * self, PyObject * args, PyObject * kwargs 
 	PsiSigmoid * sigmoid;
 
 	static char *kwlist[] = {
-		"data",
-		"start",
-		"nsamples",
-		"nafc",
-		"sigmoid",
-		"core",
-		"priors",
-		"stepwidths",
+		(char*)"data",
+		(char*)"start",
+		(char*)"nsamples",
+		(char*)"nafc",
+		(char*)"sigmoid",
+		(char*)"core",
+		(char*)"priors",
+		(char*)"stepwidths",
 		NULL };
 	if ( !PyArg_ParseTupleAndKeywords ( args, kwargs, "O|OiissOO",
 				kwlist,
@@ -320,8 +320,8 @@ static PyObject * psimcmc ( PyObject * self, PyObject * args, PyObject * kwargs 
 static PyObject * psimapestimate ( PyObject * self, PyObject * args, PyObject * kwargs ) {
 	int Nafc ( 2 );                    // Number of response alternatives
 	PyObject *pydata;                  // python object holding the data
-	char *sigmoidname = "logistic";    // name of the sigmoid
-	char *corename    = "ab";          // name of the parameterization
+	char sigmoidname[30] = "logistic";    // name of the sigmoid
+	char corename[30]    = "ab";          // name of the parameterization
 	PyObject *pypriors (Py_None);      // prior specs
 	PyObject *pycuts (Py_None);        // cuts
 	PyObject *pystart (Py_None);       // starting value for the optimizer
@@ -334,13 +334,13 @@ static PyObject * psimapestimate ( PyObject * self, PyObject * args, PyObject * 
 	PsiSigmoid * sigmoid;
 
 	static char *kwlist[] = {
-		"data",
-		"nafc",
-		"sigmoid",
-		"core",
-		"priors",
-		"cuts",
-		"start",
+		(char*)"data",
+		(char*)"nafc",
+		(char*)"sigmoid",
+		(char*)"core",
+		(char*)"priors",
+		(char*)"cuts",
+		(char*)"start",
 		NULL };
 	if ( !PyArg_ParseTupleAndKeywords ( args, kwargs, "O|issOOO",
 				kwlist,
@@ -429,8 +429,8 @@ static PyObject * psidiagnostics ( PyObject * self, PyObject * args, PyObject * 
 	int Nafc ( 2 );                    // Number of response alternatives
 	PyObject *pyparams;                // estimated parameters
 	PyObject *pydata;                  // python object holding the data
-	char *sigmoidname = "logistic";    // name of the sigmoid
-	char *corename    = "ab";          // name of the parameterization
+	char sigmoidname[30] = "logistic";    // name of the sigmoid
+	char corename[30]    = "ab";          // name of the parameterization
 	PyObject *pycuts (Py_None);         // cuts
 
 	PyObject * pyout;
@@ -441,15 +441,15 @@ static PyObject * psidiagnostics ( PyObject * self, PyObject * args, PyObject * 
 	PsiCore * core;
 	PsiSigmoid * sigmoid;
 	std::vector<double> *params;
-	std::vector<double> *devianceresiduals;
+	std::vector<double> *devianceresiduals=NULL;
 
 	static char *kwlist[] = {
-		"data",
-		"params",
-		"nafc",
-		"sigmoid",
-		"core",
-		"cuts",
+		(char*)"data",
+		(char*)"params",
+		(char*)"nafc",
+		(char*)"sigmoid",
+		(char*)"core",
+		(char*)"cuts",
 		NULL };
 	if ( !PyArg_ParseTupleAndKeywords ( args, kwargs, "OO|issO",
 				kwlist,
@@ -481,7 +481,7 @@ static PyObject * psidiagnostics ( PyObject * self, PyObject * args, PyObject * 
 	if ( intensityonly==-1)
 		devianceresiduals = new std::vector<double> (pmf->getDevianceResiduals ( *params, data ) );
 
-	PyArrayObject *pydevianceresiduals;
+	PyArrayObject *pydevianceresiduals=NULL;
 	PyArrayObject *pypredicted;
 	PyArrayObject *pythres;
 	npy_intp nNblocks (Nblocks);
