@@ -264,14 +264,27 @@ std::vector<double> PsiPsychometric::getStart ( const PsiData* data ) const
 	double pmax=0;
 	double pmin=1;
 	double pp;
-	double imax,imin;
-	for ( i=0; i<relevant.size(); i++ ) {
-		a = data->getIntensity(i);
-		pp = data->getPcorrect(i);
-		if (a>alphamax) alphamax=a;
-		if (a<alphamin) alphamin=a;
-		if (pp>pmax) { pmax=pp; imax=i; }
-		if (pp<pmin) { pmin=pp; imin=i; }
+	double imax (0),imin (0);
+	if (relevant.size()==1) {
+		// This is not the best solution
+		for ( i=0; i<data->getNblocks(); i++ ) {
+			a = data->getIntensity(i);
+			pp = data->getPcorrect(i);
+			if (a>alphamax) alphamax=a;
+			if (a<alphamin) alphamin=a;
+			if (pp>pmax) { pmax=pp; imax=i; }
+			if (pp<pmin) { pmin=pp; imin=i; }
+		}
+	} else {
+		// This is better
+		for ( i=0; i<relevant.size(); i++ ) {
+			a = data->getIntensity(relevant[i]);
+			pp = data->getPcorrect(relevant[i]);
+			if (a>alphamax) alphamax=a;
+			if (a<alphamin) alphamin=a;
+			if (pp>pmax) { pmax=pp; imax=relevant[i]; }
+			if (pp<pmin) { pmin=pp; imin=relevant[i]; }
+		}
 	}
 	double betamax = (data->getIntensity(imax)-data->getIntensity(imin));
 	double betamin = (data->getIntensity(imax)>data->getIntensity(imin) ? 1 : -1 ) * 0.01;

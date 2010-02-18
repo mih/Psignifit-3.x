@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <signal.h>
 
 
@@ -703,20 +704,27 @@ int ReturnTest ( TestSuite * T ) {
 
 	pid_t childpid;
 	int hang;
+	pid_t phang;
 
 	if ((childpid = fork()) == 0) {
-		// JackKnifeList jack = jackknifedata ( data, pmf );
+		// Run the optimizer in a child process with a limited amount of time
 		PsiOptimizer *opt = new PsiOptimizer ( pmf, data );
 		std::vector<double> solution ( opt->optimize ( pmf, data ) );
-	}
-	sleep(3);
-	hang = kill ( childpid, 9 );
+		delete opt;
+		exit(0); // If we got this far, we kill the child process
+ 	} else {
+		sleep(3); // We wait 3s for the child. Otherweise, we consider it as a failure.
+		phang = waitpid ( childpid, &hang, WNOHANG );
 
-	return T->isequal ( hang, -1, "optimizer hung" );
+		if (phang!=0) kill ( childpid, 9 ); // The optimizer process can be killed
+
+		return T->isequal ( !phang, 0, "optimizer hung" );
+	}
 }
 
 int main ( int argc, char ** argv ) {
 	TestSuite Tests ( "tests_all.log" );
+	/*
 	Tests.addTest(&PsychometricValues,"Values of the psychometric function");
 	Tests.addTest(&OptimizerSolution, "Solutions of optimizer");
 	Tests.addTest(&BootstrapTest,     "Bootstrap properties");
@@ -725,6 +733,7 @@ int main ( int argc, char ** argv ) {
 	Tests.addTest(&MCMCTest,          "MCMC");
 	Tests.addTest(&PriorTest,         "Priors");
 	Tests.addTest(&LinalgTests,       "Linear algebra routines");
+	*/
 	Tests.addTest(&ReturnTest,        "Testing return bug in jackknifedata");
 	Tests.runTests();
 }
