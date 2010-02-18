@@ -17,8 +17,8 @@ static PyObject * psibootstrap ( PyObject * self, PyObject * args, PyObject * kw
 	int Nafc ( 2 );                    // Number of response alternatives
 	PyObject *pydata;                  // python object holding the data
 	PyObject *pystart (Py_None);       // python object holding the starting values
-	char sigmoidname[30] = "logistic";    // name of the sigmoid
-	char corename[30]    = "ab";          // name of the parameterization
+	char *sigmoidname = (char*)"logistic";    // name of the sigmoid
+	char *corename    = (char*)"ab";          // name of the parameterization
 	PyObject *pypriors (Py_None);      // prior specs
 	PyObject *pycuts (Py_None);        // specify cuts
 	int parametric (1);            // perform parametric bootstrap?
@@ -190,8 +190,8 @@ static PyObject * psimcmc ( PyObject * self, PyObject * args, PyObject * kwargs 
 	int Nafc ( 2 );                    // Number of response alternatives
 	PyObject *pydata;                  // python object holding the data
 	PyObject *pystart (Py_None);       // python object holding the starting values
-	char sigmoidname[30] = "logistic";    // name of the sigmoid
-	char corename[30]    = "mw0.1";          // name of the parameterization
+	char *sigmoidname = (char*)"logistic";    // name of the sigmoid
+	char *corename    = (char*)"mw0.1";          // name of the parameterization
 	PyObject *pypriors (Py_None);      // prior specs
 	PyObject *pysteps (Py_None);       // stepwidths of the proposal distribution
 
@@ -320,8 +320,8 @@ static PyObject * psimcmc ( PyObject * self, PyObject * args, PyObject * kwargs 
 static PyObject * psimapestimate ( PyObject * self, PyObject * args, PyObject * kwargs ) {
 	int Nafc ( 2 );                    // Number of response alternatives
 	PyObject *pydata;                  // python object holding the data
-	char sigmoidname[30] = "logistic";    // name of the sigmoid
-	char corename[30]    = "ab";          // name of the parameterization
+	char *sigmoidname = (char*)"logistic";    // name of the sigmoid
+	char *corename    = (char*)"ab";          // name of the parameterization
 	PyObject *pypriors (Py_None);      // prior specs
 	PyObject *pycuts (Py_None);        // cuts
 	PyObject *pystart (Py_None);       // starting value for the optimizer
@@ -429,8 +429,8 @@ static PyObject * psidiagnostics ( PyObject * self, PyObject * args, PyObject * 
 	int Nafc ( 2 );                    // Number of response alternatives
 	PyObject *pyparams;                // estimated parameters
 	PyObject *pydata;                  // python object holding the data
-	char sigmoidname[30] = "logistic";    // name of the sigmoid
-	char corename[30]    = "ab";          // name of the parameterization
+	char *sigmoidname = (char*)"logistic";    // name of the sigmoid
+	char *corename    = (char*)"ab";          // name of the parameterization
 	PyObject *pycuts (Py_None);         // cuts
 
 	PyObject * pyout;
