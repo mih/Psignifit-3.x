@@ -7,7 +7,7 @@ class TestSigmoid(unittest.TestCase):
         sigmoid.f(0.0)
         sigmoid.df(0.0)
         sigmoid.ddf(0.0)
-        #sigmoid.inv(0.0)
+        sigmoid.inv(0.1)
 
     def test_cauchy(self):
         self.all_methods(swignifit.PsiCauchy())
