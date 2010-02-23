@@ -218,6 +218,41 @@ al,bt,lm,gm = fmin(model,prm0,args=(x,k,n))
 	return failures;
 }
 
+int InitialParametersTest ( TestSuite * T ) {
+	int i, failures(0);
+	std::vector<double> x ( 4 );
+	std::vector<int>    k ( 4 );
+	std::vector<int>    n ( 4, 20 );
+	PsiPsychometric * pmf;
+	PsiData * data;
+	std::vector<double> prm ( 3 );
+
+	for (i=1; i<=4; i++) {
+		x[i-1] = i;
+		k[i-1] = 10+(i-1)*3;
+	}
+	data = new PsiData ( x, n, k, 2 );
+
+	pmf = new PsiPsychometric ( 2, new abCore(), new PsiLogistic() );
+	prm = pmf->getStart ( data );
+	failures += T->ismore ( prm[1], 0, "PsiPsychometric->getStart() for increasing data" );
+
+	delete data;
+
+	for (i=1; i<=4; i++) {
+		x[i-1] = 5-i;
+	}
+	data = new PsiData ( x, n, k, 2 );
+
+	prm = pmf->getStart ( data );
+	failures += T->isless ( prm[1], 0, "PsiPsychometric->getStart() for decreasing data" );
+
+	delete data;
+	delete pmf;
+
+	return failures;
+}
+
 int BootstrapTest ( TestSuite * T ) {
 	srand48( 0 );
 	int failures(0);
@@ -724,7 +759,6 @@ int ReturnTest ( TestSuite * T ) {
 
 int main ( int argc, char ** argv ) {
 	TestSuite Tests ( "tests_all.log" );
-	/*
 	Tests.addTest(&PsychometricValues,"Values of the psychometric function");
 	Tests.addTest(&OptimizerSolution, "Solutions of optimizer");
 	Tests.addTest(&BootstrapTest,     "Bootstrap properties");
@@ -733,7 +767,7 @@ int main ( int argc, char ** argv ) {
 	Tests.addTest(&MCMCTest,          "MCMC");
 	Tests.addTest(&PriorTest,         "Priors");
 	Tests.addTest(&LinalgTests,       "Linear algebra routines");
-	*/
 	Tests.addTest(&ReturnTest,        "Testing return bug in jackknifedata");
+	Tests.addTest(&InitialParametersTest, "Initial parameter heuristics");
 	Tests.runTests();
 }
