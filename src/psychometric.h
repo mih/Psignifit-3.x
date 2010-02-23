@@ -36,6 +36,7 @@ class PsiPsychometric {
 		PsiCore * Core;
 		PsiSigmoid * Sigmoid;
 		std::vector<PsiPrior*> priors;
+		bool gammaislambda;
 	public:
 		PsiPsychometric (
 			int nAFC,                                                                ///< number of alternatives in the task (1 indicating yes/no)
@@ -79,7 +80,7 @@ class PsiPsychometric {
 		double evalPrior ( unsigned int index, double x ) const {return priors[index]->pdf(x);}              ///< evaluate the respective prior at value x
 		virtual double randPrior ( unsigned int index ) const { return priors[index]->rand(); }                            ///< sample form a prior
 		int getNalternatives ( void ) const { return Nalternatives; }         ///< get the number of alternatives (1 means yes/no)
-		virtual unsigned int getNparams ( void ) const { return (Nalternatives==1 ? 4 : 3 ); } ///< get the number of free parameters of the psychometric function
+		virtual unsigned int getNparams ( void ) const { return (Nalternatives==1 && !gammaislambda ? 4 : 3 ); } ///< get the number of free parameters of the psychometric function
 		std::vector<double> getStart ( const PsiData* data ) const ;                ///< determine a starting value using logistic regression on a dataset
 		double getThres (
 			const std::vector<double>& prm,                                          ///< parameters of the psychometric function model
@@ -105,6 +106,7 @@ class PsiPsychometric {
 			const PsiData* data,                                                         ///< data for which the likelihood should be valuated
 			unsigned int i                                                               ///< index of the parameter for which the derivative should be evaluated
 			) const;                                                                 ///< derivative of the negative log posterior with respect to parameter i
+		void setgammatolambda ( void ) { gammaislambda=true; };                          ///< calling this function applies the constraint that gamma and lambda should be equal in a yes/no paradigm
 };
 
 /** \brief Psychometric function with one separate data point
