@@ -1,8 +1,16 @@
-
 #!/usr/bin/env python
+# vi: set ft=python sts=4 ts=4 sw=4 et:
+
+######################################################################
+#
+#   See COPYING file distributed along with the psignifit package for
+#   the copyright and license terms
+#
+######################################################################
+
 
 """
-setup.py file for SWIG example
+setup.py file for swignifit
 """
 
 from distutils.core import setup, Extension

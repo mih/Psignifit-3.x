@@ -1,3 +1,10 @@
+######################################################################
+#
+#   See COPYING file distributed along with the psignifit package for
+#   the copyright and license terms
+#
+######################################################################
+
 swig:
 	swig -c++ -python -I../src swignifit.i
 	python setup.py build
