@@ -31,6 +31,14 @@ class TestSigmoid(unittest.TestCase):
         s = swignifit.PsiExponential()
         s.inv(0.0)
 
+class TestData(unittest.TestCase):
+
+    def test_data(self):
+        x = swignifit.vector_double([0.,2.,4.,6., 8., 10.])
+        k = swignifit.vector_int([24, 32, 40,48, 50,48])
+        n = swignifit.vector_int(6*[50])
+        data = swignifit.PsiData(x, n, k, 2)
+
 class TestCore(unittest.TestCase):
 
     def all_methods(self, core):
@@ -64,9 +72,6 @@ class TestCore(unittest.TestCase):
 
     def test_weibull_core(self):
         self.all_methods(swignifit.weibullCore())
-
-
-
 
 #core = swignifit.abCore()
 #sigmoid = swignifit.PsiLogistic()
