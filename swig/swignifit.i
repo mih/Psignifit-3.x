@@ -9,7 +9,7 @@
 %include "std_vector.i"
 
 namespace std {
-    %template(vectord) vector<double>;
+    %template(vector_double) vector<double>;
 };
 
 %typemap(throws) BadArgumentError %{

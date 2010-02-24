@@ -34,7 +34,7 @@ class TestSigmoid(unittest.TestCase):
 class TestCore(unittest.TestCase):
 
     def all_methods(self, core):
-        params = swignifit.vectord([1.0,1.0])
+        params = swignifit.vector_double([1.0,1.0])
         core.g(0.0, params)
         core.dg(0.0,params,0)
         core.dg(0.0,params,1)
@@ -71,7 +71,7 @@ class TestCore(unittest.TestCase):
 #core = swignifit.abCore()
 #sigmoid = swignifit.PsiLogistic()
 #psi = swignifit.PsiPsychometric(2,core,sigmoid)
-#params = swignifit.vectord([0.5,0.5,0.01])
+#params = swignifit.vector_double([0.5,0.5,0.01])
 #x = numpy.arange(0,10,0.1)
 #y = numpy.zeros(len(x))
 #for i,val in enumerate(x):
