@@ -40,6 +40,10 @@ class TestData(unittest.TestCase):
         data = swignifit.PsiData(x, n, k, 2)
 
 class TestCore(unittest.TestCase):
+    x = swignifit.vector_double([0.,2.,4.,6., 8., 10.])
+    k = swignifit.vector_int([24, 32, 40,48, 50,48])
+    n = swignifit.vector_int(6*[50])
+    data = swignifit.PsiData(x, n, k, 2)
 
     def all_methods(self, core):
         params = swignifit.vector_double([1.0,1.0])
@@ -62,16 +66,17 @@ class TestCore(unittest.TestCase):
         self.all_methods(swignifit.linearCore())
 
     def test_log_core(self):
-        self.all_methods(swignifit.logCore())
+        self.all_methods(swignifit.logCore(TestCore.data))
 
     def test_mw_core(self):
-        self.all_methods(swignifit.mwCore())
+        # mwCore constructor is a bit different than the rest
+        self.all_methods(swignifit.mwCore(1))
 
     def test_poly_core(self):
-        self.all_methods(swignifit.polyCore())
+        self.all_methods(swignifit.polyCore(TestCore.data))
 
     def test_weibull_core(self):
-        self.all_methods(swignifit.weibullCore())
+        self.all_methods(swignifit.weibullCore(TestCore.data))
 
 #core = swignifit.abCore()
 #sigmoid = swignifit.PsiLogistic()
