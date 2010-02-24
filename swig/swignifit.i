@@ -1,11 +1,19 @@
+/*
+ *   See COPYING file distributed along with the psignifit package for
+ *   the copyright and license terms
+ */
+
+/* This is the interface file for the swig wrapper to psignifit, swignifit
+ */
+
 %module swignifit
 
 %{
 #define SWIG_FILE_WITH_INIT
 #include "psipp.h"
-
 %}
 
+// make the STL vectors available
 %include "std_vector.i"
 
 namespace std {
@@ -28,6 +36,7 @@ namespace std {
                           std::vector<double> p,
                           int nAFC);
 
+// We wrap the following headers
 %include "data.h"
 %include "psychometric.h"
 %include "core.h"

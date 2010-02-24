@@ -1,3 +1,15 @@
+#!/usr/bin/env python
+# vi: set ft=python sts=4 ts=4 sw=4 et:
+
+######################################################################
+#
+#   See COPYING file distributed along with the psignifit package for
+#   the copyright and license terms
+#
+######################################################################
+
+""" Unit Tests for raw swig wrapper """
+
 import swignifit, numpy, pylab, unittest
 
 class TestSigmoid(unittest.TestCase):
