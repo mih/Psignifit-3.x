@@ -29,7 +29,8 @@ class TestSigmoid(unittest.TestCase):
 
     def test_exponential_exception(self):
         s = swignifit.PsiExponential()
-        s.inv(0.0)
+        self.assertRaises(ValueError, s.inv, 0)
+        self.assertRaises(ValueError, s.inv, 1)
 
 class TestData(unittest.TestCase):
 
