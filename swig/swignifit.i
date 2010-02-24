@@ -18,6 +18,15 @@ namespace std {
       SWIG_fail;
 %}
 
+// we need to ignore the second constructor for PsiData since swig can't handle
+// this type of overloading TODO write a factory method in python that
+// implements this functionality
+%ignore PsiData::PsiData (std::vector<double> x,
+                          std::vector<int>    N,
+                          std::vector<double> p,
+                          int nAFC);
+
+%include "data.h"
 %include "psychometric.h"
 %include "core.h"
 %include "sigmoid.h"
