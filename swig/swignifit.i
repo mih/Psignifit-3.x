@@ -12,6 +12,11 @@ namespace std {
     %template(vectord) vector<double>;
 };
 
+%typemap(throws) BadArgumentError %{
+      PyErr_SetString(PyExc_ValueError, "Contents");
+      SWIG_fail;
+%}
+
 %include "psychometric.h"
 %include "core.h"
 %include "sigmoid.h"
