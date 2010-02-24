@@ -27,6 +27,42 @@ class TestSigmoid(unittest.TestCase):
     def test_logistic(self):
         self.all_methods(swignifit.PsiLogistic())
 
+class TestCore(unittest.TestCase):
+
+    def all_methods(self, core):
+        params = swignifit.vectord([1.0,1.0])
+        core.g(0.0, params)
+        core.dg(0.0,params,0)
+        core.dg(0.0,params,1)
+        core.ddg(0.0,params,0,0)
+        core.ddg(0.0,params,0,1)
+        core.ddg(0.0,params,1,0)
+        core.ddg(0.0,params,1,1)
+        core.inv(0.0,params)
+        core.dinv(0.0,params,0)
+        core.dinv(0.0,params,1)
+        core.transform(2,1.0,1.0)
+
+    def test_ab_core(self):
+        self.all_methods(swignifit.abCore())
+
+    def test_linear_core(self):
+        self.all_methods(swignifit.linearCore())
+
+    def test_log_core(self):
+        self.all_methods(swignifit.logCore())
+
+    def test_mw_core(self):
+        self.all_methods(swignifit.mwCore())
+
+    def test_poly_core(self):
+        self.all_methods(swignifit.polyCore())
+
+    def test_weibull_core(self):
+        self.all_methods(swignifit.weibullCore())
+
+
+
 
 #core = swignifit.abCore()
 #sigmoid = swignifit.PsiLogistic()
