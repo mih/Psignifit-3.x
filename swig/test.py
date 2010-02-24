@@ -27,6 +27,10 @@ class TestSigmoid(unittest.TestCase):
     def test_logistic(self):
         self.all_methods(swignifit.PsiLogistic())
 
+    def test_exponential_exception(self):
+        s = swignifit.PsiExponential()
+        s.inv(0.0)
+
 class TestCore(unittest.TestCase):
 
     def all_methods(self, core):
