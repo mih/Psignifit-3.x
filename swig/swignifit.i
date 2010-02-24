@@ -13,8 +13,10 @@ namespace std {
     %template(vector_int) vector<int>;
 };
 
+// This translates BadArgumentError (c++) -> ValueError (python)
+// including the error message
 %typemap(throws) BadArgumentError %{
-      PyErr_SetString(PyExc_ValueError, "Contents");
+      PyErr_SetString(PyExc_ValueError, $1.message);
       SWIG_fail;
 %}
 
