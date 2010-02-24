@@ -10,6 +10,7 @@
 
 namespace std {
     %template(vector_double) vector<double>;
+    %template(vector_int) vector<int>;
 };
 
 %typemap(throws) BadArgumentError %{
