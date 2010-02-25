@@ -6,7 +6,7 @@
 ######################################################################
 
 swig:
-	swig -c++ -python -I../src swignifit.i
+	swig -c++ -python -v -I../src swignifit.i
 	python setup.py build
 
 clean:
