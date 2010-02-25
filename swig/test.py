@@ -93,6 +93,15 @@ class TestCore(unittest.TestCase):
     def test_weibull_core(self):
         self.all_methods(swignifit.weibullCore(TestCore.data))
 
+    def test_exceptions(self):
+        c = swignifit.logCore(TestCore.data)
+        params = swignifit.vector_double([1.0,1.0])
+        self.assertRaises(ValueError, c.g, -1.0, params)
+        c = swignifit.weibullCore(TestCore.data)
+        self.assertRaises(ValueError, c.dg, -1.0, params, 0)
+        self.assertRaises(ValueError, c.ddg, -1.0, params, 0, 1)
+
+
 class TestPsychometric(unittest.TestCase):
 
     def test_pschometric(self):
