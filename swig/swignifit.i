@@ -41,4 +41,5 @@ namespace std {
 %include "psychometric.h"
 %include "core.h"
 %include "sigmoid.h"
+%include "prior.h"
     

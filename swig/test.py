@@ -112,7 +112,27 @@ class TestPsychometric(unittest.TestCase):
         #psi.getCore()
         #psi.getSigmoid()
 
+class TestPriors(unittest.TestCase):
 
+    def all_methods(self, prior):
+        prior.pdf(0.0)
+        prior.dpdf(0.0)
+        prior.rand()
+
+    def test_beta_prior(self):
+        self.all_methods(swignifit.BetaPrior(1.5, 3))
+
+    def test_gamma_prior(self):
+        self.all_methods(swignifit.GammaPrior(1.5, 3))
+
+    def test_ngamma_prior(self):
+        self.all_methods(swignifit.nGammaPrior(1.5, 3))
+
+    def test_gauss_prior(self):
+        self.all_methods(swignifit.GaussPrior(1.5, 3))
+
+    def test_uniform_prior(self):
+        self.all_methods(swignifit.UniformPrior(1.5, 3))
 
 #x = numpy.arange(0,10,0.1)
 #y = numpy.zeros(len(x))
