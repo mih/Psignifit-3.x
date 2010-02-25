@@ -93,10 +93,27 @@ class TestCore(unittest.TestCase):
     def test_weibull_core(self):
         self.all_methods(swignifit.weibullCore(TestCore.data))
 
-#core = swignifit.abCore()
-#sigmoid = swignifit.PsiLogistic()
-#psi = swignifit.PsiPsychometric(2,core,sigmoid)
-#params = swignifit.vector_double([0.5,0.5,0.01])
+class TestPsychometric(unittest.TestCase):
+
+    def test_pschometric(self):
+        core = swignifit.abCore()
+        sigmoid = swignifit.PsiLogistic()
+        #psi = swignifit.PsiPsychometric(2,core,sigmoid)
+        #params = swignifit.vector_double([0.5,0.5,0.01])
+        #data = TestData.generate_test_dataset()
+
+        #psi.evaluate(0.0,params)
+        #psi.negllikeli(params,data)
+        #psi.neglpost(params, data)
+        #psi.leastfavourable(params, data, 0.0)
+        #psi.deviance(params, data)
+        #psi.ddnegllikeli(params, data)
+        #psi.dnegllikeli(params, data)
+        #psi.getCore()
+        #psi.getSigmoid()
+
+
+
 #x = numpy.arange(0,10,0.1)
 #y = numpy.zeros(len(x))
 #for i,val in enumerate(x):
