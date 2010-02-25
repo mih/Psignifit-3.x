@@ -42,4 +42,6 @@ namespace std {
 %include "core.h"
 %include "sigmoid.h"
 %include "prior.h"
-    
+%include "mclist.h"
+%include "bootstrap.h"
+

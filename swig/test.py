@@ -143,6 +143,25 @@ class TestPriors(unittest.TestCase):
     def test_uniform_prior(self):
         self.all_methods(swignifit.UniformPrior(1.5, 3))
 
+class TestBootstrap(unittest.TestCase):
+
+    def test_bootstrap(self):
+        # IMPORTANT we need to assign local variables for these objects.  If we
+        # simply do pmf.setPrior(2,swignifit.UniformPrior(0.0, 0.1)) the
+        # UniformPrior will be out of scope and deleted by the time we reach
+        # bootstrap, resulting in a segfault.
+        data = TestData.generate_test_dataset()
+        core = swignifit.abCore()
+        prior = swignifit.UniformPrior(0.0, 0.1)
+        sigmoid = swignifit.PsiLogistic()
+        cuts = swignifit.vector_double([1, 0.5])
+
+        pmf = swignifit.PsiPsychometric(2, core, sigmoid)
+        pmf.setPrior(2, prior)
+        bs_list = swignifit.bootstrap(999, data, pmf, cuts)
+        print bs_list
+
+
 #x = numpy.arange(0,10,0.1)
 #y = numpy.zeros(len(x))
 #for i,val in enumerate(x):
