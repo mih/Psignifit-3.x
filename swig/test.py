@@ -46,17 +46,19 @@ class TestSigmoid(unittest.TestCase):
 
 class TestData(unittest.TestCase):
 
-    def test_data(self):
+    @staticmethod
+    def generate_test_dataset():
         x = swignifit.vector_double([0.,2.,4.,6., 8., 10.])
         k = swignifit.vector_int([24, 32, 40,48, 50,48])
         n = swignifit.vector_int(6*[50])
-        data = swignifit.PsiData(x, n, k, 2)
+        return swignifit.PsiData(x, n, k, 2)
+
+    def test_data(self):
+        data = TestData.generate_test_dataset()
 
 class TestCore(unittest.TestCase):
-    x = swignifit.vector_double([0.,2.,4.,6., 8., 10.])
-    k = swignifit.vector_int([24, 32, 40,48, 50,48])
-    n = swignifit.vector_int(6*[50])
-    data = swignifit.PsiData(x, n, k, 2)
+
+    data = TestData.generate_test_dataset()
 
     def all_methods(self, core):
         params = swignifit.vector_double([1.0,1.0])
