@@ -1,3 +1,5 @@
 - add a delete/uninstall possibility
 - Add a tutorial on proper bayesian model fitting and MCMC convergence diagnostics
 - Makefile/setup.py call for doctests
+- List _all_ dependencies in terms of packages for debian (python/numpy headers
+  sphinx etc...)
