@@ -93,7 +93,7 @@ In particular, the derivative of equation \eqref{eq:3} involves the digamma func
 To find a maximum of $\ell$, we can use newton iterations of the form
 %
 $$
-\nu_{k+1} = \nu_{k} + \frac{\ell\prime(\nu_k)}{\ell\prime\prime(\nu_k)},
+\nu_0=1,\quad\nu_{k+1} = \nu_{k} - \frac{\ell\prime(\nu_k)}{\ell\prime\prime(\nu_k)},
 $$
 %
 where $\ell\prime := \p\ell/\p\nu$ and
@@ -105,6 +105,8 @@ where $\ell\prime := \p\ell/\p\nu$ and
     \end{split}
     \label{eq:5}
 \end{equation}
+%
+After a couple of steps, $\nu_k$ should be a reasonably good estimate of $\nu^*$, the desired maximum.
 
 We can use the estimated value $\nu^*$ in two ways to correct the confidence intervals:
 %
@@ -130,5 +132,8 @@ We can use the estimated value $\nu^*$ in two ways to correct the confidence int
         $$
         %
 \end{enumerate}
+%
+It is not obvious, which strategy provides better coverage.
+This should be tested in simulations.
 
 \end{document}
