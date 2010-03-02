@@ -4,15 +4,31 @@ Contributing to psignifit 3.0
 
 psignifit 3.0 is free software. You are free to modify the software under the terms of the license
 that is distributed with psignifit 3.0. We welcome developers that want to contribute to psignifit 3.0.
+
+Git-Repository
+--------------
+
 We use `git <http://git-scm.com/>`_ for version control, development snapshots of psignifit can be obtained like this::
 
     git clone git://psignifit.git.sourceforge.net/gitroot/psignifit/psignifit 
 
-Commits
--------
+Layout
+......
 
-To make it easier to keep track of the development of psignifit, we use a number of marks for commits.
-Use the following marks for commits:
+Every developer has his/her own branch, and we use the master branch to do
+integration. Hence we have the following layout in the sourceforge repository:
+
+:master:
+    the integration branch
+:ingo/master:
+    Ingo's main branch
+:val/master:
+    Valentin's main branch
+
+Commits
+.......
+
+To make it easier to keep track of the development of psignifit, we use the following marks for commits:
 
 * [NF]    new feature
 * [BF]    bug fix
@@ -20,6 +36,15 @@ Use the following marks for commits:
 * [FO]    code formatting (adding spaces etc.)
 * [UT]    unit tests
 * [DOC]   documentation
+
+We may additionally use the following marks to identify what parts of the code
+base we worked on:
+
+* C++
+* swig
+* py
+* R
+
 
 Extending
 ---------
