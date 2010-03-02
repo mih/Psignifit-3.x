@@ -4,9 +4,9 @@ Contributing to psignifit 3.0
 
 psignifit 3.0 is free software. You are free to modify the software under the terms of the license
 that is distributed with psignifit 3.0. We welcome developers that want to contribute to psignifit 3.0.
-A development snapshot of psignifit can be obtained like this
+We use `git <http://git-scm.com/>`_ for version control, development snapshots of psignifit can be obtained like this::
 
-TODO: command to clone git repo
+    git clone git://psignifit.git.sourceforge.net/gitroot/psignifit/psignifit 
 
 Commits
 -------
@@ -14,12 +14,12 @@ Commits
 To make it easier to keep track of the development of psignifit, we use a number of marks for commits.
 Use the following marks for commits:
 
-[NF]    new feature
-[BF]    bug fix
-[RF]    refactoring
-[FO]    code formatting (adding spaces etc.)
-[UT]    unit tests
-[DOC]   documentation
+* [NF]    new feature
+* [BF]    bug fix
+* [RF]    refactoring
+* [FO]    code formatting (adding spaces etc.)
+* [UT]    unit tests
+* [DOC]   documentation
 
 Extending
 ---------

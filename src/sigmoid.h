@@ -135,7 +135,7 @@ class PsiExponential : public PsiSigmoid
 		double f   (double x );              ///< returns the value of the exponential cdf at position x
 		double df  (double x );              ///< returns the derivative of the exponential cdf at position x
 		double ddf (double x );              ///< returns the 2nd derivative of the exponential cdf at position x
-		double inv (double p );              ///< returns the return the inverse of the exponential cdf at position x
+		double inv (double p ) throw(BadArgumentError);              ///< returns the return the inverse of the exponential cdf at position x
 		int    getcode ( void ) const { return 5; }///< returns the sigmoid identifier
 };
 

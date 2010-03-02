@@ -23,7 +23,7 @@ psippmodule = Extension ( "_psipy",
         )
 
 setup ( name = "pypsignifit",
-        version = "2.0",
+        version = "3.0beta",
         author = "Ingo Fründ & Valentin Haenel",
         description = "Statistical inference for psychometric functions",
         packages = ["pypsignifit"],

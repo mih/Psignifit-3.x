@@ -164,10 +164,10 @@ std::vector<double> mwCore::transform ( int nprm, double a, double b ) {
  * logarithmicCore
  */
 
-double logCore::g ( double x, const std::vector<double>& prm )
+double logCore::g ( double x, const std::vector<double>& prm ) throw(BadArgumentError)
 {
 	if (x<0)
-		throw BadArgumentError();
+		throw BadArgumentError("logCore.g is only valid in the range x>=0");
 	return prm[0] * (x==0 ? -1e10 : log(x)) + prm[1];
 }
 
@@ -243,10 +243,10 @@ weibullCore::weibullCore ( const PsiData * data ) : twooverlog2(2./log(2)) , log
 	loglinb = meanlogx - loglina*meanx;
 }
 
-double weibullCore::dg ( double x, const std::vector<double>& prm, int i )
+double weibullCore::dg ( double x, const std::vector<double>& prm, int i ) throw(BadArgumentError)
 {
 	if (x<0)
-		throw BadArgumentError();
+		throw BadArgumentError("weibullCore.dg is only valid in the range x>=0");
 
 	if (i==0) {
 		return -twooverlog2*prm[1] * log(prm[0]);
@@ -257,10 +257,10 @@ double weibullCore::dg ( double x, const std::vector<double>& prm, int i )
 	}
 }
 
-double weibullCore::ddg ( double x, const std::vector<double>& prm, int i, int j )
+double weibullCore::ddg ( double x, const std::vector<double>& prm, int i, int j ) throw(BadArgumentError)
 {
 	if (x<0)
-		throw BadArgumentError();
+		throw BadArgumentError("weibullCore.ddg is only valid in the range x>=0");
 
 	if (i==j) {
 		if (i==0)
