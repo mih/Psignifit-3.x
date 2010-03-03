@@ -57,6 +57,8 @@ parser.add_option ( "-o", "--output", dest="outputfile", default="test.log",
 
 options,arguments = parser.parse_args()
 
+print "writing output to",options.outputfile
+
 ############################################################
 #                                                          #
 # Create useful variables from command line arguments      #
