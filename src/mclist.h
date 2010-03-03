@@ -27,8 +27,8 @@ class PsiMClist
 		PsiMClist (
 			int N,                      ///< number of samples to be drawn
 			int nprm                    ///< number of parameters in the model that is analyzed
-			) : mcestimates(nprm, std::vector<double>(N) ), deviances(N) {};   ///< Initialize the list to take N samples of nprm parameters
-		PsiMClist ( const PsiMClist& mclist ) : mcestimates ( mclist.mcestimates ), deviances ( mclist.deviances ) {};   ///< copy a list of mcsamples
+			) : mcestimates(nprm, std::vector<double>(N) ), deviances(N) {}   ///< Initialize the list to take N samples of nprm parameters
+		PsiMClist ( const PsiMClist& mclist ) : mcestimates ( mclist.mcestimates ), deviances ( mclist.deviances ) {}   ///< copy a list of mcsamples
 		~PsiMClist ( ) {} ///< destructor
 		std::vector<double> getEst ( unsigned int i ) const;       ///< get a single parameter estimate at sample i
 		double getEst (

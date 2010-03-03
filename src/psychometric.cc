@@ -14,7 +14,7 @@ PsiPsychometric::PsiPsychometric (
 	int nAFC,
 	PsiCore * core,
 	PsiSigmoid * sigmoid
-	) : Nalternatives(nAFC), guessingrate(1./nAFC), priors( getNparams() )
+	) : Nalternatives(nAFC), guessingrate(1./nAFC), priors( getNparams() ), gammaislambda(false)
 {
 	unsigned int k;
 	Core = core;
@@ -36,8 +36,12 @@ PsiPsychometric::~PsiPsychometric ( void )
 double PsiPsychometric::evaluate ( double x, const std::vector<double>& prm ) const
 {
 	double gamma(guessingrate);
-	if (Nalternatives==1) // Here we talk about a yes/no task
-		gamma = prm[3];
+	if (Nalternatives==1) {// Here we talk about a yes/no task
+		if (gammaislambda)
+			gamma = prm[2];
+		else
+			gamma = prm[3];
+	}
 
 #ifdef DEBUG_PSYCHOMETRIC
 	std::cerr << "Evaluating psychometric function. Parameters: \n";
@@ -349,7 +353,7 @@ std::vector<double> PsiPsychometric::getStart ( const PsiData* data ) const
 
 	std::vector<double> out;
 	out = Core->transform ( getNparams(), abest, bbest );
-	if (Nalternatives==1) {
+	if (Nalternatives==1 && !gammaislambda) {
 		out[2] = 0.02;
 		out[3] = 0.02;
 	} else {
@@ -358,14 +362,14 @@ std::vector<double> PsiPsychometric::getStart ( const PsiData* data ) const
 	minpost = neglpost ( out, data );
 
 
-	// Now perform a little grid search to maybe improve the parameters
+	// Now perform a little grid search to maybe improve the parameters (and thus avoid the worst local minima)
 	for ( beta=betamin; beta<=betamax; beta+= (betamax-betamin)/10. ) {
 		for ( alpha=alphamin; alpha<=alphamax; alpha+= (alphamax-alphamin)/10. ) {
 			// a = alpha/beta - beta0;
 			a = -alpha/beta;
 			b = 1./beta;
 			out = Core->transform( getNparams(), a,b);
-			if (Nalternatives==1) {
+			if (Nalternatives==1 && !gammaislambda) {
 				out[2] = 0.02;
 				out[3] = .02;
 			} else {
@@ -382,7 +386,7 @@ std::vector<double> PsiPsychometric::getStart ( const PsiData* data ) const
 
 	// Store the super best parameters in the end
 	out = Core->transform ( getNparams(), abest, bbest );
-	if (Nalternatives==1) {
+	if (Nalternatives==1 && !gammaislambda) {
 		out[2] = 0.02;
 		out[3] = 0.02;
 	} else {
@@ -484,8 +488,12 @@ double PsiPsychometric::dllikeli ( std::vector<double> prm, const PsiData* data,
 	int k, Nblocks(data->getNblocks());
 	double rz,pz,nz,xz,dl(0);
 	double guess(1./Nalternatives);
-	if (Nalternatives==1) // Here we talk about a yes/no task
-		guess = prm[3];
+	if (Nalternatives==1) {// Here we talk about a yes/no task
+		if (gammaislambda)
+			guess = prm[2];
+		else
+			guess = prm[3];
+	}
 
 	for (k=0; k<Nblocks; k++) {
 		rz = data->getNcorrect ( k );

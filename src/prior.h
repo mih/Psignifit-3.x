@@ -38,7 +38,7 @@ class UniformPrior : public PsiPrior
 		double height;
 		UniformRandom rng;
 	public:
-		UniformPrior ( double low, double high ) : lower(low), upper(high), height(1./(high-low)), rng ( low, high ) {} ///< Set up a UniformPrior on the interval from low to high
+		UniformPrior ( double low, double high ) : lower(low), upper(high), rng ( low, high ) { height = 1./(high-low); } ///< Set up a UniformPrior on the interval from low to high
 		double pdf ( double x ) { return ( x>lower && x<upper ? height : 0 ); }                      ///< evaluate the pdf of the prior at position x
 		double dpdf ( double x ) { return ( x!=lower && x!=upper ? 0 : (x==lower ? 1e20 : -1e20 ));} ///< derivative of the pdf of the prior at position x (jumps at lower and upper are replaced by large numbers)
 		double rand ( void ) { return rng.draw(); }                                                 ///< draw a random number
@@ -62,7 +62,7 @@ class GaussPrior : public PsiPrior
 		double twovar;
 		GaussRandom rng;
 	public:
-		GaussPrior ( double mean, double sd ) : mu(mean), sg(sd), normalization(1./(sqrt(2*M_PI)*sg)), var(sg*sg), twovar(2*sg*sg), rng(mean,sd) {}        ///< initialize prior to have mean mean and standard deviation sd
+		GaussPrior ( double mean, double sd ) : mu(mean), sg(sd),  twovar(2*sg*sg), var(sg*sg), rng(mean,sd) { normalization = 1./(sqrt(2*M_PI)*sg); }        ///< initialize prior to have mean mean and standard deviation sd
 		double pdf ( double x ) { return normalization * exp ( - (x-mu)*(x-mu)/twovar ); }                                              ///< return pdf of the prior at position x
 		double dpdf ( double x ) { return - x * pdf ( x ) / var; }                                                                      ///< return derivative of the prior at position x
 		double rand ( void ) {return rng.draw(); }
@@ -87,7 +87,9 @@ class BetaPrior : public PsiPrior
 		UniformRandom rng;
 		double mode;
 	public:
-		BetaPrior ( double al, double bt ) : alpha(al), beta(bt), normalization(betaf(al,bt)), rng (0,1), mode ( (al-1)/(al+bt-2) ) { mode = pdf(mode); }                      ///< Initialize with parameters alpha=al, beta=bt
+		BetaPrior ( double al, double bt ) : alpha(al), beta(bt), normalization(betaf(al,bt)), rng (0,1) {
+            mode = (al-1)/(al+bt-2);
+            mode = pdf(mode); }                      ///< Initialize with parameters alpha=al, beta=bt
 		double pdf ( double x ) { return (x<0||x>1 ? 0 : pow(x,alpha-1)*pow(1-x,beta-1)/normalization); }             ///< return beta pdf
 		double dpdf ( double x ) { return (x<0||x>1 ? 0 : ((alpha-1)*pow(x,alpha-2)*pow(1-x,beta-1) + (beta-1)*pow(1-x,beta-2)*pow(x,alpha-1))/normalization); }      ///< return derivative of beta pdf
 		double rand ( void );                                                                                         ///< draw a random number using rejection sampling
@@ -110,7 +112,7 @@ class GammaPrior : public PsiPrior
 		double normalization;
 		UniformRandom rng;
 	public:
-		GammaPrior ( double shape, double scale ) : k(shape), theta(scale), normalization(pow(scale,shape)*exp(gammaln(shape))) {}                         ///< Initialize a gamma prior
+		GammaPrior ( double shape, double scale ) : k(shape), theta(scale) { normalization = pow(scale,shape)*exp(gammaln(shape)); }                         ///< Initialize a gamma prior
 		virtual double pdf ( double x ) { return (x>0 ? pow(x,k-1)*exp(-x/theta)/normalization : 0 );}                                                             ///< return pdf at position x
 		virtual double dpdf ( double x ) { return (x>0 ? ( (k-1)*pow(x,k-2)*exp(-x/theta)-pow(x,k-1)*exp(-x/theta)/theta)/normalization : 0 ); }                   ///< return derivative of pdf
 		virtual double rand ( void );

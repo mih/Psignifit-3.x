@@ -217,10 +217,10 @@ double PsiExponential::ddf ( double x )
 		return -exp( -x );
 }
 
-double PsiExponential::inv ( double p )
+double PsiExponential::inv ( double p ) throw(BadArgumentError)
 {
 	if ( p>0 && p<1 )
 		return -log(1-p);
 	else
-		throw BadArgumentError();
+		throw BadArgumentError("PsiExponential.inv is only valid in the range 0<x<1");
 }

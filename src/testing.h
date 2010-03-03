@@ -53,7 +53,7 @@ class TestSuite
 		}
 		int ismore ( double x, double y, const char* testname ) {
 			if ( x>y ) {
-				std::clog << "[ OK ]   " << testname << " value: " << x << " < " << y << "\n";
+				std::clog << "[ OK ]   " << testname << " value: " << x << " > " << y << "\n";
 				return 0;
 			} else {
 				std::clog << "[FAIL]   " << testname << " value: " << x << " should be less than " << y << "\n";
