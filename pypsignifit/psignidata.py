@@ -1435,7 +1435,8 @@ class BayesInference ( PsiInference ):
         if cond > 1e6:
             for k in xrange(20):
                 localdata = self.data.copy()
-                localdata[:,1] = N.random.binomial ( self.data[:,2], self.data[:,1].astype('d')/self.data[:,2] )
+                for l in xrange ( localdata.shape[0] ):
+                    localdata[l,1] = N.random.binomial ( self.data[l,2], self.data[l,1].astype('d')/self.data[l,2] )
                 fisherII = N.matrix(_psipy.mapestimate(localdata,start=None,**self.model)[1])
                 fisherIIinv = N.linalg.solve ( fisherII.T*fisherII+0.01*N.eye(fisherII.shape[0]), fisherII.T )
                 cond = abs(fisherII.A).sum(1).max() * abs(fisherIIinv.A).sum(1).max()
