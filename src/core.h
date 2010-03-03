@@ -202,7 +202,7 @@ class logCore : public PsiCore
 		double g   (
 			double x,                                 ///< stimulus intensity
 			const std::vector<double>& prm            ///< parameter vector
-			);   ///< evaluate the core
+			) throw(BadArgumentError);   ///< evaluate the core
 		double dg  (
 			double x,                                 ///< stimulus intensity
 			const std::vector<double>& prm,           ///< parameter vector
@@ -254,13 +254,13 @@ class weibullCore : public PsiCore
 			double x,                           ///< stimulus intensity
 			const std::vector<double>& prm,     ///< parameter vector
 			int i                               ///< index of the parameter with respect to which the derivative should be evaluated
-			);    ///< evaluate the derivateive of the core
+			) throw(BadArgumentError) ;    ///< evaluate the derivateive of the core
 		double ddg (
 			double x,                           ///< stimulus intenstiy
 			const std::vector<double>& prm,     ///< parameter vector
 			int i,                              ///< first parameter with respect to which the derivative should be taken
 			int j                               ///< second parameter with respect to which the derivative should be taken
-			);            ///< evaluate the 2nd derivative of the core
+			) throw(BadArgumentError) ;            ///< evaluate the 2nd derivative of the core
 		double inv (
 			double y,                           ///< value at which to evaluate the inverse
 			const std::vector<double>& prm      ///< parameter vector
