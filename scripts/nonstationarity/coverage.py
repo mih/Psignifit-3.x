@@ -4,7 +4,7 @@ from optparse import OptionParser
 from pypsignifit import psigobservers
 from pypsignifit import psigcorrect
 import pypsignifit
-from numpy import array,arange,mgrid,clip,zeros,sort
+from numpy import array,arange,mgrid,clip,zeros,sort, random
 import os,sys
 import pylab
 
@@ -224,6 +224,7 @@ for simulation in xrange ( options.nsimulations ):
     sys.stderr.write ( "\rSimulation %d is running" % ( simulation, ) )
     O = create_new_observer ()
     # print "\nO=",O
+    random.shuffle ( x )
     data = O.DoAnExperiment ( x, ntrials=options.blocksize )
     print "\ndata =",data
     Bnpr = pypsignifit.BootstrapInference ( data, sample=options.nbootstrap, priors=constraints, parametric=False, **ana_kwargs )
