@@ -221,7 +221,7 @@ not_converged = 0
 
 sys.stderr.write("\n")
 for simulation in xrange ( options.nsimulations ):
-    sys.stderr.write ( "\rSimulation %d is running" % ( simulation, ) )
+    sys.stderr.write ( "\nSimulation %d is running" % ( simulation, ) )
     O = create_new_observer ()
     # print "\nO=",O
     random.shuffle ( x )
