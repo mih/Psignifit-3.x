@@ -140,7 +140,7 @@ constraints = ["unconstrained","unconstrained","Uniform(0,.1)"]
 # priors      = ["Gauss(4,.1)", "Gamma(1,4)","Beta(2,50)"]   # Hilft auch nicht so viel
 priors      = ["Gauss(0,100)", "Gamma(1.01,2000)","Beta(2,50)"]
 if options.ana_nafc < 2:
-    constraints += ["Beta(1,10)"]
+    constraints += ["Uniform(0,.1)"]
     priors += ["Beta(1,10)"]
 
 # Organize output
