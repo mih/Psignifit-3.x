@@ -19,7 +19,7 @@ PsiPsychometric::PsiPsychometric (
 	unsigned int k;
 	Core = core;
 	Sigmoid = sigmoid;
-	for (k=0; k<getNparams(); k++)
+	for (k=0; k<priors.size(); k++)
 		priors[k] = new PsiPrior;
 }
 
@@ -231,8 +231,11 @@ double PsiPsychometric::deviance ( const std::vector<double>& prm, const PsiData
 	return D;
 }
 
-void PsiPsychometric::setPrior ( int index, PsiPrior* prior )
+void PsiPsychometric::setPrior ( unsigned int index, PsiPrior* prior )
 {
+	if ( index >= priors.size() )
+		throw BadArgumentError ( "Trying to set a prior for a nonexistent parameter" );
+
 	delete priors[index];
 
 	priors[index] = prior;
