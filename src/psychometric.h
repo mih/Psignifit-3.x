@@ -33,10 +33,10 @@ class PsiPsychometric {
 	private:
 		int Nalternatives;
 		double guessingrate;
+		bool gammaislambda;
 		PsiCore * Core;
 		PsiSigmoid * Sigmoid;
 		std::vector<PsiPrior*> priors;
-		bool gammaislambda;
 	public:
 		PsiPsychometric (
 			int nAFC,                                                                ///< number of alternatives in the task (1 indicating yes/no)

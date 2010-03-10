@@ -14,7 +14,7 @@ PsiPsychometric::PsiPsychometric (
 	int nAFC,
 	PsiCore * core,
 	PsiSigmoid * sigmoid
-	) : Nalternatives(nAFC), guessingrate(1./nAFC), priors( getNparams() ), gammaislambda(false)
+	) : Nalternatives(nAFC), guessingrate(1./nAFC), gammaislambda(false), priors( getNparams() )
 {
 	unsigned int k;
 	Core = core;
@@ -233,8 +233,10 @@ double PsiPsychometric::deviance ( const std::vector<double>& prm, const PsiData
 
 void PsiPsychometric::setPrior ( unsigned int index, PsiPrior* prior )
 {
-	if ( index >= priors.size() )
+	if ( index >= priors.size() ) {
+		std::cerr << "Invalid index position: " << index << "\n";
 		throw BadArgumentError ( "Trying to set a prior for a nonexistent parameter" );
+	}
 
 	delete priors[index];
 
