@@ -19,7 +19,7 @@ import psignidata
 __all__ = ["GoodnessOfFit","ConvergenceMCMC","ParameterPlot","ThresholdPlot","plotSensitivity","plotInfluential","plotMultiplePMFs"]
 __warnred = [.7,0,0]
 
-def drawaxes ( ax, xtics, xfmt, ytics, yfmt, xname, yname ):
+def drawaxes ( ax, xtics=None, xfmt=None, ytics=None, yfmt=None, xname=None, yname=None ):
     """Draw x and y axes that look nicer than standard matplotlib
 
     This function deletes the pylab default axes and draws visually more
