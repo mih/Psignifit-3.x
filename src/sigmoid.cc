@@ -239,3 +239,7 @@ double PsiExponential::inv ( double p ) throw(BadArgumentError)
 	else
 		throw BadArgumentError("PsiExponential.inv is only valid in the range 0<x<1");
 }
+
+PsiSigmoid * PsiExponential::clone() const {
+    return new PsiExponential(*this);
+}
