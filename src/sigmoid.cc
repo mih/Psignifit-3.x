@@ -88,6 +88,9 @@ double PsiGauss::inv ( double p )
 	}
 }
 
+PsiSigmoid * PsiGauss::clone() const {
+    return new PsiGauss(*this);
+}
 /************************************************************
  * Gumbel_l cdf
  */

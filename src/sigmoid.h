@@ -57,12 +57,17 @@ class PsiGauss : public PsiSigmoid
 		double lastp;
 		double lastinvp;
 	public:
-		PsiGauss ( void ) : lastx(1e20), lastx_d(1e20),lastx_dd(1e20),lastp(1e20) {};
+		PsiGauss ( void ) : lastx(1e20), lastx_d(1e20),lastx_dd(1e20),lastp(1e20) {}; ///< constructor
+		PsiGauss ( const PsiGauss& original) : lastx(original.lastx),
+                                        lastx_d(original.lastx_d),
+                                        lastx_dd(original.lastx_dd),
+                                        lastp(original.lastp) {}; ///< copy constructor
 		double f   ( double x );                 ///< value of the sigmoid at x
 		double df  ( double x );                 ///< derivative of the sigmoid at x
 		double ddf ( double x );                 ///< second derivative of the sigmoid at x
 		double inv ( double p );                 ///< inverse of the sigmoid
 		int getcode ( void ) const { return 2; }       ///< return the sigmoid identifier
+        PsiSigmoid * clone() const;          ///< clone by value
 };
 
 /** \brief left-skewed gumbel cdf
