@@ -76,7 +76,7 @@ class PsiPsychometric {
 				) const;                                          ///< 1st derivative of the negative log likelihood
 		const PsiCore* getCore ( void ) { return Core; }                ///< get the core of the psychometric function
 		const PsiSigmoid* getSigmoid ( void ) { return Sigmoid; }       ///< get the sigmoid of the psychometric function
-		void setPrior ( int index, PsiPrior* prior );                   ///< set a Prior for the parameter indicated by index
+		void setPrior ( int index, PsiPrior* prior ) throw(BadArgumentError);                   ///< set a Prior for the parameter indicated by index
 		double evalPrior ( unsigned int index, double x ) const {return priors[index]->pdf(x);}              ///< evaluate the respective prior at value x
 		virtual double randPrior ( unsigned int index ) const { return priors[index]->rand(); }                            ///< sample form a prior
 		int getNalternatives ( void ) const { return Nalternatives; }         ///< get the number of alternatives (1 means yes/no)

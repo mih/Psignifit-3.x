@@ -231,10 +231,11 @@ double PsiPsychometric::deviance ( const std::vector<double>& prm, const PsiData
 	return D;
 }
 
-void PsiPsychometric::setPrior ( int index, PsiPrior* prior )
+void PsiPsychometric::setPrior ( int index, PsiPrior* prior ) throw(BadArgumentError)
 {
+    if (index >= priors.size())
+		throw BadArgumentError("index for Prior is out of range");
 	delete priors[index];
-
 	priors[index] = prior;
 }
 
