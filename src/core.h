@@ -51,6 +51,7 @@ class PsiCore
 				double a,                    ///< intercept of the logistic regression model
 				double b                     ///< slope of the logistic regression model
 				) {throw NotImplementedError();}       ///< transform parameters from logistic regression to those used for this core
+        virtual PsiCore * clone() const { throw NotImplementedError(); }
 };
 
 /** \brief a-b parameterization of the psychometric function
