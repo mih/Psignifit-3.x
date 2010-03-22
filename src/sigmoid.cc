@@ -174,6 +174,9 @@ double PsiGumbelR::inv ( double p )
 	return lastinvp;
 }
 
+PsiSigmoid * PsiGumbelR::clone() const {
+    return new PsiGumbelR(*this);
+}
 /************************************************************
  * Cauchy cdf
  */

@@ -116,12 +116,20 @@ class PsiGumbelR : public PsiSigmoid
 		double lastp;
 		double lastinvp;
 	public:
-		PsiGumbelR ( void ) : lastx(-1e20), lastdx(-1e20), lastddx(-1e20), lastp(0), lastinvp(-1e20) {}
+		PsiGumbelR ( void ) : lastx(-1e20), lastdx(-1e20), lastddx(-1e20), lastp(0), lastinvp(-1e20) {} ///< constructor
+
+		PsiGumbelR ( const PsiGumbelR& original ) : lastx(original.lastx),
+                                                    lastdx(original.lastdx),
+                                                    lastddx(original.lastddx),
+                                                    lastp(original.lastp),
+                                                    lastinvp(original.lastinvp) {} ///< copy constructor
+
 		double f   ( double x );             ///< returns the value of the right skewed gumbel cdf at position x
 		double df  ( double x );             ///< returns the derivative of the right skewed gumbel cdf at position x
 		double ddf ( double x );             ///< returns the 2nd derivative of the right skewed gumbel cdf at position x
 		double inv ( double p );             ///< returns the inverse of the right skewed gumbel cdf at position p
 		int getcode ( void ) const { return 3; }   ///< return the sigmoid identifier
+        PsiSigmoid * clone() const;          ///< clone by value
 };
 
 /** \brief cauchy cdf
