@@ -32,11 +32,13 @@ class PsiLogistic : public PsiSigmoid
 		double lastfx;
 	public:
 		PsiLogistic ( void ) : lastx(1e20) {}  ///< constructor
+		PsiLogistic ( const PsiLogistic& original) : lastx(original.lastx) {}  ///< copy constructor
 		double f ( double x );                 ///< value of the sigmoid at position x
 		double df ( double x );                ///< derivative of the sigmoid at position x
 		double ddf ( double x );               ///< second derivative of the sigmoid
 		double inv ( double p ) { return log(p/(1-p)); }  ///< inverse of the sigmoid
 		int getcode ( void ) const { return 1; }     ///< return the sigmoid identifier
+        PsiSigmoid * clone() const;          ///< clone by value
 };
 
 /** \brief gaussian cdf function

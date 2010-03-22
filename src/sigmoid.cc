@@ -37,6 +37,9 @@ double PsiLogistic::ddf ( double x )
 	return f(x)*(1-f(x))*(1-2*f(x));
 }
 
+PsiSigmoid * PsiLogistic::clone() const {
+    return new PsiLogistic(*this);
+}
 /************************************************************
  * Gauss-CDF
  */
