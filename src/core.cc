@@ -69,6 +69,9 @@ std::vector<double> abCore::transform ( int nprm, double a, double b ) {
 	return out;
 }
 
+PsiCore * abCore::clone() const{
+    return new abCore(*this);
+}
 /************************************************************
  * mwCore methods
  */
