@@ -201,6 +201,9 @@ double PsiCauchy::inv ( double p )
 	return tan ( M_PI*(p-0.5) );
 }
 
+PsiSigmoid * PsiCauchy::clone() const {
+    return new PsiCauchy(*this);
+}
 /************************************************************
  * Exponential cdf
  */
