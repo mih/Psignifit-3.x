@@ -18,7 +18,7 @@ PsiPsychometric::PsiPsychometric (
 {
 	unsigned int k;
 	Core = core;
-	Sigmoid = sigmoid;
+	Sigmoid = sigmoid->clone();
 	for (k=0; k<getNparams(); k++)
 		priors[k] = new PsiPrior;
 }
