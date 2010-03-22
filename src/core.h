@@ -51,6 +51,7 @@ class PsiCore
 				double a,                    ///< intercept of the logistic regression model
 				double b                     ///< slope of the logistic regression model
 				) {throw NotImplementedError();}       ///< transform parameters from logistic regression to those used for this core
+        virtual PsiCore * clone() const { throw NotImplementedError(); }
 };
 
 /** \brief a-b parameterization of the psychometric function
@@ -65,6 +66,8 @@ class abCore : public PsiCore
 {
 	private:
 	public:
+        abCore( void ) {}                    ///< construcor
+        abCore( const abCore& original) {}                    ///< copy construcor
 		double g (
 			double x,                        ///< stimulus intensity
 			const std::vector<double>& prm   ///< parameter vector
@@ -94,6 +97,7 @@ class abCore : public PsiCore
 			double a,                        ///< intercept of the logistic regression model
 			double b                         ///< slope of the logistic regression model
 			);                                         ///< transform parameters from a logistic regression model to the parameters used here
+        PsiCore * clone() const;
 };
 
 /** \brief m-w parameterization of the psychmetric function

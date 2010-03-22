@@ -37,6 +37,9 @@ double PsiLogistic::ddf ( double x )
 	return f(x)*(1-f(x))*(1-2*f(x));
 }
 
+PsiSigmoid * PsiLogistic::clone() const {
+    return new PsiLogistic(*this);
+}
 /************************************************************
  * Gauss-CDF
  */
@@ -85,6 +88,9 @@ double PsiGauss::inv ( double p )
 	}
 }
 
+PsiSigmoid * PsiGauss::clone() const {
+    return new PsiGauss(*this);
+}
 /************************************************************
  * Gumbel_l cdf
  */
@@ -125,6 +131,9 @@ double PsiGumbelL::inv ( double p )
 	return lastinvp;
 }
 
+PsiSigmoid * PsiGumbelL::clone() const {
+    return new PsiGumbelL(*this);
+}
 /************************************************************
  * Gumbel_r cdf
  */
@@ -165,6 +174,9 @@ double PsiGumbelR::inv ( double p )
 	return lastinvp;
 }
 
+PsiSigmoid * PsiGumbelR::clone() const {
+    return new PsiGumbelR(*this);
+}
 /************************************************************
  * Cauchy cdf
  */
@@ -189,6 +201,9 @@ double PsiCauchy::inv ( double p )
 	return tan ( M_PI*(p-0.5) );
 }
 
+PsiSigmoid * PsiCauchy::clone() const {
+    return new PsiCauchy(*this);
+}
 /************************************************************
  * Exponential cdf
  */
@@ -223,4 +238,8 @@ double PsiExponential::inv ( double p ) throw(BadArgumentError)
 		return -log(1-p);
 	else
 		throw BadArgumentError("PsiExponential.inv is only valid in the range 0<x<1");
+}
+
+PsiSigmoid * PsiExponential::clone() const {
+    return new PsiExponential(*this);
 }
