@@ -17,7 +17,7 @@ PsiPsychometric::PsiPsychometric (
 	) : Nalternatives(nAFC), guessingrate(1./nAFC), priors( getNparams() ), gammaislambda(false)
 {
 	unsigned int k;
-	Core = core;
+	Core = core->clone();
 	Sigmoid = sigmoid->clone();
 	for (k=0; k<getNparams(); k++)
 		priors[k] = new PsiPrior;
