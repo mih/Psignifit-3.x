@@ -131,6 +131,9 @@ double PsiGumbelL::inv ( double p )
 	return lastinvp;
 }
 
+PsiSigmoid * PsiGumbelL::clone() const {
+    return new PsiGumbelL(*this);
+}
 /************************************************************
  * Gumbel_r cdf
  */
