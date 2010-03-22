@@ -109,19 +109,19 @@ class TestPsychometric(ut.TestCase):
     def test_pschometric(self):
         core = sf.abCore()
         sigmoid = sf.PsiLogistic()
-        #psi = sf.PsiPsychometric(2,core,sigmoid)
-        #params = sf.vector_double([0.5,0.5,0.01])
-        #data = TestData.generate_test_dataset()
+        psi = sf.PsiPsychometric(2,core,sigmoid)
+        params = sf.vector_double([0.5,0.5,0.01])
+        data = TestData.generate_test_dataset()
 
-        #psi.evaluate(0.0,params)
-        #psi.negllikeli(params,data)
-        #psi.neglpost(params, data)
-        #psi.leastfavourable(params, data, 0.0)
-        #psi.deviance(params, data)
-        #psi.ddnegllikeli(params, data)
-        #psi.dnegllikeli(params, data)
-        #psi.getCore()
-        #psi.getSigmoid()
+        psi.evaluate(0.0,params)
+        psi.negllikeli(params,data)
+        psi.neglpost(params, data)
+        psi.leastfavourable(params, data, 0.0)
+        psi.deviance(params, data)
+        psi.ddnegllikeli(params, data)
+        psi.dnegllikeli(params, data)
+        psi.getCore()
+        psi.getSigmoid()
 
 class TestPriors(ut.TestCase):
 
