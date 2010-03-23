@@ -308,6 +308,9 @@ std::vector<double> weibullCore::transform ( int nprm, double a, double b )
 	return prm;
 }
 
+PsiCore * weibullCore::clone() const{
+    return new weibullCore(*this);
+}
 /************************************************************
  * polyCore
  */

@@ -261,7 +261,11 @@ class weibullCore : public PsiCore
 		double loglina;
 		double loglinb;
 	public:
-		weibullCore ( const PsiData* data );
+		weibullCore ( const PsiData* data );    ///< constructor
+		weibullCore ( const weibullCore& original ) : twooverlog2(original.twooverlog2),
+                                                      loglog2(original.loglog2),
+                                                      loglina(original.loglina),
+                                                      loglinb(original.loglinb) {} ///< copy constructor
 		double g (
 			double x,                           ///< stimulus intensity
 			const std::vector<double>& prm      ///< parameter vector (m,s,...)
@@ -291,6 +295,7 @@ class weibullCore : public PsiCore
 			double a,                           ///< intercept of the logistic regression model
 			double b                            ///< slope of the logistic regression model
 			);          ///< transform the parameters from a logistic regression model to starting values
+        PsiCore * clone() const ; ///< clone by value
 };
 
 /** \brief polynomial Core as used for the weibull function
