@@ -165,6 +165,8 @@ class mwCore : public PsiCore
 class linearCore : public PsiCore
 {
 	public:
+        linearCore( void ) {}                         ///< constructor
+        linearCore( const linearCore& original ) {} ///< copy constructor
 		double g (
 			double x,                           ///< stimulus intensity
 			const std::vector<double>& prm      ///< parameter vector
@@ -194,6 +196,9 @@ class linearCore : public PsiCore
 			double a,                           ///< intercept parameter of the logistic regression model
 			double b                            ///< slope parameter of the logistic regression
 			) { std::vector<double> out (nprm,0); out[0] = b; out[1] = a; return out; }   ///< transform logistic regression parameters to useful ones for this core
+        PsiCore * clone() const {
+            return new linearCore(*this);
+        };             ///< clone by value
 };
 
 /** \brief logarithmic core
