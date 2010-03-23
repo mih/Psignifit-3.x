@@ -220,6 +220,9 @@ std::vector<double> logCore::transform ( int nprm, double a, double b ) {
 	return prm;
 }
 
+PsiCore * logCore::clone() const{
+    return new logCore(*this);
+}
 /************************************************************
  * weibullCore
  */

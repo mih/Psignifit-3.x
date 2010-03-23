@@ -213,6 +213,7 @@ class logCore : public PsiCore
 		double scale;
 	public:
 		logCore ( const PsiData* data );      ///< use a data set to determine the correct scaling factors of initial values and initialize the object
+        logCore ( const logCore& original) : scale(original.scale) {} ///< copy constructor
 		double g   (
 			double x,                                 ///< stimulus intensity
 			const std::vector<double>& prm            ///< parameter vector
@@ -242,6 +243,7 @@ class logCore : public PsiCore
 				double a,                             ///< intercept of the logistic regression model
 				double b                              ///< slope of the logistic regression model
 			);                   ///< transform parameters from a logistic regression model to starting values
+        PsiCore * clone() const ; ///< clone by value
 };
 
 /** \brief Core for the psychofun Weibull parameterization
