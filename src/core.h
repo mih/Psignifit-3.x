@@ -97,7 +97,7 @@ class abCore : public PsiCore
 			double a,                        ///< intercept of the logistic regression model
 			double b                         ///< slope of the logistic regression model
 			);                                         ///< transform parameters from a logistic regression model to the parameters used here
-        PsiCore * clone() const;
+        PsiCore * clone() const;             ///< clone by value
 };
 
 /** \brief m-w parameterization of the psychmetric function
