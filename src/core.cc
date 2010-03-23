@@ -163,6 +163,9 @@ std::vector<double> mwCore::transform ( int nprm, double a, double b ) {
 	return out;
 }
 
+PsiCore * mwCore::clone() const{
+    return new mwCore(*this);
+}
 /************************************************************
  * logarithmicCore
  */

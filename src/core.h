@@ -119,6 +119,10 @@ class mwCore : public PsiCore
 			int sigmoid,                     ///< Type of the sigmoid (1=logistic, 2=gauss, 3=gumbel)
 			double al=0.1                    ///< alpha parameter defining what "significant performance increase" means
 			);                                          ///< constructor
+        mwCore( const mwCore& original ) :  sigmtype(original.sigmtype),
+                                            alpha(original.alpha),
+                                            zalpha(original.zalpha),
+                                            zshift(original.zshift) {} ///< copy constructor
 		double g (
 			double x,                        ///< stimulus intensity
 			const std::vector<double>& prm   ///< parameter vector
@@ -148,6 +152,7 @@ class mwCore : public PsiCore
 			double a,                        ///< intercept of the logistic regression model
 			double b                         ///< slope of the logistic regression model
 			);                                         ///< transform parameters from a logistic regression model to the parameters used here
+        PsiCore * clone() const;             ///< clone by value
 };
 
 /** \brief linear core
