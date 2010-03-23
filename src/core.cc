@@ -397,3 +397,7 @@ std::vector<double> polyCore::transform ( int nprm, double a, double b )
 
 	return prm;
 }
+
+PsiCore * polyCore::clone() const{
+    return new polyCore(*this);
+}

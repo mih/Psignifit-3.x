@@ -309,7 +309,9 @@ class polyCore : public PsiCore
 		double x1;
 		double x2;
 	public:
-		polyCore ( const PsiData* data );
+		polyCore ( const PsiData* data );            ///< constructor
+		polyCore ( const polyCore& original ) : x1(original.x1),
+                                                x2(original.x2) {} ///< copy constructor
 		double g (
 			double x,                                ///< stimulus intensity
 			const std::vector<double>& prm           ///< parameter vector (alpha,beta, ...)
@@ -339,6 +341,7 @@ class polyCore : public PsiCore
 			double a,                                ///< intercept of the logistic regression model
 			double b                                 ///< slope of the logistic regression model to starting values
 			);              ///< transform the parameter from a logistic regression model to starting values
+        PsiCore * clone() const ; ///< clone by value
 };
 
 #endif
