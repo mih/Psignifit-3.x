@@ -128,6 +128,9 @@ class TestPsychometric(ut.TestCase):
         psi.getCore()
         psi.getSigmoid()
 
+    def test_memory_management(self):
+        psi = sf.PsiPsychometric(2, sf.abCore(), sf.PsiLogistic())
+
 class TestPriors(ut.TestCase):
 
     def all_methods(self, prior):
