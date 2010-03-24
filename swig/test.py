@@ -185,11 +185,15 @@ class TestPriors(ut.TestCase):
 
 class TestBootstrap(ut.TestCase):
 
-    def test_bootstrap(self):
+    @staticmethod
+    def generate_test_bootstrap_list():
         data = TestData.generate_test_dataset()
         psi = TestPsychometric.generate_test_model()
         cuts = sf.vector_double([1, 0.5])
-        bs_list = sf.bootstrap(999, data, psi, cuts)
+        return sf.bootstrap(999, data, psi, cuts)
+
+    def test_bootstrap(self):
+        TestBootstrap.generate_test_bootstrap_list()
 
     def test_jackknifedata(self):
         data = TestData.generate_test_dataset()
