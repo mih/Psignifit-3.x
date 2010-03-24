@@ -40,9 +40,14 @@ class UniformPrior : public PsiPrior
 		UniformRandom rng;
 	public:
 		UniformPrior ( double low, double high ) : lower(low), upper(high), rng ( low, high ) { height = 1./(high-low); } ///< Set up a UniformPrior on the interval from low to high
+		UniformPrior ( const UniformPrior& original ) : lower(original.lower),
+                                                        upper(original.upper),
+                                                        height(original.height),
+                                                        rng(original.rng) {} ///< copy constructor
 		double pdf ( double x ) { return ( x>lower && x<upper ? height : 0 ); }                      ///< evaluate the pdf of the prior at position x
 		double dpdf ( double x ) { return ( x!=lower && x!=upper ? 0 : (x==lower ? 1e20 : -1e20 ));} ///< derivative of the pdf of the prior at position x (jumps at lower and upper are replaced by large numbers)
 		double rand ( void ) { return rng.draw(); }                                                 ///< draw a random number
+        PsiPrior * clone() const { return new UniformPrior(*this); }
 };
 
 /** \brief gaussian (normal) prior
