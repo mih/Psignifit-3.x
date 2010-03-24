@@ -89,7 +89,7 @@ class BootstrapList : public PsiMClist
 				thresholds (Cuts.size(), std::vector<double> (N)),
 				Rpd(N),
 				Rkd(N)
-			{ }; ///< set up the list
+			{ } ///< set up the list
 		// TODO: should setBCa be private and friend of parametric bootstrap?
 		void setBCa (
 			unsigned int i,                                               ///< index of the cut for which Bias and Acceleration should be set
