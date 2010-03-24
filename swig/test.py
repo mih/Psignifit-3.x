@@ -113,6 +113,11 @@ class TestPsychometric(ut.TestCase):
         params = sf.vector_double([0.5,0.5,0.01])
         data = TestData.generate_test_dataset()
 
+        pr = sf.UniformPrior(0,1)
+        psi.setPrior(0,pr)
+        psi.setPrior(1,pr)
+        psi.setPrior(2,pr)
+
         psi.evaluate(0.0,params)
         psi.negllikeli(params,data)
         psi.neglpost(params, data)
