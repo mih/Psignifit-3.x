@@ -237,7 +237,7 @@ void PsiPsychometric::setPrior ( unsigned int index, PsiPrior* prior ) throw(Bad
 		throw BadArgumentError ( "Trying to set a prior for a nonexistent parameter" );
 	}
 	delete priors[index];
-	priors[index] = prior;
+	priors[index] = prior->clone();
 }
 
 double PsiPsychometric::neglpost ( const std::vector<double>& prm, const PsiData* data ) const
