@@ -124,12 +124,17 @@ class TestCore(ut.TestCase):
 
 class TestPsychometric(ut.TestCase):
 
+    @staticmethod
+    def generate_test_model():
+        # IMPORTANT: here we can use the fact that PsiPsychometic manages its
+        # own memory, and we don't need to hang on to th sigmoid, core, and
+        # prior.
+        return sf.PsiPsychometric(2, sf.abCore(), sf.PsiLogistic())
+
     def test_pschometric(self):
-        core = sf.abCore()
-        sigmoid = sf.PsiLogistic()
-        psi = sf.PsiPsychometric(2,core,sigmoid)
-        params = sf.vector_double([0.5,0.5,0.01])
         data = TestData.generate_test_dataset()
+        psi = TestPsychometric.generate_test_model()
+        params = sf.vector_double([0.5,0.5,0.01])
 
         pr = sf.UniformPrior(0,1)
         psi.setPrior(0,pr)
@@ -147,10 +152,12 @@ class TestPsychometric(ut.TestCase):
         psi.getSigmoid()
 
     def test_memory_management(self):
-        psi = sf.PsiPsychometric(2, sf.abCore(), sf.PsiLogistic())
+        core = sf.abCore()
+        sigmoid = sf.PsiLogistic()
+        psi = sf.PsiPsychometric(2,core,sigmoid)
 
     def test_exceptions(self):
-        psi = sf.PsiPsychometric(2, sf.abCore(), sf.PsiLogistic())
+        psi = TestPsychometric.generate_test_model()
         # for 2AFC we have 3 paramters with indices [0,1,2]
         self.assertRaises(ValueError, psi.setPrior,3, sf.UniformPrior(0,1))
 
@@ -179,16 +186,10 @@ class TestPriors(ut.TestCase):
 class TestBootstrap(ut.TestCase):
 
     def test_bootstrap(self):
-        # IMPORTANT: here we can use the fact that PsiPsychometic manages its
-        # own memory, and we don't need to hang on to th sigmoid, core, and
-        # prior. See also: the test for PsiPsychometric
         data = TestData.generate_test_dataset()
+        psi = TestPsychometric.generate_test_model()
         cuts = sf.vector_double([1, 0.5])
-
-        pmf = sf.PsiPsychometric(2, sf.abCore(), sf.PsiLogistic())
-        pmf.setPrior(2, sf.UniformPrior(0.0, 0.1))
-        bs_list = sf.bootstrap(999, data, pmf, cuts)
-        print bs_list
+        bs_list = sf.bootstrap(999, data, psi, cuts)
 
 
 #x = numpy.arange(0,10,0.1)
