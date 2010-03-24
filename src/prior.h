@@ -23,6 +23,7 @@ class PsiPrior
 		virtual double pdf ( double x ) { return 1.;}    ///< evaluate the pdf of the prior at position x (in this default form, the parameter is completely unconstrained)
 		virtual double dpdf ( double x ) { return 0.; }  ///< evaluate the derivative of the pdf of the prior at position x (in this default form, the parameter is completely unconstrained)
 		virtual double rand ( void ) { return rng.draw(); } ///< draw a random number
+        virtual PsiPrior * clone() const { throw NotImplementedError(); }///< clone by value
 };
 
 /** \brief Uniform prior on an interval
