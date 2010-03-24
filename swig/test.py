@@ -191,6 +191,12 @@ class TestBootstrap(ut.TestCase):
         cuts = sf.vector_double([1, 0.5])
         bs_list = sf.bootstrap(999, data, psi, cuts)
 
+    def test_jackknifedata(self):
+        data = TestData.generate_test_dataset()
+        psi = TestPsychometric.generate_test_model()
+        sf.jackknifedata(data, psi)
+
+
 
 #x = numpy.arange(0,10,0.1)
 #y = numpy.zeros(len(x))
