@@ -200,6 +200,21 @@ class TestBootstrap(ut.TestCase):
         psi = TestPsychometric.generate_test_model()
         sf.jackknifedata(data, psi)
 
+class TestMCList(ut.TestCase):
+
+    def test_psi_mclist(self):
+        bs_list = TestBootstrap.generate_test_bootstrap_list()
+        bs_list.getEst(0)
+        bs_list.getEst(0,0)
+        bs_list.getPercentile(0.95, 0)
+        bs_list.getMean(0)
+        bs_list.getdeviance(0)
+        bs_list.getNsamples()
+        bs_list.getNparams()
+        bs_list.getDeviancePercentile(0.95)
+
+        bs_list.setEst(0, sf.vector_double([0.1,0.1,0.1]), 0.95)
+        bs_list.setdeviance(0,0.95)
 
 
 #x = numpy.arange(0,10,0.1)
