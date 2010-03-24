@@ -131,6 +131,11 @@ class TestPsychometric(ut.TestCase):
     def test_memory_management(self):
         psi = sf.PsiPsychometric(2, sf.abCore(), sf.PsiLogistic())
 
+    def test_exceptions(self):
+        psi = sf.PsiPsychometric(2, sf.abCore(), sf.PsiLogistic())
+        # for 2AFC we have 3 paramters with indices [0,1,2]
+        self.assertRaises(ValueError, psi.setPrior,3, sf.UniformPrior(0,1))
+
 class TestPriors(ut.TestCase):
 
     def all_methods(self, prior):
