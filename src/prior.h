@@ -103,9 +103,15 @@ class BetaPrior : public PsiPrior
 		BetaPrior ( double al, double bt ) : alpha(al), beta(bt), normalization(betaf(al,bt)), rng (0,1) {
             mode = (al-1)/(al+bt-2);
             mode = pdf(mode); }                      ///< Initialize with parameters alpha=al, beta=bt
+        BetaPrior ( const BetaPrior& original) : alpha(original.alpha),
+                                                 beta(original.beta),
+                                                 normalization(original.normalization),
+                                                 rng(original.rng),
+                                                 mode(original.mode) {} ///< copy constructor
 		double pdf ( double x ) { return (x<0||x>1 ? 0 : pow(x,alpha-1)*pow(1-x,beta-1)/normalization); }             ///< return beta pdf
 		double dpdf ( double x ) { return (x<0||x>1 ? 0 : ((alpha-1)*pow(x,alpha-2)*pow(1-x,beta-1) + (beta-1)*pow(1-x,beta-2)*pow(x,alpha-1))/normalization); }      ///< return derivative of beta pdf
 		double rand ( void );                                                                                         ///< draw a random number using rejection sampling
+        PsiPrior * clone() const { return new BetaPrior(*this); }
 };
 
 /** \brief gamma prior
