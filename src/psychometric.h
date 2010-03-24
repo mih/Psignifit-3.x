@@ -28,6 +28,11 @@
  * a PsiSigmoid f, that describes a nonlinear function from the real numbers to (0,1) and
  * a PsiCore g, that describes the "internal" workings of the nonlinear function. Thus,
  * the Term Sigmoid ( x | theta ) equals f(g(x,theta)).
+ *
+ * The object copies and manages its own memory. This means that when setting
+ * PsiSigmoid and PsiCore in the constructor, as well as setting PsiPrior via
+ * setPrior(), copies of the respective objects are made. Furthermore when the
+ * object is destroyed theses copies are destoryed also.
  */
 class PsiPsychometric {
 	private:
