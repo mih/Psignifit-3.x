@@ -132,9 +132,14 @@ class GammaPrior : public PsiPrior
 		UniformRandom rng;
 	public:
 		GammaPrior ( double shape, double scale ) : k(shape), theta(scale) { normalization = pow(scale,shape)*exp(gammaln(shape)); }                         ///< Initialize a gamma prior
+        GammaPrior ( const GammaPrior& original ) : k(original.k),
+                                                    theta(original.theta),
+                                                    normalization(original.normalization),
+                                                    rng(original.rng) {} ///< copy constructor
 		virtual double pdf ( double x ) { return (x>0 ? pow(x,k-1)*exp(-x/theta)/normalization : 0 );}                                                             ///< return pdf at position x
 		virtual double dpdf ( double x ) { return (x>0 ? ( (k-1)*pow(x,k-2)*exp(-x/theta)-pow(x,k-1)*exp(-x/theta)/theta)/normalization : 0 ); }                   ///< return derivative of pdf
 		virtual double rand ( void );
+        PsiPrior * clone() const { return new GammaPrior(*this); }
 };
 
 /** \brief negative gamma prior
