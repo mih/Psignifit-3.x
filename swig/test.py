@@ -57,6 +57,24 @@ class TestData(ut.TestCase):
 
     def test_data(self):
         data = TestData.generate_test_dataset()
+        data.setNcorrect(sf.vector_int([24, 32, 40,48, 50,48]))
+
+        data.getIntensities()
+        data.getNtrials()
+        data.getNcorrect()
+        data.getPcorrect()
+
+        blocks = data.getNblocks()
+
+        for i in range(blocks):
+            data.getIntensity(i)
+            data.getNtrials(i)
+            data.getNcorrect(i)
+            data.getPcorrect(i)
+            data.getNoverK(i)
+
+        data.getNalternatives()
+        data.nonasymptotic()
 
 class TestCore(ut.TestCase):
 
