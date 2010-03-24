@@ -69,9 +69,16 @@ class GaussPrior : public PsiPrior
 		GaussRandom rng;
 	public:
 		GaussPrior ( double mean, double sd ) : mu(mean), sg(sd), var(sg*sg), twovar(2*sg*sg), rng(mean,sd) { normalization = 1./(sqrt(2*M_PI)*sg); }        ///< initialize prior to have mean mean and standard deviation sd
+		GaussPrior ( const GaussPrior& original ) : mu(original.mu),
+                                                    sg(original.sg),
+                                                    normalization(original.normalization),
+                                                    var(original.var),
+                                                    twovar(original.twovar),
+                                                    rng(original.rng) {} ///< copy contructor
 		double pdf ( double x ) { return normalization * exp ( - (x-mu)*(x-mu)/twovar ); }                                              ///< return pdf of the prior at position x
 		double dpdf ( double x ) { return - x * pdf ( x ) / var; }                                                                      ///< return derivative of the prior at position x
 		double rand ( void ) {return rng.draw(); }
+        PsiPrior * clone() const { return new GaussPrior(*this); }
 };
 
 /** \brief beta prior
