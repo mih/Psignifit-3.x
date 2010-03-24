@@ -161,18 +161,14 @@ class TestPriors(ut.TestCase):
 class TestBootstrap(ut.TestCase):
 
     def test_bootstrap(self):
-        # IMPORTANT we need to assign local variables for these objects.  If we
-        # simply do pmf.setPrior(2,sf.UniformPrior(0.0, 0.1)) the
-        # UniformPrior will be out of scope and deleted by the time we reach
-        # bootstrap, resulting in a segfault.
+        # IMPORTANT: here we can use the fact that PsiPsychometic manages its
+        # own memory, and we don't need to hang on to th sigmoid, core, and
+        # prior. See also: the test for PsiPsychometric
         data = TestData.generate_test_dataset()
-        core = sf.abCore()
-        prior = sf.UniformPrior(0.0, 0.1)
-        sigmoid = sf.PsiLogistic()
         cuts = sf.vector_double([1, 0.5])
 
-        pmf = sf.PsiPsychometric(2, core, sigmoid)
-        pmf.setPrior(2, prior)
+        pmf = sf.PsiPsychometric(2, sf.abCore(), sf.PsiLogistic())
+        pmf.setPrior(2, sf.UniformPrior(0.0, 0.1))
         bs_list = sf.bootstrap(999, data, pmf, cuts)
         print bs_list
 
