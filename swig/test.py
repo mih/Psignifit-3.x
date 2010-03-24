@@ -216,6 +216,28 @@ class TestMCList(ut.TestCase):
         bs_list.setEst(0, sf.vector_double([0.1,0.1,0.1]), 0.95)
         bs_list.setdeviance(0,0.95)
 
+    def test_bootstrap_list(self):
+        bs_list = TestBootstrap.generate_test_bootstrap_list()
+        bs_list.getData(0)
+        # segmentation fault?
+        #bs_list.getThres(0.95, 0)
+        bs_list.getThres_byPos(0,0)
+        bs_list.getNblocks()
+        bs_list.getCut(0)
+        bs_list.getAcc(0)
+        bs_list.getBias(0)
+        bs_list.getRpd(0)
+        # should this not throw a BadIndexError
+        bs_list.percRpd(0)
+        bs_list.getRkd(0)
+        # should this not thow a BadIndexError?
+        bs_list.percRkd(0)
+
+        #bs_list.setBCa(0)
+
+
+
+
 
 #x = numpy.arange(0,10,0.1)
 #y = numpy.zeros(len(x))
