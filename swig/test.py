@@ -243,7 +243,12 @@ class TestMCList(ut.TestCase):
         bs_list.setRpd(0, 0.5)
         bs_list.setRkd(0, 0.5)
 
-#    def test_jackknifedata
+    def test_jackknifedata(self):
+        jk_list = TestBootstrap.generate_test_jackknife_list()
+        jk_list.getNblocks()
+        jk_list.influential(0, sf.vector_double([0.0, 0.0, 0.0]),
+                sf.vector_double([0.0, 0.0, 0.0]))
+        jk_list.outlier(0)
 
 
 
