@@ -1,9 +1,15 @@
-- copy Core, Sigmoid, ... in psychometric 
 - seed the random number generator
 - Goodness of fit (Correlations?)                                          [OK] but correlations are wrong
 - Unit test with gamma as a free parameter                                 [OK] but only very rough correspondence to psignifit -- should be stricter
 - BCa confidence limits for slope (and widths?)
 - Bugs with different cores -> no convergence, exceptionally high deviance with ok looking fit, ... This is only due to the logCore-Kernel that returns -inf for contrasts of 0
+
+- When using [] to access elements from the vector class, we need to manually
+  check that the index value is within range. Alternatively we could use the
+  'at()' method, which is index safe, and throws an 'std::out_of_range'
+  exception. Consider replacing parts of the code that do th manual checking
+  with calls to 'at()'. In this case we would also benefit from the swig
+  exception handling for all STL exceptions.
 
 MayBe:
 - implement fullmodel, nullmodel
