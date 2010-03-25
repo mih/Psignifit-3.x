@@ -13,9 +13,18 @@
 #include "psipp.h"
 %}
 
+// handle all STL exceptions
+%include "exception.i"
+%exception {
+    try {
+        $action
+    } catch (const std::exception& e) {
+        SWIG_exception(SWIG_RuntimeError, e.what());
+    }
+}
+
 // make the STL vectors available
 %include "std_vector.i"
-
 namespace std {
     %template(vector_double) vector<double>;
     %template(vector_int) vector<int>;
