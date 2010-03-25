@@ -192,13 +192,17 @@ class TestBootstrap(ut.TestCase):
         cuts = sf.vector_double([1, 0.5])
         return sf.bootstrap(999, data, psi, cuts)
 
+    @staticmethod
+    def generate_test_jackknife_list():
+        data = TestData.generate_test_dataset()
+        psi = TestPsychometric.generate_test_model()
+        sf.jackknifedata(data, psi)
+
     def test_bootstrap(self):
         TestBootstrap.generate_test_bootstrap_list()
 
     def test_jackknifedata(self):
-        data = TestData.generate_test_dataset()
-        psi = TestPsychometric.generate_test_model()
-        sf.jackknifedata(data, psi)
+        TestBootstrap.generate_test_jackknife_list()
 
 class TestMCList(ut.TestCase):
 
