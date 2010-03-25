@@ -196,7 +196,7 @@ class TestBootstrap(ut.TestCase):
     def generate_test_jackknife_list():
         data = TestData.generate_test_dataset()
         psi = TestPsychometric.generate_test_model()
-        sf.jackknifedata(data, psi)
+        return sf.jackknifedata(data, psi)
 
     def test_bootstrap(self):
         TestBootstrap.generate_test_bootstrap_list()
@@ -237,7 +237,13 @@ class TestMCList(ut.TestCase):
         # should this not thow a BadIndexError?
         bs_list.percRkd(0)
 
-        #bs_list.setBCa(0)
+        bs_list.setBCa(0, 0.1, 0.1)
+        bs_list.setData(0, sf.vector_int([24, 32, 40,48, 50,48]))
+        bs_list.setThres(0.5, 0, 0)
+        bs_list.setRpd(0, 0.5)
+        bs_list.setRkd(0, 0.5)
+
+#    def test_jackknifedata
 
 
 
