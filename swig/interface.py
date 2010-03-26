@@ -1,6 +1,24 @@
 import numpy as np
 import swignifit as sf
 
+sig_dict = dict()
+
+for subclass in sf.PsiSigmoid.__subclasses__():
+    sig_dict[subclass.getDescriptor()] = subclass
+
+class PsignifitException(Exception):
+    pass
+
+def get_sigmoid(descriptor):
+    if not sig_dict.has_key(descriptor):
+        raise PsignifitException("The sigmoid \'"+str(descriptor)+"\' you requested, is not available.")
+    return sig_dict[descriptor]()
+
+def available_sigmoids():
+    print "The following sigmoids are available:"
+    print sig_dict.keys()
+
+
 def bootstrap(data, start=None, nsamples=2000, nafc=2, sigmoid="logistic",
         core="ab", priors=None, cuts=None, parametric=True ):
 
@@ -9,7 +27,7 @@ def bootstrap(data, start=None, nsamples=2000, nafc=2, sigmoid="logistic",
     k = sf.vector_int(data[1].astype(int))
     N = sf.vector_int(data[2].astype(int))
     data = sf.PsiData(x,N,k,nafc)
-    sigmoid = sf.getsigmoid(sigmoid)
+    sigmoid = get_sigmoid(sigmoid)
     core = sf.getcore(core, sigmoid.getcode(), data)
     pmf = sf.PsiPsychometric(nafc, core, sigmoid)
     Nparams = pmf.getNparams()
