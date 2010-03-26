@@ -38,6 +38,8 @@ namespace std {
       SWIG_fail;
 %}
 
+%include "std_string.i"
+
 // we need to ignore the second constructor for PsiData since swig can't handle
 // this type of overloading TODO write a factory method in python that
 // implements this functionality
