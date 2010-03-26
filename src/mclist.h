@@ -98,18 +98,23 @@ class BootstrapList : public PsiMClist
 			) { BCa=true; bias[i] = Bias; acceleration[i] = Acceleration; }  ///< set bias and acceleration to get BCa confidence intervals
 		void setData (
 			unsigned int i,                                               ///< index of the bootstrap sample to be set
-			const std::vector<int>& newdata                                ///< responses in the new bootstrap sample
+			const std::vector<int>& newdata                                ///< response counts in the new bootstrap sample (not proportion correct)
 			);   ///< store a simulated data set
 		std::vector<int> getData ( unsigned int i ) const;                 ///< get a simulated data set at posititon i
 		double getThres ( double p, unsigned int cut );                    ///< get the p-th percentile associated with the threshold at cut
 		double getThres_byPos ( unsigned int i, unsigned int cut );        ///< get the threshold for the i-th sample
-		void setThres ( double thres, unsigned int i, unsigned int cut );  ///< set the value of a threshold associated with the threshold at cut
+		void setThres ( double thres, ///< new value of the threshold
+                unsigned int i,       ///< index of the bootstrap sample
+                unsigned int cut      ///< index of the desired cut
+                );  ///< set the value of a threshold associated with the threshold at cut
 		unsigned int getNblocks ( void ) const { return data[0].size(); }  ///< get the number of blocks in the underlying dataset
 		double getCut ( unsigned int i ) const;                            ///< get the value of cut i
-		double getAcc ( unsigned int i ) const { return acceleration[i]; };///< get the acceleration constant for cut i
-		double getBias ( unsigned int i ) const { return bias[i]; };       ///< get the bias for cut i
+		double getAcc ( unsigned int i ) const { return acceleration[i]; } ///< get the acceleration constant for cut i
+		double getBias ( unsigned int i ) const { return bias[i]; }       ///< get the bias for cut i
 		// TODO: should setRpd be private and friend of parametricbootstrap?
-		void setRpd ( unsigned int i, double r_pd );                       ///< set correlation between predicted values and deviance residuals for a simulated dataset
+		void setRpd ( unsigned int i, ///< index of the bootstrap sample
+                double r_pd           ///< new correlation
+                );///< set correlation between predicted values and deviance residuals for a simulated dataset
 		double getRpd ( unsigned int i ) const;                            ///< get correlation between predicted values and deviance residuals for simulated dataset i
 		double percRpd ( double p );                                       ///< get the p-th percentile of the correlations between predicted values and deviance residuals
 		// TODO: should setRkd be private and friend of parametric bootstrap?
