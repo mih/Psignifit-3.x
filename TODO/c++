@@ -3,6 +3,16 @@
 - Unit test with gamma as a free parameter                                 [OK] but only very rough correspondence to psignifit -- should be stricter
 - BCa confidence limits for slope (and widths?)
 - Bugs with different cores -> no convergence, exceptionally high deviance with ok looking fit, ... This is only due to the logCore-Kernel that returns -inf for contrasts of 0
+- codes in sigmoids should be constants with ' const unsigned int $VARIBALE'
+- add 'void' to the clone method calls
+- since PsiPsychometric makes copies of sigmoid, core and prior, we have memory
+  leaks in the uni tests, since the original objects are not being deleted
+- In PsiMCList, getdeviance and setdeviance should be getDeviance and
+  setDeviance
+- Review the documentation for BootstrapList
+- in PsiSigmoid getcode() should be getCode()
+- Use pure virtual functions in PsiSigmoid, PsiCore, and PsiPrior, instead of
+  NotImplemetedError
 
 - When using [] to access elements from the vector class, we need to manually
   check that the index value is within range. Alternatively we could use the
