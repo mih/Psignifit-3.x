@@ -59,9 +59,9 @@ class PsiMClist
  * Bootstrap samples support some special operations that regular monte carlo samples don't. In particular bootstrap
  * samples from a psychometric function should incorporate information about
  *
- * 1. The thresholds that are associated with each parameter vector
- * 2. the bootstrap samples themselves and not only the resulting parameter estimates
- * 3. correlations of the psychometric function with the bootstrap samples "sequence"
+ * -# The thresholds that are associated with each parameter vector
+ * -# the bootstrap samples themselves and not only the resulting parameter estimates
+ * -# correlations of the psychometric function with the bootstrap samples "sequence"
  */
 class BootstrapList : public PsiMClist
 {
