@@ -194,7 +194,7 @@ double BootstrapList::percRpd ( double p ) {
 	if ( p<0 || p>1 )
 		throw BadArgumentError();
 
-	int index ( p*getNsamples() );
+	int index ( p*(getNsamples()-1));
 
 	sort ( Rpd.begin(), Rpd.end() );
 
@@ -219,7 +219,7 @@ double BootstrapList::percRkd ( double p ) {
 	if ( p<0 || p>1 )
 		throw BadIndexError();
 
-	int index ( p*getNsamples() );
+	int index ( p*(getNsamples()-1) );
 
 	sort ( Rkd.begin(), Rkd.end() );
 
