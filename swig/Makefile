@@ -12,4 +12,4 @@ swig:
 clean:
 	rm -rf build swignifit.py *.pyc swignifit_wrap.cxx
 test:
-	PYTHONPATH=build/`ls -1 build | grep lib` python test.py
+	PYTHONPATH=build/`ls -1 build | grep lib` python swignifit-test.py
