@@ -1,5 +1,6 @@
 import numpy as np
 import swignifit as sf
+import operator as op
 
 sig_dict = dict()
 
@@ -13,6 +14,17 @@ def get_sigmoid(descriptor):
     if not sig_dict.has_key(descriptor):
         raise PsignifitException("The sigmoid \'"+str(descriptor)+"\' you requested, is not available.")
     return sig_dict[descriptor]()
+
+def get_cuts(cuts):
+    if cuts is None:
+        return sf.vector_double([0.5])
+    elif op.isNumberType(cuts):
+        return sf.vector_double([cuts])
+    elif op.isSequenceType(cuts) and np.array([op.isNumberType(a) for a in cuts]).all():
+        return sf.vector_double(cuts)
+    else:
+        raise PsignifitException("'cuts' must be either None, a number or a "+\
+                "sequence of numbers.")
 
 def available_sigmoids():
     print "The following sigmoids are available:"
@@ -31,9 +43,7 @@ def bootstrap(data, start=None, nsamples=2000, nafc=2, sigmoid="logistic",
     core = sf.getcore(core, sigmoid.getcode(), data)
     pmf = sf.PsiPsychometric(nafc, core, sigmoid)
     Nparams = pmf.getNparams()
-    # THIS IS JUST A PLACEHOLDER
-    # REMOVE AS SOON AS THERE IS A GOOD WAY TO DETRMINE CUTS
-    cuts = sf.vector_double([1.0, 0.5])
+    cuts = get_cuts(cuts)
     # here we also need to set the priors
     # but again, there is no 'clean' way to do this at the moment
     # REMEMBER TO SOMEHOW SET PRIORS
