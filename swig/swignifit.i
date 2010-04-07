@@ -57,4 +57,5 @@ namespace std {
 %include "mclist.h"
 %include "bootstrap.h"
 %include "mcmc.h"
+%include "rng.h"
 %include "pytools.h"

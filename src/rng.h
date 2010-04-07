@@ -52,4 +52,6 @@ class BinomialRandom : public PsiRandom
 		void setprm ( int number, double probability ) { n = number; p = probability; }
 };
 
+void set_seed(long int seedval);
+
 #endif

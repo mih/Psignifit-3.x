@@ -31,3 +31,7 @@ double BinomialRandom::draw ( void )
 			k++;
 	return k;
 }
+
+void set_seed(long int seedval){
+    srand48(seedval);
+}
