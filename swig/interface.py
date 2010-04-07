@@ -42,14 +42,53 @@ def bootstrap(data, start=None, nsamples=2000, nafc=2, sigmoid="logistic",
     sigmoid = get_sigmoid(sigmoid)
     core = sf.getcore(core, sigmoid.getcode(), data)
     pmf = sf.PsiPsychometric(nafc, core, sigmoid)
-    Nparams = pmf.getNparams()
+    nparams = pmf.getNparams()
     cuts = get_cuts(cuts)
+    ncuts = len(cuts)
     # here we also need to set the priors
     # but again, there is no 'clean' way to do this at the moment
     # REMEMBER TO SOMEHOW SET PRIORS
     bs_list = sf.bootstrap(nsamples, data, pmf, cuts, start, True, parametric)
     jk_list = sf.jackknifedata(data, pmf)
 
+    nblocks = data.getNblocks()
+
+    # construct the massive tuple of return values
+    samples = np.zeros((nsamples, nblocks), dtype=np.int32)
+    estimates = np.zeros((nsamples, nparams))
+    deviance = np.zeros((nsamples))
+    thres = np.zeros((nsamples, ncuts))
+    Rpd = np.zeros((nsamples))
+    Rkd = np.zeros((nsamples))
+    for row_index in xrange(nsamples):
+        samples[row_index] = bs_list.getData(row_index)
+        estimates[row_index] = bs_list.getEst(row_index)
+        deviance[row_index] = bs_list.getdeviance(row_index)
+        thres[row_index] = [bs_list.getThres_byPos(row_index, j) for j in xrange(ncuts)]
+        Rpd[row_index] = bs_list.getRpd(row_index)
+        Rkd[row_index] = bs_list.getRkd(row_index)
+
+    acc = np.zeros((ncuts))
+    bias = np.zeros((ncuts))
+    for cut in xrange(ncuts):
+        acc[cut] = bs_list.getAcc(cut)
+        bias[cut] = bs_list.getBias(cut)
+
+    ci_lower = sf.vector_double(nparams)
+    ci_upper = sf.vector_double(nparams)
+
+    for param in xrange(nparams):
+        ci_lower[param] = bs_list.getPercentile(0.025, param)
+        ci_upper[param] = bs_list.getPercentile(0.975, param)
+
+    outliers = np.zeros((nblocks), dtype=np.bool)
+    influential = np.zeros((nblocks))
+
+    for block in xrange(nblocks):
+        outliers[block] = jk_list.outlier(block)
+        influential[block] = jk_list.influential(block, ci_lower, ci_upper)
+
+    return samples, estimates, deviance, thres, bias, acc, Rpd, Rkd, outliers, influential
 
 
 x = [float(2*k) for k in xrange(6)]
