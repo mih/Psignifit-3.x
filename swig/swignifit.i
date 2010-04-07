@@ -56,4 +56,5 @@ namespace std {
 %include "prior.h"
 %include "mclist.h"
 %include "bootstrap.h"
+%include "mcmc.h"
 %include "pytools.h"
