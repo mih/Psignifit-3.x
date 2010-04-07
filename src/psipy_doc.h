@@ -6,7 +6,7 @@
 #define PSIPYDOC_H
 
 static char psibootstrap_doc [] =
-"bootstrap ( data, start=None, nsamples=2000, nafc=2, sigmoid=\"logistic\", core=\"ab\", priors=None, cuts=None)\n"
+"bootstrap ( data, start=None, nsamples=2000, nafc=2, sigmoid=\"logistic\", core=\"ab\", priors=None, cuts=None, parametric=True)\n"
 "parametric bootstrap of a psychometric function\n"
 "\n"
 ":Parameters:\n"
