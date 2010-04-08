@@ -38,7 +38,7 @@ def get_core(descriptor, data, sigmoid_type):
 
 def get_prior(prior):
     try:
-        "sf."+"Prior(".join(prior.split('('))
+        prior = "sf."+"Prior(".join(prior.split('('))
         return eval(prior)
     except Exception, e:
         return None
