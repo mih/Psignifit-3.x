@@ -81,6 +81,12 @@ def bootstrap(data, start=None, nsamples=2000, nafc=2, sigmoid="logistic",
 
     cuts = get_cuts(cuts)
     ncuts = len(cuts)
+    if start is not None:
+        if len(start) != nparams:
+            raise PsignifitException("You specified \'"+str(len(start))+\
+                    "\' starting value(s), but there are \'"+str(nparams)+ "\' parameters.")
+        start = sf.vector_double(start)
+
     bs_list = sf.bootstrap(nsamples, data, pmf, cuts, start, True, parametric)
     jk_list = sf.jackknifedata(data, pmf)
 
