@@ -36,6 +36,13 @@ def get_core(descriptor, data, sigmoid_type):
     else:
         return core_dict[descriptor](data, sigmoid_type)
 
+def get_prior(prior):
+    try:
+        "sf."+"Prior(".join(prior.split('('))
+        return eval(prior)
+    except Exception, e:
+        return None
+
 def get_cuts(cuts):
     if cuts is None:
         return sf.vector_double([0.5])
@@ -64,11 +71,16 @@ def bootstrap(data, start=None, nsamples=2000, nafc=2, sigmoid="logistic",
     core = get_core(core, data, sigmoid.getcode())
     pmf = sf.PsiPsychometric(nafc, core, sigmoid)
     nparams = pmf.getNparams()
+    if priors is not None:
+        if len(priors) != nparams:
+            raise PsignifitException("You specified \'"+str(len(priors))+\
+                    "\' priors, but there are \'"+str(nparams)+ "\' parameters.")
+        for (i,p) in enumerate((get_prior(p) for p in priors)):
+            if p is not None:
+                pmf.setPrior(i, p)
+
     cuts = get_cuts(cuts)
     ncuts = len(cuts)
-    # here we also need to set the priors
-    # but again, there is no 'clean' way to do this at the moment
-    # REMEMBER TO SOMEHOW SET PRIORS
     bs_list = sf.bootstrap(nsamples, data, pmf, cuts, start, True, parametric)
     jk_list = sf.jackknifedata(data, pmf)
 
