@@ -75,8 +75,8 @@ PsiCore * abCore::clone() const{
 /************************************************************
  * mwCore methods
  */
-mwCore::mwCore ( int sigmoid, double al )
-	: sigmtype(sigmoid), alpha(al), zshift(0) {
+mwCore::mwCore( const PsiData* data, const int sigmoid, const double alpha )
+	: sigmtype(sigmoid), alpha(alpha), zshift(0) {
 	switch (sigmoid) {
 		case 1:
 			// logistic
@@ -177,7 +177,7 @@ double logCore::g ( double x, const std::vector<double>& prm ) throw(BadArgument
 	return prm[0] * (x==0 ? -1e10 : log(x)) + prm[1];
 }
 
-logCore::logCore ( const PsiData* data ) : scale(0) {
+logCore::logCore( const PsiData* data, const int sigmoid, const double alpha ) : scale(0) {
 	unsigned int i;
 	// we need this to scale starting values obtained from logistic regression so that they are correct "on average"
 	for (i=0; i<data->getNblocks(); i++)
@@ -227,7 +227,7 @@ PsiCore * logCore::clone() const{
  * weibullCore
  */
 
-weibullCore::weibullCore ( const PsiData * data ) : twooverlog2(2./log(2)) , loglog2 ( log(log(2.)) )
+weibullCore::weibullCore( const PsiData* data, const int sigmoid, const double alpha ) : twooverlog2(2./log(2)) , loglog2 ( log(log(2.)) )
 {
 	// approximate log(x)~ax+b by a linear function over the range of x values in data
 	double covxlogx(0),varx(0);
@@ -315,7 +315,7 @@ PsiCore * weibullCore::clone() const{
  * polyCore
  */
 
-polyCore::polyCore ( const PsiData * data )
+polyCore::polyCore( const PsiData* data, const int sigmoid, const double alpha )
 {
 	double meanx (0),varx(0);
 	unsigned int i;

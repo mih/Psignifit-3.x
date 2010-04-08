@@ -87,7 +87,7 @@ PsiCore * getcore ( const char * corename, int sigmoidcode, const PsiData * data
 			alpha = 0.1;
 		if (alpha<=0 || alpha>=1)
 			throw std::string ( "alpha should be >0 and <1, but isn't." );
-		return new mwCore ( sigmoidcode, alpha );
+		return new mwCore ( data, sigmoidcode, alpha );
 	} else if ( !strcmp(corename,"linear") ) {
 		// std::cerr << "Using linear core\n";
 		return new linearCore;

@@ -583,7 +583,7 @@ int CoreTests ( TestSuite * T ) {
 	// TODO: Transform tests
 	delete core;
 
-	core = new mwCore (1,0.1);
+	core = new mwCore (NULL, 1,0.1);
 	prm[0] = 3.;
 	prm[1] = 2.;
 	failures += T->isequal(core->g(3.,prm),0,            "mwCore at threshold");
@@ -744,7 +744,7 @@ int LinalgTests ( TestSuite * T ) {
 
 int ReturnTest ( TestSuite * T ) {
 	// In some cases, jackkifing doesn't terminate
-	PsiPsychometric *pmf = new PsiPsychometric ( 2, new mwCore(1,0.1), new PsiLogistic() );
+	PsiPsychometric *pmf = new PsiPsychometric ( 2, new mwCore(NULL, 1,0.1), new PsiLogistic() );
 	// std::vector<double> x (5);      x[0] = 1; x[1] = 2; x[2] = 3; x[3] = 4; x[4] = 5;
 	// std::vector<int>    k (5,10);   k[1] = 9; k[2] = 8;
 	// std::vector<int>    n (5,10);

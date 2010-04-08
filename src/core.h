@@ -66,7 +66,10 @@ class abCore : public PsiCore
 {
 	private:
 	public:
-        abCore( void ) {}                    ///< construcor
+        abCore( const PsiData* data=NULL, ///< ignored
+                const int sigmoid=1,      ///< ignored
+                const double alpha=0.1    ///< ignored
+                ) {}                    ///< construcor
         abCore( const abCore& original) {}                    ///< copy construcor
 		double g (
 			double x,                        ///< stimulus intensity
@@ -115,10 +118,10 @@ class mwCore : public PsiCore
 		double zalpha;
 		double zshift;
 	public:
-		mwCore (
-			int sigmoid,                     ///< Type of the sigmoid (1=logistic, 2=gauss, 3=gumbel)
-			double al=0.1                    ///< alpha parameter defining what "significant performance increase" means
-			);                                          ///< constructor
+        mwCore( const PsiData* data=NULL, ///< ignored
+                const int sigmoid=1,      ///< Type of the sigmoid (1=logistic, 2=gauss, 3=gumbel)
+                const double alpha=0.1    ///< alpha parameter defining what "significant performance increase" means
+                );                        ///< construcor
         mwCore( const mwCore& original ) :  sigmtype(original.sigmtype),
                                             alpha(original.alpha),
                                             zalpha(original.zalpha),
@@ -165,7 +168,10 @@ class mwCore : public PsiCore
 class linearCore : public PsiCore
 {
 	public:
-        linearCore( void ) {}                         ///< constructor
+        linearCore( const PsiData* data=NULL, ///< ignored
+                const int sigmoid=1,          ///< ignored
+                const double alpha=0.1        ///< ignored
+                ) {}                          ///< construcor
         linearCore( const linearCore& original ) {} ///< copy constructor
 		double g (
 			double x,                           ///< stimulus intensity
@@ -212,7 +218,10 @@ class logCore : public PsiCore
 	private:
 		double scale;
 	public:
-		logCore ( const PsiData* data );      ///< use a data set to determine the correct scaling factors of initial values and initialize the object
+        logCore( const PsiData* data=NULL, ///< use a data set to determine the correct scaling factors of initial values and initialize the objec
+                const int sigmoid=1,          ///< ignored
+                const double alpha=0.1        ///< ignored
+                );                       ///< construcor
         logCore ( const logCore& original) : scale(original.scale) {} ///< copy constructor
 		double g   (
 			double x,                                 ///< stimulus intensity
@@ -261,7 +270,10 @@ class weibullCore : public PsiCore
 		double loglina;
 		double loglinb;
 	public:
-		weibullCore ( const PsiData* data );    ///< constructor
+        weibullCore( const PsiData* data=NULL, ///< use a data set to determine the correct scaling factors of initial values and initialize the objec
+                const int sigmoid=1,          ///< ignored
+                const double alpha=0.1        ///< ignored
+                );                       ///< construcor
 		weibullCore ( const weibullCore& original ) : twooverlog2(original.twooverlog2),
                                                       loglog2(original.loglog2),
                                                       loglina(original.loglina),
@@ -309,7 +321,10 @@ class polyCore : public PsiCore
 		double x1;
 		double x2;
 	public:
-		polyCore ( const PsiData* data );            ///< constructor
+        polyCore( const PsiData* data=NULL, ///< use a data set to determine the correct scaling factors of initial values and initialize the objec
+                const int sigmoid=1,          ///< ignored
+                const double alpha=0.1        ///< ignored
+                );                        ///< construcor
 		polyCore ( const polyCore& original ) : x1(original.x1),
                                                 x2(original.x2) {} ///< copy constructor
 		double g (
