@@ -1,6 +1,7 @@
 import numpy as np
 import swignifit as sf
 import operator as op
+import re
 
 
 def extract_subclasses(base):
@@ -14,7 +15,7 @@ def extract_subclasses(base):
     return subclasses
 
 sig_dict = extract_subclasses(sf.PsiSigmoid)
-core_dict = extract_subclasses(sf.PsCore)
+core_dict = extract_subclasses(sf.PsiCore)
 
 class PsignifitException(Exception):
     pass
@@ -23,6 +24,17 @@ def get_sigmoid(descriptor):
     if not sig_dict.has_key(descriptor):
         raise PsignifitException("The sigmoid \'"+str(descriptor)+"\' you requested, is not available.")
     return sig_dict[descriptor]()
+
+def get_core(descriptor, data, sigmoid_type):
+    descriptor, parameter = re.match('([a-z]+)([\d\.]*)', descriptor).groups()
+    if descriptor not in core_dict.keys():
+        raise PsignifitException("The core \'"\
+                +str(descriptor)\
+                +"\' you requested, is not available.")
+    if len(parameter) > 0:
+        return core_dict[descriptor](data, sigmoid_type, float(parameter))
+    else:
+        return core_dict[descriptor](data, sigmoid_type)
 
 def get_cuts(cuts):
     if cuts is None:
@@ -49,7 +61,7 @@ def bootstrap(data, start=None, nsamples=2000, nafc=2, sigmoid="logistic",
     N = sf.vector_int(data[2].astype(int))
     data = sf.PsiData(x,N,k,nafc)
     sigmoid = get_sigmoid(sigmoid)
-    core = sf.getcore(core, sigmoid.getcode(), data)
+    core = get_core(core, data, sigmoid.getcode())
     pmf = sf.PsiPsychometric(nafc, core, sigmoid)
     nparams = pmf.getNparams()
     cuts = get_cuts(cuts)
