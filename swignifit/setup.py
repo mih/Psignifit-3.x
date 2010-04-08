@@ -31,7 +31,7 @@ swignifit = Extension('_swignifit',
             "../src/special.cc",
             "../src/linalg.cc",
             "../src/prior.cc"],
-            include_dirs=["../src", "../psipy"]
+            include_dirs=["../src"]
         )
 
 setup (name = 'swignifit',
