@@ -1,14 +1,13 @@
-# Global Makefile for psignifit2.0
-# The following commands are currently available:
-# *python*:
-#     build the python extension
-# *python-doc*:
-#     use sphinx to build a html documentation of the python module
-#     in the following folder:
-DOCOUT=doc-html
-# *build*:
-#     build everything that can be build
+######################################################################
+#
+#   See COPYING file distributed along with the psignifit package for
+#   the copyright and license terms
+#
+######################################################################
 
+# The main Psignifit 3.x Makefile
+
+DOCOUT=doc-html
 
 ################# GROUPING FILES ######################
 PYTHONFILES=pypsignifit/__init__.py pypsignifit/psignidata.py pypsignifit/psignierrors.py pypsignifit/psigniplot.py pypsignifit/psigobservers.py pypsignifit/pygibbsit.py
