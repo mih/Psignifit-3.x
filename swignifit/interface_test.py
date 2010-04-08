@@ -25,6 +25,18 @@ class TestBootstrap(ut.TestCase):
     def test_basic(self):
         inter.bootstrap(self.d)
 
+    def test_old_doctest(self):
+
+        x = [float(2*k) for k in xrange(6)]
+        k = [34,32,40,48,50,48]
+        n = [50]*6
+        d = [[xx,kk,nn] for xx,kk,nn in zip(x,k,n)]
+        priors = ('flat','flat','Uniform(0,0.1)')
+        samples,est,D,thres,bias,acc,Rkd,Rpd,out,influ = inter.bootstrap(d,nsamples=2000,priors=priors)
+        self.assertAlmostEqual( numpy.mean(est[:,0]), 2.7762481672120902)
+        self.assertAlmostEqual( numpy.mean(est[:,1]), 1.4243919674602623)
+
+
     def test_start(self):
         inter.bootstrap(self.d, nsamples=25, start=[0.1, 0.2, 0.3])
 
