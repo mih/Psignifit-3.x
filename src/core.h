@@ -52,6 +52,7 @@ class PsiCore
 				double b                     ///< slope of the logistic regression model
 				) {throw NotImplementedError();}       ///< transform parameters from logistic regression to those used for this core
         virtual PsiCore * clone() const { throw NotImplementedError(); }
+        static std::string getDescriptor ( void ) { throw NotImplementedError(); }///< get a short string that identifies the type of core
 };
 
 /** \brief a-b parameterization of the psychometric function
@@ -101,6 +102,9 @@ class abCore : public PsiCore
 			double b                         ///< slope of the logistic regression model
 			);                                         ///< transform parameters from a logistic regression model to the parameters used here
         PsiCore * clone() const;             ///< clone by value
+        static std::string getDescriptor ( void ) {
+            return "ab";
+        }
 };
 
 /** \brief m-w parameterization of the psychmetric function
@@ -156,6 +160,9 @@ class mwCore : public PsiCore
 			double b                         ///< slope of the logistic regression model
 			);                                         ///< transform parameters from a logistic regression model to the parameters used here
         PsiCore * clone() const;             ///< clone by value
+        static std::string getDescriptor ( void ) {
+            return "mw";
+        }
 };
 
 /** \brief linear core
@@ -205,6 +212,9 @@ class linearCore : public PsiCore
         PsiCore * clone() const {
             return new linearCore(*this);
         };             ///< clone by value
+        static std::string getDescriptor ( void ) {
+            return "linear";
+        }
 };
 
 /** \brief logarithmic core
@@ -253,6 +263,9 @@ class logCore : public PsiCore
 				double b                              ///< slope of the logistic regression model
 			);                   ///< transform parameters from a logistic regression model to starting values
         PsiCore * clone() const ; ///< clone by value
+        static std::string getDescriptor ( void ) {
+            return "log";
+        }
 };
 
 /** \brief Core for the psychofun Weibull parameterization
@@ -308,6 +321,9 @@ class weibullCore : public PsiCore
 			double b                            ///< slope of the logistic regression model
 			);          ///< transform the parameters from a logistic regression model to starting values
         PsiCore * clone() const ; ///< clone by value
+        static std::string getDescriptor ( void ) {
+            return "weibull";
+        }
 };
 
 /** \brief polynomial Core as used for the weibull function
@@ -357,6 +373,9 @@ class polyCore : public PsiCore
 			double b                                 ///< slope of the logistic regression model to starting values
 			);              ///< transform the parameter from a logistic regression model to starting values
         PsiCore * clone() const ; ///< clone by value
+        static std::string getDescriptor ( void ) {
+            return "poly";
+        }
 };
 
 #endif
