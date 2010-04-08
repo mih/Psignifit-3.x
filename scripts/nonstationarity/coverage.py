@@ -97,7 +97,7 @@ elif options.observer == "betabinomial":
 elif options.observer == "learning":
 
     if options.observer_params == "":
-        L,r = .7,40
+        L,r = .7,40.
     else:
         L,r = [float(x) for x in options.observer_params.split(",")]
     end1 = options.gen_prm1 - L
@@ -106,7 +106,7 @@ elif options.observer == "learning":
     start_prm[0] += L
     start_prm[1] += L
     def create_new_observer ():
-        return psigobservers.LinearSystemLearner ( *(start_prm+[{'m': (r,end1), 'w': (r,end2)}]), **gen_kwargs )
+        return psigobservers.LinearSystemLearner ( *(start_prm+[{'a': (r,end1), 'b': (r,end2)}]), **gen_kwargs )
 
 else:
     raise IOError, "Invalid observer model: %s" % ( options.observer, )
