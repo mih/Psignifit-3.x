@@ -14,7 +14,7 @@ DOCOUT=doc-html
 PYTHONFILES=pypsignifit/__init__.py pypsignifit/psignidata.py pypsignifit/psignierrors.py pypsignifit/psigniplot.py pypsignifit/psigobservers.py pypsignifit/pygibbsit.py
 CFILES_LIB=src/bootstrap.cc src/core.cc src/data.cc src/linalg.cc src/mclist.cc src/mcmc.cc src/optimizer.cc src/psychometric.cc src/rng.cc src/sigmoid.cc src/special.cc
 HFILES_LIB=src/bootstrap.h  src/core.h  src/data.h  src/errors.h src/linalg.h src/mclist.h src/mcmc.h src/optimizer.h src/prior.h src/psychometric.h src/rng.h src/sigmoid.h src/special.h src/psipp.h
-CHFILES_INTERFACE=src/psipy.cc src/psipy_doc.h src/pytools.h
+CHFILES_INTERFACE=psipy/psipy.cc psipy/psipy_doc.h psipy/pytools.h
 DOCFILES=doc-src/API.rst doc-src/index.rst doc-src/TUTORIAL.rst doc-src/*.png
 
 ################ COMMAND DEFINITIONS #################
