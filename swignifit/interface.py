@@ -2,10 +2,18 @@ import numpy as np
 import swignifit as sf
 import operator as op
 
-sig_dict = dict()
 
-for subclass in sf.PsiSigmoid.__subclasses__():
-    sig_dict[subclass.getDescriptor()] = subclass
+def extract_subclasses(base):
+    to_visit = base.__subclasses__()
+    subclasses = dict()
+    for cl in to_visit:
+        descriptor = cl.getDescriptor()
+        if descriptor not in subclasses.keys():
+            subclasses[descriptor] = cl
+            to_visit.extend(cl.__subclasses__())
+    return subclasses
+
+sig_dict = extract_subclasses(sf.PsiSigmoid)
 
 class PsignifitException(Exception):
     pass
