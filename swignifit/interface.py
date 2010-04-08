@@ -14,6 +14,7 @@ def extract_subclasses(base):
     return subclasses
 
 sig_dict = extract_subclasses(sf.PsiSigmoid)
+core_dict = extract_subclasses(sf.PsCore)
 
 class PsignifitException(Exception):
     pass
