@@ -11,5 +11,9 @@ swig:
 
 clean:
 	rm -rf build swignifit.py *.pyc swignifit_wrap.cxx
-test:
+test: test-swignifit test-interface
+
+test-swignifit:
 	PYTHONPATH=build/`ls -1 build | grep lib` python swignifit_test.py
+test-interface:
+	PYTHONPATH=build/`ls -1 build | grep lib` python interface_test.py

@@ -130,13 +130,3 @@ def bootstrap(data, start=None, nsamples=2000, nafc=2, sigmoid="logistic",
     return samples, estimates, deviance, thres, bias, acc, Rpd, Rkd, outliers, influential
 
 
-x = [float(2*k) for k in xrange(6)]
-k = [34,32,40,48,50,48]
-n = [50]*6
-d = [[xx,kk,nn] for xx,kk,nn in zip(x,k,n)]
-priors = ('flat','flat','Uniform(0,0.1)')
-bootstrap(d,nsamples=2000,priors=priors)
-#samples,est,D,thres,bias,acc,Rkd,Rpd,out,influ = bootstrap(d,nsamples=2000,priors=priors)
-
-
-
