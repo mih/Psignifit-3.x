@@ -235,15 +235,15 @@ class LinearSystemLearner ( Observer ):
 
         # Modify parameters:
         for prm,vals in self.learn.iteritems():
-            if prm=="a":
+            if prm in ["a","m"]:
                 self.a -= (self.a-vals[1])/vals[0]
-            elif prm=="b":
+            elif prm==["b","w"]:
                 self.b -= (self.b-vals[1])/vals[0]
             elif prm=="lapse":
                 self.lapse -= (self.lapse-vals[1])/vals[0]
             else:
                 # This should issue a warning
-                pass
+                raise ValueError, "Trying to modify parameter "+prm+" which does not make sense"
 
         return resp
 
@@ -267,7 +267,6 @@ class LinearSystemLearner ( Observer ):
 
     def __str__ ( self ):
         return "< LinearSystemLearner %s,learning: %s >" % (self.__parstring,self.learn)
-
 
 class CriterionSettingObserver ( Observer ):
     def __init__ ( self, *params, **model ):
