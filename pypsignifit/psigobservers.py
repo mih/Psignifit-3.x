@@ -237,7 +237,7 @@ class LinearSystemLearner ( Observer ):
         for prm,vals in self.learn.iteritems():
             if prm in ["a","m"]:
                 self.a -= (self.a-vals[1])/vals[0]
-            elif prm==["b","w"]:
+            elif prm in ["b","w"]:
                 self.b -= (self.b-vals[1])/vals[0]
             elif prm=="lapse":
                 self.lapse -= (self.lapse-vals[1])/vals[0]
