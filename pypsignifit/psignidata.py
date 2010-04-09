@@ -1427,7 +1427,13 @@ class BayesInference ( PsiInference ):
     def __roughvariance ( self ):
         # Determine an initial variance estimate using the Fisher Information Matrix
         fisherI = N.matrix(self.fisher)
-        fisherIinv = N.linalg.solve ( fisherI.T*fisherI+0.01*N.eye(fisherI.shape[0]), fisherI.T )
+        try:
+            fisherIinv = N.linalg.solve ( fisherI.T*fisherI+0.01*N.eye(fisherI.shape[0]), fisherI.T )
+        except LinAlgError:
+            # It seems as if the regularized fisher matrix can not be inverted
+            # We directly get an estimate form bootstrap
+            bsamples = _psipy.bootstrap ( self.data, self.estimate, 100, cuts=self.cuts, **self.model )[1]
+            return bsamples.std(0)
         cond = abs(fisherI.A).sum(1).max() * abs(fisherIinv.A).sum(1).max()
         # print "Condition of Fisher Information Matrix:",cond
         # print fisherI
