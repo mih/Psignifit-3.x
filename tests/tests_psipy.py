@@ -111,4 +111,6 @@ class TestPsipy_yn ( ut.TestCase ):
                         _psipy.mapestimate ( makedata_yn(), priors = (mprior,wprior,lprior,gprior), core="mw0.1", nafc=1 )
 
 if __name__ == '__main__':
+    # suite = ut.TestLoader().loadTestsFromTestCase(TestPsipy_2afc)
+    # ut.TextTestRunner(verbosity=2).run(suite)
     ut.main()
