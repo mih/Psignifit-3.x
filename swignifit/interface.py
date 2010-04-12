@@ -1,11 +1,21 @@
 import numpy as np
 import swignifit as sf
 import operator as op
+import re
 
-sig_dict = dict()
 
-for subclass in sf.PsiSigmoid.__subclasses__():
-    sig_dict[subclass.getDescriptor()] = subclass
+def extract_subclasses(base):
+    to_visit = base.__subclasses__()
+    subclasses = dict()
+    for cl in to_visit:
+        descriptor = cl.getDescriptor()
+        if descriptor not in subclasses.keys():
+            subclasses[descriptor] = cl
+            to_visit.extend(cl.__subclasses__())
+    return subclasses
+
+sig_dict = extract_subclasses(sf.PsiSigmoid)
+core_dict = extract_subclasses(sf.PsiCore)
 
 class PsignifitException(Exception):
     pass
@@ -14,6 +24,24 @@ def get_sigmoid(descriptor):
     if not sig_dict.has_key(descriptor):
         raise PsignifitException("The sigmoid \'"+str(descriptor)+"\' you requested, is not available.")
     return sig_dict[descriptor]()
+
+def get_core(descriptor, data, sigmoid_type):
+    descriptor, parameter = re.match('([a-z]+)([\d\.]*)', descriptor).groups()
+    if descriptor not in core_dict.keys():
+        raise PsignifitException("The core \'"\
+                +str(descriptor)\
+                +"\' you requested, is not available.")
+    if len(parameter) > 0:
+        return core_dict[descriptor](data, sigmoid_type, float(parameter))
+    else:
+        return core_dict[descriptor](data, sigmoid_type)
+
+def get_prior(prior):
+    try:
+        prior = "sf."+"Prior(".join(prior.split('('))
+        return eval(prior)
+    except Exception, e:
+        return None
 
 def get_cuts(cuts):
     if cuts is None:
@@ -40,14 +68,25 @@ def bootstrap(data, start=None, nsamples=2000, nafc=2, sigmoid="logistic",
     N = sf.vector_int(data[2].astype(int))
     data = sf.PsiData(x,N,k,nafc)
     sigmoid = get_sigmoid(sigmoid)
-    core = sf.getcore(core, sigmoid.getcode(), data)
+    core = get_core(core, data, sigmoid.getcode())
     pmf = sf.PsiPsychometric(nafc, core, sigmoid)
     nparams = pmf.getNparams()
+    if priors is not None:
+        if len(priors) != nparams:
+            raise PsignifitException("You specified \'"+str(len(priors))+\
+                    "\' priors, but there are \'"+str(nparams)+ "\' parameters.")
+        for (i,p) in enumerate((get_prior(p) for p in priors)):
+            if p is not None:
+                pmf.setPrior(i, p)
+
     cuts = get_cuts(cuts)
     ncuts = len(cuts)
-    # here we also need to set the priors
-    # but again, there is no 'clean' way to do this at the moment
-    # REMEMBER TO SOMEHOW SET PRIORS
+    if start is not None:
+        if len(start) != nparams:
+            raise PsignifitException("You specified \'"+str(len(start))+\
+                    "\' starting value(s), but there are \'"+str(nparams)+ "\' parameters.")
+        start = sf.vector_double(start)
+
     bs_list = sf.bootstrap(nsamples, data, pmf, cuts, start, True, parametric)
     jk_list = sf.jackknifedata(data, pmf)
 
@@ -89,15 +128,5 @@ def bootstrap(data, start=None, nsamples=2000, nafc=2, sigmoid="logistic",
         influential[block] = jk_list.influential(block, ci_lower, ci_upper)
 
     return samples, estimates, deviance, thres, bias, acc, Rpd, Rkd, outliers, influential
-
-
-x = [float(2*k) for k in xrange(6)]
-k = [34,32,40,48,50,48]
-n = [50]*6
-d = [[xx,kk,nn] for xx,kk,nn in zip(x,k,n)]
-priors = ('flat','flat','Uniform(0,0.1)')
-bootstrap(d,nsamples=2000,priors=priors)
-#samples,est,D,thres,bias,acc,Rkd,Rpd,out,influ = bootstrap(d,nsamples=2000,priors=priors)
-
 
 

@@ -105,7 +105,7 @@ class TestCore(ut.TestCase):
 
     def test_mw_core(self):
         # mwCore constructor is a bit different than the rest
-        self.all_methods(sf.mwCore(1))
+        self.all_methods(sf.mwCore(TestCore.data,1))
 
     def test_poly_core(self):
         self.all_methods(sf.polyCore(TestCore.data))

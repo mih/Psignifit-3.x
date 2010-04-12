@@ -52,6 +52,7 @@ class PsiCore
 				double b                     ///< slope of the logistic regression model
 				) {throw NotImplementedError();}       ///< transform parameters from logistic regression to those used for this core
         virtual PsiCore * clone() const { throw NotImplementedError(); }
+        static std::string getDescriptor ( void ) { throw NotImplementedError(); }///< get a short string that identifies the type of core
 };
 
 /** \brief a-b parameterization of the psychometric function
@@ -66,7 +67,10 @@ class abCore : public PsiCore
 {
 	private:
 	public:
-        abCore( void ) {}                    ///< construcor
+        abCore( const PsiData* data=NULL, ///< ignored
+                const int sigmoid=1,      ///< ignored
+                const double alpha=0.1    ///< ignored
+                ) {}                    ///< construcor
         abCore( const abCore& original) {}                    ///< copy construcor
 		double g (
 			double x,                        ///< stimulus intensity
@@ -98,6 +102,9 @@ class abCore : public PsiCore
 			double b                         ///< slope of the logistic regression model
 			);                                         ///< transform parameters from a logistic regression model to the parameters used here
         PsiCore * clone() const;             ///< clone by value
+        static std::string getDescriptor ( void ) {
+            return "ab";
+        }
 };
 
 /** \brief m-w parameterization of the psychmetric function
@@ -115,10 +122,10 @@ class mwCore : public PsiCore
 		double zalpha;
 		double zshift;
 	public:
-		mwCore (
-			int sigmoid,                     ///< Type of the sigmoid (1=logistic, 2=gauss, 3=gumbel)
-			double al=0.1                    ///< alpha parameter defining what "significant performance increase" means
-			);                                          ///< constructor
+        mwCore( const PsiData* data=NULL, ///< ignored
+                const int sigmoid=1,      ///< Type of the sigmoid (1=logistic, 2=gauss, 3=gumbel)
+                const double alpha=0.1    ///< alpha parameter defining what "significant performance increase" means
+                );                        ///< construcor
         mwCore( const mwCore& original ) :  sigmtype(original.sigmtype),
                                             alpha(original.alpha),
                                             zalpha(original.zalpha),
@@ -153,6 +160,9 @@ class mwCore : public PsiCore
 			double b                         ///< slope of the logistic regression model
 			);                                         ///< transform parameters from a logistic regression model to the parameters used here
         PsiCore * clone() const;             ///< clone by value
+        static std::string getDescriptor ( void ) {
+            return "mw";
+        }
 };
 
 /** \brief linear core
@@ -165,7 +175,10 @@ class mwCore : public PsiCore
 class linearCore : public PsiCore
 {
 	public:
-        linearCore( void ) {}                         ///< constructor
+        linearCore( const PsiData* data=NULL, ///< ignored
+                const int sigmoid=1,          ///< ignored
+                const double alpha=0.1        ///< ignored
+                ) {}                          ///< construcor
         linearCore( const linearCore& original ) {} ///< copy constructor
 		double g (
 			double x,                           ///< stimulus intensity
@@ -199,6 +212,9 @@ class linearCore : public PsiCore
         PsiCore * clone() const {
             return new linearCore(*this);
         };             ///< clone by value
+        static std::string getDescriptor ( void ) {
+            return "linear";
+        }
 };
 
 /** \brief logarithmic core
@@ -212,7 +228,10 @@ class logCore : public PsiCore
 	private:
 		double scale;
 	public:
-		logCore ( const PsiData* data );      ///< use a data set to determine the correct scaling factors of initial values and initialize the object
+        logCore( const PsiData* data=NULL, ///< use a data set to determine the correct scaling factors of initial values and initialize the objec
+                const int sigmoid=1,          ///< ignored
+                const double alpha=0.1        ///< ignored
+                );                       ///< construcor
         logCore ( const logCore& original) : scale(original.scale) {} ///< copy constructor
 		double g   (
 			double x,                                 ///< stimulus intensity
@@ -244,6 +263,9 @@ class logCore : public PsiCore
 				double b                              ///< slope of the logistic regression model
 			);                   ///< transform parameters from a logistic regression model to starting values
         PsiCore * clone() const ; ///< clone by value
+        static std::string getDescriptor ( void ) {
+            return "log";
+        }
 };
 
 /** \brief Core for the psychofun Weibull parameterization
@@ -261,7 +283,10 @@ class weibullCore : public PsiCore
 		double loglina;
 		double loglinb;
 	public:
-		weibullCore ( const PsiData* data );    ///< constructor
+        weibullCore( const PsiData* data=NULL, ///< use a data set to determine the correct scaling factors of initial values and initialize the objec
+                const int sigmoid=1,          ///< ignored
+                const double alpha=0.1        ///< ignored
+                );                       ///< construcor
 		weibullCore ( const weibullCore& original ) : twooverlog2(original.twooverlog2),
                                                       loglog2(original.loglog2),
                                                       loglina(original.loglina),
@@ -296,6 +321,9 @@ class weibullCore : public PsiCore
 			double b                            ///< slope of the logistic regression model
 			);          ///< transform the parameters from a logistic regression model to starting values
         PsiCore * clone() const ; ///< clone by value
+        static std::string getDescriptor ( void ) {
+            return "weibull";
+        }
 };
 
 /** \brief polynomial Core as used for the weibull function
@@ -309,7 +337,10 @@ class polyCore : public PsiCore
 		double x1;
 		double x2;
 	public:
-		polyCore ( const PsiData* data );            ///< constructor
+        polyCore( const PsiData* data=NULL, ///< use a data set to determine the correct scaling factors of initial values and initialize the objec
+                const int sigmoid=1,          ///< ignored
+                const double alpha=0.1        ///< ignored
+                );                        ///< construcor
 		polyCore ( const polyCore& original ) : x1(original.x1),
                                                 x2(original.x2) {} ///< copy constructor
 		double g (
@@ -342,6 +373,9 @@ class polyCore : public PsiCore
 			double b                                 ///< slope of the logistic regression model to starting values
 			);              ///< transform the parameter from a logistic regression model to starting values
         PsiCore * clone() const ; ///< clone by value
+        static std::string getDescriptor ( void ) {
+            return "poly";
+        }
 };
 
 #endif

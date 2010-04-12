@@ -11,7 +11,6 @@
 %{
 #define SWIG_FILE_WITH_INIT
 #include "psipp.h"
-#include "pytools.h"
 %}
 
 // handle all STL exceptions
@@ -58,4 +57,3 @@ namespace std {
 %include "bootstrap.h"
 %include "mcmc.h"
 %include "rng.h"
-%include "pytools.h"
