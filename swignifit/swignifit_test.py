@@ -167,24 +167,27 @@ class TestPsychometric(ut.TestCase):
 class TestPriors(ut.TestCase):
 
     def all_methods(self, prior):
-        prior.pdf(0.0)
-        prior.dpdf(0.0)
-        prior.rand()
+        p = prior(1.5, 3)
+        p.pdf(0.0)
+        p.dpdf(0.0)
+        p.rand()
+        p.clone()
+        p2 = prior(p)
 
     def test_beta_prior(self):
-        self.all_methods(sf.BetaPrior(1.5, 3))
+        self.all_methods(sf.BetaPrior)
 
     def test_gamma_prior(self):
-        self.all_methods(sf.GammaPrior(1.5, 3))
+        self.all_methods(sf.GammaPrior)
 
     def test_ngamma_prior(self):
-        self.all_methods(sf.nGammaPrior(1.5, 3))
+        self.all_methods(sf.nGammaPrior)
 
     def test_gauss_prior(self):
-        self.all_methods(sf.GaussPrior(1.5, 3))
+        self.all_methods(sf.GaussPrior)
 
     def test_uniform_prior(self):
-        self.all_methods(sf.UniformPrior(1.5, 3))
+        self.all_methods(sf.UniformPrior)
 
 class TestBootstrap(ut.TestCase):
 
