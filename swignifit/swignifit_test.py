@@ -84,37 +84,40 @@ class TestCore(ut.TestCase):
     data = TestData.generate_test_dataset()
 
     def all_methods(self, core):
+        c = core(TestCore.data, 1, 0.1)
         params = sf.vector_double([1.0,1.0])
-        core.g(0.0, params)
-        core.dg(0.0,params,0)
-        core.dg(0.0,params,1)
-        core.ddg(0.0,params,0,0)
-        core.ddg(0.0,params,0,1)
-        core.ddg(0.0,params,1,0)
-        core.ddg(0.0,params,1,1)
-        core.inv(0.0,params)
-        core.dinv(0.0,params,0)
-        core.dinv(0.0,params,1)
-        core.transform(2,1.0,1.0)
+        c.g(0.0, params)
+        c.dg(0.0,params,0)
+        c.dg(0.0,params,1)
+        c.ddg(0.0,params,0,0)
+        c.ddg(0.0,params,0,1)
+        c.ddg(0.0,params,1,0)
+        c.ddg(0.0,params,1,1)
+        c.inv(0.0,params)
+        c.dinv(0.0,params,0)
+        c.dinv(0.0,params,1)
+        c.transform(2,1.0,1.0)
+        c.clone()
+        c2 = core(c)
 
     def test_ab_core(self):
-        self.all_methods(sf.abCore())
+        self.all_methods(sf.abCore)
 
     def test_linear_core(self):
-        self.all_methods(sf.linearCore())
+        self.all_methods(sf.linearCore)
 
     def test_log_core(self):
-        self.all_methods(sf.logCore(TestCore.data))
+        self.all_methods(sf.logCore)
 
     def test_mw_core(self):
         # mwCore constructor is a bit different than the rest
-        self.all_methods(sf.mwCore(TestCore.data,1))
+        self.all_methods(sf.mwCore)
 
     def test_poly_core(self):
-        self.all_methods(sf.polyCore(TestCore.data))
+        self.all_methods(sf.polyCore)
 
     def test_weibull_core(self):
-        self.all_methods(sf.weibullCore(TestCore.data))
+        self.all_methods(sf.weibullCore)
 
     def test_exceptions(self):
         c = sf.logCore(TestCore.data)
