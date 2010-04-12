@@ -18,28 +18,31 @@ class TestSigmoid(ut.TestCase):
     """ test that all sigmoids have been wrapped and can be executed """
 
     def all_methods(self, sigmoid):
-        sigmoid.f(0.0)
-        sigmoid.df(0.0)
-        sigmoid.ddf(0.0)
-        sigmoid.inv(0.1)
+        s = sigmoid()
+        s.f(0.0)
+        s.df(0.0)
+        s.ddf(0.0)
+        s.inv(0.1)
+        s.clone()
+        s2 = sigmoid(s)
 
     def test_cauchy(self):
-        self.all_methods(sf.PsiCauchy())
+        self.all_methods(sf.PsiCauchy)
 
     def test_exponential(self):
-        self.all_methods(sf.PsiExponential())
+        self.all_methods(sf.PsiExponential)
 
     def test_gauss(self):
-        self.all_methods(sf.PsiGauss())
+        self.all_methods(sf.PsiGauss)
 
     def test_gumbell(self):
-        self.all_methods(sf.PsiGumbelL())
+        self.all_methods(sf.PsiGumbelL)
 
     def test_gumbelr(self):
-        self.all_methods(sf.PsiGumbelR())
+        self.all_methods(sf.PsiGumbelR)
 
     def test_logistic(self):
-        self.all_methods(sf.PsiLogistic())
+        self.all_methods(sf.PsiLogistic)
 
     def test_exponential_exception(self):
         s = sf.PsiExponential()
