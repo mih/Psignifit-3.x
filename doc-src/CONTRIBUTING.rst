@@ -64,6 +64,25 @@ base we worked on:
 * py
 * R
 
+Development Snapshots
+.....................
+
+Development snapshots are made on a regular basis. They consist of the following steps
+
+* create a tarball. The tarball should be named as
+  ``psignifit3.0_beta_DD-MM-YYYY.tar.gz``
+* create a tag in the git repository. The tag for a snapshot should be
+  ``snap-YYYY-MM-DD``
+* upload the tarball to sourceforge (into a new folder!)
+* push tags
+
+Tags
+....
+
+Tags should mark critical points in the development history in the following way:
+
+* ``snap-YYYY-MM-DD`` marks the release of a development snapshot
+* ``doc-YYYY-MM-DD`` marks a modification of the documentation that has been uploaded to sourceforge.
 
 Extending
 ---------
