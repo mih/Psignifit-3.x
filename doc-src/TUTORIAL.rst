@@ -63,7 +63,7 @@ a, b, and lapse. We want to keep a and b unconstrained and restrict lapse to val
 
 Now we can fit the psychometric function
 
->>> B = BootstrapInference ( data, priors=constraints )
+>>> B = BootstrapInference ( data, priors=constraints, nafc=nafc )
 >>> print B
 < BootstrapInference object with 6 blocks and 0 samples >
 >>> B.estimate
@@ -71,7 +71,10 @@ array([ 2.7517686 ,  1.45723724,  0.01555636])
 >>> B.deviance
 8.071331367479198
 
-Thus, the a is approximately 2.75, b is approximately 1.46, and lambda is approximately 0.016.
+Here, we could have omitted the argument nafc=nafc in the call to BootstrapInference(). All inference
+functions assume a 2AFC task by default.
+
+The code snippet shows, that a is approximately 2.75, b is approximately 1.46, and lambda is approximately 0.016.
 How well do these parameters describe the data? The deviance is approximately 8.07. Is this a
 high or a low value? To know this, we have to draw a number of bootstrap samples:
 
@@ -176,7 +179,7 @@ Kuss, et al (2005) used a parameterization in terms of the 'midpoint' m of the s
 'width' w. Here width is defined as the distance F^(-1) ( 1-alpha ) - F^(-1) ( alpha ). To
 perform BootstrapInference for this model we can proceed as follows
 
->>> Bmw = BootstrapInference ( data, sample=2000, priors=constraints, core="mw0.1" )
+>>> Bmw = BootstrapInference ( data, sample=2000, priors=constraints, core="mw0.1", nafc=nafc )
 >>> Bmw.estimate
 array([ 2.75176858,  6.40375494,  0.01555636])
 >>> Bmw.deviance
@@ -242,7 +245,7 @@ The priors we defined above say in words that
 We will now set up a data object that allows inference based on the posterior distribution of
 parameters given the observed data.
 
->>> mcmc = BayesInference ( data, priors=priors )
+>>> mcmc = BayesInference ( data, priors=priors, nafc=nafc )
 >>> mcmc.estimate
 array([ 2.54226166,  7.10800435,  0.02670357])
 >>> mcmc.deviance
