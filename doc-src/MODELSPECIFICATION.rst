@@ -38,7 +38,8 @@ always respond "stimulus left" if the stimulus is presented sufficiently for to 
 of a mark. In all these situations, the lower asymptote of the psychometric function will
 be a free parameter. As in all these situations only one stimulus is presented, we can
 make the lower asymptote of the psychometric function a free parameter by setting the
-keyword 'nafc' to 1.
+keyword 'nafc' to 1. Note that in this case you also need to specify priors for four parameters
+instead of the three parameters in an nAFC experiment.
 
 A note on yes-no experiments on detection
 -----------------------------------------
