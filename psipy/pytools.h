@@ -112,6 +112,9 @@ void setpriors ( PyObject * pypriors, PsiPsychometric * pmf ) {
 	if ( pypriors == Py_None ) {
 		std::cerr << "WARNING: No priors imposed! This might lead to strange results for guessing rate.\n";
 	} else if ( PySequence_Check ( pypriors ) ) {
+		if ( PySequence_Size ( pypriors ) < Nparams ) {
+			throw std::string ( "insufficient length of priors list" );
+		}
 		// Priors are given as a sequence
 		for ( i=0; i<Nparams; i++ ) {
 			singleprior = PySequence_GetItem ( pypriors, i );
