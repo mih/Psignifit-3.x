@@ -167,7 +167,7 @@ class Observer ( object ):
                 should be evaluated.
         """
         return _psipy.diagnostics ( stimulus_intensities, self.params,
-                sigmoid=self.model["sigmoid"], core = self.model["core"[, nafc=self.model["nafc"] ) )
+                sigmoid=self.model["sigmoid"], core = self.model["core"], nafc=self.model["nafc"] ) )
 
     @Property
     def params ():
