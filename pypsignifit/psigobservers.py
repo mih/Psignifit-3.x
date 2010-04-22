@@ -158,6 +158,17 @@ class Observer ( object ):
         """Determine stimulus levels that correspond to predefinde levels of performance"""
         return _psipy.diagnostics ( [[1,2,3]], self.params, self.model["nafc"], self.model["sigmoid"], self.model["core"], cuts )[3]
 
+    def evaluate ( self, stimulus_intensities ):
+        """Evaluate the psychometric function
+
+        :Parameters:
+            *stimulus_intensities* :
+                stimulus intensities at which the psychometric function
+                should be evaluated.
+        """
+        return _psipy.diagnostics ( stimulus_intensities, self.params,
+                sigmoid=self.model["sigmoid"], core = self.model["core"[, nafc=self.model["nafc"] ) )
+
     @Property
     def params ():
         "parameters of the model"
