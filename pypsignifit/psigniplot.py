@@ -837,8 +837,8 @@ def plotInfluential ( InferenceObject ):
     maxinfl = N.argmax(InferenceObject.infl)
     ind = range ( InferenceObject.data.shape[0] )
     ind.pop(maxinfl)
-    influencedDataset = psignidata.BootstrapInference( InferenceObject.data[ind,:], priors=InferenceObject.model["priors"],
-            sample=False)
+    influencedDataset = psignidata.BootstrapInference( InferenceObject.data[ind,:],
+            sample=False, **(InferenceObject.model))
 
     p.figure ( figsize=(6,8) )
     # ax = p.axes ( (0.0,.5,.9,.5) )
