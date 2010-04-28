@@ -72,10 +72,10 @@ swignifit-clean:
 swignifit-test: test-swignifit-wrap test-interface
 
 test-swignifit-wrap:
-	PYTHONPATH=build/`ls -1 build | grep lib` python swignifit/swignifit_test.py
+	PYTHONPATH=build/`ls -1 build | grep lib` python tests/swignifit_test.py
 
 test-interface:
-	PYTHONPATH=build/`ls -1 build | grep lib` python swignifit/interface_test.py
+	PYTHONPATH=build/`ls -1 build | grep lib` python tests/interface_test.py
 
 # TEST COMMANDS
 
