@@ -48,5 +48,5 @@ tests_all.log: tests_all
 	./tests_all
 
 clean:
-	rm $(BUILD)/*
-	rmdir $(BUILD)
+	-rm -rf $(BUILD)
+	-rm tests_all
