@@ -4,7 +4,7 @@ LFLAGS=-lm -pg
 
 BUILD=build
 HEADERS=core.h data.h errors.h optimizer.h prior.h psychometric.h sigmoid.h bootstrap.h mclist.h special.h mcmc.h rng.h linalg.h
-OBJECTS=$(BUILD)/core.o $(BUILD)/data.o $(BUILD)/optimizer.o $(BUILD)/psychometric.o $(BUILD)/sigmoid.o $(BUILD)/bootstrap.o $(BUILD)/mclist.o $(BUILD)/special.o $(BUILD)/mcmc.o $(BUILD)/rng.o $(BUILD)/linalg.o $(BUILD)/prior.o
+OBJECTS= $(addprefix $(BUILD)/, core.o data.o optimizer.o psychometric.o sigmoid.o bootstrap.o mclist.o special.o mcmc.o rng.o linalg.o prior.o)
 TESTS=tests_all
 
 tests: $(BUILD) tests_all.log
