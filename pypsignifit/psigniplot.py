@@ -337,10 +337,10 @@ def plotPMF ( InferenceObject, xlabel_text="Stimulus intensity", ylabel_text=Non
 
     # Check axes limits
     ymin,ymax = -.05,1.05
-    if InferenceObject.model["nafc"]>1:
-        ylabel_text = "P(correct)"
-    else:
-        if ylabel_text is None:
+    if ylabel_text is None:
+        if InferenceObject.model["nafc"]>1:
+            ylabel_text = "P(correct)"
+        else:
             ylabel_text = "P(Yes)"
 
     # Determine tics
