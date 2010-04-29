@@ -67,7 +67,7 @@ psipy-install: psipy-build
 	./setup_psipy.py install
 
 psipy-test:
-	PYTHONPATH=build/`ls -1 build | grep lib` python tests/psipy_test.py
+	-PYTHONPATH=build/`ls -1 build | grep lib` python tests/psipy_test.py
 
 # SWIGNIFIT COMMANDS
 
@@ -86,8 +86,8 @@ swignifit-clean:
 swignifit-test: test-swignifit-wrap test-interface
 
 test-swignifit-wrap:
-	PYTHONPATH=build/`ls -1 build | grep lib` python tests/swignifit_test.py
+	-PYTHONPATH=build/`ls -1 build | grep lib` python tests/swignifit_test.py
 
 test-interface:
-	PYTHONPATH=build/`ls -1 build | grep lib` python tests/interface_test.py
+	-PYTHONPATH=build/`ls -1 build | grep lib` python tests/interface_test.py
 
