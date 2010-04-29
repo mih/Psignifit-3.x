@@ -24,6 +24,42 @@ The psignifit 3.x code base is logically split into several components:
 We refer to previous versions of psignifit (2.5.6 and before) as
 **psignifit-classic**.
 
+Note that we are slowly deprecating ``psipy`` in favour of ``swignifit``.
+
+Build System
+------------
+
+We use a combination of `distutils <http://docs.python.org/library/distutils.html>`_ and `make <http://www.gnu.org/software/make/>`_
+to build the software.
+
+There are two ``Makefiles``:
+
+:Makefile:
+    main makefile
+:src/Makefile:
+    psi++ makefile
+
+Note that main makefile contains targets to invoke the ``psi++`` makefile. The
+main targets are ``build``, ``install``, ``clean`` and ``test``. The main
+targets will invoke separate targets to build the individual components of the
+software. If during development you wish to build components separately, have a
+look at the main makefile, it should contain everything you need.
+
+There are several ``setup.py`` files, which we use to compile the ``psi++`` and
+the python interfaces:
+
+:setup_basic.py:
+        contains definitions
+:setup_psipy.py:
+        will compile/install ``psipy`` only
+:setup_swignifit.py:
+        will compile/install ``swignifit`` only
+:setup.py:
+        will compile ``psipy`` and ``swignifit``
+
+When asked to install, the setup scripts will also install ``pypsignifit``.
+
+
 Git-Repository
 --------------
 
@@ -63,6 +99,7 @@ base we worked on:
 * swig
 * py
 * R
+* build
 
 Development Snapshots
 .....................
