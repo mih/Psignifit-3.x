@@ -27,6 +27,6 @@ setup ( name = name,
     version = version,
     author = author,
     description = description,
-    packages = packages,
+    packages = packages + ['swignifit'] ,
     ext_modules = [swignifit] )
 

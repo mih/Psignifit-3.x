@@ -13,7 +13,7 @@
 import numpy, pylab
 import unittest as ut
 import swignifit as sf
-import interface as inter
+import swignifit.interface as inter
 
 class TestBootstrap(ut.TestCase):
     def setUp(self):
