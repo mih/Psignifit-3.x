@@ -49,16 +49,48 @@ ready for use.
 The C++ core of psignifit does the real work. It is completely coded in C++ and does not require any
 additional libraries installed.
 
-The python version of psignifit requires the following packages installed:
+Download the current version of psignifit from:
 
-    * `numpy <http://numpy.scipy.org/>`_ / `scipy <http://www.scipy.org/>`_
-    * `matplotlib <http://matplotlib.sourceforge.net/>`_
+    `<http://sourceforge.net/projects/psignifit/>`_
 
-Download the current version of psignifit from
+For additional information about the structure of the code, the build system and
+version control, see: :doc:`CONTRIBUTING`
 
-`<http://sourceforge.net/projects/psignifit/>`_
+Dependencies
+------------
 
-To also build the documentation yourself, you will need `sphinx <http://sphinx.pocoo.org/>`_.
+This section lists all dependencies.
+
+Compile-Time
+............
+`make <http://www.gnu.org/software/make/>`_
+    for building the software
+`Python/C API <http://docs.python.org/c-api/>`_
+    for compiling the ``psipy`` interface for python
+`Simplified Wrapper and Interface Generator (SWIG) <http://www.swig.org/>`_
+    for compiling the ``swignifit`` interface for python
+
+Run-Time
+........
+
+`numpy <http://numpy.scipy.org/>`_  /
+`scipy <http://www.scipy.org/>`_ /
+`matplotlib <http://matplotlib.sourceforge.net/>`_
+    for the python version
+
+
+Documentation
+.............
+
+`sphinx <http://sphinx.pocoo.org/>`_.
+    to generate the python documentation
+`doxygen <http://www.stack.nl/~dimitri/doxygen/>`_
+   to generate the C++ documentation
+
+Testing
+.......
+
+No additional testing frameworks are required.
 
 Linux
 -----
