@@ -27,6 +27,8 @@ install: python-install python-doc
 
 clean: clean-python-doc clean-python-build
 
+test: psipy-test swignifit-test psipp-test
+
 python-install: psipy-install
 	echo "Installing python extension"
 
