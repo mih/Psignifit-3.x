@@ -8,6 +8,7 @@
 # The main Psignifit 3.x Makefile
 
 DOCOUT=doc-html
+PSIPP_SRC=src
 
 ################# GROUPING FILES ######################
 PYTHONFILES=pypsignifit/__init__.py pypsignifit/psignidata.py pypsignifit/psignierrors.py pypsignifit/psigniplot.py pypsignifit/psigobservers.py pypsignifit/pygibbsit.py
@@ -44,6 +45,17 @@ clean-python-doc:
 	echo "clean sphinx documentation"
 	-rm -rv $(DOCOUT)
 
+# PSIPP COMMANDS
+
+psipp-build:
+	cd $(PSIPP_SRC) && $(MAKE)
+
+psipp-clean:
+	cd $(PSIPP_SRC) && $(MAKE) clean
+
+psipp-test:
+	cd $(PSIPP_SRC) && $(MAKE) test
+
 # PSIPY COMMANDS
 
 psipy-build: $(PYTHONFILES) $(CFILES) $(HFILES) $(PSIPY_INTERFACE) setup_basic.py setup_psipy.py
@@ -77,7 +89,3 @@ test-swignifit-wrap:
 test-interface:
 	PYTHONPATH=build/`ls -1 build | grep lib` python tests/interface_test.py
 
-# TEST COMMANDS
-
-test-cpp:
-	cd src
