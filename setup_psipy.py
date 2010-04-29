@@ -11,8 +11,8 @@
 
 """ setup: part of the build system for psignifit 3.x
 
-This file will build the pypsignifit module, and compile both the psipy and the
-swignifit extension.
+This file will build the pypsignifit module, and compile ONLY the psipy
+extension.
 
 """
 
@@ -23,5 +23,5 @@ setup ( name = name,
     author = author,
     description = description,
     packages = packages,
-    ext_modules = [psipy, swignifit] )
+    ext_modules = [psipy] )
 
