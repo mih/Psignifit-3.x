@@ -61,15 +61,19 @@ def available_sigmoids():
     print "The following sigmoids are available:"
     print sig_dict.keys()
 
-
-def bootstrap(data, start=None, nsamples=2000, nafc=2, sigmoid="logistic",
-        core="ab", priors=None, cuts=None, parametric=True ):
-
+def make_dataset(data, nafc):
+    """ create a PsiData object from column based input """
     data = np.array(data).T
     x = sf.vector_double(data[0])
     k = sf.vector_int(data[1].astype(int))
     N = sf.vector_int(data[2].astype(int))
-    data = sf.PsiData(x,N,k,nafc)
+    return sf.PsiData(x,N,k,nafc)
+
+
+def bootstrap(data, start=None, nsamples=2000, nafc=2, sigmoid="logistic",
+        core="ab", priors=None, cuts=None, parametric=True ):
+
+    data = make_dataset(data, nafc)
     sigmoid = get_sigmoid(sigmoid)
     core = get_core(core, data, sigmoid.getcode())
     pmf = sf.PsiPsychometric(nafc, core, sigmoid)
