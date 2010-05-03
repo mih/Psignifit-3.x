@@ -21,11 +21,13 @@ class PsignifitException(Exception):
     pass
 
 def get_sigmoid(descriptor):
+    """ convert string represnetation of sigmoid to PsiSigmoid object """
     if not sig_dict.has_key(descriptor):
         raise PsignifitException("The sigmoid \'"+str(descriptor)+"\' you requested, is not available.")
     return sig_dict[descriptor]()
 
 def get_core(descriptor, data, sigmoid_type):
+    """ convert string representation of core to PsiCore object """
     descriptor, parameter = re.match('([a-z]+)([\d\.]*)', descriptor).groups()
     if descriptor not in core_dict.keys():
         raise PsignifitException("The core \'"\
@@ -37,6 +39,7 @@ def get_core(descriptor, data, sigmoid_type):
         return core_dict[descriptor](data, sigmoid_type)
 
 def get_prior(prior):
+    """ convert string based representation of prior to PsiPrior object """
     try:
         prior = "sf."+"Prior(".join(prior.split('('))
         return eval(prior)
