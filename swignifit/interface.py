@@ -69,6 +69,15 @@ def make_dataset(data, nafc):
     N = sf.vector_int(data[2].astype(int))
     return sf.PsiData(x,N,k,nafc)
 
+def set_priors(pmf, priors):
+    if priors is not None:
+        nparams = pmf.getNparams()
+        if len(priors) != nparams:
+            raise PsignifitException("You specified \'"+str(len(priors))+\
+                    "\' priors, but there are \'"+str(nparams)+ "\' parameters.")
+        for (i,p) in enumerate((get_prior(p) for p in priors)):
+            if p is not None:
+                pmf.setPrior(i, p)
 
 def bootstrap(data, start=None, nsamples=2000, nafc=2, sigmoid="logistic",
         core="ab", priors=None, cuts=None, parametric=True ):
@@ -78,13 +87,7 @@ def bootstrap(data, start=None, nsamples=2000, nafc=2, sigmoid="logistic",
     core = get_core(core, data, sigmoid.getcode())
     pmf = sf.PsiPsychometric(nafc, core, sigmoid)
     nparams = pmf.getNparams()
-    if priors is not None:
-        if len(priors) != nparams:
-            raise PsignifitException("You specified \'"+str(len(priors))+\
-                    "\' priors, but there are \'"+str(nparams)+ "\' parameters.")
-        for (i,p) in enumerate((get_prior(p) for p in priors)):
-            if p is not None:
-                pmf.setPrior(i, p)
+    set_priors(pmf,priors)
 
     cuts = get_cuts(cuts)
     ncuts = len(cuts)
