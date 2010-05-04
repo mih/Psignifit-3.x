@@ -259,8 +259,13 @@ class TestMCList(ut.TestCase):
                 sf.vector_double([0.0, 0.0, 0.0]))
         jk_list.outlier(0)
 
+class TestOptimizer(ut.TestCase):
 
-
+    def test_optimize(self):
+        model = TestPsychometric.generate_test_model()
+        data = TestData.generate_test_dataset()
+        opt = sf.PsiOptimizer(model, data)
+        opt.optimize(model, data, None)
 
 
 #x = numpy.arange(0,10,0.1)

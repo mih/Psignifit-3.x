@@ -57,3 +57,4 @@ namespace std {
 %include "bootstrap.h"
 %include "mcmc.h"
 %include "rng.h"
+%include "optimizer.h"
