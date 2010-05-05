@@ -26,9 +26,10 @@ def get_sigmoid(descriptor):
         raise PsignifitException("The sigmoid \'"+str(descriptor)+"\' you requested, is not available.")
     return sig_dict[descriptor]()
 
-def get_core(descriptor, data, sigmoid_type):
+def get_core(descriptor, data, sigmoid):
     """ convert string representation of core to PsiCore object """
     descriptor, parameter = re.match('([a-z]+)([\d\.]*)', descriptor).groups()
+    sigmoid_type = sigmoid.getcode()
     if descriptor not in core_dict.keys():
         raise PsignifitException("The core \'"\
                 +str(descriptor)\
@@ -84,7 +85,7 @@ def bootstrap(data, start=None, nsamples=2000, nafc=2, sigmoid="logistic",
 
     data = make_dataset(data, nafc)
     sigmoid = get_sigmoid(sigmoid)
-    core = get_core(core, data, sigmoid.getcode())
+    core = get_core(core, data, sigmoid)
     pmf = sf.PsiPsychometric(nafc, core, sigmoid)
     nparams = pmf.getNparams()
     set_priors(pmf,priors)
