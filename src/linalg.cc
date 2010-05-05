@@ -3,6 +3,7 @@
  *   the copyright and license terms
  */
 #include "linalg.h"
+#include "limits.h"
 
 double sign ( double x ) {
 	return x/fabs(x);
@@ -22,7 +23,7 @@ double househ ( const std::vector<double> *x, std::vector<double> *u ) {
 	if ( (*x)[0] == 0 ) (*u)[0] = h;
 	else                (*u)[0] = (*x)[0] + sign((*x)[0])*h;
 
-	for ( i=u->size()-1; i>=0; i-- ) {
+	for ( i=u->size()-1; i<UINT_MAX; i-- ) { // This loop should stop after (!) i has reached 0. As i is unsigned this will mean that i is MAXINT
 		(*u)[i] /= (*u)[0];
 	}
 
