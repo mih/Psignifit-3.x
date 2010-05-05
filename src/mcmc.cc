@@ -17,7 +17,7 @@
 
 MetropolisHastings::MetropolisHastings ( const PsiPsychometric * pmf, const PsiData * dat, PsiRandom * proposal )
 	: PsiSampler ( pmf, dat ),
-	propose(proposal),
+	propose(proposal->clone()),
 	currenttheta(pmf->getNparams(),0),
 	newtheta(pmf->getNparams(),0),
 	stepwidths(pmf->getNparams(),.1),

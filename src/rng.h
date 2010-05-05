@@ -14,6 +14,7 @@ class PsiRandom
 	public:
 		double rngcall ( void ) { return drand48(); }
 		virtual double draw ( void ) { throw NotImplementedError(); }
+		virtual PsiRandom * clone ( void ) const {throw NotImplementedError(); }
 };
 
 class GaussRandom : public PsiRandom
@@ -29,6 +30,7 @@ class GaussRandom : public PsiRandom
 	public:
 		GaussRandom ( double mean=0, double standarddeviation=1 ) : mu ( mean ), sigma ( standarddeviation ) {}
 		double draw ( void );              ///< draw a random number using box muller transform
+		PsiRandom * clone ( void ) const { return new GaussRandom(*this); }
 };
 
 class UniformRandom : public PsiRandom
@@ -39,6 +41,7 @@ class UniformRandom : public PsiRandom
 	public:
 		UniformRandom ( double low=0, double up=1 ) : lower(low), upper(up) {}
 		double draw ( void ) { return  (upper-lower)*rngcall()+lower; }
+		PsiRandom * clone ( void ) const { return new UniformRandom(*this); }
 };
 
 class BinomialRandom : public PsiRandom
@@ -50,6 +53,7 @@ class BinomialRandom : public PsiRandom
 		BinomialRandom ( int number, double probability ) : n(number), p(probability) {}
 		double draw ( void );
 		void setprm ( int number, double probability ) { n = number; p = probability; }
+		PsiRandom * clone ( void ) const { return new BinomialRandom(*this); }
 };
 
 void set_seed(long int seedval);

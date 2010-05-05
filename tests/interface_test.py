@@ -10,7 +10,7 @@
 
 """ Unit Tests for interface to swig wrapped methods """
 
-import numpy, pylab
+import numpy as np
 import unittest as ut
 import swignifit as sf
 import swignifit.interface as inter
@@ -32,9 +32,10 @@ class TestBootstrap(ut.TestCase):
         n = [50]*6
         d = [[xx,kk,nn] for xx,kk,nn in zip(x,k,n)]
         priors = ('flat','flat','Uniform(0,0.1)')
+        sf.set_seed(1)
         samples,est,D,thres,bias,acc,Rkd,Rpd,out,influ = inter.bootstrap(d,nsamples=2000,priors=priors)
-        self.assertAlmostEqual( numpy.mean(est[:,0]), 2.7762481672120902)
-        self.assertAlmostEqual( numpy.mean(est[:,1]), 1.4243919674602623)
+        self.assertAlmostEqual( np.mean(est[:,0]), 2.7273945991794095)
+        self.assertAlmostEqual( np.mean(est[:,1]), 1.3939511033770027)
 
 
     def test_start(self):
@@ -61,6 +62,23 @@ class TestBootstrap(ut.TestCase):
 
     def test_parameteric(self):
         inter.bootstrap(self.d, nsamples=25, parametric=False)
+
+class TestMCMC(ut.TestCase):
+
+    def test_old_doctest(self):
+        x = [float(2*k) for k in xrange(6)]
+        k = [34,32,40,48,50,48]
+        n = [50]*6
+        d = [[xx,kk,nn] for xx,kk,nn in zip(x,k,n)]
+        priors = ('Gauss(0,1000)','Gauss(0,1000)','Beta(3,100)')
+        stepwidths = (1.,1.,0.01)
+        sf.set_seed(1)
+        (estimates, deviance, posterior_predictive_data,
+        posterior_predictive_deviances, posterior_predictive_Rpd,
+        posterior_predictive_Rkd, logposterior_ratios) = inter.psimcmc(d,nsamples=10000,priors=priors,stepwidths=stepwidths)
+        self.assertAlmostEqual( np.mean(estimates[:,0]), 2.5304815981388971)
+        self.assertAlmostEqual( np.mean(estimates[:,1]), 1.6707238984255586)
+
 
 if __name__ == "__main__":
     ut.main()

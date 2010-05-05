@@ -21,12 +21,15 @@ class PsignifitException(Exception):
     pass
 
 def get_sigmoid(descriptor):
+    """ convert string represnetation of sigmoid to PsiSigmoid object """
     if not sig_dict.has_key(descriptor):
         raise PsignifitException("The sigmoid \'"+str(descriptor)+"\' you requested, is not available.")
     return sig_dict[descriptor]()
 
-def get_core(descriptor, data, sigmoid_type):
+def get_core(descriptor, data, sigmoid):
+    """ convert string representation of core to PsiCore object """
     descriptor, parameter = re.match('([a-z]+)([\d\.]*)', descriptor).groups()
+    sigmoid_type = sigmoid.getcode()
     if descriptor not in core_dict.keys():
         raise PsignifitException("The core \'"\
                 +str(descriptor)\
@@ -37,6 +40,7 @@ def get_core(descriptor, data, sigmoid_type):
         return core_dict[descriptor](data, sigmoid_type)
 
 def get_prior(prior):
+    """ convert string based representation of prior to PsiPrior object """
     try:
         prior = "sf."+"Prior(".join(prior.split('('))
         return eval(prior)
@@ -58,26 +62,33 @@ def available_sigmoids():
     print "The following sigmoids are available:"
     print sig_dict.keys()
 
-
-def bootstrap(data, start=None, nsamples=2000, nafc=2, sigmoid="logistic",
-        core="ab", priors=None, cuts=None, parametric=True ):
-
+def make_dataset(data, nafc):
+    """ create a PsiData object from column based input """
     data = np.array(data).T
     x = sf.vector_double(data[0])
     k = sf.vector_int(data[1].astype(int))
     N = sf.vector_int(data[2].astype(int))
-    data = sf.PsiData(x,N,k,nafc)
-    sigmoid = get_sigmoid(sigmoid)
-    core = get_core(core, data, sigmoid.getcode())
-    pmf = sf.PsiPsychometric(nafc, core, sigmoid)
-    nparams = pmf.getNparams()
+    return sf.PsiData(x,N,k,nafc)
+
+def set_priors(pmf, priors):
     if priors is not None:
+        nparams = pmf.getNparams()
         if len(priors) != nparams:
             raise PsignifitException("You specified \'"+str(len(priors))+\
                     "\' priors, but there are \'"+str(nparams)+ "\' parameters.")
         for (i,p) in enumerate((get_prior(p) for p in priors)):
             if p is not None:
                 pmf.setPrior(i, p)
+
+def bootstrap(data, start=None, nsamples=2000, nafc=2, sigmoid="logistic",
+        core="ab", priors=None, cuts=None, parametric=True ):
+
+    data = make_dataset(data, nafc)
+    sigmoid = get_sigmoid(sigmoid)
+    core = get_core(core, data, sigmoid)
+    pmf = sf.PsiPsychometric(nafc, core, sigmoid)
+    nparams = pmf.getNparams()
+    set_priors(pmf,priors)
 
     cuts = get_cuts(cuts)
     ncuts = len(cuts)
@@ -129,4 +140,61 @@ def bootstrap(data, start=None, nsamples=2000, nafc=2, sigmoid="logistic",
 
     return samples, estimates, deviance, thres, bias, acc, Rpd, Rkd, outliers, influential
 
+def psimcmc( data, start=None, nsamples=10000, nafc=2, sigmoid='logistic',
+        core='ab', priors=None, stepwidths=None ):
+
+    data = make_dataset(data, nafc)
+    sigmoid = get_sigmoid(sigmoid)
+    core = get_core(core, data, sigmoid)
+    pmf = sf.PsiPsychometric(nafc, core, sigmoid)
+    nparams = pmf.getNparams()
+    set_priors(pmf,priors)
+
+    if start is not None:
+        if len(start) != nparams:
+            raise PsignifitException("You specified \'"+str(len(start))+\
+                    "\' starting value(s), but there are \'"+str(nparams)+ "\' parameters.")
+        start = sf.vector_double(start)
+    else:
+        # use mapestimate
+        opt = sf.PsiOptimizer(pmf, data)
+        start = opt.optimize(pmf, data)
+
+    proposal = sf.GaussRandom()
+    sampler  = sf.MetropolisHastings(pmf, data, proposal)
+    sampler.setTheta(start)
+
+    if len(stepwidths) != nparams:
+        raise PsignifitException("You specified \'"+str(len(start))+\
+                "\' stepwidth(s), but there are \'"+str(nparams)+ "\' parameters.")
+    else:
+        pass
+        sampler.setstepsize(sf.vector_double(stepwidths))
+
+    post = sampler.sample(nsamples)
+
+    nblocks = data.getNblocks()
+
+    estimates = np.zeros((nsamples, nparams))
+    deviance = np.zeros(nsamples)
+    posterior_predictive_data = np.zeros((nsamples, nblocks))
+    posterior_predictive_deviances = np.zeros(nsamples)
+    posterior_predictive_Rpd = np.zeros(nsamples)
+    posterior_predictive_Rkd = np.zeros(nsamples)
+    logposterior_ratios = np.zeros((nsamples, nblocks))
+
+    for i in xrange(nsamples):
+        for j in xrange(nparams):
+            estimates[i, j] = post.getEst(i, j)
+        deviance[i] = post.getdeviance(i)
+        for j in xrange(nblocks):
+            posterior_predictive_data[i, j] = post.getppData(i, j)
+            logposterior_ratios[i,j] = post.getlogratio(i,j)
+        posterior_predictive_deviances[i] = post.getppDeviance(i)
+        posterior_predictive_Rpd[i] = post.getppRpd(i)
+        posterior_predictive_Rkd[i] = post.getppRkd(i)
+
+    return (estimates, deviance, posterior_predictive_data,
+        posterior_predictive_deviances, posterior_predictive_Rpd,
+        posterior_predictive_Rkd, logposterior_ratios)
 
