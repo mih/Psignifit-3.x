@@ -60,6 +60,24 @@ class MetropolisHastings : public PsiSampler
 									std::vector<double> &new_theta);		  			  ///< propose a new sample and save it in new_theta
 };
 
+class GenericMetropolis : public MetropolisHastings
+{
+	private:
+		int currentindex;													  			  ///< parameter index for proposing a new sample
+	public:
+		GenericMetropolis (
+			const PsiPsychometric * Model,                                    			  ///< psychometric funciton model to sample from
+			const PsiData * Data,                                             			  ///< data to base inference on
+			PsiRandom* proposal                                               			  ///< proposal distribution (will usually be a gaussian)
+			): MetropolisHastings ( Model, Data, proposal ),
+			   currentindex(0) {}
+		void propose_point( std::vector<double> &current_theta,
+							std::vector<double> &step_widths,
+							PsiRandom * proposal,
+							std::vector<double> &new_theta);				  			  ///< propose a new sample and save it in new_theta
+		void find_optimal_stepwidth ( PsiMClist const &mclist );			  			  ///< find the optimal stepwidth by regressing each parameter against the others
+};
+
 class HybridMCMC : public PsiSampler
 {
 	private:

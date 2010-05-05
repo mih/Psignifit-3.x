@@ -162,6 +162,64 @@ MCMCList MetropolisHastings::sample ( unsigned int N ) {
 	return out;
 }
 
+
+/**********************************************************************
+ *
+ * Generic Metropolis MCMC
+ *
+ */
+
+void GenericMetropolis::propose_point(std::vector<double> &current_theta,
+									  std::vector<double> &step_widths,
+									  PsiRandom * proposal,
+									  std::vector<double> &new_theta) {
+	const PsiPsychometric * model ( getModel() );
+
+	/* update one direction of theta */
+	new_theta = current_theta;
+	new_theta[currentindex] += step_widths[currentindex] * proposal->draw();
+
+	/* iterate parameter index each time a new point is proposed */
+	currentindex = (currentindex + 1) % model->getNparams();
+}
+
+
+void GenericMetropolis::find_optimal_stepwidth( PsiMClist const &mclist ){
+	/* for each parameter, do a regression using QR-decomposition and
+	 * take the residuals to calculate the optimal stepwidth. */
+	int i,j,prm, Nparams(mclist.getNparams()), Nsamples(mclist.getNsamples());
+	double std_residuals; // standard deviation of the residuals
+	int *paramindex = new int[Nparams-1];
+	Matrix X = Matrix(Nsamples, Nparams+1); // extended data matrix
+
+	for (prm=0; prm<Nparams; prm++){
+		for (i=0; i<prm; i++) paramindex[i] = i;
+		for (i=prm+1; i<Nparams; i++) paramindex[i-1] = i;
+
+		/* copy sampled data in a matrix: */
+		for (i=0; i<Nsamples; i++){ // iterate samples
+			X(i,0) = 1.0; // fill first column with 1.
+			for (j=0; j<Nparams-1; j++){
+				X(i,j+1) = mclist.getEst(i,paramindex[j]);
+			}
+			X(i,Nparams) = mclist.getEst(i,prm); // last column is the target
+		}
+
+		/* do QR-decomposition: */
+		Matrix *R = X.qr_dec();
+
+		/* get the residuals from R and calculate the STD: */
+		std_residuals = sqrt( (*R)(Nparams,Nparams) * (*R)(Nparams,Nparams) / double(Nsamples) );
+
+		/* multiply std deviation with 2.38/sqrt(Nparams) as suggested by Gelman et al. (1995) */
+		setstepsize( std_residuals * 2.38 / sqrt(double(Nparams)), prm );
+
+		delete R;
+	}
+	delete [] paramindex;
+}
+
+
 /**********************************************************************
  *
  * Hybird MCMC
