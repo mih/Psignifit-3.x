@@ -1429,7 +1429,7 @@ class BayesInference ( PsiInference ):
         fisherI = N.matrix(self.fisher)
         try:
             fisherIinv = N.linalg.solve ( fisherI.T*fisherI+0.01*N.eye(fisherI.shape[0]), fisherI.T )
-        except linalg.LinAlgError:
+        except N.linalg.LinAlgError:
             # It seems as if the regularized fisher matrix can not be inverted
             # We directly get an estimate form bootstrap
             bsamples = _psipy.bootstrap ( self.data, self.estimate, 100, cuts=self.cuts, **self.model )[1]
