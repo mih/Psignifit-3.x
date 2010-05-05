@@ -13,6 +13,7 @@
 - in PsiSigmoid getcode() should be getCode()
 - Use pure virtual functions in PsiSigmoid, PsiCore, and PsiPrior, instead of
   NotImplemetedError
+- Make proper copy constructors for rng.h instead of relying on implicit ones
 
 - When using [] to access elements from the vector class, we need to manually
   check that the index value is within range. Alternatively we could use the
