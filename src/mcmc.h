@@ -51,8 +51,31 @@ class MetropolisHastings : public PsiSampler
 		double getDeviance ( void ) { return currentdeviance; }                           ///< get the current deviance
 		void setstepsize ( double size, unsigned int param );                             ///< set the standard deviation of the proposal distribution for parameter param
 		void setstepsize ( const std::vector<double>& sizes );                            ///< set standard deviations of the proposal distribution for all parameters at once
+		std::vector<double> getStepsize ( void ) { return stepwidths; }		  			  ///< return the current stepwidth (standard deviations of the proposal distribution)
 		MCMCList sample ( unsigned int N );                                               ///< draw N samples from the posterior
 		unsigned int getNparams ( void ) { return newtheta.size(); }                      ///< get the number of parameters for which the sampler is set up
+		virtual void propose_point( std::vector<double> &current_theta,
+									std::vector<double> &step_widths,
+									PsiRandom * proposal,
+									std::vector<double> &new_theta);		  			  ///< propose a new sample and save it in new_theta
+};
+
+class GenericMetropolis : public MetropolisHastings
+{
+	private:
+		int currentindex;													  			  ///< parameter index for proposing a new sample
+	public:
+		GenericMetropolis (
+			const PsiPsychometric * Model,                                    			  ///< psychometric funciton model to sample from
+			const PsiData * Data,                                             			  ///< data to base inference on
+			PsiRandom* proposal                                               			  ///< proposal distribution (will usually be a gaussian)
+			): MetropolisHastings ( Model, Data, proposal ),
+			   currentindex(0) {}
+		void propose_point( std::vector<double> &current_theta,
+							std::vector<double> &step_widths,
+							PsiRandom * proposal,
+							std::vector<double> &new_theta);				  			  ///< propose a new sample and save it in new_theta
+		void find_optimal_stepwidth ( PsiMClist const &mclist );			  			  ///< find the optimal stepwidth by regressing each parameter against the others
 };
 
 class HybridMCMC : public PsiSampler
