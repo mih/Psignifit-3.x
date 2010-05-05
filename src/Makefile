@@ -11,7 +11,7 @@ tests_all: tests_all.cc $(HEADERS) $(OBJECTS) testing.h
 	$(CC) -c $(CFLAGS) tests_all.cc -o $(BUILD)/tests_all.o
 	$(CC) $(OBJECTS) $(BUILD)/tests_all.o $(LFLAGS) -o tests_all
 
-test:
+test: tests_all
 	./tests_all
 
 play: $(OBJECTS) play.cc $(HEADERS)
