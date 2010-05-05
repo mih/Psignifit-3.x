@@ -51,8 +51,13 @@ class MetropolisHastings : public PsiSampler
 		double getDeviance ( void ) { return currentdeviance; }                           ///< get the current deviance
 		void setstepsize ( double size, unsigned int param );                             ///< set the standard deviation of the proposal distribution for parameter param
 		void setstepsize ( const std::vector<double>& sizes );                            ///< set standard deviations of the proposal distribution for all parameters at once
+		std::vector<double> getStepsize ( void ) { return stepwidths; }		  			  ///< return the current stepwidth (standard deviations of the proposal distribution)
 		MCMCList sample ( unsigned int N );                                               ///< draw N samples from the posterior
 		unsigned int getNparams ( void ) { return newtheta.size(); }                      ///< get the number of parameters for which the sampler is set up
+		virtual void propose_point( std::vector<double> &current_theta,
+									std::vector<double> &step_widths,
+									PsiRandom * proposal,
+									std::vector<double> &new_theta);		  			  ///< propose a new sample and save it in new_theta
 };
 
 class HybridMCMC : public PsiSampler

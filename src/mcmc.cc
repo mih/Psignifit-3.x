@@ -31,12 +31,9 @@ std::vector<double> MetropolisHastings::draw ( void ) {
 	double qnew, lratio, acc(propose->rngcall());
 	const PsiPsychometric * model (getModel());
 	const PsiData * data (getData());
-	int prm, Nprm(model->getNparams());
 
 	// propose a new point
-	for (prm=0; prm<Nprm; prm++) {
-		newtheta[prm] = currenttheta[prm] + stepwidths[prm] * propose->draw ( );
-	}
+	propose_point(currenttheta, stepwidths, propose, newtheta);
 
 	// negative log posterior of the point
 	qnew = model->neglpost ( newtheta, data );
@@ -66,6 +63,17 @@ std::vector<double> MetropolisHastings::draw ( void ) {
 #endif
 
 	return currenttheta;
+}
+
+void MetropolisHastings::propose_point( std::vector<double> &current_theta,
+										std::vector<double> &step_widths,
+										PsiRandom * proposal,
+										std::vector<double> &new_theta){
+	const PsiPsychometric * model( getModel() );
+	int prm, Nprm(model->getNparams());
+	for (prm=0; prm<Nprm; prm++) {
+		new_theta[prm] = current_theta[prm] + step_widths[prm] * proposal->draw ( );
+	}
 }
 
 void MetropolisHastings::setTheta ( const std::vector<double>& prm ) {
