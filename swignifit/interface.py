@@ -140,4 +140,61 @@ def bootstrap(data, start=None, nsamples=2000, nafc=2, sigmoid="logistic",
 
     return samples, estimates, deviance, thres, bias, acc, Rpd, Rkd, outliers, influential
 
+def psimcmc( data, start=None, nsamples=10000, nafc=2, sigmoid='logistic',
+        core='ab', priors=None, stepwidths=None ):
+
+    data = make_dataset(data, nafc)
+    sigmoid = get_sigmoid(sigmoid)
+    core = get_core(core, data, sigmoid)
+    pmf = sf.PsiPsychometric(nafc, core, sigmoid)
+    nparams = pmf.getNparams()
+    set_priors(pmf,priors)
+
+    if start is not None:
+        if len(start) != nparams:
+            raise PsignifitException("You specified \'"+str(len(start))+\
+                    "\' starting value(s), but there are \'"+str(nparams)+ "\' parameters.")
+        start = sf.vector_double(start)
+    else:
+        # use mapestimate
+        opt = sf.PsiOptimizer(pmf, data)
+        start = opt.optimize(pmf, data)
+
+    proposal = sf.GaussRandom()
+    sampler  = sf.MetropolisHastings(pmf, data, proposal)
+    sampler.setTheta(start)
+
+    if len(stepwidths) != nparams:
+        raise PsignifitException("You specified \'"+str(len(start))+\
+                "\' stepwidth(s), but there are \'"+str(nparams)+ "\' parameters.")
+    else:
+        pass
+        sampler.setstepsize(sf.vector_double(stepwidths))
+
+    post = sampler.sample(nsamples)
+
+    nblocks = data.getNblocks()
+
+    estimates = np.zeros((nsamples, nparams))
+    deviance = np.zeros(nsamples)
+    posterior_predictive_data = np.zeros((nsamples, nblocks))
+    posterior_predictive_deviances = np.zeros(nsamples)
+    posterior_predictive_Rpd = np.zeros(nsamples)
+    posterior_predictive_Rkd = np.zeros(nsamples)
+    logposterior_ratios = np.zeros((nsamples, nblocks))
+
+    for i in xrange(nsamples):
+        for j in xrange(nparams):
+            estimates[i, j] = post.getEst(i, j)
+        deviance[i] = post.getdeviance(i)
+        for j in xrange(nblocks):
+            posterior_predictive_data[i, j] = post.getppData(i, j)
+            logposterior_ratios[i,j] = post.getlogratio(i,j)
+        posterior_predictive_deviances[i] = post.getppDeviance(i)
+        posterior_predictive_Rpd[i] = post.getppRpd(i)
+        posterior_predictive_Rkd[i] = post.getppRkd(i)
+
+    return (estimates, deviance, posterior_predictive_data,
+        posterior_predictive_deviances, posterior_predictive_Rpd,
+        posterior_predictive_Rkd, logposterior_ratios)
 
