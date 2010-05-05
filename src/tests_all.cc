@@ -347,6 +347,9 @@ int MCMCTest ( TestSuite * T ) {
 	mhS->setstepsize(0.1,1);
 	mhS->setstepsize(0.001,2);
 
+	GenericMetropolis * gmS = new GenericMetropolis ( pmf, data, new GaussRandom() );
+	gmS->setTheta ( prm );
+
 	HybridMCMC * S = new HybridMCMC ( pmf, data, 20 );
 	S->setTheta ( prm );
 	S->setstepsize ( 0.001, 0 );
@@ -357,6 +360,11 @@ int MCMCTest ( TestSuite * T ) {
 	MCMCList post ( S->sample(10000) );
 	srand48(0);
 	MCMCList mhpost ( mhS->sample(10000) );
+	srand48(0);
+	MCMCList pilot ( mhS->sample(1000) );
+	gmS->find_optimal_stepwidth(pilot);
+	srand48(0);
+	MCMCList gmpost = gmS->sample(10000);
 
 	failures += T->isequal ( post.getMean(0), 3.21657, "Hybrid MCMC alpha", .3 );
 	failures += T->isequal ( post.getMean(1), 1.20476, "Hybrid MCMC beta", .2 );
@@ -364,6 +372,9 @@ int MCMCTest ( TestSuite * T ) {
 	failures += T->isequal ( mhpost.getMean(0), 3.22372, "Metropolis Hastings alpha", .2 );
 	failures += T->isequal ( mhpost.getMean(1), 1.12734, "Metropolis Hastings beta", .2 );
 	failures += T->isequal ( mhpost.getMean(2), 0.0199668, "Metropolis Hastings lambda", .02 );
+	failures += T->isequal ( gmpost.getMean(0), 3.22372, "Generic Metropolis MCMC alpha", .2 );
+	failures += T->isequal ( gmpost.getMean(1), 1.12734, "Generic Metropolis MCMC beta", .2 );
+	failures += T->isequal ( gmpost.getMean(2), 0.0199668, "Generic Metropolis MCMC lambda", .02 );
 
 	return failures;
 }
