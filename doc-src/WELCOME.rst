@@ -37,6 +37,14 @@ running properly, there will also be an R version.
 We would be glad to find developers that are interested in supporting these non-python interfaces
 to the psignifit engine.
 
+Getting in Touch
+================
+
+To contact the authors and current maintainers please use:
+
+    psignifit-users@lists.sourceforge.net
+
+If you use psignifit on a regular basis we recommend you subscribe to this list.
 
 How to install
 ==============
