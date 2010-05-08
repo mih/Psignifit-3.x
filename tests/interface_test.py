@@ -124,6 +124,24 @@ class TestMCMC(ut.TestCase):
         self.assertAlmostEqual( np.mean(estimates[:,0]), 2.5304815981388971)
         self.assertAlmostEqual( np.mean(estimates[:,1]), 1.6707238984255586)
 
+class TestMapestimate(ut.TestCase):
+
+    def test_old_doctest(self):
+        x = [float(2*k) for k in xrange(6)]
+        k = [34,32,40,48,50,48]
+        n = [50]*6
+        d = [[xx,kk,nn] for xx,kk,nn in zip(x,k,n)]
+        priors = ('flat','flat','Uniform(0,0.1)')
+        estimate, fisher, thres, deviance = inter.psimapestimate ( d, priors=priors )
+        for i,value in enumerate([ 2.75183178, 1.45728231, 0.01555514]):
+            self.assertAlmostEqual(value, estimate[i])
+        print fisher
+        self.assertAlmostEqual(2.75183178, thres)
+        self.assertAlmostEqual(8.0713313969, deviance)
+
+    def test_start(self):
+        estimate, fisher, thres, deviance = inter.psimapestimate (data,
+                start=[0.1, 0.2, 0.3])
 
 if __name__ == "__main__":
     ut.main()
