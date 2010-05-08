@@ -73,6 +73,10 @@ def available_sigmoids():
     print "The following sigmoids are available:"
     print sig_dict.keys()
 
+def available_cores():
+    print "The following cores are availabe:"
+    print core_dict.keys()
+
 def make_dataset(data, nafc):
     """ create a PsiData object from column based input """
     data = np.array(data).T
