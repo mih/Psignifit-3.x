@@ -30,6 +30,10 @@ namespace std {
     %template(vector_int) vector<int>;
 };
 
+// include methods for dealing with double pointers
+%include cpointer.i
+%pointer_functions(double,doublep);
+
 // This translates BadArgumentError (c++) -> ValueError (python)
 // including the error message
 %typemap(throws) BadArgumentError %{
