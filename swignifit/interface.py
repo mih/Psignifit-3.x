@@ -95,7 +95,7 @@ def set_priors(pmf, priors):
             if p is not None:
                 pmf.setPrior(i, p)
 
-def bootstrap(data, start=None, nsamples=2000, nafc=2, sigmoid="logistic",
+def psibootstrap(data, start=None, nsamples=2000, nafc=2, sigmoid="logistic",
         core="ab", priors=None, cuts=None, parametric=True ):
 
     data = make_dataset(data, nafc)

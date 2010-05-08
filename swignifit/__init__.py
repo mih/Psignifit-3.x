@@ -8,4 +8,4 @@
 #
 ######################################################################
 
-from swignifit.interface import bootstrap, psimcmc
+from swignifit.interface import psibootstrap, psimcmc

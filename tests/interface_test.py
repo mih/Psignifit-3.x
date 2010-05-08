@@ -68,7 +68,7 @@ class TestUtility(ut.TestCase):
 class TestBootstrap(ut.TestCase):
 
     def test_basic(self):
-        inter.bootstrap(data)
+        inter.psibootstrap(data)
 
     def test_old_doctest(self):
 
@@ -78,35 +78,35 @@ class TestBootstrap(ut.TestCase):
         d = [[xx,kk,nn] for xx,kk,nn in zip(x,k,n)]
         priors = ('flat','flat','Uniform(0,0.1)')
         sfr.set_seed(1)
-        samples,est,D,thres,bias,acc,Rkd,Rpd,out,influ = inter.bootstrap(d,nsamples=2000,priors=priors)
+        samples,est,D,thres,bias,acc,Rkd,Rpd,out,influ = inter.psibootstrap(d,nsamples=2000,priors=priors)
         self.assertAlmostEqual( np.mean(est[:,0]), 2.7273945991794095)
         self.assertAlmostEqual( np.mean(est[:,1]), 1.3939511033770027)
 
 
     def test_start(self):
-        inter.bootstrap(data, nsamples=25, start=[0.1, 0.2, 0.3])
+        inter.psibootstrap(data, nsamples=25, start=[0.1, 0.2, 0.3])
 
     def test_nsamples(self):
-        inter.bootstrap(data, nsamples=666)
+        inter.psibootstrap(data, nsamples=666)
 
     def test_nafc(self):
-        inter.bootstrap(data, nafc=23)
+        inter.psibootstrap(data, nafc=23)
 
     def test_sigmoid(self):
-        inter.bootstrap(data, nsamples=25, sigmoid='gumbel_l')
+        inter.psibootstrap(data, nsamples=25, sigmoid='gumbel_l')
 
     def test_core(self):
-        inter.bootstrap(data, nsamples=25, core='linear')
+        inter.psibootstrap(data, nsamples=25, core='linear')
 
     def test_prior(self):
         priors = ('Gauss(0,10)', 'Gamma(2,3)', 'Uniform(1,5)')
-        inter.bootstrap(data, nsamples=25, priors=priors)
+        inter.psibootstrap(data, nsamples=25, priors=priors)
 
     def test_cuts(self):
-        inter.bootstrap(data, nsamples=25, cuts=[0.5,0.6,0.75])
+        inter.psibootstrap(data, nsamples=25, cuts=[0.5,0.6,0.75])
 
     def test_parameteric(self):
-        inter.bootstrap(data, nsamples=25, parametric=False)
+        inter.psibootstrap(data, nsamples=25, parametric=False)
 
 class TestMCMC(ut.TestCase):
 
