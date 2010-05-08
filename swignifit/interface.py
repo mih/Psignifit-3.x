@@ -10,7 +10,7 @@
 ######################################################################
 
 import numpy as np
-import swignifit as sf
+import swignifit_raw as sfr
 import operator as op
 import re
 
@@ -25,8 +25,8 @@ def extract_subclasses(base):
             to_visit.extend(cl.__subclasses__())
     return subclasses
 
-sig_dict = extract_subclasses(sf.PsiSigmoid)
-core_dict = extract_subclasses(sf.PsiCore)
+sig_dict = extract_subclasses(sfr.PsiSigmoid)
+core_dict = extract_subclasses(sfr.PsiCore)
 
 class PsignifitException(Exception):
     pass
@@ -53,18 +53,18 @@ def get_core(descriptor, data, sigmoid):
 def get_prior(prior):
     """ convert string based representation of prior to PsiPrior object """
     try:
-        prior = "sf."+"Prior(".join(prior.split('('))
+        prior = "sfr."+"Prior(".join(prior.split('('))
         return eval(prior)
     except Exception, e:
         return None
 
 def get_cuts(cuts):
     if cuts is None:
-        return sf.vector_double([0.5])
+        return sfr.vector_double([0.5])
     elif op.isNumberType(cuts):
-        return sf.vector_double([cuts])
+        return sfr.vector_double([cuts])
     elif op.isSequenceType(cuts) and np.array([op.isNumberType(a) for a in cuts]).all():
-        return sf.vector_double(cuts)
+        return sfr.vector_double(cuts)
     else:
         raise PsignifitException("'cuts' must be either None, a number or a "+\
                 "sequence of numbers.")
@@ -80,10 +80,10 @@ def available_cores():
 def make_dataset(data, nafc):
     """ create a PsiData object from column based input """
     data = np.array(data).T
-    x = sf.vector_double(data[0])
-    k = sf.vector_int(data[1].astype(int))
-    N = sf.vector_int(data[2].astype(int))
-    return sf.PsiData(x,N,k,nafc)
+    x = sfr.vector_double(data[0])
+    k = sfr.vector_int(data[1].astype(int))
+    N = sfr.vector_int(data[2].astype(int))
+    return sfr.PsiData(x,N,k,nafc)
 
 def set_priors(pmf, priors):
     if priors is not None:
@@ -101,7 +101,7 @@ def bootstrap(data, start=None, nsamples=2000, nafc=2, sigmoid="logistic",
     data = make_dataset(data, nafc)
     sigmoid = get_sigmoid(sigmoid)
     core = get_core(core, data, sigmoid)
-    pmf = sf.PsiPsychometric(nafc, core, sigmoid)
+    pmf = sfr.PsiPsychometric(nafc, core, sigmoid)
     nparams = pmf.getNparams()
     set_priors(pmf,priors)
 
@@ -111,10 +111,10 @@ def bootstrap(data, start=None, nsamples=2000, nafc=2, sigmoid="logistic",
         if len(start) != nparams:
             raise PsignifitException("You specified \'"+str(len(start))+\
                     "\' starting value(s), but there are \'"+str(nparams)+ "\' parameters.")
-        start = sf.vector_double(start)
+        start = sfr.vector_double(start)
 
-    bs_list = sf.bootstrap(nsamples, data, pmf, cuts, start, True, parametric)
-    jk_list = sf.jackknifedata(data, pmf)
+    bs_list = sfr.bootstrap(nsamples, data, pmf, cuts, start, True, parametric)
+    jk_list = sfr.jackknifedata(data, pmf)
 
     nblocks = data.getNblocks()
 
@@ -139,8 +139,8 @@ def bootstrap(data, start=None, nsamples=2000, nafc=2, sigmoid="logistic",
         acc[cut] = bs_list.getAcc(cut)
         bias[cut] = bs_list.getBias(cut)
 
-    ci_lower = sf.vector_double(nparams)
-    ci_upper = sf.vector_double(nparams)
+    ci_lower = sfr.vector_double(nparams)
+    ci_upper = sfr.vector_double(nparams)
 
     for param in xrange(nparams):
         ci_lower[param] = bs_list.getPercentile(0.025, param)
@@ -161,7 +161,7 @@ def psimcmc( data, start=None, nsamples=10000, nafc=2, sigmoid='logistic',
     data = make_dataset(data, nafc)
     sigmoid = get_sigmoid(sigmoid)
     core = get_core(core, data, sigmoid)
-    pmf = sf.PsiPsychometric(nafc, core, sigmoid)
+    pmf = sfr.PsiPsychometric(nafc, core, sigmoid)
     nparams = pmf.getNparams()
     set_priors(pmf,priors)
 
@@ -169,14 +169,14 @@ def psimcmc( data, start=None, nsamples=10000, nafc=2, sigmoid='logistic',
         if len(start) != nparams:
             raise PsignifitException("You specified \'"+str(len(start))+\
                     "\' starting value(s), but there are \'"+str(nparams)+ "\' parameters.")
-        start = sf.vector_double(start)
+        start = sfr.vector_double(start)
     else:
         # use mapestimate
-        opt = sf.PsiOptimizer(pmf, data)
+        opt = sfr.PsiOptimizer(pmf, data)
         start = opt.optimize(pmf, data)
 
-    proposal = sf.GaussRandom()
-    sampler  = sf.MetropolisHastings(pmf, data, proposal)
+    proposal = sfr.GaussRandom()
+    sampler  = sfr.MetropolisHastings(pmf, data, proposal)
     sampler.setTheta(start)
 
     if len(stepwidths) != nparams:
@@ -184,7 +184,7 @@ def psimcmc( data, start=None, nsamples=10000, nafc=2, sigmoid='logistic',
                 "\' stepwidth(s), but there are \'"+str(nparams)+ "\' parameters.")
     else:
         pass
-        sampler.setstepsize(sf.vector_double(stepwidths))
+        sampler.setstepsize(sfr.vector_double(stepwidths))
 
     post = sampler.sample(nsamples)
 

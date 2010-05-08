@@ -37,8 +37,8 @@ psipy = Extension ( "_psipy",
     sources = psipp_sources + psipy_sources,
     include_dirs=[numpy.get_include(), "src", "psipy"])
 
-swignifit_sources = ["swignifit/swignifit_wrap.cxx"]
-swignifit = Extension('_swignifit',
+swignifit_sources = ["swignifit/swignifit_raw.cxx"]
+swignifit = Extension('swignifit._swignifit_raw',
         sources = psipp_sources + swignifit_sources,
         include_dirs=["src"])
 

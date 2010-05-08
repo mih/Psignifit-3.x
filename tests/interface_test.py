@@ -12,7 +12,7 @@
 
 import numpy as np
 import unittest as ut
-import swignifit as sf
+import swignifit.swignifit_raw as sfr
 import swignifit.interface as inter
 
 x = [float(2*k) for k in xrange(6)]
@@ -30,7 +30,7 @@ class TestUtility(ut.TestCase):
         self.assertEqual(1, dataset.getNalternatives())
 
     def get_core(self):
-        sigmoid = sf.PsiLogistic()
+        sigmoid = sfr.PsiLogistic()
         dataset = inter.make_dataset(data)
         ab = inter.get_core("ab", dataset, sigmoid)
         assertEqual("abCore", ab.__class__.__name__)
@@ -77,7 +77,7 @@ class TestBootstrap(ut.TestCase):
         n = [50]*6
         d = [[xx,kk,nn] for xx,kk,nn in zip(x,k,n)]
         priors = ('flat','flat','Uniform(0,0.1)')
-        sf.set_seed(1)
+        sfr.set_seed(1)
         samples,est,D,thres,bias,acc,Rkd,Rpd,out,influ = inter.bootstrap(d,nsamples=2000,priors=priors)
         self.assertAlmostEqual( np.mean(est[:,0]), 2.7273945991794095)
         self.assertAlmostEqual( np.mean(est[:,1]), 1.3939511033770027)
@@ -117,7 +117,7 @@ class TestMCMC(ut.TestCase):
         d = [[xx,kk,nn] for xx,kk,nn in zip(x,k,n)]
         priors = ('Gauss(0,1000)','Gauss(0,1000)','Beta(3,100)')
         stepwidths = (1.,1.,0.01)
-        sf.set_seed(1)
+        sfr.set_seed(1)
         (estimates, deviance, posterior_predictive_data,
         posterior_predictive_deviances, posterior_predictive_Rpd,
         posterior_predictive_Rkd, logposterior_ratios) = inter.psimcmc(d,nsamples=10000,priors=priors,stepwidths=stepwidths)

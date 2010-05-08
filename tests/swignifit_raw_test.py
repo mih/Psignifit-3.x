@@ -12,7 +12,7 @@
 
 import numpy, pylab
 import unittest as ut
-import swignifit as sf
+import swignifit.swignifit_raw as sfr
 
 class TestSigmoid(ut.TestCase):
     """ test that all sigmoids have been wrapped and can be executed """
@@ -27,25 +27,25 @@ class TestSigmoid(ut.TestCase):
         s2 = sigmoid(s)
 
     def test_cauchy(self):
-        self.all_methods(sf.PsiCauchy)
+        self.all_methods(sfr.PsiCauchy)
 
     def test_exponential(self):
-        self.all_methods(sf.PsiExponential)
+        self.all_methods(sfr.PsiExponential)
 
     def test_gauss(self):
-        self.all_methods(sf.PsiGauss)
+        self.all_methods(sfr.PsiGauss)
 
     def test_gumbell(self):
-        self.all_methods(sf.PsiGumbelL)
+        self.all_methods(sfr.PsiGumbelL)
 
     def test_gumbelr(self):
-        self.all_methods(sf.PsiGumbelR)
+        self.all_methods(sfr.PsiGumbelR)
 
     def test_logistic(self):
-        self.all_methods(sf.PsiLogistic)
+        self.all_methods(sfr.PsiLogistic)
 
     def test_exponential_exception(self):
-        s = sf.PsiExponential()
+        s = sfr.PsiExponential()
         self.assertRaises(ValueError, s.inv, 0)
         self.assertRaises(ValueError, s.inv, 1)
 
@@ -53,14 +53,14 @@ class TestData(ut.TestCase):
 
     @staticmethod
     def generate_test_dataset():
-        x = sf.vector_double([0.,2.,4.,6., 8., 10.])
-        k = sf.vector_int([24, 32, 40,48, 50,48])
-        n = sf.vector_int(6*[50])
-        return sf.PsiData(x, n, k, 2)
+        x = sfr.vector_double([0.,2.,4.,6., 8., 10.])
+        k = sfr.vector_int([24, 32, 40,48, 50,48])
+        n = sfr.vector_int(6*[50])
+        return sfr.PsiData(x, n, k, 2)
 
     def test_data(self):
         data = TestData.generate_test_dataset()
-        data.setNcorrect(sf.vector_int([24, 32, 40,48, 50,48]))
+        data.setNcorrect(sfr.vector_int([24, 32, 40,48, 50,48]))
 
         data.getIntensities()
         data.getNtrials()
@@ -85,7 +85,7 @@ class TestCore(ut.TestCase):
 
     def all_methods(self, core):
         c = core(TestCore.data, 1, 0.1)
-        params = sf.vector_double([1.0,1.0])
+        params = sfr.vector_double([1.0,1.0])
         c.g(0.0, params)
         c.dg(0.0,params,0)
         c.dg(0.0,params,1)
@@ -101,29 +101,29 @@ class TestCore(ut.TestCase):
         c2 = core(c)
 
     def test_ab_core(self):
-        self.all_methods(sf.abCore)
+        self.all_methods(sfr.abCore)
 
     def test_linear_core(self):
-        self.all_methods(sf.linearCore)
+        self.all_methods(sfr.linearCore)
 
     def test_log_core(self):
-        self.all_methods(sf.logCore)
+        self.all_methods(sfr.logCore)
 
     def test_mw_core(self):
         # mwCore constructor is a bit different than the rest
-        self.all_methods(sf.mwCore)
+        self.all_methods(sfr.mwCore)
 
     def test_poly_core(self):
-        self.all_methods(sf.polyCore)
+        self.all_methods(sfr.polyCore)
 
     def test_weibull_core(self):
-        self.all_methods(sf.weibullCore)
+        self.all_methods(sfr.weibullCore)
 
     def test_exceptions(self):
-        c = sf.logCore(TestCore.data)
-        params = sf.vector_double([1.0,1.0])
+        c = sfr.logCore(TestCore.data)
+        params = sfr.vector_double([1.0,1.0])
         self.assertRaises(ValueError, c.g, -1.0, params)
-        c = sf.weibullCore(TestCore.data)
+        c = sfr.weibullCore(TestCore.data)
         self.assertRaises(ValueError, c.dg, -1.0, params, 0)
         self.assertRaises(ValueError, c.ddg, -1.0, params, 0, 1)
 
@@ -135,14 +135,14 @@ class TestPsychometric(ut.TestCase):
         # IMPORTANT: here we can use the fact that PsiPsychometic manages its
         # own memory, and we don't need to hang on to th sigmoid, core, and
         # prior.
-        return sf.PsiPsychometric(2, sf.abCore(), sf.PsiLogistic())
+        return sfr.PsiPsychometric(2, sfr.abCore(), sfr.PsiLogistic())
 
     def test_pschometric(self):
         data = TestData.generate_test_dataset()
         psi = TestPsychometric.generate_test_model()
-        params = sf.vector_double([0.5,0.5,0.01])
+        params = sfr.vector_double([0.5,0.5,0.01])
 
-        pr = sf.UniformPrior(0,1)
+        pr = sfr.UniformPrior(0,1)
         psi.setPrior(0,pr)
         psi.setPrior(1,pr)
         psi.setPrior(2,pr)
@@ -158,14 +158,14 @@ class TestPsychometric(ut.TestCase):
         psi.getSigmoid()
 
     def test_memory_management(self):
-        core = sf.abCore()
-        sigmoid = sf.PsiLogistic()
-        psi = sf.PsiPsychometric(2,core,sigmoid)
+        core = sfr.abCore()
+        sigmoid = sfr.PsiLogistic()
+        psi = sfr.PsiPsychometric(2,core,sigmoid)
 
     def test_exceptions(self):
         psi = TestPsychometric.generate_test_model()
         # for 2AFC we have 3 paramters with indices [0,1,2]
-        self.assertRaises(ValueError, psi.setPrior,3, sf.UniformPrior(0,1))
+        self.assertRaises(ValueError, psi.setPrior,3, sfr.UniformPrior(0,1))
 
 class TestPriors(ut.TestCase):
 
@@ -178,19 +178,19 @@ class TestPriors(ut.TestCase):
         p2 = prior(p)
 
     def test_beta_prior(self):
-        self.all_methods(sf.BetaPrior)
+        self.all_methods(sfr.BetaPrior)
 
     def test_gamma_prior(self):
-        self.all_methods(sf.GammaPrior)
+        self.all_methods(sfr.GammaPrior)
 
     def test_ngamma_prior(self):
-        self.all_methods(sf.nGammaPrior)
+        self.all_methods(sfr.nGammaPrior)
 
     def test_gauss_prior(self):
-        self.all_methods(sf.GaussPrior)
+        self.all_methods(sfr.GaussPrior)
 
     def test_uniform_prior(self):
-        self.all_methods(sf.UniformPrior)
+        self.all_methods(sfr.UniformPrior)
 
 class TestBootstrap(ut.TestCase):
 
@@ -198,14 +198,14 @@ class TestBootstrap(ut.TestCase):
     def generate_test_bootstrap_list():
         data = TestData.generate_test_dataset()
         psi = TestPsychometric.generate_test_model()
-        cuts = sf.vector_double([1, 0.5])
-        return sf.bootstrap(999, data, psi, cuts)
+        cuts = sfr.vector_double([1, 0.5])
+        return sfr.bootstrap(999, data, psi, cuts)
 
     @staticmethod
     def generate_test_jackknife_list():
         data = TestData.generate_test_dataset()
         psi = TestPsychometric.generate_test_model()
-        return sf.jackknifedata(data, psi)
+        return sfr.jackknifedata(data, psi)
 
     def test_bootstrap(self):
         TestBootstrap.generate_test_bootstrap_list()
@@ -226,7 +226,7 @@ class TestMCList(ut.TestCase):
         bs_list.getNparams()
         bs_list.getDeviancePercentile(0.95)
 
-        bs_list.setEst(0, sf.vector_double([0.1,0.1,0.1]), 0.95)
+        bs_list.setEst(0, sfr.vector_double([0.1,0.1,0.1]), 0.95)
         bs_list.setdeviance(0,0.95)
 
     def test_bootstrap_list(self):
@@ -247,7 +247,7 @@ class TestMCList(ut.TestCase):
         bs_list.percRkd(0)
 
         bs_list.setBCa(0, 0.1, 0.1)
-        bs_list.setData(0, sf.vector_int([24, 32, 40,48, 50,48]))
+        bs_list.setData(0, sfr.vector_int([24, 32, 40,48, 50,48]))
         bs_list.setThres(0.5, 0, 0)
         bs_list.setRpd(0, 0.5)
         bs_list.setRkd(0, 0.5)
@@ -255,8 +255,8 @@ class TestMCList(ut.TestCase):
     def test_jackknifedata(self):
         jk_list = TestBootstrap.generate_test_jackknife_list()
         jk_list.getNblocks()
-        jk_list.influential(0, sf.vector_double([0.0, 0.0, 0.0]),
-                sf.vector_double([0.0, 0.0, 0.0]))
+        jk_list.influential(0, sfr.vector_double([0.0, 0.0, 0.0]),
+                sfr.vector_double([0.0, 0.0, 0.0]))
         jk_list.outlier(0)
 
 class TestOptimizer(ut.TestCase):
@@ -264,7 +264,7 @@ class TestOptimizer(ut.TestCase):
     def test_optimize(self):
         model = TestPsychometric.generate_test_model()
         data = TestData.generate_test_dataset()
-        opt = sf.PsiOptimizer(model, data)
+        opt = sfr.PsiOptimizer(model, data)
         opt.optimize(model, data, None)
 
 

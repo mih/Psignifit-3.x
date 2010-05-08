@@ -8,7 +8,4 @@
 #
 ######################################################################
 
-# interface must be imported before swignifit, otherwise the interface.bootstrap
-# will override the swignift.bootstrap..
-from interface import *
-from swignifit import *
+from swignifit.interface import bootstrap, psimcmc

@@ -6,7 +6,7 @@
 /* This is the interface file for the swig wrapper to psignifit, swignifit
  */
 
-%module swignifit
+%module swignifit_raw
 
 %{
 #define SWIG_FILE_WITH_INIT
