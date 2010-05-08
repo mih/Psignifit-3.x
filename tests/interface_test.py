@@ -20,6 +20,51 @@ k = [34,32,40,48,50,48]
 n = [50]*6
 data = [[xx,kk,nn] for xx,kk,nn in zip(x,k,n)]
 
+class TestUtility(ut.TestCase):
+
+    def test_make_dataset(self):
+        dataset = inter.make_dataset(data, 1)
+        self.assertTrue((np.array(x) == np.array(dataset.getIntensities())).all())
+        self.assertTrue((np.array(k) == np.array(dataset.getNcorrect())).all())
+        self.assertTrue((np.array(n) == np.array(dataset.getNtrials())).all())
+        self.assertEqual(1, dataset.getNalternatives())
+
+    def get_core(self):
+        sigmoid = sf.PsiLogistic()
+        dataset = inter.make_dataset(data)
+        ab = inter.get_core("ab", dataset, sigmoid)
+        assertEqual("abCore", ab.__class__.__name__)
+        mw = inter.get_core("mw", dataset, sigmoid)
+        assertEqual("mwCore", mw.__class__.__name__)
+        assertEqual(0.1, mw.getAlpha())
+        mw = inter.get_core("mw0.2", dataset, sigmoid)
+        assertEqual("mwCore", mw.__class__.__name__)
+        assertEqual(0.2, mw.getAlpha())
+        linear = inter.get_core("linear", dataset, sigmoid)
+        assertEqual("linearCore", linear.__class__.__name__)
+        log = inter.get_core("log", dataset, sigmoid)
+        assertEqual("logCore", log.__class__.__name__)
+        weibull = inter.get_core("weibull", dataset, sigmmoid)
+        assertEqual("weibullCore", weibull.__class__.__name__)
+        poly = inter.get_core("poly", dataset, sigmoid)
+        assertEqual("polyCore", poly.__class__.__name__)
+
+    def test_get_prior(self):
+        uniform = inter.get_prior("Uniform(1,2)")
+        self.assertEqual("UniformPrior", uniform.__class__.__name__)
+        gauss = inter.get_prior("Gauss(0,1)")
+        self.assertEqual("GaussPrior", gauss.__class__.__name__)
+        beta = inter.get_prior("Beta(1.5, 3)")
+        self.assertEqual("BetaPrior", beta.__class__.__name__)
+        gamma = inter.get_prior("Gamma(1.5, 3)")
+        self.assertEqual("GammaPrior", gamma.__class__.__name__)
+        ngamma = inter.get_prior("nGamma(1.5,3)")
+        self.assertEqual("nGammaPrior", ngamma.__class__.__name__)
+        flat = inter.get_prior("flat")
+        self.assertEqual(None, flat)
+        unconstrained = inter.get_prior("unconstrained")
+        self.assertEqual(None, unconstrained)
+
 class TestBootstrap(ut.TestCase):
 
     def test_basic(self):
