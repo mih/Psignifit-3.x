@@ -1,3 +1,14 @@
+#/usr/bin/env python
+# encoding: utf-8
+# vi: set ft=python sts=4 ts=4 sw=4 et:
+
+######################################################################
+#
+#   See COPYING file distributed along with the psignifit package for
+#   the copyright and license terms
+#
+######################################################################
+
 import numpy as np
 import swignifit as sf
 import operator as op
