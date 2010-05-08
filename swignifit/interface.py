@@ -69,6 +69,13 @@ def get_cuts(cuts):
         raise PsignifitException("'cuts' must be either None, a number or a "+\
                 "sequence of numbers.")
 
+def get_start(start, nparams):
+    if len(start) != nparams:
+            raise PsignifitException("You specified \'"+str(len(start))+\
+                    "\' starting value(s), but there are \'"+str(nparams)+ "\' parameters.")
+    else:
+        return sfr.vector_double(start)
+
 def available_sigmoids():
     print "The following sigmoids are available:"
     print sig_dict.keys()
@@ -108,10 +115,7 @@ def psibootstrap(data, start=None, nsamples=2000, nafc=2, sigmoid="logistic",
     cuts = get_cuts(cuts)
     ncuts = len(cuts)
     if start is not None:
-        if len(start) != nparams:
-            raise PsignifitException("You specified \'"+str(len(start))+\
-                    "\' starting value(s), but there are \'"+str(nparams)+ "\' parameters.")
-        start = sfr.vector_double(start)
+        start = get_start(start, nparams)
 
     bs_list = sfr.bootstrap(nsamples, data, pmf, cuts, start, True, parametric)
     jk_list = sfr.jackknifedata(data, pmf)
@@ -166,10 +170,7 @@ def psimcmc( data, start=None, nsamples=10000, nafc=2, sigmoid='logistic',
     set_priors(pmf,priors)
 
     if start is not None:
-        if len(start) != nparams:
-            raise PsignifitException("You specified \'"+str(len(start))+\
-                    "\' starting value(s), but there are \'"+str(nparams)+ "\' parameters.")
-        start = sfr.vector_double(start)
+        start = get_start(start, nparams)
     else:
         # use mapestimate
         opt = sfr.PsiOptimizer(pmf, data)
