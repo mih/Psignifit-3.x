@@ -12,7 +12,7 @@
 
 DOCOUT=doc-html
 PSIPP_SRC=src
-.PHONEY: swignifit psipy
+.PHONY : swignifit psipy
 
 #}}}
 
