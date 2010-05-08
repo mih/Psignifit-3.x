@@ -62,3 +62,4 @@ namespace std {
 %include "mcmc.h"
 %include "rng.h"
 %include "optimizer.h"
+%include "linalg.h"
