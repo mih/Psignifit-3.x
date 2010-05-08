@@ -15,15 +15,15 @@ import unittest as ut
 import swignifit as sf
 import swignifit.interface as inter
 
+x = [float(2*k) for k in xrange(6)]
+k = [34,32,40,48,50,48]
+n = [50]*6
+data = [[xx,kk,nn] for xx,kk,nn in zip(x,k,n)]
+
 class TestBootstrap(ut.TestCase):
-    def setUp(self):
-        x = [float(2*k) for k in xrange(6)]
-        k = [34,32,40,48,50,48]
-        n = [50]*6
-        self.d = [[xx,kk,nn] for xx,kk,nn in zip(x,k,n)]
 
     def test_basic(self):
-        inter.bootstrap(self.d)
+        inter.bootstrap(data)
 
     def test_old_doctest(self):
 
@@ -39,29 +39,29 @@ class TestBootstrap(ut.TestCase):
 
 
     def test_start(self):
-        inter.bootstrap(self.d, nsamples=25, start=[0.1, 0.2, 0.3])
+        inter.bootstrap(data, nsamples=25, start=[0.1, 0.2, 0.3])
 
     def test_nsamples(self):
-        inter.bootstrap(self.d, nsamples=666)
+        inter.bootstrap(data, nsamples=666)
 
     def test_nafc(self):
-        inter.bootstrap(self.d, nafc=23)
+        inter.bootstrap(data, nafc=23)
 
     def test_sigmoid(self):
-        inter.bootstrap(self.d, nsamples=25, sigmoid='gumbel_l')
+        inter.bootstrap(data, nsamples=25, sigmoid='gumbel_l')
 
     def test_core(self):
-        inter.bootstrap(self.d, nsamples=25, core='linear')
+        inter.bootstrap(data, nsamples=25, core='linear')
 
     def test_prior(self):
         priors = ('Gauss(0,10)', 'Gamma(2,3)', 'Uniform(1,5)')
-        inter.bootstrap(self.d, nsamples=25, priors=priors)
+        inter.bootstrap(data, nsamples=25, priors=priors)
 
     def test_cuts(self):
-        inter.bootstrap(self.d, nsamples=25, cuts=[0.5,0.6,0.75])
+        inter.bootstrap(data, nsamples=25, cuts=[0.5,0.6,0.75])
 
     def test_parameteric(self):
-        inter.bootstrap(self.d, nsamples=25, parametric=False)
+        inter.bootstrap(data, nsamples=25, parametric=False)
 
 class TestMCMC(ut.TestCase):
 
