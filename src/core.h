@@ -163,6 +163,9 @@ class mwCore : public PsiCore
         static std::string getDescriptor ( void ) {
             return "mw";
         }
+        double getAlpha( void ) const {
+            return alpha;
+        }
 };
 
 /** \brief linear core
