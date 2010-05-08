@@ -214,3 +214,30 @@ def psimcmc( data, start=None, nsamples=10000, nafc=2, sigmoid='logistic',
         posterior_predictive_deviances, posterior_predictive_Rpd,
         posterior_predictive_Rkd, logposterior_ratios)
 
+def psimapestimate ( data, nafc=2, sigmoid='logistic', core='ab', priors=None,
+        cuts = None, start=None):
+
+    data = make_dataset(data, nafc)
+    sigmoid = get_sigmoid(sigmoid)
+    core = get_core(core, data, sigmoid)
+    pmf = sfr.PsiPsychometric(nafc, core, sigmoid)
+    nparams = pmf.getNparams()
+    set_priors(pmf,priors)
+    cuts = get_cuts(cuts)
+
+    opt = sfr.PsiOptimizer(pmf, data)
+    estimate = opt.optimize(pmf, data, get_start(start, nparams) if start is not
+            None else None)
+    H = pmf.ddnegllikeli(estimate, data)
+    thres = [pmf.getThres(estimate, c) for c in cuts]
+    deviance = pmf.deviance(estimate, data)
+
+    # convert to numpy stuff
+    estimate = np.array(estimate)
+    fisher = np.zeros((nparams,nparams))
+    for (i,j) in ((i,j) for i in xrange(nparams) for j in xrange(nparams)):
+        fisher[i,j] = sfr.doublep_value(H(i,j))
+    thres = np.array(thres)
+    deviance = np.array(deviance)
+
+    return estimate, fisher, thres, deviance
