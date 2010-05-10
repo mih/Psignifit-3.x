@@ -92,13 +92,17 @@ def make_dataset(data, nafc):
     N = sfr.vector_int(data[2].astype(int))
     return sfr.PsiData(x,N,k,nafc)
 
-def make_dataset_and_pmf(data, nafc, sigmoid, core, priors):
-    dataset = make_dataset(data, nafc)
+def make_pmf(dataset, nafc, sigmoid, core, priors):
     sigmoid = get_sigmoid(sigmoid)
     core = get_core(core, dataset, sigmoid)
     pmf = sfr.PsiPsychometric(nafc, core, sigmoid)
     nparams = pmf.getNparams()
     set_priors(pmf,priors)
+    return pmf, nparams
+
+def make_dataset_and_pmf(data, nafc, sigmoid, core, priors):
+    dataset = make_dataset(data, nafc)
+    pmf, nparams = make_pmf(dataset, nafc, sigmoid, core, priors)
     return dataset, pmf, nparams
 
 def set_priors(pmf, priors):
