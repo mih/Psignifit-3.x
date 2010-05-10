@@ -259,7 +259,8 @@ def psidiagnostics(data, params, nafc=2, sigmoid='logistic', core='ab', cuts=Non
     cuts = get_cuts(cuts)
     # TODO length check params
     params = sfr.vector_double(params)
-    predicted = [pmf.evaluate(i, params) for i in xrange(dataset.getNblocks())]
+    predicted = np.array([pmf.evaluate(intensity, params) for intensity in
+            dataset.getIntensities()])
 
     if intensities_only:
         return predicted
