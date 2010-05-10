@@ -92,6 +92,19 @@ def make_dataset(data, nafc):
     N = sfr.vector_int(data[2].astype(int))
     return sfr.PsiData(x,N,k,nafc)
 
+def make_pmf(dataset, nafc, sigmoid, core, priors):
+    sigmoid = get_sigmoid(sigmoid)
+    core = get_core(core, dataset, sigmoid)
+    pmf = sfr.PsiPsychometric(nafc, core, sigmoid)
+    nparams = pmf.getNparams()
+    set_priors(pmf,priors)
+    return pmf, nparams
+
+def make_dataset_and_pmf(data, nafc, sigmoid, core, priors):
+    dataset = make_dataset(data, nafc)
+    pmf, nparams = make_pmf(dataset, nafc, sigmoid, core, priors)
+    return dataset, pmf, nparams
+
 def set_priors(pmf, priors):
     if priors is not None:
         nparams = pmf.getNparams()
@@ -105,22 +118,17 @@ def set_priors(pmf, priors):
 def psibootstrap(data, start=None, nsamples=2000, nafc=2, sigmoid="logistic",
         core="ab", priors=None, cuts=None, parametric=True ):
 
-    data = make_dataset(data, nafc)
-    sigmoid = get_sigmoid(sigmoid)
-    core = get_core(core, data, sigmoid)
-    pmf = sfr.PsiPsychometric(nafc, core, sigmoid)
-    nparams = pmf.getNparams()
-    set_priors(pmf,priors)
+    dataset, pmf, nparams = make_dataset_and_pmf(data, nafc, sigmoid, core, priors)
 
     cuts = get_cuts(cuts)
     ncuts = len(cuts)
     if start is not None:
         start = get_start(start, nparams)
 
-    bs_list = sfr.bootstrap(nsamples, data, pmf, cuts, start, True, parametric)
-    jk_list = sfr.jackknifedata(data, pmf)
+    bs_list = sfr.bootstrap(nsamples, dataset, pmf, cuts, start, True, parametric)
+    jk_list = sfr.jackknifedata(dataset, pmf)
 
-    nblocks = data.getNblocks()
+    nblocks = dataset.getNblocks()
 
     # construct the massive tuple of return values
     samples = np.zeros((nsamples, nblocks), dtype=np.int32)
@@ -162,22 +170,17 @@ def psibootstrap(data, start=None, nsamples=2000, nafc=2, sigmoid="logistic",
 def psimcmc( data, start=None, nsamples=10000, nafc=2, sigmoid='logistic',
         core='ab', priors=None, stepwidths=None ):
 
-    data = make_dataset(data, nafc)
-    sigmoid = get_sigmoid(sigmoid)
-    core = get_core(core, data, sigmoid)
-    pmf = sfr.PsiPsychometric(nafc, core, sigmoid)
-    nparams = pmf.getNparams()
-    set_priors(pmf,priors)
+    dataset, pmf, nparams = make_dataset_and_pmf(data, nafc, sigmoid, core, priors)
 
     if start is not None:
         start = get_start(start, nparams)
     else:
         # use mapestimate
-        opt = sfr.PsiOptimizer(pmf, data)
-        start = opt.optimize(pmf, data)
+        opt = sfr.PsiOptimizer(pmf, dataset)
+        start = opt.optimize(pmf, dataset)
 
     proposal = sfr.GaussRandom()
-    sampler  = sfr.MetropolisHastings(pmf, data, proposal)
+    sampler  = sfr.MetropolisHastings(pmf, dataset, proposal)
     sampler.setTheta(start)
 
     if len(stepwidths) != nparams:
@@ -189,7 +192,7 @@ def psimcmc( data, start=None, nsamples=10000, nafc=2, sigmoid='logistic',
 
     post = sampler.sample(nsamples)
 
-    nblocks = data.getNblocks()
+    nblocks = dataset.getNblocks()
 
     estimates = np.zeros((nsamples, nparams))
     deviance = np.zeros(nsamples)
@@ -217,20 +220,16 @@ def psimcmc( data, start=None, nsamples=10000, nafc=2, sigmoid='logistic',
 def psimapestimate ( data, nafc=2, sigmoid='logistic', core='ab', priors=None,
         cuts = None, start=None):
 
-    data = make_dataset(data, nafc)
-    sigmoid = get_sigmoid(sigmoid)
-    core = get_core(core, data, sigmoid)
-    pmf = sfr.PsiPsychometric(nafc, core, sigmoid)
-    nparams = pmf.getNparams()
-    set_priors(pmf,priors)
+    dataset, pmf, nparams = make_dataset_and_pmf(data, nafc, sigmoid, core, priors)
+
     cuts = get_cuts(cuts)
 
-    opt = sfr.PsiOptimizer(pmf, data)
-    estimate = opt.optimize(pmf, data, get_start(start, nparams) if start is not
+    opt = sfr.PsiOptimizer(pmf, dataset)
+    estimate = opt.optimize(pmf, dataset, get_start(start, nparams) if start is not
             None else None)
-    H = pmf.ddnegllikeli(estimate, data)
+    H = pmf.ddnegllikeli(estimate, dataset)
     thres = [pmf.getThres(estimate, c) for c in cuts]
-    deviance = pmf.deviance(estimate, data)
+    deviance = pmf.deviance(estimate, dataset)
 
     # convert to numpy stuff
     estimate = np.array(estimate)
@@ -241,3 +240,33 @@ def psimapestimate ( data, nafc=2, sigmoid='logistic', core='ab', priors=None,
     deviance = np.array(deviance)
 
     return estimate, fisher, thres, deviance
+
+def psidiagnostics(data, params, nafc=2, sigmoid='logistic', core='ab', cuts=None):
+    # here we need to hack stuff, since data can be either 'real' data, or just
+    # a list of intensities.
+    shape = np.shape(np.array(data))
+    intensities_only = False
+    if len(shape) == 1:
+        # just intensities, make a dataset with k and n all zero
+        k = n = [0] * shape[0]
+        data  = [[xx,kk,nn] for xx,kk,nn in zip(data,k,n)]
+        intensities_only = True
+    else:
+        # data is 'real', just do nothing
+        pass
+
+    dataset, pmf, nparams = make_dataset_and_pmf(data, nafc, sigmoid, core, None)
+    cuts = get_cuts(cuts)
+    # TODO length check params
+    params = sfr.vector_double(params)
+    predicted = [pmf.evaluate(i, params) for i in xrange(dataset.getNblocks())]
+
+    if intensities_only:
+        return predicted
+    else:
+        deviance_residuals = pmf.getDevianceResiduals(params, dataset)
+        deviance = pmf.deviance(params, dataset)
+        thres = [pmf.getThres(params, cut) for cut in cuts]
+        rpd = pmf.getRpd(deviance_residuals, params, dataset)
+        rkd = pmf.getRkd(deviance_residuals, dataset)
+        return predicted, deviance_residuals, deviance, thres, rpd, rkd
