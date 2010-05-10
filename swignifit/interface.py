@@ -240,3 +240,33 @@ def psimapestimate ( data, nafc=2, sigmoid='logistic', core='ab', priors=None,
     deviance = np.array(deviance)
 
     return estimate, fisher, thres, deviance
+
+def psidiagnostics(data, params, nafc=2, sigmoid='logistic', core='ab', cuts=None):
+    # here we need to hack stuff, since data can be either 'real' data, or just
+    # a list of intensities.
+    shape = np.shape(np.array(data))
+    intensities_only = False
+    if len(shape) == 1:
+        # just intensities, make a dataset with k and n all zero
+        k = n = [0] * shape[0]
+        data  = [[xx,kk,nn] for xx,kk,nn in zip(data,k,n)]
+        intensities_only = True
+    else:
+        # data is 'real', just do nothing
+        pass
+
+    dataset, pmf, nparams = make_dataset_and_pmf(data, nafc, sigmoid, core, None)
+    cuts = get_cuts(cuts)
+    # TODO length check params
+    params = sfr.vector_double(params)
+    predicted = [pmf.evaluate(i, params) for i in xrange(dataset.getNblocks())]
+
+    if intensities_only:
+        return predicted
+    else:
+        deviance_residuals = pmf.getDevianceResiduals(params, dataset)
+        deviance = pmf.deviance(params, dataset)
+        thres = [pmf.getThres(params, cut) for cut in cuts]
+        rpd = pmf.getRpd(deviance_residuals, params, dataset)
+        rkd = pmf.getRkd(deviance_residuals, dataset)
+        return predicted, deviance_residuals, deviance, thres, rpd, rkd
