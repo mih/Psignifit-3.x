@@ -143,6 +143,23 @@ class TestMapestimate(ut.TestCase):
         estimate, fisher, thres, deviance = inter.psimapestimate (data,
                 start=[0.1, 0.2, 0.3])
 
+class TestDiagnostics(ut.TestCase):
+
+    def test_old_doctest(self):
+        x = [float(2*k) for k in xrange(6)]
+        k = [34,32,40,48,50,48]
+        n = [50]*6
+        d = [[xx,kk,nn] for xx,kk,nn in zip(x,k,n)]
+        prm = [2.75, 1.45, 0.015]
+        pred,di,D,thres,Rpd,Rkd = inter.psidiagnostics(d,prm)
+        self.assertAlmostEqual(8.07484858608, D)
+        self.assertAlmostEqual(1.68932796526, di[0])
+        self.assertAlmostEqual(-0.19344675783032761, Rpd)
+
+    def test_intensities_only(self):
+        prm = [2.75, 1.45, 0.015]
+        predicted = inter.psidiagnostics(x, prm)
+
 if __name__ == "__main__":
     ut.main()
 
