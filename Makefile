@@ -13,7 +13,7 @@
 DOCOUT=doc-html
 PSIPP_SRC=src
 PYTHON=python2.6
-.PHONY : swignifit psipy
+.PHONY : swignifit psipy ipython
 
 #}}}
 
@@ -57,6 +57,9 @@ python-doc: $(DOCFILES) $(PYTHONFILES) python-build
 clean-python-doc:
 	echo "clean sphinx documentation"
 	-rm -rv $(DOCOUT)
+
+ipython:
+	cd .. ; PYTHONPATH=psignifit/build/`ls -1 psignifit/build | grep lib` python2.6; cd -
 
 # }}}
 
