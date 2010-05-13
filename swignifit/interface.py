@@ -88,8 +88,8 @@ def make_dataset(data, nafc):
     """ create a PsiData object from column based input """
     data = np.array(data).T
     x = sfr.vector_double(data[0])
-    k = sfr.vector_int(data[1].astype(int))
-    N = sfr.vector_int(data[2].astype(int))
+    k = sfr.vector_int([int(i) for i in data[1].astype(int)])
+    N = sfr.vector_int([int(i) for i in data[2].astype(int)])
     return sfr.PsiData(x,N,k,nafc)
 
 def make_pmf(dataset, nafc, sigmoid, core, priors):
