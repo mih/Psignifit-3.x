@@ -166,6 +166,9 @@ class TestMCMC(ut.TestCase):
 
 class TestMapestimate(ut.TestCase):
 
+    def test_basic(self):
+        inter.psimapestimate(data)
+
     def test_old_doctest(self):
         x = [float(2*k) for k in xrange(6)]
         k = [34,32,40,48,50,48]
@@ -178,6 +181,22 @@ class TestMapestimate(ut.TestCase):
         print fisher
         self.assertAlmostEqual(2.75183178, thres)
         self.assertAlmostEqual(8.0713313969, deviance)
+
+    def test_nafc(self):
+        inter.psimapestimate(data, nafc=23)
+
+    def test_sigmoid(self):
+        inter.psimapestimate(data, sigmoid='gauss')
+
+    def test_core(self):
+        inter.psimapestimate(data, core='mw0.2')
+
+    def test_priors(self):
+        priors = ('Gauss(0,10)', 'Gamma(2,3)', 'Uniform(1,5)')
+        inter.psimapestimate(data, priors=priors)
+
+    def test_cuts(self):
+        inter.psimapestimate(data, cuts=[0.5, 0.75, 0.85])
 
     def test_start(self):
         estimate, fisher, thres, deviance = inter.psimapestimate (data,
