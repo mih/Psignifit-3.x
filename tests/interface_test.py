@@ -29,6 +29,21 @@ class TestUtility(ut.TestCase):
         self.assertTrue((np.array(n) == np.array(dataset.getNtrials())).all())
         self.assertEqual(1, dataset.getNalternatives())
 
+    def test_get_sigmoid(self):
+        logistic = sfr.PsiLogistic()
+        self.assertEqual("PsiLogistic", logistic.__class__.__name__)
+        gauss = sfr.PsiGauss()
+        self.assertEqual("PsiGauss", gauss.__class__.__name__)
+        gumbel_l = sfr.PsiGumbelL()
+        self.assertEqual("PsiGumbelL", gumbel_l.__class__.__name__)
+        gumbel_r = sfr.PsiGumbelR()
+        self.assertEqual("PsiGumbelR", gumbel_r.__class__.__name__)
+        cauchy = sfr.PsiCauchy()
+        self.assertEqual("PsiCauchy", cauchy.__class__.__name__)
+        exponential = sfr.PsiExponential()
+        self.assertEqual("PsiExponential", exponential.__class__.__name__)
+
+
     def test_get_core(self):
         sigmoid = sfr.PsiLogistic()
         dataset = inter.make_dataset(data, 1)
