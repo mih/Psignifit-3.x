@@ -204,6 +204,11 @@ class TestMapestimate(ut.TestCase):
 
 class TestDiagnostics(ut.TestCase):
 
+    prm = [2.75, 1.45, 0.015]
+
+    def test_basic(self):
+        inter.psidiagnostics(data, TestDiagnostics.prm)
+
     def test_old_doctest(self):
         x = [float(2*k) for k in xrange(6)]
         k = [34,32,40,48,50,48]
@@ -215,9 +220,20 @@ class TestDiagnostics(ut.TestCase):
         self.assertAlmostEqual(1.68932796526, di[0])
         self.assertAlmostEqual(-0.19344675783032761, Rpd)
 
+    def test_nafc(self):
+        inter.psidiagnostics(data, TestDiagnostics.prm, nafc=23)
+
+    def test_sigmoid(self):
+        inter.psidiagnostics(data, TestDiagnostics.prm, sigmoid='logistic')
+
+    def test_core(self):
+        inter.psidiagnostics(data, TestDiagnostics.prm, core='linear')
+
+    def test_cuts(self):
+        inter.psidiagnostics(data, TestDiagnostics.prm, cuts=[0.5, 0.75, 0.85])
+
     def test_intensities_only(self):
-        prm = [2.75, 1.45, 0.015]
-        predicted = inter.psidiagnostics(x, prm)
+        predicted = inter.psidiagnostics(x, TestDiagnostics.prm)
 
 if __name__ == "__main__":
     ut.main()
