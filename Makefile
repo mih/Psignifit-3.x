@@ -12,7 +12,7 @@
 
 DOCOUT=doc-html
 PSIPP_SRC=src
-PYTHON=python2.6
+PYTHON=python
 .PHONY : swignifit psipy ipython
 
 #}}}
