@@ -183,12 +183,12 @@ def psimcmc( data, start=None, nsamples=10000, nafc=2, sigmoid='logistic',
     sampler  = sfr.MetropolisHastings(pmf, dataset, proposal)
     sampler.setTheta(start)
 
-    if len(stepwidths) != nparams:
-        raise PsignifitException("You specified \'"+str(len(start))+\
-                "\' stepwidth(s), but there are \'"+str(nparams)+ "\' parameters.")
-    else:
-        pass
-        sampler.setstepsize(sfr.vector_double(stepwidths))
+    if stepwidths != None:
+        if len(stepwidths) != nparams:
+            raise PsignifitException("You specified \'"+str(len(start))+\
+                    "\' stepwidth(s), but there are \'"+str(nparams)+ "\' parameters.")
+        else:
+            sampler.setstepsize(sfr.vector_double(stepwidths))
 
     post = sampler.sample(nsamples)
 
