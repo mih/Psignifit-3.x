@@ -125,6 +125,9 @@ class TestBootstrap(ut.TestCase):
 
 class TestMCMC(ut.TestCase):
 
+    def test_basic(self):
+        inter.psimcmc(data)
+
     def test_old_doctest(self):
         x = [float(2*k) for k in xrange(6)]
         k = [34,32,40,48,50,48]
@@ -138,6 +141,28 @@ class TestMCMC(ut.TestCase):
         posterior_predictive_Rkd, logposterior_ratios) = inter.psimcmc(d,nsamples=10000,priors=priors,stepwidths=stepwidths)
         self.assertAlmostEqual( np.mean(estimates[:,0]), 2.5304815981388971)
         self.assertAlmostEqual( np.mean(estimates[:,1]), 1.6707238984255586)
+
+    def test_start(self):
+        inter.psimcmc(data,nsamples=25, start=[0.1,0.2,0.3])
+
+    def test_nsamples(self):
+        inter.psimcmc(data,nsamples=666)
+
+    def test_nafc(self):
+        inter.psimcmc(data,nsamples=25, nafc=23)
+
+    def test_sigmoid(self):
+        inter.psimcmc(data,nsamples=25, sigmoid='gumbel_r')
+
+    def test_core(self):
+        inter.psimcmc(data, nsamples=25, core='ab')
+
+    def test_prior(self):
+        priors = ('Gauss(0,10)', 'Gamma(2,3)', 'Uniform(1,5)')
+        inter.psimcmc(data, nsamples=25, priors=priors)
+
+    def test_stepwidth(self):
+        inter.psimcmc(data, nsamples=25, stepwidths=[0.1, 0.2, 0.3])
 
 class TestMapestimate(ut.TestCase):
 
