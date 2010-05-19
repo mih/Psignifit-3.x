@@ -8,122 +8,19 @@
 #   the copyright and license terms
 #
 ######################################################################
-
 import numpy as np
 import swignifit_raw as sfr
-import operator as op
-import re
-
-
-def extract_subclasses(base):
-    to_visit = base.__subclasses__()
-    subclasses = dict()
-    for cl in to_visit:
-        descriptor = cl.getDescriptor()
-        if descriptor not in subclasses.keys():
-            subclasses[descriptor] = cl
-            to_visit.extend(cl.__subclasses__())
-    return subclasses
-
-sig_dict = extract_subclasses(sfr.PsiSigmoid)
-core_dict = extract_subclasses(sfr.PsiCore)
-
-class PsignifitException(Exception):
-    pass
-
-def get_sigmoid(descriptor):
-    """ convert string represnetation of sigmoid to PsiSigmoid object """
-    if not sig_dict.has_key(descriptor):
-        raise PsignifitException("The sigmoid \'"+str(descriptor)+"\' you requested, is not available.")
-    return sig_dict[descriptor]()
-
-def get_core(descriptor, data, sigmoid):
-    """ convert string representation of core to PsiCore object """
-    descriptor, parameter = re.match('([a-z]+)([\d\.]*)', descriptor).groups()
-    sigmoid_type = sigmoid.getcode()
-    if descriptor not in core_dict.keys():
-        raise PsignifitException("The core \'"\
-                +str(descriptor)\
-                +"\' you requested, is not available.")
-    if len(parameter) > 0:
-        return core_dict[descriptor](data, sigmoid_type, float(parameter))
-    else:
-        return core_dict[descriptor](data, sigmoid_type)
-
-def get_prior(prior):
-    """ convert string based representation of prior to PsiPrior object """
-    try:
-        prior = "sfr."+"Prior(".join(prior.split('('))
-        return eval(prior)
-    except Exception, e:
-        return None
-
-def get_cuts(cuts):
-    if cuts is None:
-        return sfr.vector_double([0.5])
-    elif op.isNumberType(cuts):
-        return sfr.vector_double([cuts])
-    elif op.isSequenceType(cuts) and np.array([op.isNumberType(a) for a in cuts]).all():
-        return sfr.vector_double(cuts)
-    else:
-        raise PsignifitException("'cuts' must be either None, a number or a "+\
-                "sequence of numbers.")
-
-def get_start(start, nparams):
-    if len(start) != nparams:
-            raise PsignifitException("You specified \'"+str(len(start))+\
-                    "\' starting value(s), but there are \'"+str(nparams)+ "\' parameters.")
-    else:
-        return sfr.vector_double(start)
-
-def available_sigmoids():
-    print "The following sigmoids are available:"
-    print sig_dict.keys()
-
-def available_cores():
-    print "The following cores are availabe:"
-    print core_dict.keys()
-
-def make_dataset(data, nafc):
-    """ create a PsiData object from column based input """
-    data = np.array(data).T
-    x = sfr.vector_double(data[0])
-    k = sfr.vector_int([int(i) for i in data[1].astype(int)])
-    N = sfr.vector_int([int(i) for i in data[2].astype(int)])
-    return sfr.PsiData(x,N,k,nafc)
-
-def make_pmf(dataset, nafc, sigmoid, core, priors):
-    sigmoid = get_sigmoid(sigmoid)
-    core = get_core(core, dataset, sigmoid)
-    pmf = sfr.PsiPsychometric(nafc, core, sigmoid)
-    nparams = pmf.getNparams()
-    set_priors(pmf,priors)
-    return pmf, nparams
-
-def make_dataset_and_pmf(data, nafc, sigmoid, core, priors):
-    dataset = make_dataset(data, nafc)
-    pmf, nparams = make_pmf(dataset, nafc, sigmoid, core, priors)
-    return dataset, pmf, nparams
-
-def set_priors(pmf, priors):
-    if priors is not None:
-        nparams = pmf.getNparams()
-        if len(priors) != nparams:
-            raise PsignifitException("You specified \'"+str(len(priors))+\
-                    "\' priors, but there are \'"+str(nparams)+ "\' parameters.")
-        for (i,p) in enumerate((get_prior(p) for p in priors)):
-            if p is not None:
-                pmf.setPrior(i, p)
+import swignifit.utility as sfu
 
 def psibootstrap(data, start=None, nsamples=2000, nafc=2, sigmoid="logistic",
         core="ab", priors=None, cuts=None, parametric=True ):
 
-    dataset, pmf, nparams = make_dataset_and_pmf(data, nafc, sigmoid, core, priors)
+    dataset, pmf, nparams = sfu.make_dataset_and_pmf(data, nafc, sigmoid, core, priors)
 
-    cuts = get_cuts(cuts)
+    cuts = sfu.get_cuts(cuts)
     ncuts = len(cuts)
     if start is not None:
-        start = get_start(start, nparams)
+        start = sfu.get_start(start, nparams)
 
     bs_list = sfr.bootstrap(nsamples, dataset, pmf, cuts, start, True, parametric)
     jk_list = sfr.jackknifedata(dataset, pmf)
@@ -170,10 +67,10 @@ def psibootstrap(data, start=None, nsamples=2000, nafc=2, sigmoid="logistic",
 def psimcmc( data, start=None, nsamples=10000, nafc=2, sigmoid='logistic',
         core='ab', priors=None, stepwidths=None ):
 
-    dataset, pmf, nparams = make_dataset_and_pmf(data, nafc, sigmoid, core, priors)
+    dataset, pmf, nparams = sfu.make_dataset_and_pmf(data, nafc, sigmoid, core, priors)
 
     if start is not None:
-        start = get_start(start, nparams)
+        start = sfu.get_start(start, nparams)
     else:
         # use mapestimate
         opt = sfr.PsiOptimizer(pmf, dataset)
@@ -185,7 +82,7 @@ def psimcmc( data, start=None, nsamples=10000, nafc=2, sigmoid='logistic',
 
     if stepwidths != None:
         if len(stepwidths) != nparams:
-            raise PsignifitException("You specified \'"+str(len(start))+\
+            raise sfu.PsignifitException("You specified \'"+str(len(start))+\
                     "\' stepwidth(s), but there are \'"+str(nparams)+ "\' parameters.")
         else:
             sampler.setstepsize(sfr.vector_double(stepwidths))
@@ -220,12 +117,12 @@ def psimcmc( data, start=None, nsamples=10000, nafc=2, sigmoid='logistic',
 def psimapestimate ( data, nafc=2, sigmoid='logistic', core='ab', priors=None,
         cuts = None, start=None):
 
-    dataset, pmf, nparams = make_dataset_and_pmf(data, nafc, sigmoid, core, priors)
+    dataset, pmf, nparams = sfu.make_dataset_and_pmf(data, nafc, sigmoid, core, priors)
 
-    cuts = get_cuts(cuts)
+    cuts = sfu.get_cuts(cuts)
 
     opt = sfr.PsiOptimizer(pmf, dataset)
-    estimate = opt.optimize(pmf, dataset, get_start(start, nparams) if start is not
+    estimate = opt.optimize(pmf, dataset, sfu.get_start(start, nparams) if start is not
             None else None)
     H = pmf.ddnegllikeli(estimate, dataset)
     thres = [pmf.getThres(estimate, c) for c in cuts]
@@ -255,8 +152,8 @@ def psidiagnostics(data, params, nafc=2, sigmoid='logistic', core='ab', cuts=Non
         # data is 'real', just do nothing
         pass
 
-    dataset, pmf, nparams = make_dataset_and_pmf(data, nafc, sigmoid, core, None)
-    cuts = get_cuts(cuts)
+    dataset, pmf, nparams = sfu.make_dataset_and_pmf(data, nafc, sigmoid, core, None)
+    cuts = sfu.get_cuts(cuts)
     # TODO length check params
     params = sfr.vector_double(params)
     predicted = np.array([pmf.evaluate(intensity, params) for intensity in

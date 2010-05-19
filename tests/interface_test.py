@@ -9,11 +9,11 @@
 ######################################################################
 
 """ Unit Tests for interface to swig wrapped methods """
-
 import numpy as np
 import unittest as ut
 import swignifit.swignifit_raw as sfr
 import swignifit.interface as inter
+import swignifit.utility as sfu
 
 x = [float(2*k) for k in xrange(6)]
 k = [34,32,40,48,50,48]
@@ -23,7 +23,7 @@ data = [[xx,kk,nn] for xx,kk,nn in zip(x,k,n)]
 class TestUtility(ut.TestCase):
 
     def test_make_dataset(self):
-        dataset = inter.make_dataset(data, 1)
+        dataset = sfu.make_dataset(data, 1)
         self.assertTrue((np.array(x) == np.array(dataset.getIntensities())).all())
         self.assertTrue((np.array(k) == np.array(dataset.getNcorrect())).all())
         self.assertTrue((np.array(n) == np.array(dataset.getNtrials())).all())
@@ -46,38 +46,38 @@ class TestUtility(ut.TestCase):
 
     def test_get_core(self):
         sigmoid = sfr.PsiLogistic()
-        dataset = inter.make_dataset(data, 1)
-        ab = inter.get_core("ab", dataset, sigmoid)
+        dataset = sfu.make_dataset(data, 1)
+        ab = sfu.get_core("ab", dataset, sigmoid)
         self.assertEqual("abCore", ab.__class__.__name__)
-        mw = inter.get_core("mw", dataset, sigmoid)
+        mw = sfu.get_core("mw", dataset, sigmoid)
         self.assertEqual("mwCore", mw.__class__.__name__)
         self.assertEqual(0.1, mw.getAlpha())
-        mw = inter.get_core("mw0.2", dataset, sigmoid)
+        mw = sfu.get_core("mw0.2", dataset, sigmoid)
         self.assertEqual("mwCore", mw.__class__.__name__)
         self.assertEqual(0.2, mw.getAlpha())
-        linear = inter.get_core("linear", dataset, sigmoid)
+        linear = sfu.get_core("linear", dataset, sigmoid)
         self.assertEqual("linearCore", linear.__class__.__name__)
-        log = inter.get_core("log", dataset, sigmoid)
+        log = sfu.get_core("log", dataset, sigmoid)
         self.assertEqual("logCore", log.__class__.__name__)
-        weibull = inter.get_core("weibull", dataset, sigmoid)
+        weibull = sfu.get_core("weibull", dataset, sigmoid)
         self.assertEqual("weibullCore", weibull.__class__.__name__)
-        poly = inter.get_core("poly", dataset, sigmoid)
+        poly = sfu.get_core("poly", dataset, sigmoid)
         self.assertEqual("polyCore", poly.__class__.__name__)
 
     def test_get_prior(self):
-        uniform = inter.get_prior("Uniform(1,2)")
+        uniform = sfu.get_prior("Uniform(1,2)")
         self.assertEqual("UniformPrior", uniform.__class__.__name__)
-        gauss = inter.get_prior("Gauss(0,1)")
+        gauss = sfu.get_prior("Gauss(0,1)")
         self.assertEqual("GaussPrior", gauss.__class__.__name__)
-        beta = inter.get_prior("Beta(1.5, 3)")
+        beta = sfu.get_prior("Beta(1.5, 3)")
         self.assertEqual("BetaPrior", beta.__class__.__name__)
-        gamma = inter.get_prior("Gamma(1.5, 3)")
+        gamma = sfu.get_prior("Gamma(1.5, 3)")
         self.assertEqual("GammaPrior", gamma.__class__.__name__)
-        ngamma = inter.get_prior("nGamma(1.5,3)")
+        ngamma = sfu.get_prior("nGamma(1.5,3)")
         self.assertEqual("nGammaPrior", ngamma.__class__.__name__)
-        flat = inter.get_prior("flat")
+        flat = sfu.get_prior("flat")
         self.assertEqual(None, flat)
-        unconstrained = inter.get_prior("unconstrained")
+        unconstrained = sfu.get_prior("unconstrained")
         self.assertEqual(None, unconstrained)
 
 class TestBootstrap(ut.TestCase):
