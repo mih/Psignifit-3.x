@@ -36,7 +36,7 @@ build: python-build python-doc
 
 install: python-install python-doc
 
-clean: clean-python-doc clean-python-build psipp-clean
+clean: clean-python-doc clean-python-build psipp-clean swignifit-clean
 
 test: psipy-test swignifit-test psipp-test
 
