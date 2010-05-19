@@ -53,13 +53,13 @@ namespace std {
 
 // We wrap the following headers
 %include "data.h"
-%include "psychometric.h"
-%include "core.h"
 %include "sigmoid.h"
+%include "core.h"
 %include "prior.h"
-%include "mclist.h"
+%include "psychometric.h"
+%include "optimizer.h"
 %include "bootstrap.h"
 %include "mcmc.h"
+%include "mclist.h"
 %include "rng.h"
-%include "optimizer.h"
 %include "linalg.h"
