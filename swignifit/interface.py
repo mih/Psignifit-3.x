@@ -12,7 +12,7 @@ import numpy as np
 import swignifit_raw as sfr
 import swignifit.utility as sfu
 
-def psibootstrap(data, start=None, nsamples=2000, nafc=2, sigmoid="logistic",
+def bootstrap(data, start=None, nsamples=2000, nafc=2, sigmoid="logistic",
         core="ab", priors=None, cuts=None, parametric=True ):
 
     dataset, pmf, nparams = sfu.make_dataset_and_pmf(data, nafc, sigmoid, core, priors)
@@ -64,7 +64,7 @@ def psibootstrap(data, start=None, nsamples=2000, nafc=2, sigmoid="logistic",
 
     return samples, estimates, deviance, thres, bias, acc, Rpd, Rkd, outliers, influential
 
-def psimcmc( data, start=None, nsamples=10000, nafc=2, sigmoid='logistic',
+def mcmc( data, start=None, nsamples=10000, nafc=2, sigmoid='logistic',
         core='ab', priors=None, stepwidths=None ):
 
     dataset, pmf, nparams = sfu.make_dataset_and_pmf(data, nafc, sigmoid, core, priors)
@@ -114,7 +114,7 @@ def psimcmc( data, start=None, nsamples=10000, nafc=2, sigmoid='logistic',
         posterior_predictive_deviances, posterior_predictive_Rpd,
         posterior_predictive_Rkd, logposterior_ratios)
 
-def psimapestimate ( data, nafc=2, sigmoid='logistic', core='ab', priors=None,
+def mapestimate ( data, nafc=2, sigmoid='logistic', core='ab', priors=None,
         cuts = None, start=None):
 
     dataset, pmf, nparams = sfu.make_dataset_and_pmf(data, nafc, sigmoid, core, priors)
@@ -138,7 +138,7 @@ def psimapestimate ( data, nafc=2, sigmoid='logistic', core='ab', priors=None,
 
     return estimate, fisher, thres, deviance
 
-def psidiagnostics(data, params, nafc=2, sigmoid='logistic', core='ab', cuts=None):
+def diagnostics(data, params, nafc=2, sigmoid='logistic', core='ab', cuts=None):
     # here we need to hack stuff, since data can be either 'real' data, or just
     # a list of intensities.
     shape = np.shape(np.array(data))

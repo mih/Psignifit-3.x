@@ -23,7 +23,7 @@ data = [[xx,kk,nn] for xx,kk,nn in zip(x,k,n)]
 class TestBootstrap(ut.TestCase):
 
     def test_basic(self):
-        inter.psibootstrap(data)
+        inter.bootstrap(data)
 
     def test_old_doctest(self):
 
@@ -33,40 +33,40 @@ class TestBootstrap(ut.TestCase):
         d = [[xx,kk,nn] for xx,kk,nn in zip(x,k,n)]
         priors = ('flat','flat','Uniform(0,0.1)')
         sfr.set_seed(1)
-        samples,est,D,thres,bias,acc,Rkd,Rpd,out,influ = inter.psibootstrap(d,nsamples=2000,priors=priors)
+        samples,est,D,thres,bias,acc,Rkd,Rpd,out,influ = inter.bootstrap(d,nsamples=2000,priors=priors)
         self.assertAlmostEqual( np.mean(est[:,0]), 2.7273945991794095)
         self.assertAlmostEqual( np.mean(est[:,1]), 1.3939511033770027)
 
 
     def test_start(self):
-        inter.psibootstrap(data, nsamples=25, start=[0.1, 0.2, 0.3])
+        inter.bootstrap(data, nsamples=25, start=[0.1, 0.2, 0.3])
 
     def test_nsamples(self):
-        inter.psibootstrap(data, nsamples=666)
+        inter.bootstrap(data, nsamples=666)
 
     def test_nafc(self):
-        inter.psibootstrap(data, nafc=23)
+        inter.bootstrap(data, nafc=23)
 
     def test_sigmoid(self):
-        inter.psibootstrap(data, nsamples=25, sigmoid='gumbel_l')
+        inter.bootstrap(data, nsamples=25, sigmoid='gumbel_l')
 
     def test_core(self):
-        inter.psibootstrap(data, nsamples=25, core='linear')
+        inter.bootstrap(data, nsamples=25, core='linear')
 
     def test_prior(self):
         priors = ('Gauss(0,10)', 'Gamma(2,3)', 'Uniform(1,5)')
-        inter.psibootstrap(data, nsamples=25, priors=priors)
+        inter.bootstrap(data, nsamples=25, priors=priors)
 
     def test_cuts(self):
-        inter.psibootstrap(data, nsamples=25, cuts=[0.5,0.6,0.75])
+        inter.bootstrap(data, nsamples=25, cuts=[0.5,0.6,0.75])
 
     def test_parameteric(self):
-        inter.psibootstrap(data, nsamples=25, parametric=False)
+        inter.bootstrap(data, nsamples=25, parametric=False)
 
 class TestMCMC(ut.TestCase):
 
     def test_basic(self):
-        inter.psimcmc(data)
+        inter.mcmc(data)
 
     def test_old_doctest(self):
         x = [float(2*k) for k in xrange(6)]
@@ -78,36 +78,36 @@ class TestMCMC(ut.TestCase):
         sfr.set_seed(1)
         (estimates, deviance, posterior_predictive_data,
         posterior_predictive_deviances, posterior_predictive_Rpd,
-        posterior_predictive_Rkd, logposterior_ratios) = inter.psimcmc(d,nsamples=10000,priors=priors,stepwidths=stepwidths)
+        posterior_predictive_Rkd, logposterior_ratios) = inter.mcmc(d,nsamples=10000,priors=priors,stepwidths=stepwidths)
         self.assertAlmostEqual( np.mean(estimates[:,0]), 2.5304815981388971)
         self.assertAlmostEqual( np.mean(estimates[:,1]), 1.6707238984255586)
 
     def test_start(self):
-        inter.psimcmc(data,nsamples=25, start=[0.1,0.2,0.3])
+        inter.mcmc(data,nsamples=25, start=[0.1,0.2,0.3])
 
     def test_nsamples(self):
-        inter.psimcmc(data,nsamples=666)
+        inter.mcmc(data,nsamples=666)
 
     def test_nafc(self):
-        inter.psimcmc(data,nsamples=25, nafc=23)
+        inter.mcmc(data,nsamples=25, nafc=23)
 
     def test_sigmoid(self):
-        inter.psimcmc(data,nsamples=25, sigmoid='gumbel_r')
+        inter.mcmc(data,nsamples=25, sigmoid='gumbel_r')
 
     def test_core(self):
-        inter.psimcmc(data, nsamples=25, core='ab')
+        inter.mcmc(data, nsamples=25, core='ab')
 
     def test_prior(self):
         priors = ('Gauss(0,10)', 'Gamma(2,3)', 'Uniform(1,5)')
-        inter.psimcmc(data, nsamples=25, priors=priors)
+        inter.mcmc(data, nsamples=25, priors=priors)
 
     def test_stepwidth(self):
-        inter.psimcmc(data, nsamples=25, stepwidths=[0.1, 0.2, 0.3])
+        inter.mcmc(data, nsamples=25, stepwidths=[0.1, 0.2, 0.3])
 
 class TestMapestimate(ut.TestCase):
 
     def test_basic(self):
-        inter.psimapestimate(data)
+        inter.mapestimate(data)
 
     def test_old_doctest(self):
         x = [float(2*k) for k in xrange(6)]
@@ -115,7 +115,7 @@ class TestMapestimate(ut.TestCase):
         n = [50]*6
         d = [[xx,kk,nn] for xx,kk,nn in zip(x,k,n)]
         priors = ('flat','flat','Uniform(0,0.1)')
-        estimate, fisher, thres, deviance = inter.psimapestimate ( d, priors=priors )
+        estimate, fisher, thres, deviance = inter.mapestimate ( d, priors=priors )
         for i,value in enumerate([ 2.75183178, 1.45728231, 0.01555514]):
             self.assertAlmostEqual(value, estimate[i])
         print fisher
@@ -123,23 +123,23 @@ class TestMapestimate(ut.TestCase):
         self.assertAlmostEqual(8.0713313969, deviance)
 
     def test_nafc(self):
-        inter.psimapestimate(data, nafc=23)
+        inter.mapestimate(data, nafc=23)
 
     def test_sigmoid(self):
-        inter.psimapestimate(data, sigmoid='gauss')
+        inter.mapestimate(data, sigmoid='gauss')
 
     def test_core(self):
-        inter.psimapestimate(data, core='mw0.2')
+        inter.mapestimate(data, core='mw0.2')
 
     def test_priors(self):
         priors = ('Gauss(0,10)', 'Gamma(2,3)', 'Uniform(1,5)')
-        inter.psimapestimate(data, priors=priors)
+        inter.mapestimate(data, priors=priors)
 
     def test_cuts(self):
-        inter.psimapestimate(data, cuts=[0.5, 0.75, 0.85])
+        inter.mapestimate(data, cuts=[0.5, 0.75, 0.85])
 
     def test_start(self):
-        estimate, fisher, thres, deviance = inter.psimapestimate (data,
+        estimate, fisher, thres, deviance = inter.mapestimate (data,
                 start=[0.1, 0.2, 0.3])
 
 class TestDiagnostics(ut.TestCase):
@@ -147,7 +147,7 @@ class TestDiagnostics(ut.TestCase):
     prm = [2.75, 1.45, 0.015]
 
     def test_basic(self):
-        inter.psidiagnostics(data, TestDiagnostics.prm)
+        inter.diagnostics(data, TestDiagnostics.prm)
 
     def test_old_doctest(self):
         x = [float(2*k) for k in xrange(6)]
@@ -155,25 +155,25 @@ class TestDiagnostics(ut.TestCase):
         n = [50]*6
         d = [[xx,kk,nn] for xx,kk,nn in zip(x,k,n)]
         prm = [2.75, 1.45, 0.015]
-        pred,di,D,thres,Rpd,Rkd = inter.psidiagnostics(d,prm)
+        pred,di,D,thres,Rpd,Rkd = inter.diagnostics(d,prm)
         self.assertAlmostEqual(8.07484858608, D)
         self.assertAlmostEqual(1.68932796526, di[0])
         self.assertAlmostEqual(-0.19344675783032761, Rpd)
 
     def test_nafc(self):
-        inter.psidiagnostics(data, TestDiagnostics.prm, nafc=23)
+        inter.diagnostics(data, TestDiagnostics.prm, nafc=23)
 
     def test_sigmoid(self):
-        inter.psidiagnostics(data, TestDiagnostics.prm, sigmoid='logistic')
+        inter.diagnostics(data, TestDiagnostics.prm, sigmoid='logistic')
 
     def test_core(self):
-        inter.psidiagnostics(data, TestDiagnostics.prm, core='linear')
+        inter.diagnostics(data, TestDiagnostics.prm, core='linear')
 
     def test_cuts(self):
-        inter.psidiagnostics(data, TestDiagnostics.prm, cuts=[0.5, 0.75, 0.85])
+        inter.diagnostics(data, TestDiagnostics.prm, cuts=[0.5, 0.75, 0.85])
 
     def test_intensities_only(self):
-        predicted = inter.psidiagnostics(x, TestDiagnostics.prm)
+        predicted = inter.diagnostics(x, TestDiagnostics.prm)
 
 if __name__ == "__main__":
     ut.main()
