@@ -14,41 +14,6 @@ import numpy, pylab
 import unittest as ut
 import swignifit.swignifit_raw as sfr
 
-class TestSigmoid(ut.TestCase):
-    """ test that all sigmoids have been wrapped and can be executed """
-
-    def all_methods(self, sigmoid):
-        s = sigmoid()
-        s.f(0.0)
-        s.df(0.0)
-        s.ddf(0.0)
-        s.inv(0.1)
-        s.clone()
-        s2 = sigmoid(s)
-
-    def test_cauchy(self):
-        self.all_methods(sfr.PsiCauchy)
-
-    def test_exponential(self):
-        self.all_methods(sfr.PsiExponential)
-
-    def test_gauss(self):
-        self.all_methods(sfr.PsiGauss)
-
-    def test_gumbell(self):
-        self.all_methods(sfr.PsiGumbelL)
-
-    def test_gumbelr(self):
-        self.all_methods(sfr.PsiGumbelR)
-
-    def test_logistic(self):
-        self.all_methods(sfr.PsiLogistic)
-
-    def test_exponential_exception(self):
-        s = sfr.PsiExponential()
-        self.assertRaises(ValueError, s.inv, 0)
-        self.assertRaises(ValueError, s.inv, 1)
-
 class TestData(ut.TestCase):
 
     @staticmethod
@@ -78,6 +43,45 @@ class TestData(ut.TestCase):
 
         data.getNalternatives()
         data.nonasymptotic()
+
+class TestPsychometric(ut.TestCase):
+
+    @staticmethod
+    def generate_test_model():
+        # IMPORTANT: here we can use the fact that PsiPsychometic manages its
+        # own memory, and we don't need to hang on to th sigmoid, core, and
+        # prior.
+        return sfr.PsiPsychometric(2, sfr.abCore(), sfr.PsiLogistic())
+
+    def test_pschometric(self):
+        data = TestData.generate_test_dataset()
+        psi = TestPsychometric.generate_test_model()
+        params = sfr.vector_double([0.5,0.5,0.01])
+
+        pr = sfr.UniformPrior(0,1)
+        psi.setPrior(0,pr)
+        psi.setPrior(1,pr)
+        psi.setPrior(2,pr)
+
+        psi.evaluate(0.0,params)
+        psi.negllikeli(params,data)
+        psi.neglpost(params, data)
+        psi.leastfavourable(params, data, 0.0)
+        psi.deviance(params, data)
+        psi.ddnegllikeli(params, data)
+        psi.dnegllikeli(params, data)
+        psi.getCore()
+        psi.getSigmoid()
+
+    def test_memory_management(self):
+        core = sfr.abCore()
+        sigmoid = sfr.PsiLogistic()
+        psi = sfr.PsiPsychometric(2,core,sigmoid)
+
+    def test_exceptions(self):
+        psi = TestPsychometric.generate_test_model()
+        # for 2AFC we have 3 paramters with indices [0,1,2]
+        self.assertRaises(ValueError, psi.setPrior,3, sfr.UniformPrior(0,1))
 
 class TestCore(ut.TestCase):
 
@@ -127,45 +131,40 @@ class TestCore(ut.TestCase):
         self.assertRaises(ValueError, c.dg, -1.0, params, 0)
         self.assertRaises(ValueError, c.ddg, -1.0, params, 0, 1)
 
+class TestSigmoid(ut.TestCase):
+    """ test that all sigmoids have been wrapped and can be executed """
 
-class TestPsychometric(ut.TestCase):
+    def all_methods(self, sigmoid):
+        s = sigmoid()
+        s.f(0.0)
+        s.df(0.0)
+        s.ddf(0.0)
+        s.inv(0.1)
+        s.clone()
+        s2 = sigmoid(s)
 
-    @staticmethod
-    def generate_test_model():
-        # IMPORTANT: here we can use the fact that PsiPsychometic manages its
-        # own memory, and we don't need to hang on to th sigmoid, core, and
-        # prior.
-        return sfr.PsiPsychometric(2, sfr.abCore(), sfr.PsiLogistic())
+    def test_cauchy(self):
+        self.all_methods(sfr.PsiCauchy)
 
-    def test_pschometric(self):
-        data = TestData.generate_test_dataset()
-        psi = TestPsychometric.generate_test_model()
-        params = sfr.vector_double([0.5,0.5,0.01])
+    def test_exponential(self):
+        self.all_methods(sfr.PsiExponential)
 
-        pr = sfr.UniformPrior(0,1)
-        psi.setPrior(0,pr)
-        psi.setPrior(1,pr)
-        psi.setPrior(2,pr)
+    def test_gauss(self):
+        self.all_methods(sfr.PsiGauss)
 
-        psi.evaluate(0.0,params)
-        psi.negllikeli(params,data)
-        psi.neglpost(params, data)
-        psi.leastfavourable(params, data, 0.0)
-        psi.deviance(params, data)
-        psi.ddnegllikeli(params, data)
-        psi.dnegllikeli(params, data)
-        psi.getCore()
-        psi.getSigmoid()
+    def test_gumbell(self):
+        self.all_methods(sfr.PsiGumbelL)
 
-    def test_memory_management(self):
-        core = sfr.abCore()
-        sigmoid = sfr.PsiLogistic()
-        psi = sfr.PsiPsychometric(2,core,sigmoid)
+    def test_gumbelr(self):
+        self.all_methods(sfr.PsiGumbelR)
 
-    def test_exceptions(self):
-        psi = TestPsychometric.generate_test_model()
-        # for 2AFC we have 3 paramters with indices [0,1,2]
-        self.assertRaises(ValueError, psi.setPrior,3, sfr.UniformPrior(0,1))
+    def test_logistic(self):
+        self.all_methods(sfr.PsiLogistic)
+
+    def test_exponential_exception(self):
+        s = sfr.PsiExponential()
+        self.assertRaises(ValueError, s.inv, 0)
+        self.assertRaises(ValueError, s.inv, 1)
 
 class TestPriors(ut.TestCase):
 
@@ -191,27 +190,6 @@ class TestPriors(ut.TestCase):
 
     def test_uniform_prior(self):
         self.all_methods(sfr.UniformPrior)
-
-class TestBootstrap(ut.TestCase):
-
-    @staticmethod
-    def generate_test_bootstrap_list():
-        data = TestData.generate_test_dataset()
-        psi = TestPsychometric.generate_test_model()
-        cuts = sfr.vector_double([1, 0.5])
-        return sfr.bootstrap(999, data, psi, cuts)
-
-    @staticmethod
-    def generate_test_jackknife_list():
-        data = TestData.generate_test_dataset()
-        psi = TestPsychometric.generate_test_model()
-        return sfr.jackknifedata(data, psi)
-
-    def test_bootstrap(self):
-        TestBootstrap.generate_test_bootstrap_list()
-
-    def test_jackknifedata(self):
-        TestBootstrap.generate_test_jackknife_list()
 
 class TestMCList(ut.TestCase):
 
@@ -258,6 +236,27 @@ class TestMCList(ut.TestCase):
         jk_list.influential(0, sfr.vector_double([0.0, 0.0, 0.0]),
                 sfr.vector_double([0.0, 0.0, 0.0]))
         jk_list.outlier(0)
+
+class TestBootstrap(ut.TestCase):
+
+    @staticmethod
+    def generate_test_bootstrap_list():
+        data = TestData.generate_test_dataset()
+        psi = TestPsychometric.generate_test_model()
+        cuts = sfr.vector_double([1, 0.5])
+        return sfr.bootstrap(999, data, psi, cuts)
+
+    @staticmethod
+    def generate_test_jackknife_list():
+        data = TestData.generate_test_dataset()
+        psi = TestPsychometric.generate_test_model()
+        return sfr.jackknifedata(data, psi)
+
+    def test_bootstrap(self):
+        TestBootstrap.generate_test_bootstrap_list()
+
+    def test_jackknifedata(self):
+        TestBootstrap.generate_test_jackknife_list()
 
 class TestOptimizer(ut.TestCase):
 
