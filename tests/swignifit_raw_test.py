@@ -354,13 +354,6 @@ class TestLinalg(ut.TestCase):
         matrix.scale(0.1)
         matrix.symmetric()
 
-#x = numpy.arange(0,10,0.1)
-#y = numpy.zeros(len(x))
-#for i,val in enumerate(x):
-#    y[i] = psi.evaluate(val,params)
-#pylab.plot(x,y)
-#pylab.show()
-
 if __name__ == "__main__":
     ut.main()
 
