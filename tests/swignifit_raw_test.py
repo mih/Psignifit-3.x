@@ -302,6 +302,26 @@ class TestBootstrap(ut.TestCase):
     def test_jackknifedata(self):
         TestBootstrap.generate_test_jackknife_list()
 
+class TestRNG(ut.TestCase):
+
+    def all_methods(self, random):
+        random.draw()
+        random.clone()
+
+    def test_gauss_random(self):
+        self.all_methods(sfr.GaussRandom())
+        self.all_methods(sfr.GaussRandom(mean=5, standarddeviation=0.1))
+
+    def test_uniform_random(self):
+        self.all_methods(sfr.UniformRandom())
+        self.all_methods(sfr.UniformRandom(low=-1, up=2))
+
+    def test_binomial_random(self):
+        binomial = sfr.BinomialRandom(6, 0.25)
+        self.all_methods(binomial)
+        binomial.setprm(10, 0.9)
+        self.all_methods(binomial)
+
 class TestOptimizer(ut.TestCase):
 
     def test_optimize(self):
