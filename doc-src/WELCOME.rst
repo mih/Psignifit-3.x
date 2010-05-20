@@ -91,10 +91,8 @@ Compile-Time
 ............
 `Make <http://www.gnu.org/software/make/>`_ (3.81-8)
     for building the software
-`Gcc <http://gcc.gnu.org/>`_ (4:4.4.3-1)
-    for compiling the ``psipy`` and ``swignifit`` interface for python,
+`Gcc <http://gcc.gnu.org/>`_ (4:4.4.3-1)/
 `Python <python http://www.python.org/>`_ (2.5.5-6)/
-    for compiling the ``psipy`` and ``swignifit`` interface for python,
 `Python/C API <http://docs.python.org/c-api/>`_ (2.5.5-2)
     for compiling the ``psipy`` and ``swignifit`` interface for python
 `Numpy/C API <http://docs.scipy.org/doc/numpy/reference/c-api.html>`_ (1:1.3.0-3)
