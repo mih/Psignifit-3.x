@@ -337,22 +337,24 @@ class TestLinalg(ut.TestCase):
         matrix = sfr.Matrix(rows, columns)
         for (i,j) in ((i,j) for i in xrange(rows) for j in xrange(columns)):
             # here we use the typemap magic from cpointer.i
-            sfr.doublep_assign(matrix(i,j), 1)
+            sfr.doublep_assign(matrix(i,j), 1 if i ==j else 0)
         # print is a python keyword, hence it was wrapped as _print
         matrix._print()
         matrix.getnrows()
         matrix.getncols()
         matrix.cholesky_dec()
         # TODO some of these fail due to segementation faults
-        # matrix.lu_dec()
+        matrix.lu_dec()
         matrix.qr_dec()
-        # matrix.inverse_qr()
+        matrix.inverse_qr()
         matrix.regularized_inverse(0.1)
-        # matrix.solve(sfr.vector_double([0.1]*5))
-        # matrix.inverse()
+        matrix.solve(sfr.vector_double([0.1]*5))
+        matrix.inverse()
         matrix * sfr.vector_double([0.5] * 5)
         matrix.scale(0.1)
         matrix.symmetric()
+        # TODO use a dependent matrix (all ones) to test that decompositions,
+        # solve and inverse don't work
 
 if __name__ == "__main__":
     ut.main()
