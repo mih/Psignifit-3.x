@@ -33,7 +33,7 @@ class TestBootstrap(ut.TestCase):
         n = [50]*6
         d = [[xx,kk,nn] for xx,kk,nn in zip(x,k,n)]
         priors = ('flat','flat','Uniform(0,0.1)')
-        sfr.set_seed(1)
+        sfr.setSeed(1)
         samples,est,D,thres,bias,acc,Rkd,Rpd,out,influ = inter.bootstrap(d,nsamples=2000,priors=priors)
         self.assertAlmostEqual( np.mean(est[:,0]), 2.7273945991794095)
         self.assertAlmostEqual( np.mean(est[:,1]), 1.3939511033770027)
@@ -76,7 +76,7 @@ class TestMCMC(ut.TestCase):
         d = [[xx,kk,nn] for xx,kk,nn in zip(x,k,n)]
         priors = ('Gauss(0,1000)','Gauss(0,1000)','Beta(3,100)')
         stepwidths = (1.,1.,0.01)
-        sfr.set_seed(1)
+        sfr.setSeed(1)
         (estimates, deviance, posterior_predictive_data,
         posterior_predictive_deviances, posterior_predictive_Rpd,
         posterior_predictive_Rkd, logposterior_ratios) = inter.mcmc(d,nsamples=10000,priors=priors,stepwidths=stepwidths)
