@@ -330,6 +330,9 @@ class TestRNG(ut.TestCase):
         binomial.setprm(10, 0.9)
         self.all_methods(binomial)
 
+    def test_set_seed(self):
+        sfr.setSeed(1)
+
 class TestLinalg(ut.TestCase):
 
     def test_matrix(self):
