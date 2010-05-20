@@ -52,8 +52,8 @@ Matrix::Matrix ( const std::vector< std::vector<double> >& A )
 	}
 }
 
-Matrix::Matrix ( unsigned int n, unsigned int m )
-	: nrows(n), ncols(m)
+Matrix::Matrix ( unsigned int nrows, unsigned int ncols)
+	: nrows(nrows), ncols(ncols)
 {
 	data = new double [nrows*ncols];
 	unsigned int i;

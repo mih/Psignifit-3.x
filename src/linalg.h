@@ -33,7 +33,7 @@ class Matrix
 		std::vector<double> backward ( const Matrix*LU, const std::vector<double>& y );    // backward solution of Ux=y
 	public:
 		Matrix ( const std::vector< std::vector<double> >& A );      ///< Construct a matrix from a vector of vectors
-		Matrix ( unsigned int n, unsigned int m );                   ///< Construct a matrix with given dimensions initialized to 0
+		Matrix ( unsigned int nrows, unsigned int ncols);                   ///< Construct a matrix with given dimensions initialized to 0
 		Matrix ( const Matrix& A );                                  ///< copy a matrix
 		~Matrix ( void ) { delete [] data; }                         ///< delete a matrix
 		double& operator() ( unsigned int i, unsigned int j ) const; ///< data access to the element in row i and column j (indices starting with 0!)
