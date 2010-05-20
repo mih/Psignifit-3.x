@@ -1,8 +1,8 @@
 ========================
-Welcome to psignifit 3.0
+Welcome to Psignifit 3.0
 ========================
 
-psignifit is a toolbox that allows the user to fit psychometric functions and to test
+Psignifit is a toolbox that allows the user to fit psychometric functions and to test
 hypotheses about psychometric data. Compared to the "classical" version of psignifit,
 the new package comes with a number of additional features for fitting psychometric functions.
 These include the detection of outliers, and the identification of influential
@@ -37,7 +37,7 @@ running properly, there will also be an R version.
 We would be glad to find developers that are interested in supporting these non-python interfaces
 to the psignifit engine.
 
-Getting in Touch
+Getting in touch
 ================
 
 To contact the authors and current maintainers please use:
@@ -80,10 +80,9 @@ Compile-Time
 
 Run-Time
 ........
-
-`numpy <http://numpy.scipy.org/>`_  /
-`scipy <http://www.scipy.org/>`_ /
-`matplotlib <http://matplotlib.sourceforge.net/>`_
+`Numpy <http://numpy.scipy.org/>`_  /
+`Scipy <http://www.scipy.org/>`_ /
+`Matplotlib <http://matplotlib.sourceforge.net/>`_
     for the python version
 
 
