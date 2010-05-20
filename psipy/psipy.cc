@@ -375,7 +375,7 @@ static PyObject * psimapestimate ( PyObject * self, PyObject * args, PyObject * 
 	if ( pystart == Py_None ) {
 		*estimate = opt->optimize ( pmf, data );
 	} else {
-		start = getcuts ( pystart, &Nparams );
+		start = getparams ( pystart, Nparams );
 		*estimate = opt->optimize ( pmf, data, start );
 		delete start;
 	}
