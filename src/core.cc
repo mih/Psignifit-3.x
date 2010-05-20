@@ -69,9 +69,6 @@ std::vector<double> abCore::transform ( int nprm, double a, double b ) {
 	return out;
 }
 
-PsiCore * abCore::clone() const{
-    return new abCore(*this);
-}
 /************************************************************
  * mwCore methods
  */
@@ -163,9 +160,6 @@ std::vector<double> mwCore::transform ( int nprm, double a, double b ) {
 	return out;
 }
 
-PsiCore * mwCore::clone() const{
-    return new mwCore(*this);
-}
 /************************************************************
  * logarithmicCore
  */
@@ -220,9 +214,6 @@ std::vector<double> logCore::transform ( int nprm, double a, double b ) {
 	return prm;
 }
 
-PsiCore * logCore::clone() const{
-    return new logCore(*this);
-}
 /************************************************************
  * weibullCore
  */
@@ -308,9 +299,6 @@ std::vector<double> weibullCore::transform ( int nprm, double a, double b )
 	return prm;
 }
 
-PsiCore * weibullCore::clone() const{
-    return new weibullCore(*this);
-}
 /************************************************************
  * polyCore
  */
@@ -398,6 +386,3 @@ std::vector<double> polyCore::transform ( int nprm, double a, double b )
 	return prm;
 }
 
-PsiCore * polyCore::clone() const{
-    return new polyCore(*this);
-}

@@ -51,7 +51,7 @@ class PsiCore
 				double a,                    ///< intercept of the logistic regression model
 				double b                     ///< slope of the logistic regression model
 				) {throw NotImplementedError();}       ///< transform parameters from logistic regression to those used for this core
-        virtual PsiCore * clone() const { throw NotImplementedError(); }
+        virtual PsiCore * clone ( void ) const { throw NotImplementedError(); }
         static std::string getDescriptor ( void ) { throw NotImplementedError(); }///< get a short string that identifies the type of core
 };
 
@@ -101,7 +101,9 @@ class abCore : public PsiCore
 			double a,                        ///< intercept of the logistic regression model
 			double b                         ///< slope of the logistic regression model
 			);                                         ///< transform parameters from a logistic regression model to the parameters used here
-        PsiCore * clone() const;             ///< clone by value
+        PsiCore * clone ( void ) const {
+            return new abCore(*this);
+        } ///< clone by value
         static std::string getDescriptor ( void ) {
             return "ab";
         }
@@ -159,7 +161,9 @@ class mwCore : public PsiCore
 			double a,                        ///< intercept of the logistic regression model
 			double b                         ///< slope of the logistic regression model
 			);                                         ///< transform parameters from a logistic regression model to the parameters used here
-        PsiCore * clone() const;             ///< clone by value
+        PsiCore * clone ( void ) const {
+            return new mwCore(*this);
+        } ///< clone by value
         static std::string getDescriptor ( void ) {
             return "mw";
         }
@@ -212,9 +216,9 @@ class linearCore : public PsiCore
 			double a,                           ///< intercept parameter of the logistic regression model
 			double b                            ///< slope parameter of the logistic regression
 			) { std::vector<double> out (nprm,0); out[0] = b; out[1] = a; return out; }   ///< transform logistic regression parameters to useful ones for this core
-        PsiCore * clone() const {
+        PsiCore * clone ( void ) const {
             return new linearCore(*this);
-        };             ///< clone by value
+        } ///< clone by value
         static std::string getDescriptor ( void ) {
             return "linear";
         }
@@ -265,7 +269,9 @@ class logCore : public PsiCore
 				double a,                             ///< intercept of the logistic regression model
 				double b                              ///< slope of the logistic regression model
 			);                   ///< transform parameters from a logistic regression model to starting values
-        PsiCore * clone() const ; ///< clone by value
+        PsiCore * clone ( void ) const {
+            return new logCore(*this);
+        } ///< clone by value
         static std::string getDescriptor ( void ) {
             return "log";
         }
@@ -323,7 +329,9 @@ class weibullCore : public PsiCore
 			double a,                           ///< intercept of the logistic regression model
 			double b                            ///< slope of the logistic regression model
 			);          ///< transform the parameters from a logistic regression model to starting values
-        PsiCore * clone() const ; ///< clone by value
+        PsiCore * clone ( void ) const {
+            return new weibullCore(*this);
+        } ///< clone by value
         static std::string getDescriptor ( void ) {
             return "weibull";
         }
@@ -375,7 +383,9 @@ class polyCore : public PsiCore
 			double a,                                ///< intercept of the logistic regression model
 			double b                                 ///< slope of the logistic regression model to starting values
 			);              ///< transform the parameter from a logistic regression model to starting values
-        PsiCore * clone() const ; ///< clone by value
+        PsiCore * clone ( void ) const {
+            return new polyCore(*this);
+        ///< clone by value
         static std::string getDescriptor ( void ) {
             return "poly";
         }
