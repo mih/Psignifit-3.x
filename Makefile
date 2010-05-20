@@ -68,8 +68,12 @@ ipython:
 psipp:
 	cd $(PSIPP_SRC) && $(MAKE)
 
+psipp-doc:
+	doxygen
+
 psipp-clean:
 	cd $(PSIPP_SRC) && $(MAKE) clean
+	-rm -rf psipp-doc
 
 psipp-test:
 	cd $(PSIPP_SRC) && $(MAKE) test
