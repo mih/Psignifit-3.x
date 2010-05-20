@@ -65,7 +65,7 @@ def bootstrap(data, start=None, nsamples=2000, nafc=2, sigmoid="logistic",
     return samples, estimates, deviance, thres, bias, acc, Rpd, Rkd, outliers, influential
 
 def mcmc( data, start=None, nsamples=10000, nafc=2, sigmoid='logistic',
-        core='ab', priors=None, stepwidths=None ):
+        core='mw0.1', priors=None, stepwidths=None ):
 
     dataset, pmf, nparams = sfu.make_dataset_and_pmf(data, nafc, sigmoid, core, priors)
 
