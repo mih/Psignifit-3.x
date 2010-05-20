@@ -8,9 +8,7 @@
 #include <iostream>
 #endif
 
-/************************************************************
- * Logistic sigmoid
- */
+/** Logistic Sigmoid **********************************************************/
 
 double PsiLogistic::f ( double x )
 {
@@ -37,9 +35,7 @@ double PsiLogistic::ddf ( double x )
 	return f(x)*(1-f(x))*(1-2*f(x));
 }
 
-/************************************************************
- * Gauss-CDF
- */
+/** Gauss Sigmoid *************************************************************/
 
 double PsiGauss::f ( double x )
 {
@@ -85,9 +81,7 @@ double PsiGauss::inv ( double p )
 	}
 }
 
-/************************************************************
- * Gumbel_l cdf
- */
+/** Gumbel_l Sigmoid *********************************************************/
 
 double PsiGumbelL::f ( double x )
 {
@@ -125,9 +119,7 @@ double PsiGumbelL::inv ( double p )
 	return lastinvp;
 }
 
-/************************************************************
- * Gumbel_r cdf
- */
+/** Gumbel_r Sigmoid **********************************************************/
 
 double PsiGumbelR::f ( double x )
 {
@@ -165,9 +157,7 @@ double PsiGumbelR::inv ( double p )
 	return lastinvp;
 }
 
-/************************************************************
- * Cauchy cdf
- */
+/** Cauchy Sigmoid ************************************************************/
 
 double PsiCauchy::f ( double x )
 {
@@ -189,9 +179,7 @@ double PsiCauchy::inv ( double p )
 	return tan ( M_PI*(p-0.5) );
 }
 
-/************************************************************
- * Exponential cdf
- */
+/** Exponential cdf ***********************************************************/
 
 double PsiExponential::f ( double x )
 {
