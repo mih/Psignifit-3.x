@@ -70,7 +70,7 @@ static char psibootstrap_doc [] =
 "\n";
 
 static char psimcmc_doc [] =
-"mcmc ( data, start=None, nsamples=10000, nafc=2, sigmoid='logistic', core='ab', priors=None, stepwidths=None )\n"
+"mcmc ( data, start=None, nsamples=10000, nafc=2, sigmoid='logistic', core='mw0.1', priors=None, stepwidths=None )\n"
 "\n"
 "Markov Chain Monte Carlo sampling for a psychometric function.\n"
 "\n"
