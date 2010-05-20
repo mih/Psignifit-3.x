@@ -4,6 +4,7 @@
 # Check that we can call all functions from _psipy
 
 import _psipy
+#import swignifit.interface as _psipy
 import unittest as ut
 
 #################### 2afc #########################

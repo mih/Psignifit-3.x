@@ -13,6 +13,7 @@ import numpy as np
 import unittest as ut
 import swignifit.swignifit_raw as sfr
 import swignifit.interface as inter
+#import _psipy as inter
 import swignifit.utility as sfu
 
 x = [float(2*k) for k in xrange(6)]
