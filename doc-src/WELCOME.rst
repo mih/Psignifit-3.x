@@ -122,6 +122,9 @@ which will internally call::
 So, if you want a special flavor of the python installation and are familiar with using python
 setup-scripts, you can also use special options for the installation.
 
+In some cases, you may want to install psignifit locally in your users home
+directory. For details about this, see `Install into users home directory`_.
+
 Mac OSX
 -------
 
@@ -131,6 +134,35 @@ A simple::
 
 should install the python toolbox for you. However, keep in mind that you need the abovementioned
 dependencies.
+
+In some cases, you may want to install psignifit locally in your users home
+directory. For details about this, see `Install into users home directory`_.
+
+Install into users home directory
+---------------------------------
+
+In some cases, you do not have root/admin rights on the computer you are working
+on. This would prevent you from installing psignifit in the system path as
+described above. As a workaround, the setup routine allows installation into a
+users home-directory using the command::
+
+    python setup.py install --home=$HOME
+
+where you should replace ``$HOME`` with the name of your own home-directory.
+This command will install psignifit into ``$HOME/lib/python/psignifit``.
+To use psignifit from this path, you will also have to set the ``$PYTHONPATH``
+variable. Either you invoke the python interpreter from the commandline by
+calling::
+
+    PYTHONPATH=$HOME/lib/python python
+
+or you set the ``$PYTHONPATH`` variable in your ``.bashrc`` (or equivalent) file
+by adding the line::
+
+    export PYTHONPATH=$HOME/lib/python
+
+The last way to set the ``$PYTHONPATH`` variable is to set it directly from the
+python interpreter using the ``os`` module.
 
 Execute without Installation
 ----------------------------
