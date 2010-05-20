@@ -128,7 +128,7 @@ static char psimcmc_doc [] =
 ">>> d = [[xx,kk,nn] for xx,kk,nn in zip(x,k,n)]\n"
 ">>> priors = ('Gauss(0,1000)','Gauss(0,1000)','Beta(3,100)')\n"
 ">>> stepwidths = (1.,1.,0.01)\n"
-">>> estimates,deviances = mcmc(d,nsamples=10000),priors=priors,stepwidths=stepwidths)\n"
+">>> estimates,deviances = mcmc(d,nsamples=10000,priors=priors,stepwidths=stepwidths)\n"
 ">>> mean(estimates[:,0])\n"
 "2.4881405291765764\n"
 ">>> mean(estimates[:,1])\n"
