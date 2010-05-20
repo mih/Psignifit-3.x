@@ -271,8 +271,8 @@ Matrix *Matrix::inverse_qr ( void ) const {
 
 	QR->print();
 
-	for ( k=getncols()-1; k>=0; k-- ) {
-		for ( i=getnrows()-1; i>=0; i-- ) {
+	for ( k=getncols()-1; k<UINT_MAX; k-- ) {
+		for ( i=getnrows()-1; i<UINT_MAX; i-- ) {
 			for ( j=getncols()-1; j>i; j-- ) {
 				(*QR)(i,k+getncols()) -= (*QR)(i,j)*(*QR)(j,k+getncols());
 			}
