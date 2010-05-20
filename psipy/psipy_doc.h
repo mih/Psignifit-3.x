@@ -136,7 +136,7 @@ static char psimcmc_doc [] =
 "\n";
 
 static char psimapestimate_doc [] =
-"mapestimate ( data, nafc=2, sigmoid='logistic', core='ab', priors=None )\n"
+"mapestimate ( data, nafc=2, sigmoid='logistic', core='ab', priors=None, cuts=None, start=None)\n"
 "\n"
 "MAP or constrained maximum likelihood estimation for a psychometric function\n"
 "\n"
@@ -164,6 +164,11 @@ static char psimapestimate_doc [] =
 "                #nGamma(%g,%g)'      Gamma distribution on the negative axis\n"
 "             If an invalid prior is selected, no constraints are imposed on that parameter, resulting in\n"
 "             an improper prior distribution.\n"
+"  cuts     cuts at which thresholds should be determined. That is if cuts = (.25,.5,.75), thresholds\n"
+"           (F^{-1} ( 0.25 ), F^{-1} ( 0.5 ), F^{-1} ( 0.75 )) are returned. Here F^{-1} denotes the inverse\n"
+"           of the function specified by sigmoid. If cuts==None, this is modified to cuts=[0.5]. In any case,\n"
+"           cuts should be a sequence!\n"
+"  start    values at which to start the optimization, if None the starting value is determined using a coarse grid search.\n"
 "\n"
 ":Output:\n"
 "  estimate,deviance\n"
