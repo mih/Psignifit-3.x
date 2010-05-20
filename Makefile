@@ -59,7 +59,7 @@ clean-python-doc:
 	-rm -rv $(DOCOUT)
 
 ipython:
-	cd .. ; PYTHONPATH=psignifit/build/`ls -1 psignifit/build | grep lib` python2.6; cd -
+	cd .. ; PYTHONPATH=psignifit/build/`ls -1 psignifit/build | grep lib` ipython; cd -
 
 # }}}
 
