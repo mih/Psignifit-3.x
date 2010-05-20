@@ -42,7 +42,7 @@ class PsiLogistic : public PsiSigmoid
 		int getcode ( void ) const { return 1; }     ///< return the sigmoid identifier
         PsiSigmoid * clone ( void ) const {
             return new PsiLogistic(*this);
-        } ///< clone by value
+        }
         static std::string getDescriptor ( void ) {
             return "logistic";
         }
@@ -76,7 +76,7 @@ class PsiGauss : public PsiSigmoid
 		int getcode ( void ) const { return 2; }       ///< return the sigmoid identifier
         PsiSigmoid * clone (void ) const {
             return new PsiGauss(*this);
-        } ///< clone by value
+        }
         static std::string getDescriptor ( void ) {
             return "gauss";
         }
@@ -111,7 +111,7 @@ class PsiGumbelL : public PsiSigmoid
 		int getcode ( void ) const { return 3; }    ///< return the sigmoid identifier
         PsiSigmoid * clone ( void ) const {
             return new PsiGumbelL(*this);
-        } ///< clone by value
+        }
         static std::string getDescriptor ( void ) {
             return "gumbel_l";
         }
@@ -148,7 +148,7 @@ class PsiGumbelR : public PsiSigmoid
 		int getcode ( void ) const { return 3; }   ///< return the sigmoid identifier
         PsiSigmoid * clone ( void ) const {
             return new PsiGumbelR(*this);
-        } ///< clone by value
+        }
         static std::string getDescriptor ( void ) {
             return "gumbel_r";
         }
@@ -170,7 +170,7 @@ class PsiCauchy : public PsiSigmoid
 		int    getcode ( void ) const { return 4; }///< returns the sigmoid identifier
         PsiSigmoid * clone ( void ) const {
             return new PsiCauchy(*this);
-        } ///< clone by value
+        }
         static std::string getDescriptor ( void ) {
             return "cauchy";
         }
@@ -193,7 +193,7 @@ class PsiExponential : public PsiSigmoid
 		int    getcode ( void ) const { return 5; }///< returns the sigmoid identifier
         PsiSigmoid * clone ( void ) const {
             return new PsiExponential(*this);
-        } ///< clone by value
+        }
         static std::string getDescriptor ( void ) {
             return "exponential";
         }
