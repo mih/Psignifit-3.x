@@ -71,20 +71,24 @@ This section lists all dependencies.
 
 Compile-Time
 ............
-`make <http://www.gnu.org/software/make/>`_
+`Make <http://www.gnu.org/software/make/>`_
     for building the software
+`Gcc <http://gcc.gnu.org/>`_
+    for compiling the ``psipy`` and ``swignifit`` interface for python,
 `Python/C API <http://docs.python.org/c-api/>`_
+    for compiling the ``psipy`` and ``swignifit`` interface for python
+`Numpy/C API <http://docs.scipy.org/doc/numpy/reference/c-api.html>`_
     for compiling the ``psipy`` interface for python
 `Simplified Wrapper and Interface Generator (SWIG) <http://www.swig.org/>`_
     for compiling the ``swignifit`` interface for python
 
 Run-Time
 ........
+`Python <python http://www.python.org/>`_/
 `Numpy <http://numpy.scipy.org/>`_  /
 `Scipy <http://www.scipy.org/>`_ /
 `Matplotlib <http://matplotlib.sourceforge.net/>`_
     for the python version
-
 
 Documentation
 .............
