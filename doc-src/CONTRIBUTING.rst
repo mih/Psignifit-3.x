@@ -160,3 +160,12 @@ Adding a new sigmoid requires two steps:
     in the above code example, you should add a new case that defines all the scaling parameters
     depending on your sigmoid. zalpha scales w to the correct range, zshift is an additional
     shift to ensure the the sigmoid has an output value of 0.5 at an input value of 0.
+
+Adding a new source file
+........................
+
+When adding a new C++ source or header file you will have to:
+
+* add the file to the git repository
+* add the filename to the Makefile
+* add the filename to the python setup file
