@@ -56,6 +56,6 @@ class BinomialRandom : public PsiRandom
 		PsiRandom * clone ( void ) const { return new BinomialRandom(*this); }
 };
 
-void set_seed(long int seedval);
+void setSeed(long int seedval);
 
 #endif
