@@ -19,7 +19,7 @@ class PsiSigmoid
 		virtual double ddf ( double x ) { throw NotImplementedError(); }            ///< This should give the second derivative of the sigmoid
 		virtual double inv ( double p ) { throw NotImplementedError(); }            ///< This should give the inverse of the sigmoid (taking values between 0 and 1)
 		virtual int    getcode ( void ) const { throw NotImplementedError(); }            ///< return the sigmoid identifier
-        virtual PsiSigmoid * clone() const { throw NotImplementedError(); }                ///< clone object by value
+        virtual PsiSigmoid * clone ( void ) const { throw NotImplementedError(); }                ///< clone object by value
         static std::string getDescriptor ( void ) { throw NotImplementedError(); }///< get a short string that identifies the type of sigmoid
 };
 
@@ -40,12 +40,13 @@ class PsiLogistic : public PsiSigmoid
 		double ddf ( double x );               ///< second derivative of the sigmoid
 		double inv ( double p ) { return log(p/(1-p)); }  ///< inverse of the sigmoid
 		int getcode ( void ) const { return 1; }     ///< return the sigmoid identifier
-        PsiSigmoid * clone() const;          ///< clone by value
+        PsiSigmoid * clone ( void ) const {
+            return new PsiLogistic(*this);
+        } ///< clone by value
         static std::string getDescriptor ( void ) {
             return "logistic";
         }
 };
-
 
 /** \brief gaussian cdf function
  *
@@ -73,7 +74,9 @@ class PsiGauss : public PsiSigmoid
 		double ddf ( double x );                 ///< second derivative of the sigmoid at x
 		double inv ( double p );                 ///< inverse of the sigmoid
 		int getcode ( void ) const { return 2; }       ///< return the sigmoid identifier
-        PsiSigmoid * clone() const;          ///< clone by value
+        PsiSigmoid * clone (void ) const {
+            return new PsiGauss(*this);
+        } ///< clone by value
         static std::string getDescriptor ( void ) {
             return "gauss";
         }
@@ -106,7 +109,9 @@ class PsiGumbelL : public PsiSigmoid
 		double ddf ( double x );              ///< returns the 2nd derivative of the gumbel cdf at position x
 		double inv ( double p );              ///< returns the inverse of the gumbel cdf at position p
 		int getcode ( void ) const { return 3; }    ///< return the sigmoid identifier
-        PsiSigmoid * clone() const;          ///< clone by value
+        PsiSigmoid * clone ( void ) const {
+            return new PsiGumbelL(*this);
+        } ///< clone by value
         static std::string getDescriptor ( void ) {
             return "gumbel_l";
         }
@@ -141,7 +146,9 @@ class PsiGumbelR : public PsiSigmoid
 		double ddf ( double x );             ///< returns the 2nd derivative of the right skewed gumbel cdf at position x
 		double inv ( double p );             ///< returns the inverse of the right skewed gumbel cdf at position p
 		int getcode ( void ) const { return 3; }   ///< return the sigmoid identifier
-        PsiSigmoid * clone() const;          ///< clone by value
+        PsiSigmoid * clone ( void ) const {
+            return new PsiGumbelR(*this);
+        } ///< clone by value
         static std::string getDescriptor ( void ) {
             return "gumbel_r";
         }
@@ -161,7 +168,9 @@ class PsiCauchy : public PsiSigmoid
 		double ddf ( double x );             ///< returns the 2nd derivative of the cauchy cdf at position x
 		double inv ( double p );             ///< returns the inverse of the cauchy cdf at position x
 		int    getcode ( void ) const { return 4; }///< returns the sigmoid identifier
-        PsiSigmoid * clone() const;          ///< clone by value
+        PsiSigmoid * clone ( void ) const {
+            return new PsiCauchy(*this);
+        } ///< clone by value
         static std::string getDescriptor ( void ) {
             return "cauchy";
         }
@@ -182,7 +191,9 @@ class PsiExponential : public PsiSigmoid
 		double ddf (double x );              ///< returns the 2nd derivative of the exponential cdf at position x
 		double inv (double p ) throw(BadArgumentError);              ///< returns the return the inverse of the exponential cdf at position x
 		int    getcode ( void ) const { return 5; }///< returns the sigmoid identifier
-        PsiSigmoid * clone() const;          ///< clone by value
+        PsiSigmoid * clone ( void ) const {
+            return new PsiExponential(*this);
+        } ///< clone by value
         static std::string getDescriptor ( void ) {
             return "exponential";
         }
