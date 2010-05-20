@@ -70,6 +70,23 @@ Dependencies
 This section lists all dependencies. The version numbers are the versions we
 used during development.
 
+When using Debian
+.................
+
+If you are using `Debian <http://www.debian.org/>`_, the following packages will
+satisfy the dependencies listed below:
+
+* ``make``
+* ``gcc``
+* ``python``
+* ``python-dev``
+* ``python-numpy (provides python-numpy-dev)``
+* ``swig``
+* ``python-scipy``
+* ``python-matplotlib``
+* ``python-sphinx``
+* ``doxygen``
+
 Compile-Time
 ............
 `Make <http://www.gnu.org/software/make/>`_ (3.81-8)
