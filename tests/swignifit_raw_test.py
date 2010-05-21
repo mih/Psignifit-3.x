@@ -226,7 +226,7 @@ class TestMCMC(ut.TestCase):
         sampler.draw()
         theta = sampler.getTheta()
         sampler.setTheta(theta)
-        sampler.setstepsize(sfr.vector_double([0.1,0.2,0.3]))
+        sampler.setStepSize(sfr.vector_double([0.1,0.2,0.3]))
         sampler.getDeviance()
         sampler.sample(25)
         sampler.getModel()
