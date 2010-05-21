@@ -156,7 +156,7 @@ void setstepwidths ( PyObject * pysteps, MetropolisHastings * S ) {
 	} else if ( PySequence_Check ( pysteps ) ) {
 		for ( i=0; i<Nparams; i++ ) {
 			singlestep = PySequence_GetItem ( pysteps, i );
-			S->setstepsize ( PyFloat_AsDouble ( singlestep ), i );
+			S->setStepSize ( PyFloat_AsDouble ( singlestep ), i );
 			Py_DECREF ( singlestep );
 		}
 	} else {
