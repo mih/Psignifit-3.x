@@ -185,6 +185,9 @@ void GenericMetropolis::proposePoint(std::vector<double> &current_theta,
 
 
 void GenericMetropolis::findOptimalStepwidth( PsiMClist const &pilot ){
+    if ( pilot.getNsamples() < pilot.getNparams() +1 ){
+        throw BadArgumentError("The number of samples in the pilot must be at least equal to the number of free parameters.");
+    }
 	int i,j,prm, Nparams(pilot.getNparams()), Nsamples(pilot.getNsamples());
 	double std_residuals; // standard deviation of the residuals
 	int *paramindex = new int[Nparams-1];
