@@ -13,11 +13,16 @@
 #include "psipp.h"
 %}
 
-// handle all STL exceptions
+// custom exception handler
+// code need not declare that it will throw an exception
 %include "exception.i"
 %exception {
     try {
         $action
+    // psignift BadArgumentException
+    } catch (BadArgumentError& e){
+        SWIG_exception(SWIG_ValueError, e.message );
+    // All remaining STL exceptions
     } catch (const std::exception& e) {
         SWIG_exception(SWIG_RuntimeError, e.what());
     }
@@ -36,10 +41,12 @@ namespace std {
 
 // This translates BadArgumentError (c++) -> ValueError (python)
 // including the error message
+// however the function must specify that it throws this error
 %typemap(throws) BadArgumentError %{
       PyErr_SetString(PyExc_ValueError, $1.message);
       SWIG_fail;
 %}
+
 
 %include "std_string.i"
 
