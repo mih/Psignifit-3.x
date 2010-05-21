@@ -226,7 +226,7 @@ class TestMCMC(ut.TestCase):
         sampler.draw()
         theta = sampler.getTheta()
         sampler.setTheta(theta)
-        sampler.setstepsize(sfr.vector_double([0.1,0.2,0.3]))
+        sampler.setStepSize(sfr.vector_double([0.1,0.2,0.3]))
         sampler.getDeviance()
         sampler.sample(25)
         sampler.getModel()
@@ -238,7 +238,7 @@ class TestMCMC(ut.TestCase):
         sampler = sfr.MetropolisHastings(psi, data, sfr.GaussRandom())
         self.all_sampler_methods(sampler)
         new_theta = sfr.vector_double(sampler.getNparams())
-        sampler.propose_point(sfr.vector_double(sampler.getTheta()),
+        sampler.proposePoint(sfr.vector_double(sampler.getTheta()),
                               sfr.vector_double(sampler.getStepsize()),
                               sfr.GaussRandom(),
                               new_theta)
@@ -249,20 +249,25 @@ class TestMCMC(ut.TestCase):
         sampler = sfr.GenericMetropolis(psi, data, sfr.GaussRandom())
         self.all_sampler_methods(sampler)
         new_theta = sfr.vector_double(sampler.getNparams())
-        sampler.propose_point(sfr.vector_double(sampler.getTheta()),
+        sampler.proposePoint(sfr.vector_double(sampler.getTheta()),
                               sfr.vector_double(sampler.getStepsize()),
                               sfr.GaussRandom(),
                               new_theta)
-        # TODO if there are less than 4 samples, find_optimal_stepwidth will
-        # cause segfault
         mclist = sampler.sample(4)
-        sampler.find_optimal_stepwidth(mclist)
+        sampler.findOptimalStepwidth(mclist)
 
     def test_hybrid_mcmc(self):
         data = TestData.generate_test_dataset()
         psi = TestPsychometric.generate_test_model()
         sampler = sfr.HybridMCMC(psi, data, 5)
         self.all_sampler_methods(sampler)
+
+    def test_not_enough_samples(self):
+        data = TestData.generate_test_dataset()
+        psi = TestPsychometric.generate_test_model()
+        sampler = sfr.GenericMetropolis(psi, data, sfr.GaussRandom())
+        pilot = sampler.sample(2)
+        self.assertRaises(ValueError, sampler.findOptimalStepwidth, pilot)
 
 class TestMCList(ut.TestCase):
 

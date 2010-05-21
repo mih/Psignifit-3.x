@@ -33,7 +33,7 @@ std::vector<double> MetropolisHastings::draw ( void ) {
 	const PsiData * data (getData());
 
 	// propose a new point
-	propose_point(currenttheta, stepwidths, propose, newtheta);
+	proposePoint(currenttheta, stepwidths, propose, newtheta);
 
 	// negative log posterior of the point
 	qnew = model->neglpost ( newtheta, data );
@@ -65,7 +65,7 @@ std::vector<double> MetropolisHastings::draw ( void ) {
 	return currenttheta;
 }
 
-void MetropolisHastings::propose_point( std::vector<double> &current_theta,
+void MetropolisHastings::proposePoint( std::vector<double> &current_theta,
 										std::vector<double> &step_widths,
 										PsiRandom * proposal,
 										std::vector<double> &new_theta){
@@ -84,14 +84,14 @@ void MetropolisHastings::setTheta ( const std::vector<double>& prm ) {
 	qold = getModel()->neglpost( currenttheta, getData() );
 }
 
-void MetropolisHastings::setstepsize ( double size, unsigned int param ) {
+void MetropolisHastings::setStepSize ( double size, unsigned int param ) {
 	if ( param<getModel()->getNparams() )
 		stepwidths[param] = size;
 	else
 		throw BadIndexError();
 }
 
-void MetropolisHastings::setstepsize ( const std::vector<double>& sizes ) {
+void MetropolisHastings::setStepSize ( const std::vector<double>& sizes ) {
 	unsigned int i;
 	for (i=0; i<stepwidths.size(); i++)
 		stepwidths[i] = sizes[i];
@@ -169,7 +169,7 @@ MCMCList MetropolisHastings::sample ( unsigned int N ) {
  *
  */
 
-void GenericMetropolis::propose_point(std::vector<double> &current_theta,
+void GenericMetropolis::proposePoint(std::vector<double> &current_theta,
 									  std::vector<double> &step_widths,
 									  PsiRandom * proposal,
 									  std::vector<double> &new_theta) {
@@ -184,10 +184,11 @@ void GenericMetropolis::propose_point(std::vector<double> &current_theta,
 }
 
 
-void GenericMetropolis::find_optimal_stepwidth( PsiMClist const &mclist ){
-	/* for each parameter, do a regression using QR-decomposition and
-	 * take the residuals to calculate the optimal stepwidth. */
-	int i,j,prm, Nparams(mclist.getNparams()), Nsamples(mclist.getNsamples());
+void GenericMetropolis::findOptimalStepwidth( PsiMClist const &pilot ){
+    if ( pilot.getNsamples() < pilot.getNparams() +1 ){
+        throw BadArgumentError("The number of samples in the pilot must be at least equal to the number of free parameters.");
+    }
+	int i,j,prm, Nparams(pilot.getNparams()), Nsamples(pilot.getNsamples());
 	double std_residuals; // standard deviation of the residuals
 	int *paramindex = new int[Nparams-1];
 	Matrix X = Matrix(Nsamples, Nparams+1); // extended data matrix
@@ -200,9 +201,9 @@ void GenericMetropolis::find_optimal_stepwidth( PsiMClist const &mclist ){
 		for (i=0; i<Nsamples; i++){ // iterate samples
 			X(i,0) = 1.0; // fill first column with 1.
 			for (j=0; j<Nparams-1; j++){
-				X(i,j+1) = mclist.getEst(i,paramindex[j]);
+				X(i,j+1) = pilot.getEst(i,paramindex[j]);
 			}
-			X(i,Nparams) = mclist.getEst(i,prm); // last column is the target
+			X(i,Nparams) = pilot.getEst(i,prm); // last column is the target
 		}
 
 		/* do QR-decomposition: */
@@ -212,7 +213,7 @@ void GenericMetropolis::find_optimal_stepwidth( PsiMClist const &mclist ){
 		std_residuals = sqrt( (*R)(Nparams,Nparams) * (*R)(Nparams,Nparams) / double(Nsamples) );
 
 		/* multiply std deviation with 2.38/sqrt(Nparams) as suggested by Gelman et al. (1995) */
-		setstepsize( std_residuals * 2.38 / sqrt(double(Nparams)), prm );
+		setStepSize( std_residuals * 2.38 / sqrt(double(Nparams)), prm );
 
 		delete R;
 	}
@@ -299,14 +300,14 @@ void HybridMCMC::setTheta ( const std::vector<double>& theta ) {
 	energy = getModel()->neglpost ( currenttheta, getData() );
 }
 
-void HybridMCMC::setstepsize ( const std::vector<double>& sizes ) {
+void HybridMCMC::setStepSize ( const std::vector<double>& sizes ) {
 	if (sizes.size()==stepsizes.size())
 		stepsizes = sizes;
 	else
 		throw BadArgumentError();
 }
 
-void HybridMCMC::setstepsize ( double size, unsigned int param ) {
+void HybridMCMC::setStepSize ( double size, unsigned int param ) {
 	if ( param>=stepsizes.size() )
 		throw BadIndexError();
 
