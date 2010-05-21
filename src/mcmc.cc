@@ -184,10 +184,8 @@ void GenericMetropolis::proposePoint(std::vector<double> &current_theta,
 }
 
 
-void GenericMetropolis::findOptimalStepwidth( PsiMClist const &mclist ){
-	/* for each parameter, do a regression using QR-decomposition and
-	 * take the residuals to calculate the optimal stepwidth. */
-	int i,j,prm, Nparams(mclist.getNparams()), Nsamples(mclist.getNsamples());
+void GenericMetropolis::findOptimalStepwidth( PsiMClist const &pilot ){
+	int i,j,prm, Nparams(pilot.getNparams()), Nsamples(pilot.getNsamples());
 	double std_residuals; // standard deviation of the residuals
 	int *paramindex = new int[Nparams-1];
 	Matrix X = Matrix(Nsamples, Nparams+1); // extended data matrix
@@ -200,9 +198,9 @@ void GenericMetropolis::findOptimalStepwidth( PsiMClist const &mclist ){
 		for (i=0; i<Nsamples; i++){ // iterate samples
 			X(i,0) = 1.0; // fill first column with 1.
 			for (j=0; j<Nparams-1; j++){
-				X(i,j+1) = mclist.getEst(i,paramindex[j]);
+				X(i,j+1) = pilot.getEst(i,paramindex[j]);
 			}
-			X(i,Nparams) = mclist.getEst(i,prm); // last column is the target
+			X(i,Nparams) = pilot.getEst(i,prm); // last column is the target
 		}
 
 		/* do QR-decomposition: */

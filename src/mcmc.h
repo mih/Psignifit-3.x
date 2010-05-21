@@ -75,7 +75,14 @@ class GenericMetropolis : public MetropolisHastings
 							std::vector<double> &step_widths,
 							PsiRandom * proposal,
 							std::vector<double> &new_theta);				  			  ///< propose a new sample and save it in new_theta
-		void findOptimalStepwidth ( PsiMClist const &mclist );			  			  ///< find the optimal stepwidth by regressing each parameter against the others
+		/** \brief Find the optimal stepwidth by regressing each parameter against the others.
+		 *
+		 * For each parameter, do a regression using QR-decomposition and
+		 * take the residuals to calculate the optimal stepwidth.
+		 *
+		 * @param pilot a pilot sample to base the regression on
+		 */
+		void findOptimalStepwidth ( PsiMClist const &pilot );
 };
 
 class HybridMCMC : public PsiSampler
