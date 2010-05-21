@@ -253,8 +253,6 @@ class TestMCMC(ut.TestCase):
                               sfr.vector_double(sampler.getStepsize()),
                               sfr.GaussRandom(),
                               new_theta)
-        # TODO if there are less than 4 samples, find_optimal_stepwidth will
-        # cause segfault
         mclist = sampler.sample(4)
         sampler.findOptimalStepwidth(mclist)
 
@@ -263,6 +261,13 @@ class TestMCMC(ut.TestCase):
         psi = TestPsychometric.generate_test_model()
         sampler = sfr.HybridMCMC(psi, data, 5)
         self.all_sampler_methods(sampler)
+
+    def test_not_enough_samples(self):
+        data = TestData.generate_test_dataset()
+        psi = TestPsychometric.generate_test_model()
+        sampler = sfr.GenericMetropolis(psi, data, sfr.GaussRandom())
+        pilot = sampler.sample(2)
+        self.assertRaises(ValueError, sampler.findOptimalStepwidth, pilot)
 
 class TestMCList(ut.TestCase):
 
