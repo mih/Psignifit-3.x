@@ -343,18 +343,18 @@ int MCMCTest ( TestSuite * T ) {
 
 	MetropolisHastings * mhS = new MetropolisHastings( pmf, data, new GaussRandom() );
 	mhS->setTheta( prm );
-	mhS->setstepsize(0.1,0);
-	mhS->setstepsize(0.1,1);
-	mhS->setstepsize(0.001,2);
+	mhS->setStepSize(0.1,0);
+	mhS->setStepSize(0.1,1);
+	mhS->setStepSize(0.001,2);
 
 	GenericMetropolis * gmS = new GenericMetropolis ( pmf, data, new GaussRandom() );
 	gmS->setTheta ( prm );
 
 	HybridMCMC * S = new HybridMCMC ( pmf, data, 20 );
 	S->setTheta ( prm );
-	S->setstepsize ( 0.001, 0 );
-	S->setstepsize ( 0.001, 1 );
-	S->setstepsize ( 0.0001, 2 );
+	S->setStepSize ( 0.001, 0 );
+	S->setStepSize ( 0.001, 1 );
+	S->setStepSize ( 0.0001, 2 );
 
 	srand48(0);
 	MCMCList post ( S->sample(10000) );

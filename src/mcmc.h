@@ -20,8 +20,8 @@ class PsiSampler
 		virtual std::vector<double> draw ( void ) { throw NotImplementedError(); }                     ///< draw a sample from the posterior
 		virtual void setTheta ( const std::vector<double> theta ) { throw NotImplementedError(); }     ///< set the "state" of the underlying markov chain
 		virtual std::vector<double> getTheta ( void ) { throw NotImplementedError(); }                 ///< get the "state" of the underlying markov chain
-		virtual void setstepsize ( double size, unsigned int param ) { throw NotImplementedError(); }  ///< set the size of the steps for parameter param of the sampler
-		virtual void setstepsize ( const std::vector<double>& sizes ) { throw NotImplementedError(); } ///< set all stepsizes of the sampler
+		virtual void setStepSize ( double size, unsigned int param ) { throw NotImplementedError(); }  ///< set the size of the steps for parameter param of the sampler
+		virtual void setStepSize ( const std::vector<double>& sizes ) { throw NotImplementedError(); } ///< set all stepsizes of the sampler
 		virtual double getDeviance ( void ) { throw NotImplementedError(); }                           ///< return the model deviance for the current state
 		virtual MCMCList sample ( unsigned int N ) { throw NotImplementedError(); }                   ///< draw N samples from the posterior
 		const PsiPsychometric * getModel() const { return model; }                                     ///< return the underlying model instance
@@ -49,8 +49,8 @@ class MetropolisHastings : public PsiSampler
 		void setTheta ( const std::vector<double>& prm );                                 ///< set the current state of the sampler
 		std::vector<double> getTheta ( void ) { return currenttheta; }                    ///< get the current state of the sampler
 		double getDeviance ( void ) { return currentdeviance; }                           ///< get the current deviance
-		void setstepsize ( double size, unsigned int param );                             ///< set the standard deviation of the proposal distribution for parameter param
-		void setstepsize ( const std::vector<double>& sizes );                            ///< set standard deviations of the proposal distribution for all parameters at once
+		void setStepSize ( double size, unsigned int param );                             ///< set the standard deviation of the proposal distribution for parameter param
+		void setStepSize ( const std::vector<double>& sizes );                            ///< set standard deviations of the proposal distribution for all parameters at once
 		std::vector<double> getStepsize ( void ) { return stepwidths; }		  			  ///< return the current stepwidth (standard deviations of the proposal distribution)
 		MCMCList sample ( unsigned int N );                                               ///< draw N samples from the posterior
 		unsigned int getNparams ( void ) { return newtheta.size(); }                      ///< get the number of parameters for which the sampler is set up
@@ -105,8 +105,8 @@ class HybridMCMC : public PsiSampler
 		std::vector<double> draw ( void );                                                ///< draw a sample from the posterior
 		void setTheta ( const std::vector<double>& prm );                                 ///< set the current state of the sampler
 		std::vector<double> getTheta ( void ) { return currenttheta; }                    ///< get the current state of the sampler
-		void setstepsize ( double size, unsigned int param );                             ///< set stepsize of the leapfrog integration for parameter param
-		void setstepsize ( const std::vector<double>& sizes );                            ///< set all stepsizes of leapfrog integration for all parameters at once
+		void setStepSize ( double size, unsigned int param );                             ///< set stepsize of the leapfrog integration for parameter param
+		void setStepSize ( const std::vector<double>& sizes );                            ///< set all stepsizes of leapfrog integration for all parameters at once
 		double getDeviance ( void );                                                      ///< get the current deviance
 		MCMCList sample ( unsigned int N );                                              ///< draw N samples from the posterior
 };

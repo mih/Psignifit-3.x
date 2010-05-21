@@ -84,14 +84,14 @@ void MetropolisHastings::setTheta ( const std::vector<double>& prm ) {
 	qold = getModel()->neglpost( currenttheta, getData() );
 }
 
-void MetropolisHastings::setstepsize ( double size, unsigned int param ) {
+void MetropolisHastings::setStepSize ( double size, unsigned int param ) {
 	if ( param<getModel()->getNparams() )
 		stepwidths[param] = size;
 	else
 		throw BadIndexError();
 }
 
-void MetropolisHastings::setstepsize ( const std::vector<double>& sizes ) {
+void MetropolisHastings::setStepSize ( const std::vector<double>& sizes ) {
 	unsigned int i;
 	for (i=0; i<stepwidths.size(); i++)
 		stepwidths[i] = sizes[i];
@@ -212,7 +212,7 @@ void GenericMetropolis::find_optimal_stepwidth( PsiMClist const &mclist ){
 		std_residuals = sqrt( (*R)(Nparams,Nparams) * (*R)(Nparams,Nparams) / double(Nsamples) );
 
 		/* multiply std deviation with 2.38/sqrt(Nparams) as suggested by Gelman et al. (1995) */
-		setstepsize( std_residuals * 2.38 / sqrt(double(Nparams)), prm );
+		setStepSize( std_residuals * 2.38 / sqrt(double(Nparams)), prm );
 
 		delete R;
 	}
@@ -299,14 +299,14 @@ void HybridMCMC::setTheta ( const std::vector<double>& theta ) {
 	energy = getModel()->neglpost ( currenttheta, getData() );
 }
 
-void HybridMCMC::setstepsize ( const std::vector<double>& sizes ) {
+void HybridMCMC::setStepSize ( const std::vector<double>& sizes ) {
 	if (sizes.size()==stepsizes.size())
 		stepsizes = sizes;
 	else
 		throw BadArgumentError();
 }
 
-void HybridMCMC::setstepsize ( double size, unsigned int param ) {
+void HybridMCMC::setStepSize ( double size, unsigned int param ) {
 	if ( param>=stepsizes.size() )
 		throw BadIndexError();
 
