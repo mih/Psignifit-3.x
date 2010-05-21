@@ -33,7 +33,7 @@ std::vector<double> MetropolisHastings::draw ( void ) {
 	const PsiData * data (getData());
 
 	// propose a new point
-	propose_point(currenttheta, stepwidths, propose, newtheta);
+	proposePoint(currenttheta, stepwidths, propose, newtheta);
 
 	// negative log posterior of the point
 	qnew = model->neglpost ( newtheta, data );
@@ -65,7 +65,7 @@ std::vector<double> MetropolisHastings::draw ( void ) {
 	return currenttheta;
 }
 
-void MetropolisHastings::propose_point( std::vector<double> &current_theta,
+void MetropolisHastings::proposePoint( std::vector<double> &current_theta,
 										std::vector<double> &step_widths,
 										PsiRandom * proposal,
 										std::vector<double> &new_theta){
@@ -169,7 +169,7 @@ MCMCList MetropolisHastings::sample ( unsigned int N ) {
  *
  */
 
-void GenericMetropolis::propose_point(std::vector<double> &current_theta,
+void GenericMetropolis::proposePoint(std::vector<double> &current_theta,
 									  std::vector<double> &step_widths,
 									  PsiRandom * proposal,
 									  std::vector<double> &new_theta) {
@@ -184,7 +184,7 @@ void GenericMetropolis::propose_point(std::vector<double> &current_theta,
 }
 
 
-void GenericMetropolis::find_optimal_stepwidth( PsiMClist const &mclist ){
+void GenericMetropolis::findOptimalStepwidth( PsiMClist const &mclist ){
 	/* for each parameter, do a regression using QR-decomposition and
 	 * take the residuals to calculate the optimal stepwidth. */
 	int i,j,prm, Nparams(mclist.getNparams()), Nsamples(mclist.getNsamples());

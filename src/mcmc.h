@@ -54,7 +54,7 @@ class MetropolisHastings : public PsiSampler
 		std::vector<double> getStepsize ( void ) { return stepwidths; }		  			  ///< return the current stepwidth (standard deviations of the proposal distribution)
 		MCMCList sample ( unsigned int N );                                               ///< draw N samples from the posterior
 		unsigned int getNparams ( void ) { return newtheta.size(); }                      ///< get the number of parameters for which the sampler is set up
-		virtual void propose_point( std::vector<double> &current_theta,
+		virtual void proposePoint( std::vector<double> &current_theta,
 									std::vector<double> &step_widths,
 									PsiRandom * proposal,
 									std::vector<double> &new_theta);		  			  ///< propose a new sample and save it in new_theta
@@ -71,11 +71,11 @@ class GenericMetropolis : public MetropolisHastings
 			PsiRandom* proposal                                               			  ///< proposal distribution (will usually be a gaussian)
 			): MetropolisHastings ( Model, Data, proposal ),
 			   currentindex(0) {}
-		void propose_point( std::vector<double> &current_theta,
+		void proposePoint( std::vector<double> &current_theta,
 							std::vector<double> &step_widths,
 							PsiRandom * proposal,
 							std::vector<double> &new_theta);				  			  ///< propose a new sample and save it in new_theta
-		void find_optimal_stepwidth ( PsiMClist const &mclist );			  			  ///< find the optimal stepwidth by regressing each parameter against the others
+		void findOptimalStepwidth ( PsiMClist const &mclist );			  			  ///< find the optimal stepwidth by regressing each parameter against the others
 };
 
 class HybridMCMC : public PsiSampler

@@ -362,7 +362,7 @@ int MCMCTest ( TestSuite * T ) {
 	MCMCList mhpost ( mhS->sample(10000) );
 	srand48(0);
 	MCMCList pilot ( mhS->sample(1000) );
-	gmS->find_optimal_stepwidth(pilot);
+	gmS->findOptimalStepwidth(pilot);
 	srand48(0);
 	MCMCList gmpost = gmS->sample(10000);
 
