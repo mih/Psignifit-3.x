@@ -61,6 +61,10 @@ clean-python-doc:
 ipython:
 	cd .. ; PYTHONPATH=psignifit/build/`ls -1 psignifit/build | grep lib` ipython; cd -
 
+psipy_vs_swignifit:
+	-PYTHONPATH=build/`ls -1 build | grep lib` python tests/psipy_vs_swignifit.py
+
+
 # }}}
 
 #################### PSIPP COMMANDS ################### {{{
