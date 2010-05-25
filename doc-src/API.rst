@@ -74,7 +74,14 @@ Simulated Observers
 
 psignifit allows to simulate a number of observers to access stability of psychometric functions.
 
-.. automodule:: pypsignifit.psigobservers
+.. currentmodule:: pypsignifit.psigobservers
+
+.. autosummary::
+
+    Observer
+    LinearSystemLearner
+    CriterionSettingObserver
+    BetaBinomialObserver
 
 .. autoclass:: Observer
    :members:
