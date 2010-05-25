@@ -6,6 +6,13 @@ Data Types
 ==========
 .. automodule:: pypsignifit.psignidata
 
+.. currentmodule:: pypsignifit.psignidata
+
+.. autosummary::
+
+    BootstrapInference
+    BayesInference
+
 .. autoclass:: BootstrapInference
    :members:
 
