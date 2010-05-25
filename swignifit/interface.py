@@ -154,8 +154,7 @@ def diagnostics(data, params, nafc=2, sigmoid='logistic', core='ab', cuts=None):
 
     dataset, pmf, nparams = sfu.make_dataset_and_pmf(data, nafc, sigmoid, core, None)
     cuts = sfu.get_cuts(cuts)
-    # TODO length check params
-    params = sfr.vector_double(params)
+    params = sfu.get_params(params, nparams)
     predicted = np.array([pmf.evaluate(intensity, params) for intensity in
             dataset.getIntensities()])
 

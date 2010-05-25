@@ -102,6 +102,13 @@ def get_start(start, nparams):
     else:
         return sfr.vector_double(start)
 
+def get_params(params, nparams):
+    if len(params) != nparams:
+                raise PsignifitException("You specified \'"+str(len(start))+\
+                        "\' parameters, but the model has \'"+str(nparams)+ "\' parameters.")
+    else:
+        return sfr.vector_double(params)
+
 def get_cuts(cuts):
     if cuts is None:
         return sfr.vector_double([0.5])
