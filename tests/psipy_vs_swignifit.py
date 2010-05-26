@@ -34,9 +34,20 @@ def print_time(name, sec):
 def assert_output_equal(o1, o2):
     nt.assert_equal(len(o1), len(o2))
     for i in xrange(len(o1)):
+        #print i
         #print o1[i]
         #print o2[i]
         aaae(o1[i], o2[i])
+
+def compare_wrappers(test_method, output_description):
+    sfi_output = test_method(sfi)
+    psipy_output = test_method(psipy)
+    nt.assert_equal(len(sfi_output), len(output_description))
+    nt.assert_equal(len(psipy_output), len(output_description))
+    for i,name in enumerate(output_description):
+        aaae(sfi_output[i], psipy_output[i], err_msg="swignifit and psipy "+\
+                "differ for method: "+str(test_method) + "\n"+\
+                "and output index: "+ str(i) + " named: "+name)
 
 class TestBootstrap(ut.TestCase):
 
@@ -47,10 +58,9 @@ class TestBootstrap(ut.TestCase):
         return wrapper.bootstrap(data,nsamples=2000,priors=priors)
 
     def test_basic_correct(self):
-        #samples,est,D,thres,bias,acc,Rkd,Rpd,out,influ
-        sfi_output = TestBootstrap.basic_helper(sfi)
-        psipy_output = TestBootstrap.basic_helper(psipy)
-        assert_output_equal(sfi_output, psipy_output)
+        compare_wrappers(TestBootstrap.basic_helper,
+            ["samples", "est", "D", "thres", "bias", "acc", "Rkd", "Rpd",
+                "out", "influ"])
 
     def no_test_basic_time(self):
         t = timeit.Timer("pvs.TestBootstrap.basic_helper(pvs.sfi)", "import psipy_vs_swignifit as pvs")
@@ -66,15 +76,13 @@ class TestMCMC(ut.TestCase):
         priors = ('Gauss(0,1000)','Gauss(0,1000)','Beta(3,100)')
         stepwidths = (1.,1.,0.01)
         sfr.setSeed(1)
-        #(estimates, deviance, posterior_predictive_data,
-        #posterior_predictive_deviances, posterior_predictive_Rpd,
-        #posterior_predictive_Rkd, logposterior_ratios)
-        return wrapper.mcmc(data, nsamples=10000, priors=priors, stepwidths=stepwidths)
+        return wrapper.mcmc(data, nsamples=1000, priors=priors, stepwidths=stepwidths)
 
     def test_basic_correct(self):
-        sfi_output = TestMCMC.basic_helper(sfi)
-        psipy_output = TestMCMC.basic_helper(psipy)
-        assert_output_equal(sfi_output, psipy_output)
+        compare_wrappers(TestMCMC.basic_helper, ["estimates", "deviance",
+            "posterior_predictive_data", "posterior_predictive_deviances",
+            "posterior_predictive_Rpd", "posterior_predictive_Rkd",
+            "logposterior_ratios"])
 
     def no_test_basic_time(self):
         t = timeit.Timer("pvs.TestMCMC.basic_helper(pvs.sfi)", "import psipy_vs_swignifit as pvs")
