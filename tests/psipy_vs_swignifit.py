@@ -83,6 +83,18 @@ class TestMCMC(ut.TestCase):
         print 'psipy per execution:', t.timeit(number=5)/5
         #gc.enable()
 
+class TestMapestimate(ut.TestCase):
+
+    @staticmethod
+    def basic_helper(wrapper):
+        priors = ('flat','flat','Uniform(0,0.1)')
+        return wrapper.mapestimate (data, priors=priors )
+
+    def test_basic_correct(self):
+        sfi_output = TestMapestimate.basic_helper(sfi)
+        psipy_output = TestMapestimate.basic_helper(psipy)
+        assert_output_equal(sfi_output, psipy_output)
+
 
 if __name__ == "__main__":
     ut.main()
