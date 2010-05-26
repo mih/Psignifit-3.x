@@ -66,12 +66,16 @@ class TestMCMC(ut.TestCase):
         priors = ('Gauss(0,1000)','Gauss(0,1000)','Beta(3,100)')
         stepwidths = (1.,1.,0.01)
         sfr.setSeed(1)
-        return wrapper.mcmc(data,nsamples=10000,priors=priors,stepwidths=stepwidths)
+        #(estimates, deviance, posterior_predictive_data,
+        #posterior_predictive_deviances, posterior_predictive_Rpd,
+        #posterior_predictive_Rkd, logposterior_ratios)
+        return wrapper.mcmc(data, nsamples=10000, priors=priors, stepwidths=stepwidths)
 
     def test_basic_correct(self):
         sfi_output = TestMCMC.basic_helper(sfi)
         psipy_output = TestMCMC.basic_helper(psipy)
         assert_output_equal(sfi_output, psipy_output)
+
 
 if __name__ == "__main__":
     ut.main()
