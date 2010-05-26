@@ -75,6 +75,9 @@ class TestMCMC(ut.TestCase):
     def basic_helper(wrapper):
         priors = ('Gauss(0,1000)','Gauss(0,1000)','Beta(3,100)')
         stepwidths = (1.,1.,0.01)
+        # use a seed of 6 it fails sometimes
+        # use a seed of 1 it won't fail, but instaed BOTH versions will give
+        # different output occasionally
         sfr.setSeed(1)
         return wrapper.mcmc(data, nsamples=1000, priors=priors, stepwidths=stepwidths)
 
@@ -83,6 +86,41 @@ class TestMCMC(ut.TestCase):
             "posterior_predictive_data", "posterior_predictive_deviances",
             "posterior_predictive_Rpd", "posterior_predictive_Rkd",
             "logposterior_ratios"])
+        #(estimates, deviance, posterior_predictive_data,
+        #posterior_predictive_deviances, posterior_predictive_Rpd,
+        #posterior_predictive_Rkd, logposterior_ratios)
+        return wrapper.mcmc(data, nsamples=20) #, stepwidths=stepwidths)
+
+############################################################
+# i have tried here to elaborate on some of the errors i have been getting
+# but unfortunately this just makes the code undeterministic
+# some of the tests fails sometimes
+
+    def no_test_working(self):
+        def helper(self):
+            sfr.setSeed(5)
+            return wrapper.mcmc(data, nsamples=20)
+        sfi_output = TestMCMC.basic_helper(sfi)
+        psipy_output = TestMCMC.basic_helper(psipy)
+        assert_output_equal(sfi_output, psipy_output)
+
+    def no_test_order_fail(self):
+        def helper(wrapper):
+            sfr.setSeed(6)
+            return wrapper.mcmc(data, nsamples=20)
+        # here we just switch the order
+        sfi_output = helper(sfi)
+        psipy_output = helper(psipy)
+        assert_output_equal(sfi_output, psipy_output)
+
+    def no_test_simple_fail(self):
+        def helper(wrapper):
+            sfr.setSeed(6)
+            return wrapper.mcmc(data, nsamples=20)
+
+        sfi_output = helper(sfi)
+        psipy_output = helper(psipy)
+        assert_output_equal(sfi_output, psipy_output)
 
     def no_basic_time(self):
         t = timeit.Timer("pvs.TestMCMC.basic_helper(pvs.sfi)", "import psipy_vs_swignifit as pvs")
