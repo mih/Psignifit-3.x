@@ -254,7 +254,8 @@ static PyObject * psimcmc ( PyObject * self, PyObject * args, PyObject * kwargs 
 	}
 
 	// Perform sampling
-	MetropolisHastings * S = new MetropolisHastings ( pmf, data, new GaussRandom () );
+    PsiRandom * proposal = new GaussRandom();
+	MetropolisHastings * S = new MetropolisHastings ( pmf, data, proposal );
 	S->setTheta ( *start );
 	try {
 		setstepwidths ( pysteps, S );
@@ -264,6 +265,7 @@ static PyObject * psimcmc ( PyObject * self, PyObject * args, PyObject * kwargs 
 	}
 	MCMCList post ( S->sample(Nsamples) );
 	delete S;
+    delete proposal;
 
 	// Data and samples
 	PyArrayObject *pyestimates;
