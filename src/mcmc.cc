@@ -40,6 +40,28 @@ std::vector<double> MetropolisHastings::draw ( void ) {
 	lratio = exp(qold - qnew);
 	if (lratio>1) lratio = 1;
 
+#ifdef DEBUG_MCMC
+
+	std::cerr
+		<< "Q_old: " << std::setiosflags ( std::ios::fixed ) << qold
+		<< " Q_new: " << std::setiosflags ( std::ios::fixed ) << qnew
+		<< " P(accept):" << std::setiosflags ( std::ios::fixed ) << exp(qold-qnew)
+        << "\n";
+    int i, Nparams(model->getNparams());
+    std::cerr << "Current Theta:\t\t";
+    for(i=0; i<Nparams; i++){
+        std::cerr << currenttheta[i] << "\t";
+    }
+    std::cerr << "\n";
+
+    std::cerr << "New Theta:\t\t";
+    for(i=0; i<Nparams; i++){
+        std::cerr << newtheta[i] << "\t";
+    }
+    std::cerr << "\n";
+
+#endif
+
 	if (acc<lratio) {
 		// accept the new point
 		qold = qnew;
@@ -47,19 +69,15 @@ std::vector<double> MetropolisHastings::draw ( void ) {
 		currentdeviance = model->deviance ( currenttheta, data );
 		accept ++;
 #ifdef DEBUG_MCMC
-		std::cerr << " * ";
+		std::cerr << " ACCEPTED ";
 #endif
 	}
 #ifdef DEBUG_MCMC
 	else
-		std::cerr << "   ";
+		std::cerr << " REJECTED ";
 
-	std::cerr
-		<< "Q_old: " << std::setiosflags ( std::ios::fixed ) << qold
-		<< " Q_new: " << std::setiosflags ( std::ios::fixed ) << qnew
-		<< " P(accept):" << std::setiosflags ( std::ios::fixed ) << exp(qold-qnew);
 
-	std::cout << currenttheta[0] << "\n";
+	std::cout << "\n";
 #endif
 
 	return currenttheta;
