@@ -76,6 +76,13 @@ class TestMCMC(ut.TestCase):
         psipy_output = TestMCMC.basic_helper(psipy)
         assert_output_equal(sfi_output, psipy_output)
 
+    def test_basic_time(self):
+        t = timeit.Timer("pvs.TestMCMC.basic_helper(pvs.sfi)", "import psipy_vs_swignifit as pvs")
+        print 'swignifit per execution:', t.timeit(number=5)/5
+        t = timeit.Timer("pvs.TestMCMC.basic_helper(pvs.psipy)", "import psipy_vs_swignifit as pvs")
+        print 'psipy per execution:', t.timeit(number=5)/5
+        #gc.enable()
+
 
 if __name__ == "__main__":
     ut.main()
