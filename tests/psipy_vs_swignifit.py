@@ -62,7 +62,7 @@ class TestBootstrap(ut.TestCase):
             ["samples", "est", "D", "thres", "bias", "acc", "Rkd", "Rpd",
                 "out", "influ"])
 
-    def no_test_basic_time(self):
+    def no_basic_time(self):
         t = timeit.Timer("pvs.TestBootstrap.basic_helper(pvs.sfi)", "import psipy_vs_swignifit as pvs")
         print 'swignifit:', t.timeit(number=5)
         t = timeit.Timer("pvs.TestBootstrap.basic_helper(pvs.psipy)", "import psipy_vs_swignifit as pvs")
@@ -84,7 +84,7 @@ class TestMCMC(ut.TestCase):
             "posterior_predictive_Rpd", "posterior_predictive_Rkd",
             "logposterior_ratios"])
 
-    def no_test_basic_time(self):
+    def no_basic_time(self):
         t = timeit.Timer("pvs.TestMCMC.basic_helper(pvs.sfi)", "import psipy_vs_swignifit as pvs")
         print 'swignifit per execution:', t.timeit(number=5)/5
         t = timeit.Timer("pvs.TestMCMC.basic_helper(pvs.psipy)", "import psipy_vs_swignifit as pvs")
