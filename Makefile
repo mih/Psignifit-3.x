@@ -83,10 +83,10 @@ psipp-test:
 #################### PSIPY COMMANDS ################### {{{
 
 psipy: $(PYTHONFILES) $(CFILES) $(HFILES) $(PSIPY_INTERFACE) setup_basic.py setup_psipy.py
-	./setup_psipy.py build
+	$(PYTHON) setup_psipy.py build
 
 psipy-install: psipy-build
-	./setup_psipy.py install
+	$(PYTHON) setup_psipy.py install
 
 psipy-test:
 	-PYTHONPATH=build/`ls -1 build | grep lib` python tests/psipy_test.py
