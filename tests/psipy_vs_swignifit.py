@@ -52,11 +52,12 @@ class TestBootstrap(ut.TestCase):
         psipy_output = TestBootstrap.basic_helper(psipy)
         assert_output_equal(sfi_output, psipy_output)
 
-    def test_basic_time(self):
+    def no_test_basic_time(self):
         t = timeit.Timer("pvs.TestBootstrap.basic_helper(pvs.sfi)", "import psipy_vs_swignifit as pvs")
-        print 'swignifit:', t.timeit(5)
+        print 'swignifit:', t.timeit(number=5)
         t = timeit.Timer("pvs.TestBootstrap.basic_helper(pvs.psipy)", "import psipy_vs_swignifit as pvs")
-        print 'psipy:', t.timeit(5)
+        print 'psipy:', t.timeit(number=5)
+        gc.enable()
 
 class TestMCMC(ut.TestCase):
 
