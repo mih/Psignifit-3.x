@@ -56,6 +56,9 @@ parser.add_option ( "--nblocks",      dest="nblocks",      default=5,    type="i
 parser.add_option ( "-o", "--output", dest="outputfile", default="test.log",
         help="name of the output file in which the data should be stored. By default, no output file is used" )
 
+parser.add_option ( "--datareduce", dest="datareduce", action="store_true",
+        help="reduce data based on the estimated nu parameter" )
+
 options,arguments = parser.parse_args()
 
 print "writing output to",options.outputfile
@@ -213,6 +216,9 @@ def writelog ( f, Bnpr=None, Bpar=None, mcmc=None, mcmc_conv=1 ):
     return
 
 writelog ( outfile )
+if options.datareduce:
+    outfile_reduced = open ( options.outputfile + "reduce","w" )
+    writelog ( outfile_reduced )
 
 count_npr = 0.
 count_par = 0.
@@ -270,6 +276,50 @@ for simulation in xrange ( options.nsimulations ):
     print count_bay, mcmc.getCI(1,(.025,.975))
 
     writelog ( outfile, Bnpr, Bpar, mcmc, mcmc_conv )
+
+    if options.datareduce:
+        data = array ( data )
+        dataml = data.copy ()
+        nu = psigcorrect.estimate_nu (Bpar)[0]
+        print "==============", nu, "==============="
+        dataml[:,1] = ( data[:,1] * nu ).astype("i")
+        dataml[:,2] = ( data[:,2] * nu ).astype("i")
+        print dataml
+        Bnpr = pypsignifit.BootstrapInference ( dataml, sample=options.nbootstrap, priors=constraints, parametric=False, **ana_kwargs )
+        print "Done npar"
+        Bpar = pypsignifit.BootstrapInference ( dataml, sample=options.nbootstrap, priors=constraints, parametric=True,  **ana_kwargs )
+        print "Done par"
+
+        ####################
+        # How to make sure that in the end ALL chains have converged?
+        # We can give upper and lower limits for m and w from our sampling positions.
+        # m cannot be outside the sampled range and w should not be wider than the sampled range (or twice that)
+        datamcmc = data.copy ()
+        # nu = psigcorrect.estimate_nu (mcmc)[0]
+        print "==============", nu, "==============="
+        datamcmc[:,1] = ( data[:,1] * nu ).astype("i")
+        datamcmc[:,2] = ( data[:,2] * nu ).astype("i")
+        print datamcmc
+        mcmc = pypsignifit.BayesInference ( datamcmc, sample=True, priors=priors, **ana_kwargs )
+        for prm in [0,1,2]:
+            if not mcmc.geweke(prm)[2] is None:
+                for j in mcmc.geweke(prm)[2]:
+                    mcmc.resample(j)
+        N = mcmc.mcestimates.shape[0]
+        mcmc.sample( start = mcmc.farstart )
+        mcmc.sample( start = mcmc.farstart )
+        for prm in [0,1,2]:
+            if not mcmc.geweke(prm)[2] is None:
+                for j in mcmc.geweke(prm)[2]:
+                    mcmc.resample(j)
+        print "Rhat:  ",mcmc.Rhat(0),mcmc.Rhat(1),mcmc.Rhat(2)
+        print "Geweke:",mcmc.geweke(0)[2],mcmc.geweke(1)[2],mcmc.geweke(2)[2]
+        mcmc_conv = 1
+        if mcmc.Rhat (0)>1.1 or mcmc.Rhat (1)>1.1 or mcmc.Rhat (2)>1.1:
+            not_converged += 1
+            mcmc_conv = 0
+        writelog ( outfile_reduced, Bnpr, Bpar, mcmc, mcmc_conv )
+
 sys.stderr.write ( "\r"+50*" "+"\n" )
 
 outfile.close()
