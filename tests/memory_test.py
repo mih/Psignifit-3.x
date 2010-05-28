@@ -35,10 +35,7 @@ n.append ( float(os.popen ( "ps -C python -o rss" ).readlines()[1])/1024 )
 for k in xrange ( 200 ):
     print k
     n.append ( sample() )
-    # sample()
-    # n.append ( float(os.popen ( "ps -C python -o rss" ).readlines()[1])/1024 )
 
 pylab.plot(n)
-# pylab.ylim(0,1024)
 pylab.ylabel("kB")
 pylab.show()
