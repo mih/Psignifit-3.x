@@ -33,7 +33,9 @@ int PsychometricValues ( TestSuite* T ) {
 	PsiData * data = new PsiData (x,n,k,2);
 
 	// Set up psychometric function
-	PsiPsychometric * pmf = new PsiPsychometric ( 2, new abCore(), new PsiLogistic() );
+	abCore * core = new abCore();
+	PsiLogistic * sigmoid = new PsiLogistic();
+	PsiPsychometric * pmf = new PsiPsychometric ( 2, core, sigmoid );
 	std::vector<double> prm(3);
 	prm[0] = 4; prm[1] = 1.5; prm[2] = 0.02;
 
@@ -45,6 +47,11 @@ int PsychometricValues ( TestSuite* T ) {
 
 	// Test likelihood
 	failures += T->isequal ( pmf->negllikeli(prm,data), 11.996474658154325, "PsychometricValues likelihood");
+
+	delete core;
+	delete sigmoid;
+	delete pmf;
+	delete data;
 
 	return failures;
 }
@@ -67,10 +74,13 @@ int OptimizerSolution ( TestSuite * T ) {
 	PsiData * data = new PsiData (x,n,k,2);
 
 	// Set up psychometric function
-	PsiPsychometric * pmf = new PsiPsychometric ( 2, new abCore(), new PsiLogistic() );
+	abCore * core = new abCore();
+	PsiLogistic * sigmoid = new PsiLogistic();
+	PsiPsychometric * pmf = new PsiPsychometric ( 2, core, sigmoid );
 	std::vector<double> prm(4);
 	prm[0] = 4; prm[1] = 0.8; prm[2] = 0.02;
-	pmf->setPrior( 2, new UniformPrior(0.,0.1));
+	PsiPrior *prior = new UniformPrior(0.,0.1);
+	pmf->setPrior( 2, prior );
 	std::vector<double> start (4);
 	start = pmf->getStart( data );
 
@@ -148,10 +158,10 @@ al,bt,lm = fmin(model,prm0,args=(x,k,n))
 	data = new PsiData (x,n,k,2);
 
 	// Set up psychometric function
-	pmf = new PsiPsychometric ( 1, new abCore(), new PsiLogistic() );
+	pmf = new PsiPsychometric ( 1, core, sigmoid );
 	prm[0] = 4; prm[1] = 0.8; prm[2] = 0.02; prm[3] = 0.1;
-	pmf->setPrior( 2, new UniformPrior(0.,0.05));
-	pmf->setPrior( 3, new UniformPrior(0.,.05));
+	pmf->setPrior( 2, prior);
+	pmf->setPrior( 3, prior);
 	start = pmf->getStart( data );
 
 	// Optimizer
@@ -217,10 +227,10 @@ al,bt,lm,gm = fmin(model,prm0,args=(x,k,n))
 
 	// Yes/No with gamma==lambda
 	std::cerr << "\n";
-	pmf = new PsiPsychometric ( 1, new abCore(), new PsiLogistic() );
+	pmf = new PsiPsychometric ( 1, core, sigmoid );
 	pmf->setgammatolambda ();
 	opt = new PsiOptimizer ( pmf, data );
-	pmf->setPrior( 2, new UniformPrior(0.,0.05));
+	pmf->setPrior( 2, prior);
 	solution = opt->optimize(pmf,data);
 	
 	failures += T->isequal ( solution[0], 3.3052, "Optimizer Solution gamma=lambda, alpha", 1e-3 );
@@ -230,6 +240,9 @@ al,bt,lm,gm = fmin(model,prm0,args=(x,k,n))
 	delete pmf;
 	delete data;
 	delete opt;
+	delete core;
+	delete sigmoid;
+	delete prior;
 
 	return failures;
 }
@@ -249,7 +262,9 @@ int InitialParametersTest ( TestSuite * T ) {
 	}
 	data = new PsiData ( x, n, k, 2 );
 
-	pmf = new PsiPsychometric ( 2, new abCore(), new PsiLogistic() );
+	abCore * core = new abCore();
+	PsiLogistic * sigmoid = new PsiLogistic();
+	pmf = new PsiPsychometric ( 2, core, sigmoid );
 	prm = pmf->getStart ( data );
 	failures += T->ismore ( prm[1], 0, "PsiPsychometric->getStart() for increasing data" );
 
@@ -265,6 +280,8 @@ int InitialParametersTest ( TestSuite * T ) {
 
 	delete data;
 	delete pmf;
+	delete core;
+	delete sigmoid;
 
 	return failures;
 }
@@ -284,13 +301,17 @@ int BootstrapTest ( TestSuite * T ) {
 	PsiData * data = new PsiData (x,n,k,2);
 
 	// Set up psychometric function
-	PsiPsychometric * pmf = new PsiPsychometric ( 2, new abCore(), new PsiLogistic() );
+	abCore * core = new abCore();
+	PsiLogistic * sigmoid = new PsiLogistic();
+	PsiPrior * prior = new UniformPrior ( 0, .1 );
+	PsiPsychometric * pmf = new PsiPsychometric ( 2, core, sigmoid );
 	std::vector<double> prm(4);
 	prm[0] = 4; prm[1] = 0.8; prm[2] = 0.02;
-	pmf->setPrior( 2, new UniformPrior(0.,0.1));
+	pmf->setPrior( 2, prior );
 
 	std::vector<double> cuts (1, 0.5);
-	BootstrapList boots = bootstrap ( 9999, data, pmf, cuts );
+	// BootstrapList boots = bootstrap ( 9999, data, pmf, cuts );
+	BootstrapList boots = bootstrap ( 999, data, pmf, cuts );
 
 	// Check against psignifit results
 	// These values are subject to statistical variation. "equality" is defined relatively coarse
@@ -320,6 +341,12 @@ int BootstrapTest ( TestSuite * T ) {
 		failures += T->conditional(!jackknife.outlier(i),testname);
 	}
 
+	delete core;
+	delete sigmoid;
+	delete prior;
+	delete pmf;
+	delete data;
+
 	return failures;
 }
 
@@ -336,10 +363,13 @@ int MCMCTest ( TestSuite * T ) {
 	PsiData * data = new PsiData (x,n,k,2);
 
 	// Set up psychometric function
-	PsiPsychometric * pmf = new PsiPsychometric ( 2, new abCore(), new PsiLogistic() );
+	PsiCore * core = new abCore ();
+	PsiSigmoid * sigmoid = new PsiLogistic();
+	PsiPrior * prior = new UniformPrior ( 0, .1 );
+	PsiPsychometric * pmf = new PsiPsychometric ( 2, core, sigmoid );
 	std::vector<double> prm(3);
 	prm[0] = 4; prm[1] = 0.8; prm[2] = 0.02;
-	pmf->setPrior( 2, new UniformPrior(0.,1));
+	pmf->setPrior( 2, prior );
 
 	MetropolisHastings * mhS = new MetropolisHastings( pmf, data, new GaussRandom() );
 	mhS->setTheta( prm );
@@ -354,9 +384,9 @@ int MCMCTest ( TestSuite * T ) {
 	S->setstepsize ( 0.0001, 2 );
 
 	srand48(0);
-	MCMCList post ( S->sample(10000) );
+	MCMCList post ( S->sample(1000) );
 	srand48(0);
-	MCMCList mhpost ( mhS->sample(10000) );
+	MCMCList mhpost ( mhS->sample(1000) );
 
 	failures += T->isequal ( post.getMean(0), 3.21657, "Hybrid MCMC alpha", .3 );
 	failures += T->isequal ( post.getMean(1), 1.20476, "Hybrid MCMC beta", .2 );
@@ -364,6 +394,14 @@ int MCMCTest ( TestSuite * T ) {
 	failures += T->isequal ( mhpost.getMean(0), 3.22372, "Metropolis Hastings alpha", .2 );
 	failures += T->isequal ( mhpost.getMean(1), 1.12734, "Metropolis Hastings beta", .2 );
 	failures += T->isequal ( mhpost.getMean(2), 0.0199668, "Metropolis Hastings lambda", .02 );
+
+	delete core;
+	delete sigmoid;
+	delete prior;
+	delete pmf;
+	delete mhS;
+	delete S;
+	delete data;
 
 	return failures;
 }
@@ -744,7 +782,9 @@ int LinalgTests ( TestSuite * T ) {
 
 int ReturnTest ( TestSuite * T ) {
 	// In some cases, jackkifing doesn't terminate
-	PsiPsychometric *pmf = new PsiPsychometric ( 2, new mwCore(NULL, 1,0.1), new PsiLogistic() );
+	PsiCore * core = new mwCore ( NULL, 1, 0.1 );
+	PsiSigmoid * sigmoid = new PsiLogistic ();
+	PsiPsychometric *pmf = new PsiPsychometric ( 2, core, sigmoid );
 	// std::vector<double> x (5);      x[0] = 1; x[1] = 2; x[2] = 3; x[3] = 4; x[4] = 5;
 	// std::vector<int>    k (5,10);   k[1] = 9; k[2] = 8;
 	// std::vector<int>    n (5,10);
@@ -762,6 +802,12 @@ int ReturnTest ( TestSuite * T ) {
 		PsiOptimizer *opt = new PsiOptimizer ( pmf, data );
 		std::vector<double> solution ( opt->optimize ( pmf, data ) );
 		delete opt;
+
+		delete data;
+		delete core;
+		delete sigmoid;
+		delete pmf;
+
 		exit(0); // If we got this far, we kill the child process
  	} else {
 		sleep(3); // We wait 3s for the child. Otherweise, we consider it as a failure.
@@ -769,13 +815,18 @@ int ReturnTest ( TestSuite * T ) {
 
 		if (phang!=0) kill ( childpid, 9 ); // The optimizer process can be killed
 
+		delete data;
+		delete core;
+		delete sigmoid;
+		delete pmf;
+
 		return T->isequal ( !phang, 0, "optimizer hung" );
 	}
 }
 
 int main ( int argc, char ** argv ) {
 	TestSuite Tests ( "tests_all.log" );
-	// Tests.addTest(&PsychometricValues,"Values of the psychometric function");
+	Tests.addTest(&PsychometricValues,"Values of the psychometric function");
 	Tests.addTest(&OptimizerSolution, "Solutions of optimizer");
 	Tests.addTest(&BootstrapTest,     "Bootstrap properties");
 	Tests.addTest(&SigmoidTests,      "Properties of sigmoids");

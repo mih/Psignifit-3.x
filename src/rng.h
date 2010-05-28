@@ -27,7 +27,7 @@ class GaussRandom : public PsiRandom
 		double w;
 		double y;
 	public:
-		GaussRandom ( double mean=0, double standarddeviation=1 ) : mu ( mean ), sigma ( standarddeviation ) {}
+		GaussRandom ( double mean=0, double standarddeviation=1 ) : mu ( mean ), sigma ( standarddeviation ), good ( false ) {}
 		double draw ( void );              ///< draw a random number using box muller transform
 };
 

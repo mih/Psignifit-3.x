@@ -143,8 +143,10 @@ Matrix* Matrix::lu_dec ( void ) const {
 			}
 		}
 		// Check that the pivot element does not vanish
-		if ( pivot<1e-8 )
+		if ( pivot<1e-8 ) {
+			delete LU;
 			throw std::string ( "Matrix is numerically singular" );
+		}
 		// Swap pivot elements
 		for (j=i; j<ncols; j++) {
 			pivot = (*LU)(pivotindex,j);
@@ -281,6 +283,8 @@ Matrix *Matrix::inverse_qr ( void ) const {
 		std::cout << "QR(" << k << ") = ";
 		QR->print();
 	}
+	delete A;
+	delete QR;
 
 	return inv;
 }
