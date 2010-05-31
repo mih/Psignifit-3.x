@@ -91,12 +91,26 @@ class TestMCMC(ut.TestCase):
         #posterior_predictive_Rkd, logposterior_ratios)
         return wrapper.mcmc(data, nsamples=20) #, stepwidths=stepwidths)
 
+    def test_fail_two_same_psipy(self):
+        psipy_output1 = TestMCMC.basic_helper(psipy)
+        psipy_output2 = TestMCMC.basic_helper(psipy)
+        print psipy_output1[0]
+        print psipy_output2[0]
+        assert_output_equal(psipy_output1, psipy_output2)
+
+    def test_fail_two_same_swignifit(self):
+        sfi_output1 = TestMCMC.basic_helper(sfi)
+        sfi_output2 = TestMCMC.basic_helper(sfi)
+        print sfi_output1[0]
+        print sfi_output2[0]
+        assert_output_equal(sfi_output1, sfi_output2)
+
 ############################################################
 # i have tried here to elaborate on some of the errors i have been getting
 # but unfortunately this just makes the code undeterministic
 # some of the tests fails sometimes
 
-    def no_test_working(self):
+    def test_working(self):
         def helper(self):
             sfr.setSeed(5)
             return wrapper.mcmc(data, nsamples=20)
@@ -104,7 +118,7 @@ class TestMCMC(ut.TestCase):
         psipy_output = TestMCMC.basic_helper(psipy)
         assert_output_equal(sfi_output, psipy_output)
 
-    def no_test_order_fail(self):
+    def test_order_fail(self):
         def helper(wrapper):
             sfr.setSeed(6)
             return wrapper.mcmc(data, nsamples=20)
@@ -113,7 +127,7 @@ class TestMCMC(ut.TestCase):
         psipy_output = helper(psipy)
         assert_output_equal(sfi_output, psipy_output)
 
-    def no_test_simple_fail(self):
+    def test_simple_fail(self):
         def helper(wrapper):
             sfr.setSeed(6)
             return wrapper.mcmc(data, nsamples=20)
