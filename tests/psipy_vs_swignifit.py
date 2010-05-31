@@ -81,9 +81,6 @@ class TestMCMC(ut.TestCase):
     def basic_helper(wrapper):
         priors = ('Gauss(0,1000)','Gauss(0,1000)','Beta(3,100)')
         stepwidths = (1.,1.,0.01)
-        # use a seed of 6 it fails sometimes
-        # use a seed of 1 it won't fail, but instaed BOTH versions will give
-        # different output occasionally
         sfr.setSeed(1)
         return wrapper.mcmc(data, nsamples=1000, priors=priors, stepwidths=stepwidths)
 
@@ -97,12 +94,7 @@ class TestMCMC(ut.TestCase):
     # the RNG the cause of which was long unknowen
 
     def test_with_more_params(self):
-        def helper(wrapper):
-            priors = ('Gauss(0,1000)','Gauss(0,1000)','Beta(3,100)')
-            stepwidths = (1.,1.,0.01)
-            sfr.setSeed(1)
-            return wrapper.mcmc(data, nsamples=20, priors=priors, stepwidths=stepwidths)
-        compare_wrappers(helper, TestMCMC.output_description)
+        compare_wrappers(TestMCMC.basic_helper, TestMCMC.output_description)
 
     def test_with_more_samples(self):
         def helper(wrapper):
@@ -112,27 +104,14 @@ class TestMCMC(ut.TestCase):
         compare_wrappers(helper, TestMCMC.output_description)
 
     def test_two_same_psipy(self):
-        def helper(wrapper):
-            sfr.setSeed(1)
-            stepwidths = (1.,1.,0.01)
-            return wrapper.mcmc(data, nsamples=20)
-        psipy_output1 = helper(psipy)
-        psipy_output2 = helper(psipy)
-        print psipy_output1[0]
-        print psipy_output2[0]
+        psipy_output1 = TestMCMC.basic_helper(psipy)
+        psipy_output2 = TestMCMC.basic_helper(psipy)
         compare_output(psipy_output1, psipy_output2, TestMCMC.output_description)
 
     def test_two_same_swignifit(self):
-        def helper(wrapper):
-            sfr.setSeed(1)
-            stepwidths = (1.,1.,0.01)
-            return wrapper.mcmc(data, nsamples=20, stepwidths=stepwidths)
-        sfi_output1 = helper(sfi)
-        sfi_output2 = helper(sfi)
-        print sfi_output1[0]
-        print sfi_output2[0]
+        sfi_output1 = TestMCMC.basic_helper(sfi)
+        sfi_output2 = TestMCMC.basic_helper(sfi)
         compare_output(sfi_output1, sfi_output2, TestMCMC.output_description)
-
 
     def test_different_seed(self):
         def helper(wrapper):
@@ -141,16 +120,13 @@ class TestMCMC(ut.TestCase):
         compare_wrappers(helper, TestMCMC.output_description)
 
     def test_order_fail(self):
-        def helper(wrapper):
-            sfr.setSeed(1)
-            return wrapper.mcmc(data, nsamples=20)
         # here we just switch the order
-        sfi_output = helper(sfi)
-        psipy_output = helper(psipy)
+        sfi_output = TestMCMC.basic_helper(sfi)
+        psipy_output = TestMCMC.basic_helper(psipy)
         compare_output(sfi_output, psipy_output, TestMCMC.output_description)
 
-        psipy_output = helper(psipy)
-        sfi_output = helper(sfi)
+        psipy_output = TestMCMC.basic_helper(psipy)
+        sfi_output = TestMCMC.basic_helper(sfi)
         compare_output(psipy_output, sfi_output, TestMCMC.output_description)
 
     def no_basic_time(self):
