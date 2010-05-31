@@ -25,6 +25,7 @@ MetropolisHastings::MetropolisHastings ( const PsiPsychometric * pmf, const PsiD
 	accept(0)
 {
 	setTheta ( currenttheta );
+    currentdeviance = (pmf->deviance(currenttheta,dat));
 }
 
 std::vector<double> MetropolisHastings::draw ( void ) {
