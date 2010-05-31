@@ -55,8 +55,17 @@ def time_mcmc():
     psipy_time = t.timeit(number=repeat)
     compare_time('mcmc', sfi_time, psipy_time, repeat)
 
+def time_diagnostics():
+    repeat = 5
+    t = timeit.Timer("pvs.TestDiagnostics.basic_helper(pvs.sfi)", "import psipy_vs_swignifit as pvs")
+    sfi_time = t.timeit(number=repeat)
+    t = timeit.Timer("pvs.TestDiagnostics.basic_helper(pvs.psipy)", "import psipy_vs_swignifit as pvs")
+    psipy_time = t.timeit(number=repeat)
+    compare_time('diagnostics', sfi_time, psipy_time, repeat)
+
 if __name__ == "__main__":
     "Will now compare execution time of psipy and swignifit, this may take a"+\
     "while"
     time_bootstrap()
     time_mcmc()
+    time_diagnostics()
