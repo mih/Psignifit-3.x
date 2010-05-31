@@ -109,6 +109,7 @@ void setpriors ( PyObject * pypriors, PsiPsychometric * pmf ) {
 	double priorpars[10];
 	int i, Nparams ( pmf->getNparams() );
 	PyObject * singleprior;
+	PsiPrior * prior;
 	if ( pypriors == Py_None ) {
 		std::cerr << "WARNING: No priors imposed! This might lead to strange results for guessing rate.\n";
 	} else if ( PySequence_Check ( pypriors ) ) {
@@ -120,23 +121,33 @@ void setpriors ( PyObject * pypriors, PsiPsychometric * pmf ) {
 			singleprior = PySequence_GetItem ( pypriors, i );
 			if ( !strncmp ( PyString_AsString(singleprior), "Uniform", 7 ) ) {
 				sscanf ( PyString_AsString(singleprior), "Uniform(%lf,%lf)", priorpars,priorpars+1 );
-				pmf->setPrior ( i, new UniformPrior ( priorpars[0], priorpars[1] ) );
+				prior = new UniformPrior ( priorpars[0], priorpars[1] );
+				pmf->setPrior ( i, prior );
+				delete prior;
 				// std::cerr << "Using Uniform Prior with params " << priorpars[0] << " " << priorpars[1] << " for parameter " << i << "\n";
 			} else if ( !strncmp ( PyString_AsString(singleprior), "Gauss", 5 ) ) {
 				sscanf ( PyString_AsString(singleprior), "Gauss(%lf,%lf)", priorpars,priorpars+1 );
-				pmf->setPrior ( i, new GaussPrior ( priorpars[0], priorpars[1] ) );
+				prior = new GaussPrior ( priorpars[0], priorpars[1] );
+				pmf->setPrior ( i, prior );
+				delete prior;
 				// std::cerr << "Using Gauss Prior with params " << priorpars[0] << " " << priorpars[1] << " for parameter " << i << "\n";
 			} else if ( !strncmp ( PyString_AsString(singleprior), "Beta", 4 ) ) {
 				sscanf ( PyString_AsString(singleprior), "Beta(%lf,%lf)", priorpars,priorpars+1 );
-				pmf->setPrior ( i, new BetaPrior ( priorpars[0], priorpars[1] ) );
+				prior =  new BetaPrior ( priorpars[0], priorpars[1] );
+				pmf->setPrior ( i, prior );
+				delete prior;
 				// std::cerr << "Using Beta Prior with params " << priorpars[0] << " " << priorpars[1] << " for parameter " << i << "\n";
 			} else if ( !strncmp ( PyString_AsString(singleprior), "Gamma", 6 ) ) {
 				sscanf ( PyString_AsString(singleprior), "Gamma(%lf,%lf)", priorpars,priorpars+1 );
-				pmf->setPrior ( i, new GammaPrior ( priorpars[0], priorpars[1] ) );
+				prior = new GammaPrior ( priorpars[0], priorpars[1] );
+				pmf->setPrior ( i, prior );
+				delete prior;
 				// std::cerr << "Using Gamma Prior with params " << priorpars[0] << " " << priorpars[1] << " for parameter " << i << "\n";
 			} else if ( !strncmp ( PyString_AsString(singleprior), "nGamma", 7 ) ) {
 				sscanf ( PyString_AsString(singleprior), "nGamma(%lf,%lf)", priorpars,priorpars+1 );
-				pmf->setPrior ( i, new nGammaPrior ( priorpars[0], priorpars[1] ) );
+				prior = new nGammaPrior ( priorpars[0], priorpars[1] );
+				pmf->setPrior ( i, prior );
+				delete prior;
 			} else {
 				// std::cerr << "Imposing no constraints on parameter " << i << "\n";
 			}

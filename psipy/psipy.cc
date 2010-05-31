@@ -173,6 +173,8 @@ static PyObject * psibootstrap ( PyObject * self, PyObject * args, PyObject * kw
 	Py_DECREF ( pyestimates );
 	Py_DECREF ( pydeviance );
 	Py_DECREF ( pythres );
+	Py_DECREF ( pybias );
+	Py_DECREF ( pyacc );
 	Py_DECREF ( pyRpd );
 	Py_DECREF ( pyRkd );
 	Py_DECREF ( pyoutliers );
@@ -313,6 +315,8 @@ static PyObject * psimcmc ( PyObject * self, PyObject * args, PyObject * kwargs 
 	delete pmf;
 	delete data;
 	delete start;
+	delete sigmoid;
+	delete core;
 
 	return pynumber;
 }
@@ -417,6 +421,8 @@ static PyObject * psimapestimate ( PyObject * self, PyObject * args, PyObject * 
 	delete pmf;
 	delete cuts;
 	delete H;
+	delete core;
+	delete sigmoid;
 	// delete I;
 	Py_DECREF ( pyestimate );
 	Py_DECREF ( pythres );
@@ -511,6 +517,8 @@ static PyObject * psidiagnostics ( PyObject * self, PyObject * args, PyObject * 
 	else
 		pyout = Py_BuildValue ( "O", pypredicted );
 
+	delete sigmoid;
+	delete core;
 	delete data;
 	delete pmf;
 	delete params;

@@ -106,6 +106,7 @@ double PsiPsychometric::leastfavourable ( const std::vector<double>& prm, const 
 	} catch (std::string){
 		// In this case, the matrix is numerically singular
 		// Thats bad. We simply
+		delete I;
 		return 0;
 		// in that case
 	}
