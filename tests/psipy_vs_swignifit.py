@@ -123,15 +123,25 @@ class TestMCMC(ut.TestCase):
 
 class TestMapestimate(ut.TestCase):
 
+    output_description = ["estimate", "fisher", "thres", "deviance"]
+
     @staticmethod
     def basic_helper(wrapper):
         priors = ('flat','flat','Uniform(0,0.1)')
         return wrapper.mapestimate (data, priors=priors )
 
+    @staticmethod
+    def extended_helper(wrapper):
+        priors = ('Gauss(0,10)', 'Gamma(2,3)', 'Uniform(1,5)')
+        return wrapper.mapestimate(data, sigmoid='gauss', core='mw0.2',
+                priors=priors, cuts=[0.5, 0.75, 0.85], start=[0.1, 0.2, 0.3])
+
     def test_basic_correct(self):
-        sfi_output = TestMapestimate.basic_helper(sfi)
-        psipy_output = TestMapestimate.basic_helper(psipy)
-        assert_output_equal(sfi_output, psipy_output)
+        compare_wrappers(TestMapestimate.basic_helper, TestMapestimate.output_description)
+
+    def test_extended(self):
+        compare_wrappers(TestMapestimate.extended_helper, TestMapestimate.output_description)
+
 
 
 if __name__ == "__main__":
