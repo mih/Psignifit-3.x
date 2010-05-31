@@ -62,7 +62,10 @@ ipython:
 	cd .. ; PYTHONPATH=psignifit/build/`ls -1 psignifit/build | grep lib` ipython; cd -
 
 psipy_vs_swignifit:
-	cd .. ; PYTHONPATH=psignifit/build/`ls -1 psignifit/build | grep lib` nosetests --pdb psignifit/tests/psipy_vs_swignifit.py; cd -
+	cd .. ; PYTHONPATH=psignifit/build/`ls -1 psignifit/build | grep lib` nosetests -s --pdb psignifit/tests/psipy_vs_swignifit.py; cd -
+
+psipy_vs_swignifit_time:
+	cd .. ; PYTHONPATH=psignifit/build/`ls -1 psignifit/build | grep lib` $(PYTHON) psignifit/tests/psipy_vs_swignifit_time.py ; cd -
 
 
 # }}}

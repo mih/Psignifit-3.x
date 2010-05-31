@@ -16,7 +16,6 @@ import swignifit.swignifit_raw as sfr
 import swignifit.interface as sfi
 import unittest as ut
 import time
-import timeit
 import nose.tools as nt
 from numpy.testing import assert_array_almost_equal as aaae
 
@@ -63,13 +62,6 @@ class TestBootstrap(ut.TestCase):
         compare_wrappers(TestBootstrap.basic_helper,
             ["samples", "est", "D", "thres", "bias", "acc", "Rkd", "Rpd",
                 "out", "influ"])
-
-    def no_basic_time(self):
-        t = timeit.Timer("pvs.TestBootstrap.basic_helper(pvs.sfi)", "import psipy_vs_swignifit as pvs")
-        print 'swignifit:', t.timeit(number=5)
-        t = timeit.Timer("pvs.TestBootstrap.basic_helper(pvs.psipy)", "import psipy_vs_swignifit as pvs")
-        print 'psipy:', t.timeit(number=5)
-        gc.enable()
 
 class TestMCMC(ut.TestCase):
     output_description = ["estimates", "deviance",
@@ -128,13 +120,6 @@ class TestMCMC(ut.TestCase):
         psipy_output = TestMCMC.basic_helper(psipy)
         sfi_output = TestMCMC.basic_helper(sfi)
         compare_output(psipy_output, sfi_output, TestMCMC.output_description)
-
-    def no_basic_time(self):
-        t = timeit.Timer("pvs.TestMCMC.basic_helper(pvs.sfi)", "import psipy_vs_swignifit as pvs")
-        print 'swignifit per execution:', t.timeit(number=5)/5
-        t = timeit.Timer("pvs.TestMCMC.basic_helper(pvs.psipy)", "import psipy_vs_swignifit as pvs")
-        print 'psipy per execution:', t.timeit(number=5)/5
-        #gc.enable()
 
 class TestMapestimate(ut.TestCase):
 
