@@ -174,5 +174,9 @@ class TestMapestimate(ut.TestCase):
 
 
 if __name__ == "__main__":
+    #s = ut.TestSuite()
+    #s.addTest(TestMCMC("test_fail_two_same_psipy"))
+    #s.addTest(TestMCMC("test_fail_two_same_swignifit"))
+    #ut.TextTestRunner(verbosity=2).run(s)
     ut.main()
 
