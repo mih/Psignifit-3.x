@@ -44,10 +44,12 @@ def compare_wrappers(test_method, output_description):
     psipy_output = test_method(psipy)
     nt.assert_equal(len(sfi_output), len(output_description))
     nt.assert_equal(len(psipy_output), len(output_description))
+    compare_output(sfi_output, psipy_output, output_description)
+
+def compare_output(output1, output2, output_description):
     for i,name in enumerate(output_description):
-        aaae(sfi_output[i], psipy_output[i], err_msg="swignifit and psipy "+\
-                "differ for method: "+str(test_method) + "\n"+\
-                "and output index: "+ str(i) + " named: "+name)
+        aaae(output1[i], output2[i], err_msg="two outputs "+\
+                "differ for output index: "+ str(i) + " named: "+name)
 
 class TestBootstrap(ut.TestCase):
 
@@ -70,6 +72,10 @@ class TestBootstrap(ut.TestCase):
         gc.enable()
 
 class TestMCMC(ut.TestCase):
+    output_description = ["estimates", "deviance",
+            "posterior_predictive_data", "posterior_predictive_deviances",
+            "posterior_predictive_Rpd", "posterior_predictive_Rkd",
+            "logposterior_ratios"]
 
     @staticmethod
     def basic_helper(wrapper):
@@ -82,59 +88,70 @@ class TestMCMC(ut.TestCase):
         return wrapper.mcmc(data, nsamples=1000, priors=priors, stepwidths=stepwidths)
 
     def test_basic_correct(self):
-        compare_wrappers(TestMCMC.basic_helper, ["estimates", "deviance",
-            "posterior_predictive_data", "posterior_predictive_deviances",
-            "posterior_predictive_Rpd", "posterior_predictive_Rkd",
-            "logposterior_ratios"])
-        #(estimates, deviance, posterior_predictive_data,
-        #posterior_predictive_deviances, posterior_predictive_Rpd,
-        #posterior_predictive_Rkd, logposterior_ratios)
-        return wrapper.mcmc(data, nsamples=20) #, stepwidths=stepwidths)
+        def helper(wrapper):
+            sfr.setSeed(1)
+            return wrapper.mcmc(data, nsamples=20)
+        compare_wrappers(helper, TestMCMC.output_description)
 
-    def test_fail_two_same_psipy(self):
-        psipy_output1 = TestMCMC.basic_helper(psipy)
-        psipy_output2 = TestMCMC.basic_helper(psipy)
+    # we have so many tests here since we were once debugging a nasty error in
+    # the RNG the cause of which was long unknowen
+
+    def test_with_more_params(self):
+        def helper(wrapper):
+            priors = ('Gauss(0,1000)','Gauss(0,1000)','Beta(3,100)')
+            stepwidths = (1.,1.,0.01)
+            sfr.setSeed(1)
+            return wrapper.mcmc(data, nsamples=20, priors=priors, stepwidths=stepwidths)
+        compare_wrappers(helper, TestMCMC.output_description)
+
+    def test_with_more_samples(self):
+        def helper(wrapper):
+            sfr.setSeed(1)
+            return wrapper.mcmc(data, nsamples=20000)
+        print "Testing mcmc with 20000, this may take a few seconds"
+        compare_wrappers(helper, TestMCMC.output_description)
+
+    def test_two_same_psipy(self):
+        def helper(wrapper):
+            sfr.setSeed(1)
+            stepwidths = (1.,1.,0.01)
+            return wrapper.mcmc(data, nsamples=20)
+        psipy_output1 = helper(psipy)
+        psipy_output2 = helper(psipy)
         print psipy_output1[0]
         print psipy_output2[0]
-        assert_output_equal(psipy_output1, psipy_output2)
+        compare_output(psipy_output1, psipy_output2, TestMCMC.output_description)
 
-    def test_fail_two_same_swignifit(self):
-        sfi_output1 = TestMCMC.basic_helper(sfi)
-        sfi_output2 = TestMCMC.basic_helper(sfi)
+    def test_two_same_swignifit(self):
+        def helper(wrapper):
+            sfr.setSeed(1)
+            stepwidths = (1.,1.,0.01)
+            return wrapper.mcmc(data, nsamples=20, stepwidths=stepwidths)
+        sfi_output1 = helper(sfi)
+        sfi_output2 = helper(sfi)
         print sfi_output1[0]
         print sfi_output2[0]
-        assert_output_equal(sfi_output1, sfi_output2)
+        compare_output(sfi_output1, sfi_output2, TestMCMC.output_description)
 
-############################################################
-# i have tried here to elaborate on some of the errors i have been getting
-# but unfortunately this just makes the code undeterministic
-# some of the tests fails sometimes
 
-    def test_working(self):
-        def helper(self):
-            sfr.setSeed(5)
+    def test_different_seed(self):
+        def helper(wrapper):
+            sfr.setSeed(6)
             return wrapper.mcmc(data, nsamples=20)
-        sfi_output = TestMCMC.basic_helper(sfi)
-        psipy_output = TestMCMC.basic_helper(psipy)
-        assert_output_equal(sfi_output, psipy_output)
+        compare_wrappers(helper, TestMCMC.output_description)
 
     def test_order_fail(self):
         def helper(wrapper):
-            sfr.setSeed(6)
+            sfr.setSeed(1)
             return wrapper.mcmc(data, nsamples=20)
         # here we just switch the order
         sfi_output = helper(sfi)
         psipy_output = helper(psipy)
-        assert_output_equal(sfi_output, psipy_output)
+        compare_output(sfi_output, psipy_output, TestMCMC.output_description)
 
-    def test_simple_fail(self):
-        def helper(wrapper):
-            sfr.setSeed(6)
-            return wrapper.mcmc(data, nsamples=20)
-
-        sfi_output = helper(sfi)
         psipy_output = helper(psipy)
-        assert_output_equal(sfi_output, psipy_output)
+        sfi_output = helper(sfi)
+        compare_output(psipy_output, sfi_output, TestMCMC.output_description)
 
     def no_basic_time(self):
         t = timeit.Timer("pvs.TestMCMC.basic_helper(pvs.sfi)", "import psipy_vs_swignifit as pvs")
