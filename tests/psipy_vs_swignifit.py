@@ -142,7 +142,17 @@ class TestMapestimate(ut.TestCase):
     def test_extended(self):
         compare_wrappers(TestMapestimate.extended_helper, TestMapestimate.output_description)
 
+class TestDiagnostics(ut.TestCase):
 
+    output_description = ["pred" ,"di" ,"D", "thres", "Rpd", "Rkd"]
+
+    @staticmethod
+    def basic_helper(wrapper):
+        prm = [2.75, 1.45, 0.015]
+        return wrapper.diagnostics(data,prm)
+
+    def test_basic_correct(self):
+        compare_wrappers(TestDiagnostics.basic_helper, TestDiagnostics.output_description)
 
 if __name__ == "__main__":
     #s = ut.TestSuite()
