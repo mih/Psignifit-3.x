@@ -315,8 +315,8 @@ int BootstrapTest ( TestSuite * T ) {
 
 	// Check against psignifit results
 	// These values are subject to statistical variation. "equality" is defined relatively coarse
-	failures += T->isless(boots.getAcc(0),0.05,"Acceleration constant");
-	failures += T->isequal(boots.getBias(0),-.08,"Bias",.1);
+	failures += T->isless(boots.getAcc_t(0),0.05,"Acceleration constant");
+	failures += T->isequal(boots.getBias_t(0),-.08,"Bias",.1);
 	failures += T->isequal(boots.getThres(.1,0),2.63745,"u(.1)",.1);
 	failures += T->isequal(boots.getThres(.9,0),3.84851,"u(.9)",.1);
 	failures += T->isequal(boots.getDeviancePercentile(0.975),9.2,"Deviance limits",.5);
@@ -636,7 +636,7 @@ int CoreTests ( TestSuite * T ) {
 	prm[0] = 3.;
 	prm[1] = 2.;
 	failures += T->isequal(core->g(3.,prm),0,            "mwCore at threshold");
-	failures += T->isequal(core->dg(3.,prm,0),log(9.),"mwCore derivative 0");
+	failures += T->isequal(core->dg(3.,prm,0),-log(9.),"mwCore derivative 0");
 	failures += T->isequal(core->dg(3.,prm,1),0,         "mwCore derivative 1");
 	failures += T->isequal(core->ddg(3.,prm,0,0),0,      "mwCore 2nd derivative 0,0");
 	failures += T->isequal(core->ddg(3.,prm,0,1),0.5*log(9.),"mwCore 2nd derivative 0,1");
