@@ -142,7 +142,7 @@ double BootstrapList::getThres ( double p, unsigned int cut ) {
 
 	// Bias correction of p
 	if (BCa)
-		p = Phi(bias[cut] + (invPhi(p) + bias[cut])/(1-acceleration[cut]*(invPhi(p) + bias[cut])));
+		p = Phi(bias_t[cut] + (invPhi(p) + bias_t[cut])/(1-acceleration_t[cut]*(invPhi(p) + bias_t[cut])));
 
 	position = int(getNsamples()*p);
 
@@ -166,6 +166,43 @@ void BootstrapList::setThres ( double thres, unsigned int i, unsigned int cut )
 		throw BadIndexError();
 
 	thresholds[cut][i] = thres;
+}
+
+double BootstrapList::getSlope ( double p, unsigned int cut ) {
+	if ( cut>=cuts.size() )
+		throw BadIndexError();
+	if ( p>1 || p<0 )
+		throw BadArgumentError();
+
+	int position;
+	sort( slopes[cut].begin(), slopes[cut].end() );
+
+	// Bias correction of p
+	if (BCa)
+		p = Phi(bias_s[cut] + (invPhi(p) + bias_s[cut])/(1-acceleration_s[cut]*(invPhi(p) + bias_s[cut])));
+
+	position = int(getNsamples()*p);
+
+	return slopes[cut][position];
+}
+
+double BootstrapList::getSlope_byPos ( unsigned int i, unsigned int cut ) {
+	if ( cut>=cuts.size() )
+		throw BadIndexError();
+	if (i>getNsamples())
+		throw BadIndexError();
+
+	return slopes[cut][i];
+}
+
+void BootstrapList::setSlope ( double slope, unsigned int i, unsigned int cut )
+{
+	if ( i>=getNsamples() )
+		throw BadIndexError();
+	if (cut>=cuts.size() )
+		throw BadIndexError();
+
+	slopes[cut][i] = slope;
 }
 
 double BootstrapList::getCut ( unsigned int i ) const

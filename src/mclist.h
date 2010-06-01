@@ -67,11 +67,14 @@ class BootstrapList : public PsiMClist
 {
 	private:
 		bool BCa;
-		std::vector<double> acceleration;
-		std::vector<double> bias;
+		std::vector<double> acceleration_t;
+		std::vector<double> bias_t;
+		std::vector<double> acceleration_s;
+		std::vector<double> bias_s;
 		std::vector< std::vector<int> > data;
 		std::vector<double> cuts;
 		std::vector< std::vector<double> > thresholds;
+		std::vector< std::vector<double> > slopes;
 		std::vector<double> Rpd;
 		std::vector<double> Rkd;
 	public:
@@ -82,35 +85,54 @@ class BootstrapList : public PsiMClist
 			std::vector<double> Cuts                                     ///< performance levels at which thresholds should be determined
 			) : PsiMClist (N,nprm),
 				BCa(false),
-				acceleration(Cuts.size()),
-				bias(Cuts.size()),
+				acceleration_t(Cuts.size()),
+				bias_t(Cuts.size()),
+				acceleration_s(Cuts.size()),
+				bias_s(Cuts.size()),
 				data(N,std::vector<int>(nblocks)),
 				cuts(Cuts),
 				thresholds (Cuts.size(), std::vector<double> (N)),
+				slopes     (Cuts.size(), std::vector<double> (N)),
 				Rpd(N),
 				Rkd(N)
 			{ } ///< set up the list
 		// TODO: should setBCa be private and friend of parametric bootstrap?
-		void setBCa (
+		void setBCa_t (
 			unsigned int i,                                               ///< index of the cut for which Bias and Acceleration should be set
 			double Bias,                                                  ///< Bias to be set
 			double Acceleration                                           ///< Acceleration to be set
-			) { BCa=true; bias[i] = Bias; acceleration[i] = Acceleration; }  ///< set bias and acceleration to get BCa confidence intervals
+			) { BCa=true; bias_t[i] = Bias; acceleration_t[i] = Acceleration; }  ///< set bias and acceleration to get BCa confidence intervals
+		void setBCa_s (
+			unsigned int i,                                               ///< index of the cut for which Bias and Acceleration should be set
+			double Bias,                                                  ///< Bias to be set
+			double Acceleration                                           ///< Acceleration to be set
+			) { BCa=true; bias_s[i] = Bias; acceleration_s[i] = Acceleration; }  ///< set bias and acceleration to get BCa confidence intervals
 		void setData (
 			unsigned int i,                                               ///< index of the bootstrap sample to be set
 			const std::vector<int>& newdata                                ///< response counts in the new bootstrap sample (not proportion correct)
 			);   ///< store a simulated data set
 		std::vector<int> getData ( unsigned int i ) const;                 ///< get a simulated data set at posititon i
+
 		double getThres ( double p, unsigned int cut );                    ///< get the p-th percentile associated with the threshold at cut
 		double getThres_byPos ( unsigned int i, unsigned int cut );        ///< get the threshold for the i-th sample
 		void setThres ( double thres, ///< new value of the threshold
                 unsigned int i,       ///< index of the bootstrap sample
                 unsigned int cut      ///< index of the desired cut
                 );  ///< set the value of a threshold associated with the threshold at cut
+
+		double getSlope ( double p, unsigned int cut );                    ///< get the p-th percentile associated with the slope at the given cut
+		double getSlope_byPos ( unsigned int i, unsigned int cut );        ///< get the slope at cut for the i-th sample
+		void setSlope ( double sl,    ///< new value of the slope
+				unsigned int i,       ///< index of the bootstrap sample
+				unsigned int cut      ///< index of the desired cut
+				);  ///< set the value of the slope associated with the threshold at cut
+
 		unsigned int getNblocks ( void ) const { return data[0].size(); }  ///< get the number of blocks in the underlying dataset
 		double getCut ( unsigned int i ) const;                            ///< get the value of cut i
-		double getAcc ( unsigned int i ) const { return acceleration[i]; } ///< get the acceleration constant for cut i
-		double getBias ( unsigned int i ) const { return bias[i]; }       ///< get the bias for cut i
+		double getAcc_t ( unsigned int i ) const { return acceleration_t[i]; } ///< get the acceleration constant for cut i
+		double getBias_t ( unsigned int i ) const { return bias_t[i]; }       ///< get the bias for cut i
+		double getAcc_s ( unsigned int i ) const { return acceleration_s[i]; } ///< get the acceleration constant for cut i
+		double getBias_s ( unsigned int i ) const { return bias_s[i]; }       ///< get the bias for cut i
 		// TODO: should setRpd be private and friend of parametricbootstrap?
 		void setRpd ( unsigned int i, ///< index of the bootstrap sample
                 double r_pd           ///< new correlation

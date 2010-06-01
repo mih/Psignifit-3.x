@@ -31,6 +31,10 @@ class PsiCore
 			const std::vector<double>& prm, ///< parameter vector
 			int i                           ///< index of the parameter to which the derivative should be evaluated
 			) { throw  NotImplementedError(); }        ///< evaluate the first derivative of the core with respect to parameter i
+		virtual double dgx (
+			double x,                        ///< stimulus intensity
+			const std::vector<double>& prm   ///< parameter vector
+			) { throw NotImplementedError(); }       ///< evaluate the first derivative of the core with respect to stimulus intensity
 		virtual double ddg (
 			double x,                       ///< stimulus intensity
 			const std::vector<double>& prm, ///< parameter vector
@@ -81,6 +85,10 @@ class abCore : public PsiCore
 			const std::vector<double>& prm,  ///< parameter vector
 			int i                            ///< index of the parameter to which the derivative should be evaluated
 			);                                         ///< evaluate the first derivative of the core with respect to parameter i
+		double dgx (
+			double x,                        ///< stimulus intensity
+			const std::vector<double>& prm   ///< parameter vector
+			);       ///< evaluate the first derivative of the core with respect to stimulus intensity
 		double ddg (
 			double x,                        ///< stimulus intensity
 			const std::vector<double>& prm,  ///< parameter vector
@@ -141,6 +149,10 @@ class mwCore : public PsiCore
 			const std::vector<double>& prm,  ///< parameter vector
 			int i                            ///< index of the parameter to which the derivative should be evaluated
 			);                                         ///< evaluate the first derivative of the core with respect to parameter i
+		double dgx (
+			double x,                        ///< stimulus intensity
+			const std::vector<double>& prm   ///< parameter vector
+			);       ///< evaluate the first derivative of the core with respect to stimulus intensity
 		double ddg (
 			double x,                        ///< stimulus intensity
 			const std::vector<double>& prm,  ///< parameter vector
@@ -196,6 +208,10 @@ class linearCore : public PsiCore
 			const std::vector<double>& prm,     ///< parameter vector
 			int i                               ///< index of the parameter we want the derivative to
 			) { switch (i) { case 0: return x; break; case 1: return 1; break; default: return 0; break; } } ///< first derivative w.r.t. parameter i
+		double dgx (
+			double x,                        ///< stimulus intensity
+			const std::vector<double>& prm   ///< parameter vector
+			) { return prm[0]; }       ///< evaluate the first derivative of the core with respect to stimulus intensity
 		double ddg (
 			double x,                           ///< stimulus intensity
 			const std::vector<double>& prm,     ///< parameter vector
@@ -249,6 +265,10 @@ class logCore : public PsiCore
 			const std::vector<double>& prm,           ///< parameter vector
 			int i                                     ///< parameter with respect to which the derivative should evaluated
 			);                   ///< evaluate derivative of the core
+		double dgx (
+			double x,                        ///< stimulus intensity
+			const std::vector<double>& prm   ///< parameter vector
+			);       ///< evaluate the first derivative of the core with respect to stimulus intensity
 		double ddg (
 			double x,                                 ///< stimulus intensity
 			const std::vector<double>& prm,           ///< parameter vector
@@ -309,6 +329,10 @@ class weibullCore : public PsiCore
 			const std::vector<double>& prm,     ///< parameter vector
 			int i                               ///< index of the parameter with respect to which the derivative should be evaluated
 			) throw(BadArgumentError) ;    ///< evaluate the derivateive of the core
+		double dgx (
+			double x,                        ///< stimulus intensity
+			const std::vector<double>& prm   ///< parameter vector
+			);       ///< evaluate the first derivative of the core with respect to stimulus intensity
 		double ddg (
 			double x,                           ///< stimulus intenstiy
 			const std::vector<double>& prm,     ///< parameter vector
@@ -363,6 +387,10 @@ class polyCore : public PsiCore
 			const std::vector<double>& prm,          ///< parameter vector
 			int i                                    ///< index of the parameter to which the derivative should be evaluated
 			);              ///< derivative of the polyCore with respect to a parameter
+		double dgx (
+			double x,                        ///< stimulus intensity
+			const std::vector<double>& prm   ///< parameter vector
+			);       ///< evaluate the first derivative of the core with respect to stimulus intensity
 		double ddg (
 			double x,                                ///< stimulus intensity
 			const std::vector<double>& prm,          ///< parameter vector

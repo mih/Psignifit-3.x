@@ -52,7 +52,8 @@ BootstrapList bootstrap ( unsigned int B, const PsiData * data, const PsiPsychom
 	BootstrapList bootstrapsamples ( B, model->getNparams(), data->getNblocks(), cuts );
 	unsigned int b,k,cut;                               // iteration variables for bootstrap sample, block, l-general purpose third level iteration, cut
 	std::vector< std::vector<double> > l_LF (cuts.size(), std::vector<double>(B));   // vector of double-vectors
-	std::vector< std::vector<double> > u_i  (cuts.size(), std::vector<double>(B));
+	std::vector< std::vector<double> > u_t  (cuts.size(), std::vector<double>(B));
+	std::vector< std::vector<double> > u_s  (cuts.size(), std::vector<double>(B));
 	PsiOptimizer opt ( model, data );                          // for ML-Fitting
 	PsiData * localdataset = new PsiData ( data->getIntensities(),  // local because it changes in every iteration
 			data->getNtrials(),
@@ -74,11 +75,14 @@ BootstrapList bootstrap ( unsigned int B, const PsiData * data, const PsiPsychom
 	std::vector<double> localfit   ( model->getNparams() );
 	std::vector<int>    sample     ( data->getNblocks() );
 	std::vector<double> initialthresholds ( cuts.size() );
+	std::vector<double> initialslopes     ( cuts.size() );
 	std::vector<double> devianceresiduals ( data->getNblocks() );
 	double deviance;
 
-	for (cut=0; cut<cuts.size(); cut++)
+	for (cut=0; cut<cuts.size(); cut++) {
 		initialthresholds[cut] = model->getThres(initialfit,cuts[cut]);
+		initialslopes[cut]     = model->getSlope(initialfit,initialthresholds[cut]);
+	}
 
 	for ( b=0; b<B; b++ ) {
 		// Resampling
@@ -110,13 +114,15 @@ BootstrapList bootstrap ( unsigned int B, const PsiData * data, const PsiPsychom
 				std::cerr << "l_LF["<<cut<<"]["<<b<<"] = " << l_LF[cut][b] << "\n";
 			}
 #endif
-			u_i[cut][b]  = model->getThres(localfit,cuts[cut]);
+			u_t[cut][b]  = model->getThres(localfit,cuts[cut]);
+			u_s[cut][b]  = model->getSlope(localfit,u_t[cut][b]);
 #ifdef DEBUG_BOOTSTRAP
 			if (l_LF[cut][b]!= l_LF[cut][b]) {
-				std::cerr << "u_i["<<cut<<"]["<<b<<"] = " << u_i[cut][b] << "\n";
+				std::cerr << "u_t["<<cut<<"]["<<b<<"] = " << u_t[cut][b] << "\n";
 			}
 #endif
-			bootstrapsamples.setThres(u_i[cut][b], b, cut);
+			bootstrapsamples.setThres(u_t[cut][b], b, cut);
+			bootstrapsamples.setSlope(u_s[cut][b], b, cut);
 
 			if (l_LF[cut][b] != l_LF[cut][b]) {
 				// TODO: if l_LF is nan we don't take this sample
@@ -131,8 +137,10 @@ BootstrapList bootstrap ( unsigned int B, const PsiData * data, const PsiPsychom
 	// Calculate BCa constants
 	double bias, acc;
 	for (cut=0; cut<cuts.size(); cut++) {
-		determineBCa ( l_LF[cut], u_i[cut], initialthresholds[cut], &bias, &acc );
-		bootstrapsamples.setBCa(cut, bias, acc );
+		determineBCa ( l_LF[cut], u_t[cut], initialthresholds[cut], &bias, &acc );
+		bootstrapsamples.setBCa_t(cut, bias, acc );
+		determineBCa ( l_LF[cut], u_s[cut], initialslopes[cut], &bias, &acc );
+		bootstrapsamples.setBCa_s(cut, bias, acc );
 	}
 
 	delete localdataset;

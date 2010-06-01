@@ -23,6 +23,10 @@ double abCore::dg ( double x, const std::vector<double>& prm, int i ) {
 	}
 }
 
+double abCore::dgx ( double x, const std::vector<double>& prm ) {
+	return 1./prm[1];
+}
+
 double abCore::ddg ( double x, const std::vector<double>& prm, int i, int j ) {
 	if (i==j) {
 		switch (i) {
@@ -121,6 +125,10 @@ double mwCore::dg ( double x, const std::vector<double>& prm, int i ) {
 	}
 }
 
+double mwCore::dgx ( double x, const std::vector<double>& prm ) {
+	return zalpha/prm[1];
+}
+
 double mwCore::ddg ( double x, const std::vector<double>& prm, int i, int j ) {
 	if (i==j) {
 		if (i==0)
@@ -193,6 +201,11 @@ double logCore::dg ( double x, const std::vector<double>& prm, int i ) {
 	}
 }
 
+double logCore::dgx ( double x, const std::vector<double>& prm ) {
+	return prm[0]/x;
+}
+
+
 double logCore::dinv ( double y, const std::vector<double>& prm, int i ) {
 	switch (i) {
 		case 0:
@@ -255,6 +268,10 @@ double weibullCore::dg ( double x, const std::vector<double>& prm, int i ) throw
 	} else {
 		return 0;
 	}
+}
+
+double weibullCore::dgx ( double x, const std::vector<double>& prm ) {
+	return twooverlog2*prm[0]*prm[1]/x;
 }
 
 double weibullCore::ddg ( double x, const std::vector<double>& prm, int i, int j ) throw(BadArgumentError)
@@ -334,6 +351,15 @@ double polyCore::dg ( double x, const std::vector<double>& prm, int i )
 			return pow (x/prm[0], prm[1] ) * log(x/prm[0]);
 		else
 			return 0;
+	}
+}
+
+double polyCore::dgx ( double x, const std::vector<double>& prm )
+{
+	if (x<0)
+		return 0;
+	else {
+		return prm[1]*pow(prm[0],-prm[1])*pow(x,prm[1]-1);
 	}
 }
 
