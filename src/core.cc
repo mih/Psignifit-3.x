@@ -109,7 +109,7 @@ double mwCore::g ( double x, const std::vector<double>& prm ) {
 double mwCore::dg ( double x, const std::vector<double>& prm, int i ) {
 	switch (i) {
 		case 0:
-			return zalpha/prm[1];
+			return -zalpha/prm[1];
 			break;
 		case 1:
 			return -zalpha*(x-prm[0])/(prm[1]*prm[1]);
