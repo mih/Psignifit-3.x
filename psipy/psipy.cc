@@ -161,8 +161,8 @@ static PyObject * psibootstrap ( PyObject * self, PyObject * args, PyObject * kw
 
 	// BCa
 	for ( i=0; i<Ncuts; i++ ) {
-		((double*)pybias->data)[i] = boots.getBias(i);
-		((double*)pyacc->data)[i]  = boots.getAcc(i);
+		((double*)pybias->data)[i] = boots.getBias_t(i);
+		((double*)pyacc->data)[i]  = boots.getAcc_t(i);
 	}
 
 	/************************************************************
