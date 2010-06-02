@@ -172,7 +172,7 @@ Matrix* Matrix::lu_dec ( void ) const {
 Matrix* Matrix::qr_dec ( void ) const {
 	Matrix *A = new Matrix ( *this );
 
-	A->print();
+	// A->print();
 
 	int i, j, k, l;
 	int m ( A->getnrows() ), n ( A->getncols() );
