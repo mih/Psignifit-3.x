@@ -382,19 +382,30 @@ int MCMCTest ( TestSuite * T ) {
 
 	HybridMCMC * S = new HybridMCMC ( pmf, data, 20 );
 	S->setTheta ( prm );
-	S->setStepSize ( 0.001, 0 );
-	S->setStepSize ( 0.001, 1 );
-	S->setStepSize ( 0.0001, 2 );
+	// This gives rather bad sampling but at least it gives something
+	// We don't use the HybridMCMC anyhow
+	S->setStepSize ( 0.013, 0 );
+	S->setStepSize ( 0.007, 1 );
+	S->setStepSize ( 0.001, 2 );
 
 	srand48(0);
 	MCMCList post ( S->sample(1000) );
 	srand48(0);
-	MCMCList mhpost ( mhS->sample(10000) );
+	MCMCList mhpost ( mhS->sample(1000) );
 	srand48(0);
 	MCMCList pilot ( mhS->sample(1000) );
 	gmS->findOptimalStepwidth(pilot);
 	srand48(0);
-	MCMCList gmpost = gmS->sample(10000);
+	MCMCList gmpost = gmS->sample(1000);
+
+	/*
+	int i,j;
+	for ( i=0; i<1000; i++ ) {
+		for ( j=0; j<3; j++)
+			std::cout << " " << post.getEst ( i, j );
+		std::cout << "\n";
+	}
+	*/
 
 	failures += T->isequal ( post.getMean(0), 3.21657, "Hybrid MCMC alpha", .3 );
 	failures += T->isequal ( post.getMean(1), 1.20476, "Hybrid MCMC beta", .2 );
@@ -619,32 +630,34 @@ int CoreTests ( TestSuite * T ) {
 	core = new abCore;
 	prm[0] = 3.;
 	prm[1] = 2.;
-	failures += T->isequal(core->g(3.,prm),0,            "abCore at threshold");
-	failures += T->isequal(core->dg(3.,prm,0),-1./prm[1],"abCore derivative 0");
-	failures += T->isequal(core->dg(3.,prm,1),0,         "abCore derivative 1");
-	failures += T->isequal(core->ddg(3.,prm,0,0),0,      "abCore 2nd derivative 0,0");
-	failures += T->isequal(core->ddg(3.,prm,0,1),1./(prm[1]*prm[1]),"abCore 2nd derivative 0,1");
-	failures += T->isequal(core->ddg(3.,prm,1,1),0,      "abCore 2nd derivative 1,1");
-	failures += T->isequal(core->g(core->inv(2.,prm),prm),2, "abCore inversion g(inv(2))");
-	failures += T->isequal(core->inv(core->g(2.,prm),prm),2, "abCore inversion inv(g(2))");
-	failures += T->isequal(core->dinv(2.,prm,0),1.,"abCore inversion dinv(2,0)");
-	failures += T->isequal(core->dinv(2.,prm,1),2.,"abCore inversion dinv(2,1)");
+	failures += T->isequal ( core->g(3.,prm),0,                        "abCore at threshold");
+	failures += T->isequal ( core->dgx(3.,prm),1./prm[1],              "abCore derivative stimulus");
+	failures += T->isequal ( core->dg(3.,prm,0),-1./prm[1],            "abCore derivative 0");
+	failures += T->isequal ( core->dg(3.,prm,1),0,                     "abCore derivative 1");
+	failures += T->isequal ( core->ddg(3.,prm,0,0),0,                  "abCore 2nd derivative 0,0");
+	failures += T->isequal ( core->ddg(3.,prm,0,1),1./(prm[1]*prm[1]), "abCore 2nd derivative 0,1");
+	failures += T->isequal ( core->ddg(3.,prm,1,1),0,                  "abCore 2nd derivative 1,1");
+	failures += T->isequal ( core->g(core->inv(2.,prm),prm),2,         "abCore inversion g(inv(2))");
+	failures += T->isequal ( core->inv(core->g(2.,prm),prm),2,         "abCore inversion inv(g(2))");
+	failures += T->isequal ( core->dinv(2.,prm,0),1.,                  "abCore inversion dinv(2,0)");
+	failures += T->isequal ( core->dinv(2.,prm,1),2.,                  "abCore inversion dinv(2,1)");
 	// TODO: Transform tests
 	delete core;
 
 	core = new mwCore (NULL, 1,0.1);
 	prm[0] = 3.;
 	prm[1] = 2.;
-	failures += T->isequal(core->g(3.,prm),0,            "mwCore at threshold");
-	failures += T->isequal(core->dg(3.,prm,0),-log(9.),"mwCore derivative 0");
-	failures += T->isequal(core->dg(3.,prm,1),0,         "mwCore derivative 1");
-	failures += T->isequal(core->ddg(3.,prm,0,0),0,      "mwCore 2nd derivative 0,0");
-	failures += T->isequal(core->ddg(3.,prm,0,1),0.5*log(9.),"mwCore 2nd derivative 0,1");
-	failures += T->isequal(core->ddg(3.,prm,1,1),0,      "mwCore 2nd derivative 1,1");
-	failures += T->isequal(core->g(core->inv(2.,prm),prm),2, "mwCore inversion g(inv(2))");
-	failures += T->isequal(core->inv(core->g(2.,prm),prm),2, "mwCore inversion inv(g(2))");
-	failures += T->isequal(core->dinv(2.,prm,0),1.,"mwCore inversion dinv(2,0)");
-	failures += T->isequal(core->dinv(2.,prm,1),1./log(9.),"mwCore inversion dinv(2,1)");
+	failures += T->isequal ( core->g(3.,prm),0,                  "mwCore at threshold");
+	failures += T->isequal ( core->dgx(3.,prm),log(9.),   "mwCore derivative stimulus");
+	failures += T->isequal ( core->dg(3.,prm,0),-log(9.),        "mwCore derivative 0");
+	failures += T->isequal ( core->dg(3.,prm,1),0,               "mwCore derivative 1");
+	failures += T->isequal ( core->ddg(3.,prm,0,0),0,            "mwCore 2nd derivative 0,0");
+	failures += T->isequal ( core->ddg(3.,prm,0,1),0.5*log(9.),  "mwCore 2nd derivative 0,1");
+	failures += T->isequal ( core->ddg(3.,prm,1,1),0,            "mwCore 2nd derivative 1,1");
+	failures += T->isequal ( core->g(core->inv(2.,prm),prm),2,   "mwCore inversion g(inv(2))");
+	failures += T->isequal ( core->inv(core->g(2.,prm),prm),2,   "mwCore inversion inv(g(2))");
+	failures += T->isequal ( core->dinv(2.,prm,0),1.,            "mwCore inversion dinv(2,0)");
+	failures += T->isequal ( core->dinv(2.,prm,1),1./log(9.),    "mwCore inversion dinv(2,1)");
 	// TODO: Transform Tests
 	delete core;
 
@@ -652,6 +665,7 @@ int CoreTests ( TestSuite * T ) {
 	prm2 = prm;
 	th = -2./3;
 	failures += T->isequal ( core->g(th,prm), 0,                   "linearCore at threshold");
+	failures += T->isequal ( core->dgx(3.,prm),prm[0],             "linearCore derivative stimulus");
 	failures += T->isequal ( core->dg(th,prm,0), th,               "linearCore derivative(0) at threshold");
 	failures += T->isequal ( core->dg(th,prm,1), 1.,               "linearCore derivative(1) at threshold");
 	failures += T->isequal ( core->ddg(th,prm,0,0), 0,             "linearCore derivative(0,0) at threshold");
@@ -679,6 +693,7 @@ int CoreTests ( TestSuite * T ) {
 	th = exp(-2./3);
 
 	failures += T->isequal ( core->g(th,prm), 0,                  "logCore at threshold");
+	failures += T->isequal ( core->dgx(3.,prm),prm[0]/3.,        "linearCore derivative stimulus");
 	failures += T->isequal ( core->dg(th,prm,0), log(th),         "logCore derivative(0) at threshold");
 	failures += T->isequal ( core->dg(th,prm,1), 1,               "logCore derivative(1) at threshold");
 	failures += T->isequal ( core->ddg(th,prm,0,0), 0,            "logCore derivative(0,0) at threshold");
