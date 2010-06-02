@@ -315,10 +315,16 @@ int BootstrapTest ( TestSuite * T ) {
 
 	// Check against psignifit results
 	// These values are subject to statistical variation. "equality" is defined relatively coarse
-	failures += T->isless(boots.getAcc_t(0),0.05,"Acceleration constant");
-	failures += T->isequal(boots.getBias_t(0),-.08,"Bias",.1);
-	failures += T->isequal(boots.getThres(.1,0),2.63745,"u(.1)",.1);
-	failures += T->isequal(boots.getThres(.9,0),3.84851,"u(.9)",.1);
+	failures += T->isless(boots.getAcc_t(0),0.05,"Acceleration constant (threshold)");
+	failures += T->isequal(boots.getBias_t(0),-.08,"Bias (threshold)",.1);
+	failures += T->isequal(boots.getThres(.1,0),2.63745,"th(.1)",.1);
+	failures += T->isequal(boots.getThres(.9,0),3.84851,"th(.9)",.1);
+
+	failures += T->isequal(boots.getAcc_s(0),-0.00698907,"Acceleration constant (slope)",.01);
+	failures += T->isequal(boots.getBias_s(0),-.141595,  "Bias (slope)",.01);
+	failures += T->isequal(boots.getSlope(0.1,0), 0.16453, "sl(.1)",.01);
+	failures += T->isequal(boots.getSlope(0.9,0), 0.45464, "sl(.9)",.01);
+
 	failures += T->isequal(boots.getDeviancePercentile(0.975),9.2,"Deviance limits",.5);
 	failures += T->isequal(boots.percRpd(.025), -0.534564, "Rpd( 2.5%)", .1); // Testing mean and standard error
 	failures += T->isequal(boots.percRpd(.975), 0.587535, "Rpd(97.5%)",  .1);
@@ -852,9 +858,12 @@ int ReturnTest ( TestSuite * T ) {
 
 int main ( int argc, char ** argv ) {
 	TestSuite Tests ( "tests_all.log" );
+	/*
 	Tests.addTest(&PsychometricValues,"Values of the psychometric function");
 	Tests.addTest(&OptimizerSolution, "Solutions of optimizer");
+	*/
 	Tests.addTest(&BootstrapTest,     "Bootstrap properties");
+	/*
 	Tests.addTest(&SigmoidTests,      "Properties of sigmoids");
 	Tests.addTest(&CoreTests,         "Tests of core objects");
 	Tests.addTest(&MCMCTest,          "MCMC");
@@ -862,5 +871,6 @@ int main ( int argc, char ** argv ) {
 	Tests.addTest(&LinalgTests,       "Linear algebra routines");
 	Tests.addTest(&ReturnTest,        "Testing return bug in jackknifedata");
 	Tests.addTest(&InitialParametersTest, "Initial parameter heuristics");
+	*/
 	Tests.runTests();
 }
