@@ -4,3 +4,14 @@ psipp-doc/
 swignifit/swignifit_raw.cxx
 swignifit/swignifit_raw.py
 src/tests_all
+
+*.pyc
+*.tar.gz
+*.swp
+scripts/nonstationarity/simulation_data/
+scripts/nonstationarity/simulation_data_old/
+scripts/nonstationarity/sim//
+scripts/nonstationarity/test*
+documents/*.aux
+documents/*.log
+documents/*.pdf
