@@ -97,7 +97,7 @@ sure that they don't lapse in more than 10% of the trials. That can be expressed
 
     "Uniform(0,0.1)"
 
-This assigns equal prior probability[#]_ to any lapse rate between 0 and 10% but assigns a prior probability of 0 to any other value.
+This assigns equal prior probability [#]_ to any lapse rate between 0 and 10% but assigns a prior probability of 0 to any other value.
 Although we might feel that this is a good working solution, the translation of it seems odd: It is perfectly fine to find a lapse rate of
 9.9% but a lapse rate of 10.1% is entirely implausible and we reject any solution that leads to such a lapse rate.
 
