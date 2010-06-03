@@ -89,23 +89,23 @@ satisfy the dependencies listed below:
 
 Compile-Time
 ............
-`Make <http://www.gnu.org/software/make/>`_ (3.81-8)
+* `Make <http://www.gnu.org/software/make/>`_ (3.81-8)
     for building the software
-`Gcc <http://gcc.gnu.org/>`_ (4:4.4.3-1)/
-`Python <python http://www.python.org/>`_ (2.5.5-6)/
-`Python/C API <http://docs.python.org/c-api/>`_ (2.5.5-2)
+* `Gcc <http://gcc.gnu.org/>`_ (4:4.4.3-1)/
+* `Python <python http://www.python.org/>`_ (2.5.5-6)/
+* `Python/C API <http://docs.python.org/c-api/>`_ (2.5.5-2)
     for compiling the ``psipy`` and ``swignifit`` interface for python
-`Numpy/C API <http://docs.scipy.org/doc/numpy/reference/c-api.html>`_ (1:1.3.0-3)
+* `Numpy/C API <http://docs.scipy.org/doc/numpy/reference/c-api.html>`_ (1:1.3.0-3)
     for compiling the ``psipy`` interface for python
-`Simplified Wrapper and Interface Generator (SWIG) <http://www.swig.org/>`_ (1.3.40-2)
+* `Simplified Wrapper and Interface Generator (SWIG) <http://www.swig.org/>`_ (1.3.40-2)
     for compiling the ``swignifit`` interface for python
 
 Run-Time
 ........
-`Python <python http://www.python.org/>`_ (2.5.5-6)/
-`Numpy <http://numpy.scipy.org/>`_  (1:1.3.0-3)/
-`Scipy <http://www.scipy.org/>`_ (0.7.1-1)/
-`Matplotlib <http://matplotlib.sourceforge.net/>`_ (0.99.1.2-3)
+* `Python <python http://www.python.org/>`_ (2.5.5-6)/
+* `Numpy <http://numpy.scipy.org/>`_  (1:1.3.0-3)/
+* `Scipy <http://www.scipy.org/>`_ (0.7.1-1)/
+* `Matplotlib <http://matplotlib.sourceforge.net/>`_ (0.99.1.2-3)
     for the python version
 
 Documentation

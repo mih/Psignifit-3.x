@@ -49,7 +49,7 @@ Each prior specification is given by a string of the form::
 Thus, a string like "Gauss(0,40)" specifies a normal distribution with mean 0 and standard deviation 40. So a valid form of
 prior specification for a 2AFC task might be::
 
-prior = ("Gauss(0,100)","Gauss(0,100)","Uniform(0,1)")
+    prior = ("Gauss(0,100)","Gauss(0,100)","Uniform(0,1)")
 
 Note, that the length of the prior list is crucial. If you don't specify priors for all parameters, you will get an error
 message [#]_.
