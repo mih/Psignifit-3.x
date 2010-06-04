@@ -118,6 +118,23 @@ class PsiPsychometric {
 		void setgammatolambda ( void ) { gammaislambda=true; };                          ///< calling this function applies the constraint that gamma and lambda should be equal in a yes/no paradigm
 };
 
+/** \brief Psychometric function that allows for models the variance of the data by a beta distribution
+ *
+ * When fitting psychometric functions, we usually assume independence of the responses. Is this independence is violated,
+ * the binomial variance model is no longer adequate. The beta psychometric function can better deal with this. It fits an
+ * additional parameter nu, such that the subjects responses are distributed according to a beta distribution with parameters
+ * alpha = Psi(x)*nu*n+1, beta = (Psi(x)-1)*nu*n+1
+ */
+class BetaPsychometric : public PsiPsychometric {
+	private:
+	public:
+		double negllikeli (
+			const std::vector<double>& prm,           ///< parameters of the psychometric function model
+			const PsiData* data                       ///< data for which the likelihood should be evaluated
+			) const; ///< negative log likelihood
+		unsigned int getNparams ( void ) const { return PsiPsychometric::getNparams()+1; }   ///< get the number of free parameters of the psychometric function
+};
+
 /** \brief Psychometric function with one separate data point
  *
  * Wichmann & Hill (2001) suggest to detect whether or not a data point x0 is an outlier by

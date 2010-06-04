@@ -10,6 +10,8 @@
 #include <iostream>
 // #endif
 
+////////////////////////////////// PsiPsychometric ///////////////////////////////////
+
 PsiPsychometric::PsiPsychometric (
 	int nAFC,
 	PsiCore * core,
@@ -529,6 +531,40 @@ double PsiPsychometric::dlposteri ( std::vector<double> prm, const PsiData* data
 	else
 		return 0;
 }
+
+/******************************** BetaPsychometric **************************************/
+
+double BetaPsychometric::negllikeli ( const std::vector<double>& prm, const PsiData* data ) const
+{
+	unsigned int i;
+	int n;
+	double k;
+	double l(0);
+	double x,p,al,bt;
+	unsigned int nupos ( getNparams()-1 );
+
+	for (i=0; i<data->getNblocks(); i++)
+	{
+		n = data->getNtrials(i);
+		k = data->getPcorrect(i);
+		x = data->getIntensity(i);
+		p = evaluate (x, prm);
+		nu = prm[nupos];
+		al = p*nu*n+1;
+		bt = (1-p)*nu*n+1;
+		l -= gammaln ( al+bt );
+		if (k>0)
+			l -= (al-1)*log(k);
+		else
+			l += 1e10;
+		if (k<1)
+			l -= (bt-1)*log(1-k);
+		else
+			l += 1e10;
+	}
+
+	return l;
+};
 
 /******************************** Outlier model *****************************************/
 
