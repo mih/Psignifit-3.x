@@ -1444,7 +1444,10 @@ class BayesInference ( PsiInference ):
                 for l in xrange ( localdata.shape[0] ):
                     localdata[l,1] = N.random.binomial ( self.data[l,2], self.data[l,1].astype('d')/self.data[l,2] )
                 fisherII = N.matrix(_psipy.mapestimate(localdata,start=None,**self.model)[1])
-                fisherIIinv = N.linalg.solve ( fisherII.T*fisherII+0.01*N.eye(fisherII.shape[0]), fisherII.T )
+                try:
+                    fisherIIinv = N.linalg.solve ( fisherII.T*fisherII+0.01*N.eye(fisherII.shape[0]), fisherII.T )
+                except N.linalg.LinAlgError:
+                    break
                 cond = abs(fisherII.A).sum(1).max() * abs(fisherIIinv.A).sum(1).max()
                 # print "Condition of Fisher Information Matrix:",cond
                 # print fisherI
@@ -1453,7 +1456,11 @@ class BayesInference ( PsiInference ):
                     fisherIinv = fisherIIinv
                     break
 
-        a = N.sqrt(N.diag(fisherIinv))
+        try:
+            a = N.sqrt(N.diag(fisherIinv))
+        except:
+            # There doesn't seem to be a fisherIinv variable...
+            a = zeros(2)
         # print "a =",a
 
         if abs(a).min() < 1e-10 or abs(a).max() > 1e10 or a[2] > 0.5:
