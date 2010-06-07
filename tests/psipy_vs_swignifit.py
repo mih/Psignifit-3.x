@@ -91,11 +91,24 @@ class TestMCMC(ut.TestCase):
         sfr.setSeed(1)
         return wrapper.mcmc(data, nsamples=1000, priors=priors, stepwidths=stepwidths)
 
+    @staticmethod
+    def extended_helper(wrapper):
+        stepwidths = (1.,1.,0.01)
+        sfr.setSeed(1)
+        priors = ('Gauss(0,10)', 'Gamma(2,3)', 'Uniform(1,5)')
+        return wrapper.mcmc(data, start=[0.1,0.2,0.3], nsamples=1000, nafc=4,
+                sigmoid="gumbel_r", core="ab", priors=priors,
+                stepwidths=stepwidths)
+
     def test_basic_correct(self):
         def helper(wrapper):
             sfr.setSeed(1)
             return wrapper.mcmc(data, nsamples=20)
         compare_wrappers(helper, TestMCMC.output_description)
+
+    def test_extended_correct(self):
+        compare_wrappers(TestMCMC.extended_helper,
+                TestMCMC.output_description)
 
     # we have so many tests here since we were once debugging a nasty error in
     # the RNG the cause of which was long unknowen
