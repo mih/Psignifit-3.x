@@ -173,14 +173,28 @@ class TestMapestimate(ut.TestCase):
 class TestDiagnostics(ut.TestCase):
 
     output_description = ["pred" ,"di" ,"D", "thres", "Rpd", "Rkd"]
+    prm = [2.75, 1.45, 0.015]
 
     @staticmethod
     def basic_helper(wrapper):
-        prm = [2.75, 1.45, 0.015]
-        return wrapper.diagnostics(data,prm)
+        return wrapper.diagnostics(data, TestDiagnostics.prm)
+
+    @staticmethod
+    def extended_helper(wrapper):
+        return wrapper.diagnostics(data, TestDiagnostics.prm, nafc=4,
+                sigmoid="cauchy", core="weibull", cuts=[0.5, 0.75, 0.85])
+
+    @staticmethod
+    def intensities_helper(wrapper):
+        return wrapper.diagnostics(x, TestDiagnostics.prm)
 
     def test_basic_correct(self):
-        compare_wrappers(TestDiagnostics.basic_helper, TestDiagnostics.output_description)
+        compare_wrappers(TestDiagnostics.basic_helper,
+                TestDiagnostics.output_description)
+
+    def test_intensities(self):
+        compare_wrappers(TestDiagnostics.intensities_helper,
+                TestDiagnostics.output_description)
 
 if __name__ == "__main__":
     #s = ut.TestSuite()
