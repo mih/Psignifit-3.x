@@ -52,16 +52,31 @@ def compare_output(output1, output2, output_description):
 
 class TestBootstrap(ut.TestCase):
 
+    output_description = ["samples", "est", "D", "thres", "bias", "acc",
+            "Rkd", "Rpd", "out", "influ"]
+
     @staticmethod
     def basic_helper(wrapper):
         priors = ('flat','flat','Uniform(0,0.1)')
         sfr.setSeed(1)
         return wrapper.bootstrap(data,nsamples=2000,priors=priors)
 
+    @staticmethod
+    def extended_helper(wrapper):
+        priors = ('Gauss(0,10)', 'Gamma(2,3)', 'Uniform(1,5)')
+        sfr.setSeed(1)
+        return wrapper.bootstrap(data, start=[0.1, 0.2, 0.3], nsamples=100, nafc=4,
+                sigmoid="gumbel_l", core="linear", priors=priors,
+                cuts=[0.5,0.6,0.75])
+
+
     def test_basic_correct(self):
         compare_wrappers(TestBootstrap.basic_helper,
-            ["samples", "est", "D", "thres", "bias", "acc", "Rkd", "Rpd",
-                "out", "influ"])
+                TestBootstrap.output_description)
+
+    def test_extended_correct(self):
+        compare_wrappers(TestBootstrap.extended_helper,
+                TestBootstrap.output_description)
 
 class TestMCMC(ut.TestCase):
     output_description = ["estimates", "deviance",
