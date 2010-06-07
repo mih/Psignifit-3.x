@@ -70,11 +70,11 @@ class TestBootstrap(ut.TestCase):
                 cuts=[0.5,0.6,0.75])
 
 
-    def test_basic_correct(self):
+    def test_basic(self):
         compare_wrappers(TestBootstrap.basic_helper,
                 TestBootstrap.output_description)
 
-    def test_extended_correct(self):
+    def test_extended(self):
         compare_wrappers(TestBootstrap.extended_helper,
                 TestBootstrap.output_description)
 
@@ -100,13 +100,13 @@ class TestMCMC(ut.TestCase):
                 sigmoid="gumbel_r", core="ab", priors=priors,
                 stepwidths=stepwidths)
 
-    def test_basic_correct(self):
+    def test_basic(self):
         def helper(wrapper):
             sfr.setSeed(1)
             return wrapper.mcmc(data, nsamples=20)
         compare_wrappers(helper, TestMCMC.output_description)
 
-    def test_extended_correct(self):
+    def test_extended(self):
         compare_wrappers(TestMCMC.extended_helper,
                 TestMCMC.output_description)
 
@@ -164,7 +164,7 @@ class TestMapestimate(ut.TestCase):
         return wrapper.mapestimate(data, sigmoid='gauss', core='mw0.2',
                 priors=priors, cuts=[0.5, 0.75, 0.85], start=[0.1, 0.2, 0.3])
 
-    def test_basic_correct(self):
+    def test_basic(self):
         compare_wrappers(TestMapestimate.basic_helper, TestMapestimate.output_description)
 
     def test_extended(self):
@@ -188,7 +188,7 @@ class TestDiagnostics(ut.TestCase):
     def intensities_helper(wrapper):
         return wrapper.diagnostics(x, TestDiagnostics.prm)
 
-    def test_basic_correct(self):
+    def test_basic(self):
         compare_wrappers(TestDiagnostics.basic_helper,
                 TestDiagnostics.output_description)
 
