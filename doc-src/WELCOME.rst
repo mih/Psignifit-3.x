@@ -17,10 +17,11 @@ might wish for. python allows you to perform numerical computations as flexible 
 in matlab. In addition, python provides a number of additional features like object
 oriented programming and simple creation of graphical user interfaces. python is easy to
 learn: even users with no prior programming experience often master python within two weeks.
-However, even though python is similar to matlab, it is not the same. Therefore, we also
-provide a matlab version of psignifit 3.0. However, we do not guarantee support for this
-toolbox in future releases and we encourage users to use the python version as this will be up
-to date. python also offers a further advantage to matlab: python is free [1]_.
+However, even though python is similar to matlab, it is not the same. Therefore, we also plan
+to provide a matlab version of psignifit 3.0 with the first official release. However, we will
+not guarantee support for this toolbox in future releases and we encourage users to use the
+python version as this will be up to date. python also offers a further advantage to matlab:
+python is free [1]_.
 
 TODO: matlab toolbox
 
