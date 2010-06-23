@@ -128,6 +128,7 @@ class PsiPsychometric {
 class BetaPsychometric : public PsiPsychometric {
 	private:
 	public:
+		BetaPsychometric ( int nAFC, PsiCore * core, PsiSigmoid * sigmoid ) : PsiPsychometric ( nAFC, core, sigmoid ) {}
 		double negllikeli (
 			const std::vector<double>& prm,           ///< parameters of the psychometric function model
 			const PsiData* data                       ///< data for which the likelihood should be evaluated

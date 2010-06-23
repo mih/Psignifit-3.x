@@ -84,6 +84,15 @@ int PsychometricValues ( TestSuite* T ) {
 	}
 	delete pmf;
 
+	delete pmf;
+
+	pmf = new BetaPsychometric ( 2, core, sigmoid );
+
+	std::vector<double> bprm(4);
+	bprm[0] = 4; bprm[1] = 1.5; bprm[2] = .02; bprm[3] = 1;
+
+	failures += T->isequal ( pmf->negllikeli(bprm,data), 11.768146, "PsychometricValues beta likelihood");
+
 	delete core;
 	delete sigmoid;
 	delete data;

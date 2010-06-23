@@ -542,6 +542,7 @@ double BetaPsychometric::negllikeli ( const std::vector<double>& prm, const PsiD
 	double l(0);
 	double x,p,al,bt;
 	unsigned int nupos ( getNparams()-1 );
+	double nu;
 
 	for (i=0; i<data->getNblocks(); i++)
 	{
@@ -552,7 +553,7 @@ double BetaPsychometric::negllikeli ( const std::vector<double>& prm, const PsiD
 		nu = prm[nupos];
 		al = p*nu*n+1;
 		bt = (1-p)*nu*n+1;
-		l -= gammaln ( al+bt );
+		l -= gammaln ( nu*n+1 ) - gammaln ( al ) - gammaln ( bt );
 		if (k>0)
 			l -= (al-1)*log(k);
 		else
