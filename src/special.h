@@ -29,5 +29,7 @@ double gammaln ( double xx );
 /** beta function */
 double betaf ( double z, double w );
 
+/** psi function, i.e. d log Gamma / dx */
+double psi ( double z );
 
 #endif

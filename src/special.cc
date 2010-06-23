@@ -54,3 +54,20 @@ double gammaln(double xx) {
 double betaf(double z, double w) {
 	return exp(gammaln(z)+gammaln(w)-gammaln(z+w));
 }
+
+double psi ( double z ) {
+	/* This algorithm is based on two identities:
+	 * 1. The first is an approximation formula that works for large z
+	 *       psi(z) ~ log(z) - 1./(2*z) - 1./12*z**2 + 1./120*z**4 - 1./252*z**6 + O(1./z**8)
+	 *	See for example Abramowitz & Stegun eq 6.3.18
+	 *	2. The second is a recursion formula (Abramowitz & Stegun eq 6.3.5)
+	 *	     psi(z+1) = psi(z) + 1./z
+	 *	Thus, for sufficiently large z (z>5 results in accuracies of order 1e-9) we take the approximation
+	 *	formula. For smaller z, we apply the second formula as a telescope.
+	 */
+	if ( z > 5 ) {
+		return log ( z ) - 1./(2*z) - 1./(12*z*z) + 1./(120*z*z*z*z) - 1./(252*z*z*z*z*z*z);
+	} else {
+		return psi ( z+1 ) - 1./z;
+	}
+}
