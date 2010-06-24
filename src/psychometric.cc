@@ -567,6 +567,42 @@ double BetaPsychometric::negllikeli ( const std::vector<double>& prm, const PsiD
 	return l;
 };
 
+std::vector<double> BetaPsychometric::dnegllikeli ( const std::vector<double>& prm, const PsiData* data ) const
+{
+	int k;
+	std::vector<double> out ( prm.size(), 0 );
+	double rz, xz, pz, nz, dldf, dldnu;
+	unsigned int i, z;
+	double nu ( prm[prm.size()-1] );
+	double nunz, f;
+
+	for (z=0; z<data->getNblocks(); z++) {
+		pz = data->getPcorrect(z);
+		nz = data->getNtrials(z);
+		xz = data->getIntensity(z);
+		nunz = nu*nz;
+		f = evaluate ( xz, prm );
+		// dl/dnu
+		dldnu = n * psi ( nunz ) - f*n * psi ( f*nunz ) - (1-f)*n * psi ( (1-f)*nunz );
+		dldnu += ( pz>0 ? f*n*log(pz)       : -1e10 );
+		dldnu += ( pz<1 ? (1-f)*n*log(1-pz) : -1e10 );
+
+		// dl/df
+		dldf = psi ( (1-f)*nunz ) - psi ( f*nunz );
+		dldf += ( pz>0 ? ( pz<1 ? log ( pz/(1-pz) ) : 1e10 ) : -1e10 );
+		dldf *= nunz;
+
+		// now fill the output vector
+		for ( i=0; i<2; i++ )
+			out[i] -= dldf * (1-guessingrate-prm[2]) * Sigmoid->df(Core->g(xz,prm)) * Core->dg(xz,prm,i);
+		for (i=2; i<prm.size()-1; i++)
+			out[i] -= dldf * ( (i==2 ? 1 : 0) - Sigmoid->f(Core->g(xz,prm)) ); // Is that correct?
+		out[i] -= dldnu;
+	}
+
+	return out;
+};
+
 /******************************** Outlier model *****************************************/
 
 double OutlierModel::getp ( const std::vector<double>& prm ) const
