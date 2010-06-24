@@ -3,6 +3,7 @@
 - what is going on with type checking in psigniplot.GoodnessOfFit?
 - add a dictionary to the data objects to make them know what they are (stimulus intensity, ...)
 - ROC curves for 1AFC
+- allow for the gamma=lambda prior
 
 - Blob size reduction for PF
 - Deviance Bootstrap only one sided test
