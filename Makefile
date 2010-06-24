@@ -85,7 +85,7 @@ psipp-test:
 psipy: $(PYTHONFILES) $(CFILES) $(HFILES) $(PSIPY_INTERFACE) setup_basic.py setup_psipy.py
 	$(PYTHON) setup_psipy.py build
 
-psipy-install: psipy-build
+psipy-install: psipy
 	$(PYTHON) setup_psipy.py install
 
 psipy-test:
