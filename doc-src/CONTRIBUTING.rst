@@ -101,6 +101,14 @@ base we worked on:
 * R
 * build
 
+Merging
+.......
+
+For easy tracking of what changes were absorbed during merge, we advice to
+enable merge summary within git:
+
+    git-config merge.summary true
+
 Development Snapshots
 .....................
 
