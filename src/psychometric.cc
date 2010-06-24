@@ -551,9 +551,9 @@ double BetaPsychometric::negllikeli ( const std::vector<double>& prm, const PsiD
 		x = data->getIntensity(i);
 		p = evaluate (x, prm);
 		nu = prm[nupos];
-		al = p*nu*n+1;
-		bt = (1-p)*nu*n+1;
-		l -= gammaln ( nu*n+1 ) - gammaln ( al ) - gammaln ( bt );
+		al = p*nu*n;
+		bt = (1-p)*nu*n;
+		l -= gammaln ( nu*n ) - gammaln ( al ) - gammaln ( bt );
 		if (k>0)
 			l -= (al-1)*log(k);
 		else

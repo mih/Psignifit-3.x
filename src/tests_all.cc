@@ -91,7 +91,8 @@ int PsychometricValues ( TestSuite* T ) {
 	std::vector<double> bprm(4);
 	bprm[0] = 4; bprm[1] = 1.5; bprm[2] = .02; bprm[3] = 1;
 
-	failures += T->isequal ( pmf->negllikeli(bprm,data), 11.768146, "PsychometricValues beta likelihood");
+	// Observer, that beta likelihood can also be > 1 implying that both signs for log likelihood are possible
+	failures += T->isequal ( pmf->negllikeli(bprm,data), -11.391756, "PsychometricValues beta likelihood");
 
 	delete core;
 	delete sigmoid;
