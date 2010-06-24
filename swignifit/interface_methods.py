@@ -45,8 +45,8 @@ def bootstrap(data, start=None, nsamples=2000, nafc=2, sigmoid="logistic",
     acc = np.zeros((ncuts))
     bias = np.zeros((ncuts))
     for cut in xrange(ncuts):
-        acc[cut] = bs_list.getAcc(cut)
-        bias[cut] = bs_list.getBias(cut)
+        acc[cut] = bs_list.getAcc_t(cut)
+        bias[cut] = bs_list.getBias_t(cut)
 
     ci_lower = sfr.vector_double(nparams)
     ci_upper = sfr.vector_double(nparams)

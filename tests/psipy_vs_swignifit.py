@@ -13,7 +13,7 @@
 
 import _psipy as psipy
 import swignifit.swignifit_raw as sfr
-import swignifit.interface as sfi
+import swignifit.interface_methods as sfi
 import unittest as ut
 import time
 import nose.tools as nt

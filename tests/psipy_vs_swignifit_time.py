@@ -11,7 +11,7 @@
 
 import timeit
 import _psipy as psipy
-import swignifit.interface as sfi
+import swignifit.interface_methods as sfi
 import swignifit.swignifit_raw as sfr
 
 x = [float(2*k) for k in xrange(6)]
