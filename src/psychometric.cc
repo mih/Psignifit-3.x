@@ -201,10 +201,10 @@ std::vector<double> PsiPsychometric::dnegllikeli ( const std::vector<double>& pr
 		pz = evaluate(xz,prm);
 		fac1 = rz/pz - (nz-rz)/(1-pz);
 		for (i=0; i<2; i++)
-			out[i] = fac1 * (1-guessingrate-prm[2]) * Sigmoid->df(Core->g(xz,prm)) * Core->dg(xz,prm,i);
+			out[i] -= fac1 * (1-guessingrate-prm[2]) * Sigmoid->df(Core->g(xz,prm)) * Core->dg(xz,prm,i);
 	
 		for (i=2; i<prm.size(); i++)
-			out[i] = fac1 * ( (i==2 ? 1 : 0) - Sigmoid->f(Core->g(xz,prm)) );
+			out[i] -= fac1 * ( (i==2 ? 1 : 0) - Sigmoid->f(Core->g(xz,prm)) );
 	}
 
 	return out;
