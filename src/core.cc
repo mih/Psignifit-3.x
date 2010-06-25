@@ -8,7 +8,7 @@
  * abCore methods
  */
 
-double abCore::dg ( double x, const std::vector<double>& prm, int i ) {
+double abCore::dg ( double x, const std::vector<double>& prm, int i ) const {
 	switch (i) {
 	case 0:
 		return -1./prm[1];
@@ -23,11 +23,11 @@ double abCore::dg ( double x, const std::vector<double>& prm, int i ) {
 	}
 }
 
-double abCore::dgx ( double x, const std::vector<double>& prm ) {
+double abCore::dgx ( double x, const std::vector<double>& prm ) const {
 	return 1./prm[1];
 }
 
-double abCore::ddg ( double x, const std::vector<double>& prm, int i, int j ) {
+double abCore::ddg ( double x, const std::vector<double>& prm, int i, int j ) const {
 	if (i==j) {
 		switch (i) {
 		case 0:
@@ -48,11 +48,11 @@ double abCore::ddg ( double x, const std::vector<double>& prm, int i, int j ) {
 		return 0;
 }
 
-double abCore::inv ( double y, const std::vector<double>& prm ) {
+double abCore::inv ( double y, const std::vector<double>& prm ) const {
 	return y*prm[1] + prm[0];
 }
 
-double abCore::dinv ( double y, const std::vector<double>& prm, int i ) {
+double abCore::dinv ( double y, const std::vector<double>& prm, int i ) const {
 	switch (i) {
 	case 0:
 		return 1;
@@ -66,7 +66,7 @@ double abCore::dinv ( double y, const std::vector<double>& prm, int i ) {
 	}
 }
 
-std::vector<double> abCore::transform ( int nprm, double a, double b ) {
+std::vector<double> abCore::transform ( int nprm, double a, double b ) const {
 	std::vector<double> out ( nprm, 0 );
 	out[1] = 1./b;
 	out[0] = -a/b;
@@ -106,11 +106,11 @@ mwCore::mwCore( const PsiData* data, const int sigmoid, const double alpha )
 	}
 }
 
-double mwCore::g ( double x, const std::vector<double>& prm ) {
+double mwCore::g ( double x, const std::vector<double>& prm ) const {
 	return zalpha*(x-prm[0])/prm[1] + zshift;
 }
 
-double mwCore::dg ( double x, const std::vector<double>& prm, int i ) {
+double mwCore::dg ( double x, const std::vector<double>& prm, int i ) const {
 	switch (i) {
 		case 0:
 			return -zalpha/prm[1];
@@ -125,11 +125,11 @@ double mwCore::dg ( double x, const std::vector<double>& prm, int i ) {
 	}
 }
 
-double mwCore::dgx ( double x, const std::vector<double>& prm ) {
+double mwCore::dgx ( double x, const std::vector<double>& prm ) const {
 	return zalpha/prm[1];
 }
 
-double mwCore::ddg ( double x, const std::vector<double>& prm, int i, int j ) {
+double mwCore::ddg ( double x, const std::vector<double>& prm, int i, int j ) const {
 	if (i==j) {
 		if (i==0)
 			return 0;
@@ -143,11 +143,11 @@ double mwCore::ddg ( double x, const std::vector<double>& prm, int i, int j ) {
 		return 0;
 }
 
-double mwCore::inv ( double y, const std::vector<double>& prm ) {
+double mwCore::inv ( double y, const std::vector<double>& prm ) const {
 	return prm[0] + prm[1]*(y-zshift)/zalpha;
 }
 
-double mwCore::dinv ( double p, const std::vector<double>& prm, int i ) {
+double mwCore::dinv ( double p, const std::vector<double>& prm, int i ) const {
 	switch (i) {
 		case 0:
 			return 1;
@@ -161,7 +161,7 @@ double mwCore::dinv ( double p, const std::vector<double>& prm, int i ) {
 	}
 }
 
-std::vector<double> mwCore::transform ( int nprm, double a, double b ) {
+std::vector<double> mwCore::transform ( int nprm, double a, double b ) const {
 	std::vector<double> out ( nprm, 0 );
 	out[1] = zalpha/b;
 	out[0] = out[1]*(zshift-a)/zalpha;
@@ -172,7 +172,7 @@ std::vector<double> mwCore::transform ( int nprm, double a, double b ) {
  * logarithmicCore
  */
 
-double logCore::g ( double x, const std::vector<double>& prm ) throw(BadArgumentError)
+double logCore::g ( double x, const std::vector<double>& prm ) const throw(BadArgumentError)
 {
 	if (x<0)
 		throw BadArgumentError("logCore.g is only valid in the range x>=0");
@@ -187,7 +187,7 @@ logCore::logCore( const PsiData* data, const int sigmoid, const double alpha ) :
 	scale /= data->getNblocks();
 }
 
-double logCore::dg ( double x, const std::vector<double>& prm, int i ) {
+double logCore::dg ( double x, const std::vector<double>& prm, int i ) const {
 	switch (i) {
 		case 0:
 			return log(x);
@@ -201,12 +201,12 @@ double logCore::dg ( double x, const std::vector<double>& prm, int i ) {
 	}
 }
 
-double logCore::dgx ( double x, const std::vector<double>& prm ) {
+double logCore::dgx ( double x, const std::vector<double>& prm ) const {
 	return prm[0]/x;
 }
 
 
-double logCore::dinv ( double y, const std::vector<double>& prm, int i ) {
+double logCore::dinv ( double y, const std::vector<double>& prm, int i ) const {
 	switch (i) {
 		case 0:
 			return exp((y-prm[1])/prm[0]) * (prm[1]-y)/(prm[0]*prm[0]);
@@ -220,7 +220,7 @@ double logCore::dinv ( double y, const std::vector<double>& prm, int i ) {
 	}
 }
 
-std::vector<double> logCore::transform ( int nprm, double a, double b ) {
+std::vector<double> logCore::transform ( int nprm, double a, double b ) const {
 	std::vector<double> prm ( nprm, 0 );
 	prm[0] = b*scale;  // we scale the intercept so that it is correct "on average"
 	prm[1] = a;
@@ -256,7 +256,7 @@ weibullCore::weibullCore( const PsiData* data, const int sigmoid, const double a
 	loglinb = meanlogx - loglina*meanx;
 }
 
-double weibullCore::dg ( double x, const std::vector<double>& prm, int i ) throw(BadArgumentError)
+double weibullCore::dg ( double x, const std::vector<double>& prm, int i ) const throw(BadArgumentError)
 {
 	if (x<0)
 		throw BadArgumentError("weibullCore.dg is only valid in the range x>=0");
@@ -270,11 +270,11 @@ double weibullCore::dg ( double x, const std::vector<double>& prm, int i ) throw
 	}
 }
 
-double weibullCore::dgx ( double x, const std::vector<double>& prm ) {
+double weibullCore::dgx ( double x, const std::vector<double>& prm ) const {
 	return twooverlog2*prm[0]*prm[1]/x;
 }
 
-double weibullCore::ddg ( double x, const std::vector<double>& prm, int i, int j ) throw(BadArgumentError)
+double weibullCore::ddg ( double x, const std::vector<double>& prm, int i, int j ) const throw(BadArgumentError)
 {
 	if (x<0)
 		throw BadArgumentError("weibullCore.ddg is only valid in the range x>=0");
@@ -292,12 +292,12 @@ double weibullCore::ddg ( double x, const std::vector<double>& prm, int i, int j
 	}
 }
 
-double weibullCore::inv ( double y, const std::vector<double>& prm )
+double weibullCore::inv ( double y, const std::vector<double>& prm ) const
 {
 	return prm[0] * exp (y/(prm[0]*prm[1]*twooverlog2));
 }
 
-double weibullCore::dinv ( double y, const std::vector<double>& prm, int i )
+double weibullCore::dinv ( double y, const std::vector<double>& prm, int i ) const
 {
 	if (i==0)
 		return exp(y/(prm[0]*prm[1]*twooverlog2)) * (1-y/(twooverlog2*prm[0]*prm[1]));
@@ -307,7 +307,7 @@ double weibullCore::dinv ( double y, const std::vector<double>& prm, int i )
 		return 0;
 }
 
-std::vector<double> weibullCore::transform ( int nprm, double a, double b )
+std::vector<double> weibullCore::transform ( int nprm, double a, double b ) const
 {
 	std::vector<double> prm ( nprm, 0 );
 	prm[1] = exp ( b/loglinb );
@@ -340,7 +340,7 @@ polyCore::polyCore( const PsiData* data, const int sigmoid, const double alpha )
 	x2 = meanx-varx;
 }
 
-double polyCore::dg ( double x, const std::vector<double>& prm, int i )
+double polyCore::dg ( double x, const std::vector<double>& prm, int i ) const
 {
 	if (x<0)
 		return 0;
@@ -354,7 +354,7 @@ double polyCore::dg ( double x, const std::vector<double>& prm, int i )
 	}
 }
 
-double polyCore::dgx ( double x, const std::vector<double>& prm )
+double polyCore::dgx ( double x, const std::vector<double>& prm ) const
 {
 	if (x<0)
 		return 0;
@@ -363,7 +363,7 @@ double polyCore::dgx ( double x, const std::vector<double>& prm )
 	}
 }
 
-double polyCore::ddg ( double x, const std::vector<double>& prm, int i, int j )
+double polyCore::ddg ( double x, const std::vector<double>& prm, int i, int j ) const
 {
 	if (x<0)
 		return 0;
@@ -382,12 +382,12 @@ double polyCore::ddg ( double x, const std::vector<double>& prm, int i, int j )
 	}
 }
 
-double polyCore::inv ( double y, const std::vector<double>& prm )
+double polyCore::inv ( double y, const std::vector<double>& prm ) const
 {
 	return prm[0] * pow ( y, 1./prm[1] );
 }
 
-double polyCore::dinv ( double y, const std::vector<double>& prm, int i )
+double polyCore::dinv ( double y, const std::vector<double>& prm, int i ) const
 {
 	if (i==0) {
 		return pow ( y, 1./prm[1] );
@@ -397,7 +397,7 @@ double polyCore::dinv ( double y, const std::vector<double>& prm, int i )
 		return 0;
 }
 
-std::vector<double> polyCore::transform ( int nprm, double a, double b )
+std::vector<double> polyCore::transform ( int nprm, double a, double b ) const
 {
 	std::vector<double> prm ( nprm, 0 );
 
