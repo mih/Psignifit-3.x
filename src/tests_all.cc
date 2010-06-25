@@ -84,15 +84,25 @@ int PsychometricValues ( TestSuite* T ) {
 	}
 	delete pmf;
 
-	delete pmf;
-
 	pmf = new BetaPsychometric ( 2, core, sigmoid );
 
 	std::vector<double> bprm(4);
 	bprm[0] = 4; bprm[1] = 1.5; bprm[2] = .02; bprm[3] = 1;
 
 	// Observer, that beta likelihood can also be > 1 implying that both signs for log likelihood are possible
-	failures += T->isequal ( pmf->negllikeli(bprm,data), -11.391756, "PsychometricValues beta likelihood");
+	failures += T->isequal ( pmf->negllikeli(bprm,data), -11.3918, "PsychometricValues beta likelihood", 1e-4);
+
+	// Test likelihood gradient
+	dl = pmf->dnegllikeli ( bprm, data );
+	l  = pmf->negllikeli ( bprm, data );
+	for ( i=0; i<4; i++ ) {
+		bprm[i] += 1e-5;
+		d = pmf->negllikeli ( bprm, data ) - l;
+		d /= 1e-5;
+		bprm[i] -= 1e-5;
+		failures += T->isequal ( dl[i], d, "PsychometricValues beta likelihood derivative", .05 );
+	}
+	delete pmf;
 
 	delete core;
 	delete sigmoid;
