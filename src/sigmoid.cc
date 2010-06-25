@@ -10,35 +10,38 @@
 
 /** Logistic Sigmoid **********************************************************/
 
-double PsiLogistic::f ( double x )
+double PsiLogistic::f ( double x ) const
 {
 #ifdef DEBUG_SIGMOID
 	std::cerr << "In logistic function.\n";
 #endif
+	/*
 	if (x!=lastx) {
 		lastx = x;
 		lastfx = 1./(1.+exp(-x));
 	}
+	*/
 #ifdef DEBUG_SIGMOID
 	std::cerr << " lastx = " << lastx << "\n lastfx = " << lastfx << "\n";
 #endif
-	return lastfx;
+	return 1./(1.+exp(-x));
 }
 
-double PsiLogistic::df ( double x )
+double PsiLogistic::df ( double x ) const
 {
 	return f(x)*(1-f(x));
 }
 
-double PsiLogistic::ddf ( double x )
+double PsiLogistic::ddf ( double x ) const
 {
 	return f(x)*(1-f(x))*(1-2*f(x));
 }
 
 /** Gauss Sigmoid *************************************************************/
 
-double PsiGauss::f ( double x )
+double PsiGauss::f ( double x ) const
 {
+	/*
 	if (x==lastx)
 		return lastf;
 	else {
@@ -46,10 +49,13 @@ double PsiGauss::f ( double x )
 		lastf = Phi(x);
 		return lastf;
 	}
+	*/
+	return Phi(x);
 }
 
-double PsiGauss::df ( double x )
+double PsiGauss::df ( double x ) const
 {
+	/*
 	if (x==lastx_d)
 		return lastdf;
 	else {
@@ -57,10 +63,13 @@ double PsiGauss::df ( double x )
 		lastdf = exp ( - 0.5*x*x ) / sqrt(2*M_PI);
 		return lastdf;
 	}
+	*/
+	return exp ( - 0.5*x*x ) / sqrt(2*M_PI);
 }
 
-double PsiGauss::ddf ( double x )
+double PsiGauss::ddf ( double x ) const
 {
+	/*
 	if (x==lastx_dd)
 		return lastddf;
 	else {
@@ -68,10 +77,13 @@ double PsiGauss::ddf ( double x )
 		lastddf = -x*df(x);
 		return lastddf;
 	}
+	*/
+	return -x*df(x);
 }
 
-double PsiGauss::inv ( double p )
+double PsiGauss::inv ( double p ) const
 {
+	/*
 	if (p==lastp)
 		return lastinvp;
 	else {
@@ -79,109 +91,135 @@ double PsiGauss::inv ( double p )
 		lastinvp = invPhi(p);
 		return lastinvp;
 	}
+	*/
+	return invPhi(p);
 }
 
 /** Gumbel_l Sigmoid *********************************************************/
 
-double PsiGumbelL::f ( double x )
+double PsiGumbelL::f ( double x ) const
 {
+	/*
 	if (x!=lastx) {
 		lastx = x;
 		lastf = 1-exp(-exp(x));
 	}
 	return lastf;
+	*/
+	return 1-exp(-exp(x));
 }
 
-double PsiGumbelL::df ( double x )
+double PsiGumbelL::df ( double x ) const
 {
+	/*
 	if ( x!=lastdx ) {
 		lastdx = x;
 		lastdf = exp( x - exp(x));
 	}
 	return lastdf;
+	*/
+	return exp( x - exp(x));
 }
 
-double PsiGumbelL::ddf ( double x )
+double PsiGumbelL::ddf ( double x ) const
 {
+	/*
 	if ( x!=lastddx ) {
 		lastddx = x;
 		lastddf = exp ( x - exp(x) ) * (1-exp(x));
 	}
 	return lastddf;
+	*/
+	return exp ( x - exp(x) ) * (1-exp(x));
 }
 
-double PsiGumbelL::inv ( double p )
+double PsiGumbelL::inv ( double p ) const
 {
+	/*
 	if ( p!=lastp ) {
 		lastp = p;
 		lastinvp = log(-log(1-p));
 	}
 	return lastinvp;
+	*/
+	return log(-log(1-p));
 }
 
 /** Gumbel_r Sigmoid **********************************************************/
 
-double PsiGumbelR::f ( double x )
+double PsiGumbelR::f ( double x ) const
 {
+	/*
 	if (x!=lastx) {
 		lastx = x;
 		lastf = exp(-exp(-x));
 	}
 	return lastf;
+	*/
+	return exp(-exp(-x));
 }
 
-double PsiGumbelR::df ( double x )
+double PsiGumbelR::df ( double x ) const
 {
+	/*
 	if ( x!=lastdx ) {
 		lastdx = x;
 		lastdf = exp(-x-exp(-x));
 	}
 	return lastdf;
+	*/
+	return exp(-x-exp(-x));
 }
 
-double PsiGumbelR::ddf ( double x )
+double PsiGumbelR::ddf ( double x ) const
 {
+	/*
 	if ( x!=lastddx ) {
 		lastddx = x;
 		lastddf = exp ( -x - exp(-x) ) * (exp(-x)-1);
 	}
 	return lastddf;
+	*/
+	return exp ( -x - exp(-x) ) * (exp(-x)-1);
 }
 
-double PsiGumbelR::inv ( double p )
+double PsiGumbelR::inv ( double p ) const
 {
+	/*
 	if ( p!=lastp ) {
 		lastp = p;
 		lastinvp = log(-log(p));
 	}
 	return lastinvp;
+	*/
+	return log(-log(p));
 }
 
 /** Cauchy Sigmoid ************************************************************/
 
-double PsiCauchy::f ( double x )
+double PsiCauchy::f ( double x ) const
 {
 	return atan ( x )/M_PI + 0.5;
 }
 
-double PsiCauchy::df ( double x )
+double PsiCauchy::df ( double x ) const
 {
 	return 1./(M_PI*(1+x*x));
 }
 
-double PsiCauchy::ddf ( double x )
+double PsiCauchy::ddf ( double x ) const
 {
 	return -2*x/( M_PI * (1+2*x*x+4*x*x*x*x) );
 }
 
-double PsiCauchy::inv ( double p )
+double PsiCauchy::inv ( double p ) const
 {
 	return tan ( M_PI*(p-0.5) );
 }
 
 /** Exponential cdf ***********************************************************/
 
-double PsiExponential::f ( double x )
+double PsiExponential::f ( double x ) const
 {
 	if (x<0)
 		return 0;
@@ -189,7 +227,7 @@ double PsiExponential::f ( double x )
 		return 1-exp ( -x );
 }
 
-double PsiExponential::df ( double x )
+double PsiExponential::df ( double x ) const
 {
 	if (x<0)
 		return 0;
@@ -197,7 +235,7 @@ double PsiExponential::df ( double x )
 		return exp( -x );
 }
 
-double PsiExponential::ddf ( double x )
+double PsiExponential::ddf ( double x ) const
 {
 	if (x<0)
 		return 0;
@@ -205,7 +243,7 @@ double PsiExponential::ddf ( double x )
 		return -exp( -x );
 }
 
-double PsiExponential::inv ( double p ) throw(BadArgumentError)
+double PsiExponential::inv ( double p ) const throw(BadArgumentError)
 {
 	if ( p>0 && p<1 )
 		return -log(1-p);
