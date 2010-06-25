@@ -585,9 +585,9 @@ std::vector<double> BetaPsychometric::dnegllikeli ( const std::vector<double>& p
 		nunz = nu*nz;
 		f = evaluate ( xz, prm );
 		// dl/dnu
-		dldnu = n * psi ( nunz ) - f*n * psi ( f*nunz ) - (1-f)*n * psi ( (1-f)*nunz );
-		dldnu += ( pz>0 ? f*n*log(pz)       : -1e10 );
-		dldnu += ( pz<1 ? (1-f)*n*log(1-pz) : -1e10 );
+		dldnu = nz * psi ( nunz ) - f*nz * psi ( f*nunz ) - (1-f)*nz * psi ( (1-f)*nunz );
+		dldnu += ( pz>0 ? f*nz*log(pz)       : -1e10 );
+		dldnu += ( pz<1 ? (1-f)*nz*log(1-pz) : -1e10 );
 
 		// dl/df
 		dldf = psi ( (1-f)*nunz ) - psi ( f*nunz );
