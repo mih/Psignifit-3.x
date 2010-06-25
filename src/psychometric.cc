@@ -574,6 +574,9 @@ std::vector<double> BetaPsychometric::dnegllikeli ( const std::vector<double>& p
 	unsigned int i, z;
 	double nu ( prm[prm.size()-1] );
 	double nunz, f;
+	double guess ( getGuess( prm ) );
+	const PsiCore * core = getCore ();
+	const PsiSigmoid * sigmoid = getSigmoid ();
 
 	for (z=0; z<data->getNblocks(); z++) {
 		pz = data->getPcorrect(z);
@@ -593,9 +596,9 @@ std::vector<double> BetaPsychometric::dnegllikeli ( const std::vector<double>& p
 
 		// now fill the output vector
 		for ( i=0; i<2; i++ )
-			out[i] -= dldf * (1-guessingrate-prm[2]) * Sigmoid->df(Core->g(xz,prm)) * Core->dg(xz,prm,i);
+			out[i] -= dldf * (1-guess-prm[2]) * sigmoid->df(core->g(xz,prm)) * core->dg(xz,prm,i);
 		for (i=2; i<prm.size()-1; i++)
-			out[i] -= dldf * ( (i==2 ? 1 : 0) - Sigmoid->f(Core->g(xz,prm)) ); // Is that correct?
+			out[i] -= dldf * ( (i==2 ? 0 : 1) - sigmoid->f(core->g(xz,prm)) ); // Is that correct?
 		out[i] -= dldnu;
 	}
 

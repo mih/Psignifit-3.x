@@ -79,8 +79,8 @@ class PsiPsychometric {
 				const std::vector<double>& prm,                                      ///< parameters at which the first derivative should be evaluated
 				const PsiData* data                                                  ///< data for which the likelihood should be evaluated
 				) const;                                          ///< 1st derivative of the negative log likelihood
-		const PsiCore* getCore ( void ) { return Core; }                ///< get the core of the psychometric function
-		const PsiSigmoid* getSigmoid ( void ) { return Sigmoid; }       ///< get the sigmoid of the psychometric function
+		const PsiCore* getCore ( void ) const { return Core; }                ///< get the core of the psychometric function
+		const PsiSigmoid* getSigmoid ( void ) const { return Sigmoid; }       ///< get the sigmoid of the psychometric function
 		void setPrior ( unsigned int index, PsiPrior* prior ) throw(BadArgumentError);                   ///< set a Prior for the parameter indicated by index
 		double evalPrior ( unsigned int index, double x ) const {return priors[index]->pdf(x);}              ///< evaluate the respective prior at value x
 		virtual double randPrior ( unsigned int index ) const { return priors[index]->rand(); }                            ///< sample form a prior
@@ -116,6 +116,7 @@ class PsiPsychometric {
 			unsigned int i                                                               ///< index of the parameter for which the derivative should be evaluated
 			) const;                                                                 ///< derivative of the negative log posterior with respect to parameter i
 		void setgammatolambda ( void ) { gammaislambda=true; };                          ///< calling this function applies the constraint that gamma and lambda should be equal in a yes/no paradigm
+		double getGuess ( const std::vector<double>& prm ) const { return ( getNalternatives() < 2 ? prm[3] : 1./Nalternatives ); }
 };
 
 /** \brief Psychometric function that allows for models the variance of the data by a beta distribution
