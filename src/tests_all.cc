@@ -28,6 +28,8 @@ int PsychometricValues ( TestSuite* T ) {
 	std::vector <double> prm(3);
 	std::vector <double> dl ( 3 );
 	double d,l;
+	std::vector<double> prm1 ( 4 );
+	std::vector<double> dl1 ( 4 );
 
 	// Set up data
 	x[0] =  0.; x[1] =  2.; x[2] =  4.; x[3] =  6.; x[4] =  8.; x[5] = 10.;
@@ -61,10 +63,29 @@ int PsychometricValues ( TestSuite* T ) {
 		prm[i] -= 1e-5;
 		failures += T->isequal ( dl[i], d, "PsychometricValues likelihood derivative", .05 );
 	}
+	delete pmf;
+
+	// Yes no task
+	pmf = new PsiPsychometric ( 1, core, sigmoid );
+	prm1[0] = 4; prm1[1] = 1.5; prm1[2] = 0.02; prm1[3] = 0.5;
+
+	// Test likelihood
+	failures += T->isequal ( pmf->negllikeli(prm1,data), 11.996474658154325, "PsychometricValues likelihood-1afc");
+
+	// Test likelihood gradient
+	dl1 = pmf->dnegllikeli ( prm1, data );
+	l  = pmf->negllikeli  ( prm1, data );
+	for ( i=0; i<4; i++ ) {
+		prm1[i] += 1e-5;
+		d = pmf->negllikeli ( prm1, data ) - l;
+		d /= 1e-5;
+		prm1[i] -= 1e-5;
+		failures += T->isequal ( dl1[i], d, "PsychometricValues likelihood-1afc derivative", .05 );
+	}
+	delete pmf;
 
 	delete core;
 	delete sigmoid;
-	delete pmf;
 	delete data;
 
 	return failures;
