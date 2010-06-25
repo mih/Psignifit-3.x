@@ -25,6 +25,10 @@ int PsychometricValues ( TestSuite* T ) {
 	std::vector <int>    k ( 6 );
 	std::vector <double> p ( 6 );
 
+	std::vector <double> prm(3);
+	std::vector <double> dl ( 3 );
+	double d,l;
+
 	// Set up data
 	x[0] =  0.; x[1] =  2.; x[2] =  4.; x[3] =  6.; x[4] =  8.; x[5] = 10.;
 	k[0] = 29;  k[1] = 31;  k[2] = 36;  k[3] = 42;  k[4] = 46;  k[5] = 49;
@@ -36,7 +40,6 @@ int PsychometricValues ( TestSuite* T ) {
 	abCore * core = new abCore();
 	PsiLogistic * sigmoid = new PsiLogistic();
 	PsiPsychometric * pmf = new PsiPsychometric ( 2, core, sigmoid );
-	std::vector<double> prm(3);
 	prm[0] = 4; prm[1] = 1.5; prm[2] = 0.02;
 
 	// Test forward probabilities
@@ -47,6 +50,17 @@ int PsychometricValues ( TestSuite* T ) {
 
 	// Test likelihood
 	failures += T->isequal ( pmf->negllikeli(prm,data), 11.996474658154325, "PsychometricValues likelihood");
+	
+	// Test likelihood gradient
+	dl = pmf->dnegllikeli ( prm, data );
+	l  = pmf->negllikeli  ( prm, data );
+	for ( i=0; i<3; i++ ) {
+		prm[i] += 1e-5;
+		d = pmf->negllikeli ( prm, data ) - l;
+		d /= 1e-5;
+		prm[i] -= 1e-5;
+		failures += T->isequal ( dl[i], d, "PsychometricValues likelihood derivative", .05 );
+	}
 
 	delete core;
 	delete sigmoid;
@@ -858,12 +872,10 @@ int ReturnTest ( TestSuite * T ) {
 
 int main ( int argc, char ** argv ) {
 	TestSuite Tests ( "tests_all.log" );
-	/*
 	Tests.addTest(&PsychometricValues,"Values of the psychometric function");
-	Tests.addTest(&OptimizerSolution, "Solutions of optimizer");
-	*/
-	Tests.addTest(&BootstrapTest,     "Bootstrap properties");
 	/*
+	Tests.addTest(&OptimizerSolution, "Solutions of optimizer");
+	Tests.addTest(&BootstrapTest,     "Bootstrap properties");
 	Tests.addTest(&SigmoidTests,      "Properties of sigmoids");
 	Tests.addTest(&CoreTests,         "Tests of core objects");
 	Tests.addTest(&MCMCTest,          "MCMC");
