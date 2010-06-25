@@ -193,6 +193,8 @@ std::vector<double> PsiPsychometric::dnegllikeli ( const std::vector<double>& pr
 	std::vector<double> out (prm.size());
 	double rz,xz,pz,nz,fac1;
 	unsigned int z,i;
+	double guess (guessingrate);
+	if ( Nalternatives < 2 ) guess = prm[3];
 
 	for (z=0; z<data->getNblocks(); z++) {
 		rz = data->getNcorrect(z);
@@ -201,7 +203,7 @@ std::vector<double> PsiPsychometric::dnegllikeli ( const std::vector<double>& pr
 		pz = evaluate(xz,prm);
 		fac1 = rz/pz - (nz-rz)/(1-pz);
 		for (i=0; i<2; i++)
-			out[i] -= fac1 * (1-guessingrate-prm[2]) * Sigmoid->df(Core->g(xz,prm)) * Core->dg(xz,prm,i);
+			out[i] -= fac1 * (1-guess-prm[2]) * Sigmoid->df(Core->g(xz,prm)) * Core->dg(xz,prm,i);
 	
 		for (i=2; i<prm.size(); i++)
 			out[i] -= fac1 * ( (i==2 ? 0 : 1) - Sigmoid->f(Core->g(xz,prm)) );
