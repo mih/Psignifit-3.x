@@ -569,9 +569,8 @@ double BetaPsychometric::negllikeli ( const std::vector<double>& prm, const PsiD
 
 std::vector<double> BetaPsychometric::dnegllikeli ( const std::vector<double>& prm, const PsiData* data ) const
 {
-	int k;
 	std::vector<double> out ( prm.size(), 0 );
-	double rz, xz, pz, nz, dldf, dldnu;
+	double xz, pz, nz, dldf, dldnu;
 	unsigned int i, z;
 	double nu ( prm[prm.size()-1] );
 	double nunz, f;
