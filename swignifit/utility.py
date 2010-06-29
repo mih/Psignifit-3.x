@@ -112,10 +112,10 @@ def get_params(params, nparams):
 def get_cuts(cuts):
     if cuts is None:
         return sfr.vector_double([0.5])
-    elif op.isNumberType(cuts):
-        return sfr.vector_double([cuts])
     elif op.isSequenceType(cuts) and np.array([op.isNumberType(a) for a in cuts]).all():
         return sfr.vector_double(cuts)
+    elif op.isNumberType(cuts):
+        return sfr.vector_double([cuts])
     else:
         raise PsignifitException("'cuts' must be either None, a number or a "+\
                 "sequence of numbers.")
