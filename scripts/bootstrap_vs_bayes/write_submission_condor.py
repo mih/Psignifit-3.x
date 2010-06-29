@@ -7,24 +7,23 @@ import os
 
 output = """universe = vanilla
 notification = Always
-FIXME -> notify_user = valentin@teik
+notify_user = val
 should_transfer_files = NO
-FIXME-> initialdir = /home/val/git-working/psignifit/scripts/bootstrap_vs_bayes/
-executable = coverage.py
-FIXME-> environment = "PYTHONPATH=/home/val/git-working/psignifit/build/lib"
+initialdir = /home/val/git-working/psignifit/scripts/bootstrap_vs_bayes/
+executable =/home/val/git-working/psignifit/scripts/nonstationarity/coverage.py
+environment ="PYTHONPATH=/home/val/git-working/psignifit/build/lib.linux-x86_64-2.5"
 
 """
 
-#FIXME -> sim_root = "/home/val/thesis/simulation1"
-#data_root = "simulation_data"
-log_root = "simulation_logs"
-#
-#
-#if os.path.exists(sim_root)
-#    raise Exception("simulation data directory exists")
-#else
-#    os.makedirs (os.path.join(sim_root, data_root)
-#    os.makedirs (os.path.join(log_root, log_root)
+sim_root = "/home/val/thesis/simulation_dir"
+data_root = os.path.join(sim_root, "simulation_data")
+log_root =  os.path.join(sim_root, "simulation_logs")
+
+if os.path.exists(sim_root):
+    raise Exception("simulation data directory exists, DON'T OVERWRITE IT!!!")
+else:
+    os.makedirs (data_root)
+    os.makedirs (log_root)
 
 # Simulations
 
@@ -39,6 +38,7 @@ for (nblocks, blocksize, lapse_rate, width, nalt, gen_sigmoid, ana_sigmoid) in \
             for nalt        in map(str, [1, 2])
             for gen_sigmoid in ["logistic", "rgumbel"]
             for ana_sigmoid in ["logistic", "rgumbel"]):
+    output += "queue\n"
     output += "#job id = %d\n" % (job_number)
     output += "error = %s/job%d.log\n" % (log_root, job_number)
     output += "arguments = --nblocks=" + (nblocks)+\
