@@ -163,7 +163,7 @@ def diagnostics(data, params, nafc=2, sigmoid='logistic', core='ab', cuts=None):
     else:
         deviance_residuals = pmf.getDevianceResiduals(params, dataset)
         deviance = pmf.deviance(params, dataset)
-        thres = [pmf.getThres(params, cut) for cut in cuts]
+        thres = np.array([pmf.getThres(params, cut) for cut in cuts])
         rpd = pmf.getRpd(deviance_residuals, params, dataset)
         rkd = pmf.getRkd(deviance_residuals, dataset)
         return predicted, deviance_residuals, deviance, thres, rpd, rkd
