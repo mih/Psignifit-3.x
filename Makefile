@@ -126,3 +126,11 @@ test-utility:
 	-PYTHONPATH=build/`ls -1 build | grep lib` $(PYTHON) tests/utility_test.py
 
 # }}}
+
+#################### PYPSIGNIFIT COMMANDS ################### {{{
+
+test-pypsignifit:
+	-PYTHONPATH=build/`ls -1 build | grep lib` $(PYTHON) pypsignifit/psignidata.py
+
+
+# }}}
