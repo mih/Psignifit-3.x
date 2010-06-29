@@ -209,7 +209,7 @@ class TestPsipy_2afc ( ut.TestCase ):
     def test_sigmoids ( self ):
         """Try different sigmoids (assumes working mapestimator)"""
         priors = ("","","Uniform(0,.1)")
-        for s in ["logistic","cauchy","gauss","rgumbel","lgumbel","exp"]:
+        for s in ["logistic","cauchy","gauss","gumbel_r","gumbel_l","exponential"]:
             interface.mapestimate ( makedata(), priors=priors, sigmoid=s )
     def test_cores ( self ):
         """Try different cores (assumes working mapestimator)"""
@@ -218,9 +218,9 @@ class TestPsipy_2afc ( ut.TestCase ):
             interface.mapestimate ( makedata(), priors=priors, core=c )
     def test_weibull ( self ):
         """Try different parameterizations of the weibull (assumes working mapestimator)"""
-        interface.mapestimate ( makedata(), priors = ("","","Uniform(0,.1)"), sigmoid="exp", core="poly" )
-        interface.mapestimate ( makedata(), priors = ("","","Uniform(0,.1)"), sigmoid="rgumbel", core="weibull" )
-        interface.mapestimate ( makedata(), priors = ("","","Uniform(0,.1)"), sigmoid="rgumbel", core="log" )
+        interface.mapestimate ( makedata(), priors = ("","","Uniform(0,.1)"), sigmoid="exponential", core="poly" )
+        interface.mapestimate ( makedata(), priors = ("","","Uniform(0,.1)"), sigmoid="gumbel_r", core="weibull" )
+        interface.mapestimate ( makedata(), priors = ("","","Uniform(0,.1)"), sigmoid="gumbel_r", core="log" )
     def test_priors ( self ):
         """Try different combinations of priors (assumes working mapestimator)"""
         for mprior in ["Gauss(0,100)","Uniform(-30,30)",""]:
@@ -260,7 +260,7 @@ class TestPsipy_yn ( ut.TestCase ):
     def test_sigmoids ( self ):
         """Try different sigmoids (assumes working mapestimator)"""
         priors = ("","","Uniform(0,.1)","Uniform(0,.1)")
-        for s in ["logistic","cauchy","gauss","rgumbel","lgumbel","exp"]:
+        for s in ["logistic","cauchy","gauss","gumbel_r","gumbel_l","exponential"]:
             interface.mapestimate ( makedata_yn(), priors=priors, sigmoid=s, nafc=1 )
     def test_cores ( self ):
         """Try different cores (assumes working mapestimator)"""
@@ -269,9 +269,9 @@ class TestPsipy_yn ( ut.TestCase ):
             interface.mapestimate ( makedata_yn(), priors=priors, core=c, nafc=1 )
     def test_weibull ( self ):
         """Try different parameterizations of the weibull (assumes working mapestimator)"""
-        interface.mapestimate ( makedata_yn(), priors = ("","","Uniform(0,.1)","Uniform(0,.1)"), nafc=1, sigmoid="exp", core="poly" )
-        interface.mapestimate ( makedata_yn(), priors = ("","","Uniform(0,.1)","Uniform(0,.1)"), nafc=1, sigmoid="rgumbel", core="weibull" )
-        interface.mapestimate ( makedata_yn(), priors = ("","","Uniform(0,.1)","Uniform(0,.1)"), nafc=1, sigmoid="rgumbel", core="log" )
+        interface.mapestimate ( makedata_yn(), priors = ("","","Uniform(0,.1)","Uniform(0,.1)"), nafc=1, sigmoid="exponential", core="poly" )
+        interface.mapestimate ( makedata_yn(), priors = ("","","Uniform(0,.1)","Uniform(0,.1)"), nafc=1, sigmoid="gumbel_r", core="weibull" )
+        interface.mapestimate ( makedata_yn(), priors = ("","","Uniform(0,.1)","Uniform(0,.1)"), nafc=1, sigmoid="gumbel_r", core="log" )
     def test_priors ( self ):
         """Try different combinations of priors (assumes working mapestimator)"""
         for mprior in ["Gauss(0,100)","Uniform(-30,30)",""]:
