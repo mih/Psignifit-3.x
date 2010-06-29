@@ -8,4 +8,4 @@
 #
 ######################################################################
 
-from swignifit.interface_methods import bootstrap, mcmc
+from swignifit.interface_methods import bootstrap, mcmc, mapestimate, diagnostics
