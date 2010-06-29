@@ -12,7 +12,7 @@ __docformat__ = "restructuredtext"
 
 import numpy as N
 from scipy import stats
-import _psipy as interface
+import swignifit as interface
 
 from psignidata import Property
 

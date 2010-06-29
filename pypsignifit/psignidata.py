@@ -15,7 +15,7 @@ import operator
 import numpy as N
 import pylab as p
 from scipy import stats,special,optimize
-import _psipy as interface
+import swignifit as interface
 
 import pygibbsit
 
