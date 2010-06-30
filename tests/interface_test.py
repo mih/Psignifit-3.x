@@ -178,6 +178,10 @@ class TestDiagnostics(ut.TestCase):
     def test_intensities_only(self):
         predicted = interface.diagnostics(x, TestDiagnostics.prm)
 
+    def test_empty_data(self):
+        # if an empty sequence is passed we only obtain the threshold
+        result = interface.diagnostics([], TestDiagnostics.prm)
+
 ################################################################################
 # psipy tests
 
