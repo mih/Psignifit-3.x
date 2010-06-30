@@ -19,6 +19,11 @@ sim_root = "/home/val/thesis/simulation_dir"
 data_root = os.path.join(sim_root, "simulation_data")
 log_root =  os.path.join(sim_root, "simulation_logs")
 
+data_suffix = ".data"
+log_suffix = ".log"
+error_suffix = ".error"
+
+
 if os.path.exists(sim_root):
     raise Exception("simulation data directory exists, DON'T OVERWRITE IT!!!")
 else:
@@ -36,11 +41,11 @@ for (nblocks, blocksize, lapse_rate, width, nalt, gen_sigmoid, ana_sigmoid) in \
             for lapse_rate  in map(str, [0.01, 0.05])
             for width       in map(str, [0.1, 0.2, 0.3])
             for nalt        in map(str, [1, 2])
-            for gen_sigmoid in ["logistic", "rgumbel"]
-            for ana_sigmoid in ["logistic", "rgumbel"]):
-    output += "queue\n"
+            for gen_sigmoid in ["logistic", "gumbel_r"]
+            for ana_sigmoid in ["logistic", "gumbel_r"]):
     output += "#job id = %d\n" % (job_number)
-    output += "error = %s/job%d.log\n" % (log_root, job_number)
+    output += "output = " + os.path.join(log_root, "job"+ str(job_number) + log_suffix) + "\n"
+    output += "error = "  + os.path.join(log_root, "job"+ str(job_number) + error_suffix) + "\n"
     output += "arguments = --nblocks=" + (nblocks)+\
                          " --blocksize=" + (blocksize)+\
                          " --gen-prm3=" + lapse_rate +\
@@ -49,7 +54,10 @@ for (nblocks, blocksize, lapse_rate, width, nalt, gen_sigmoid, ana_sigmoid) in \
                          " --ana-nafc=" + nalt +\
                          " --gen-sigmoid=" + gen_sigmoid +\
                          " --ana-sigmoid=" + ana_sigmoid +\
-                         "\n\n"
+                         " --output=" + os.path.join(data_root,
+                                 "job"+str(job_number)+data_suffix) +\
+                         "\n"
+    output += "queue\n\n"
     job_number += 1
 
 output += "#total number of jobs = %d" % (job_number)
