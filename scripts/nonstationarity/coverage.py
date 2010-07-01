@@ -7,6 +7,7 @@ import pypsignifit
 from numpy import array,arange,mgrid,clip,zeros,sort, random
 import os,sys
 import pylab
+import operator
 
 __helptext__ = """
 Determine coverage of confidence intervals for a given combination of analysis/generating parameters.
@@ -52,6 +53,9 @@ parser.add_option ( "--blocksize",    dest="blocksize",    default=10,   type="i
         help="number of trials per block in the simulated experiment. Default: 10" )
 parser.add_option ( "--nblocks",      dest="nblocks",      default=5,    type="int",
         help="number of blocks in the simulated experiment. Default: 5" )
+parser.add_option ( "--fixed-levels", dest="fixed_levels", default=None,
+        type="string", help="list of stimulus levels, if desired, if None,"+\
+                "psychometric function will be sampled. Default: None")
 
 parser.add_option ( "-o", "--output", dest="outputfile", default="test.log",
         help="name of the output file in which the data should be stored. By default, no output file is used" )
@@ -122,21 +126,38 @@ ana_kwargs = { "nafc": options.gen_nafc,
 if not options.ana_nafc is None:
     ana_kwargs["nafc"] = options.ana_nafc
 
-# Create stimuli (roughly based on results from Hills PhD thesis in chapter 5)
-Fx = mgrid[.1:.99:1j*(options.nblocks)]
-# Fx -= Fx.mean()
-# Fx /= Fx.std()
-# Fx *= 0.22    # this corresponds to Hills PhD thesis (sigma_p ~ 0.11 in 2AFC)
-# if options.ana_nafc == 1:
-#     Fx += 0.5
-# else:
-#     Fx += 0.6   # This corresponds to Hills PhD thesis (p_bar ~ 0.8 in 2AFC)
-# Fx = array( Fx.tolist()+[.99] )
-# Fx = clip(Fx,.001,.999)
+# Create observer
 OO = psigobservers.Observer ( *gen_prm, **gen_kwargs )
-x = OO.getlevels(Fx)
-y = mgrid[0.001:0.999:100j]
-print x,Fx
+
+# Create stimulus levels
+if options.fixed_levels is not None:
+    # Use the stimulus levels that were given on the command line
+    message = "'fixed-levels' must be a sequence of numbers, of length nblocks."
+    try:
+        x = eval(options.fixed_levels)
+    except Exception:
+        raise ValueError(message)
+    if not operator.isSequenceType(x) or False in [operator.isNumberType(i) for i in x]:
+        raise ValueError(message)
+    if not len(x) == options.nblocks:
+        raise ValueError("Argument mismatch: You gave "+str(len(x))+" levels on the command line"+\
+                " but specified "+str(options.nblocks)+" blocks.")
+    print "levels:", x
+else:
+    # Create stimuli (roughly based on results from Hills PhD thesis in chapter 5)
+    Fx = mgrid[.1:.99:1j*(options.nblocks)]
+    # Fx -= Fx.mean()
+    # Fx /= Fx.std()
+    # Fx *= 0.22    # this corresponds to Hills PhD thesis (sigma_p ~ 0.11 in 2AFC)
+    # if options.ana_nafc == 1:
+    #     Fx += 0.5
+    # else:
+    #     Fx += 0.6   # This corresponds to Hills PhD thesis (p_bar ~ 0.8 in 2AFC)
+    # Fx = array( Fx.tolist()+[.99] )
+    # Fx = clip(Fx,.001,.999)
+    x = OO.getlevels(Fx)
+    y = mgrid[0.001:0.999:100j]
+    print x,Fx
 
 # Priors
 constraints = ["unconstrained","unconstrained","Uniform(0,.1)"]
