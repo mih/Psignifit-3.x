@@ -62,10 +62,10 @@ double psi ( double z ) {
 	 *	See for example Abramowitz & Stegun eq 6.3.18
 	 * 2. The second is a recursion formula (Abramowitz & Stegun eq 6.3.5)
 	 *	     psi(z+1) = psi(z) + 1./z
-	 * Thus, for sufficiently large z (z>5 results in accuracies of order 1e-9) we take the approximation
+	 * Thus, for sufficiently large z (z>6 results in accuracies of order 1e-9) we take the approximation
 	 * formula. For smaller z, we apply the second formula as a telescope.
 	 */
-	if ( z > 5 ) {
+	if ( z > 6 ) {
 		return log ( z ) - 1./(2*z) - 1./(12*z*z) + 1./(120*z*z*z*z) - 1./(252*z*z*z*z*z*z);
 	} else {
 		return psi ( z+1 ) - 1./z;
