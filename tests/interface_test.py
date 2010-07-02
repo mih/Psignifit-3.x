@@ -108,6 +108,14 @@ class TestMCMC(ut.TestCase):
     def test_stepwidth(self):
         interface.mcmc(data, nsamples=25, stepwidths=[0.1, 0.2, 0.3])
 
+    def test_alternate_samplers(self):
+        # this will fail for psipy, since it does not support alternative
+        # samplers
+        interface.mcmc(data, nsamples=25, sampler="MetropolisHastings")
+        interface.mcmc(data, nsamples=25, sampler="GenericMetropolis")
+        self.assertRaises(sfu.PsignifitException, interface.mcmc, data,
+                sampler="DoesNotExist")
+
 class TestMapestimate(ut.TestCase):
 
     def test_basic(self):

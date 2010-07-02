@@ -66,7 +66,7 @@ def bootstrap(data, start=None, nsamples=2000, nafc=2, sigmoid="logistic",
     return samples, estimates, deviance, thres, bias, acc, Rpd, Rkd, outliers, influential
 
 def mcmc( data, start=None, nsamples=10000, nafc=2, sigmoid='logistic',
-        core='mw0.1', priors=None, stepwidths=None ):
+        core='mw0.1', priors=None, stepwidths=None, sampler="MetropolisHastings"):
 
     dataset, pmf, nparams = sfu.make_dataset_and_pmf(data, nafc, sigmoid, core, priors)
 
@@ -78,7 +78,10 @@ def mcmc( data, start=None, nsamples=10000, nafc=2, sigmoid='logistic',
         start = opt.optimize(pmf, dataset)
 
     proposal = sfr.GaussRandom()
-    sampler  = sfr.MetropolisHastings(pmf, dataset, proposal)
+    if sampler not in sfu.sampler_dict.keys():
+        raise sfu.PsignifitException("The sampler: " + sampler + " is not available.")
+    else:
+        sampler  = sfu.sampler_dict[sampler](pmf, dataset, proposal)
     sampler.setTheta(start)
 
     if stepwidths != None:
