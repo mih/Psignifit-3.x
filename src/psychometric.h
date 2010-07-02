@@ -140,6 +140,10 @@ class BetaPsychometric : public PsiPsychometric {
 				const std::vector<double>& prm,       ///< parameters at which the first derivative should be evaluated
 				const PsiData* data                   ///< data for which the likelihood should be evaluated
 				) const;                 ///< 1st derivative of the negative log likelihood
+		Matrix * ddnegllikeli (
+				const std::vector<double>& prm,       ///< parameters at which the second derivative should be evaluated
+				const PsiData* data                   ///< data for which the likelihood should be evaluated
+				) const;                 ///< 2nd derivative of the negative log likelihood (newly allocated matrix)
 		unsigned int getNparams ( void ) const { return PsiPsychometric::getNparams()+1; }   ///< get the number of free parameters of the psychometric function
 };
 

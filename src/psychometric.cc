@@ -634,6 +634,38 @@ std::vector<double> BetaPsychometric::dnegllikeli ( const std::vector<double>& p
 	return out;
 };
 
+Matrix * BetaPsychometric::ddnegllikeli ( const std::vector<double>& prm, const PsiData* data ) const
+{
+	Matrix * I = new Matrix ( prm.size(), prm.size() );
+	unsigned int i, j, z;
+	double xz, pz, nz, nunz;
+	unsigned int nupos ( getNparams()-1 );
+	double nu ( prm[nupos] );
+
+	for ( z=0; z<data->getNblocks(); z++ ) {
+		xz = data->getIntensity(z);
+		pz = data->getPcorrect(z);
+		nz = data->getNcorrect(z);
+		fz = evaluate ( xz, prm );
+		nunz = nz*nu;
+		// d2l/dnu2
+		(*I)(nupos,nupos) = digamma(nunz)*nz*nz - fz*fz*nz*nz * digamma(fz*nunz) - (1-fz)*(1-fz)*nz*nz*digamma((1-fz)*nunz);
+		ddlddf = - nunz*nunz * ( digamma(fz*nunz) + digamma((1-fz)*nunz) );
+		for ( i=0; i<nupos; i++ ) {
+			// partial derivatives (classical)
+			for ( j=i; j<nupos; j++ ) {
+				(*I)(i,j) = ddlddf * ddpredict( prm, xz, i, j );
+				(*I)(j,i) = (*I)(i,j);
+			}
+			// partial derivatives w.r.t. classical and nu
+			(*I)(i,nupos) = - nz*psi(fz*nunz) - fz*nunz*nz*digamma(fz*nunz) + nz*psi( (1-fz)*nunz ) + (1-fz)*nunz*nz*digamma( (1-fz)*nunz );
+			(*I)(i,nupos) += (pz>0 ? (pz<1 ? log(pz/(1-pz)) : 1e10) : -1e10 );
+		}
+	}
+
+	return I;
+};
+
 /******************************** Outlier model *****************************************/
 
 double OutlierModel::getp ( const std::vector<double>& prm ) const
