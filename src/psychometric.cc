@@ -149,7 +149,7 @@ Matrix * PsiPsychometric::ddnegllikeli ( const std::vector<double>& prm, const P
 {
 	Matrix * I = new Matrix ( prm.size(), prm.size() );
 
-	double rz,nz,pz,xz,fac1,fac2;
+	double rz,nz,pz,xz,dldf,ddlddf;
 	unsigned int z,i,j;
 
 	// Fill I
@@ -157,12 +157,13 @@ Matrix * PsiPsychometric::ddnegllikeli ( const std::vector<double>& prm, const P
 		nz = data->getNtrials(z);
 		xz = data->getIntensity(z);
 		pz = evaluate(xz,prm);
-		// rz = data->getNcorrect(z);
-		rz = pz*nz;     // expected Fisher Information matrix
-		fac1 = rz/pz - (nz-rz)/(1-pz);
-		fac2 = rz/(pz*pz) + (nz-rz)/((1-pz)*(1-pz));
+		rz = data->getNcorrect(z);
+		// rz = pz*nz;     // expected Fisher Information matrix
+		dldf   = (nz-rz)/(1-pz) - rz/pz;
+		ddlddf = rz/(pz*pz) + (nz-rz)/((1-pz)*(1-pz));
 
 		// These parts must be determined
+		/*
 		for (i=0; i<2; i++) {
 			for (j=i; j<2; j++) {
 				(*I)(i,j) += fac1 * (1-guessingrate-prm[2]) * (Sigmoid->ddf(Core->g(xz,prm)) * Core->dg(xz,prm,i) * Core->dg(xz,prm,j) + Sigmoid->df(Core->g(xz,prm)) * Core->ddg(xz,prm,i,j));
@@ -178,6 +179,13 @@ Matrix * PsiPsychometric::ddnegllikeli ( const std::vector<double>& prm, const P
 				(*I)(i,j) -= fac2 * ( (j==2 ? 0 : 1) - Sigmoid->f(Core->g(xz,prm)) ) * ( (i==2 ? 0 : 1 ) - Sigmoid->f(Core->g(xz,prm)) );
 			}
 		}
+		*/
+		for ( i=0; i<prm.size(); i++ ) {
+			for ( j=i; j<prm.size(); j++ ) {
+				(*I)(i,j) -= ddlddf * dpredict(prm,xz,i) * dpredict(prm,xz,j);
+				(*I)(i,j) -= dldf   * ddpredict ( prm, xz, i, j );
+			}
+		}
 	}
 
 	// The remaining parts of I can be copied
@@ -185,15 +193,13 @@ Matrix * PsiPsychometric::ddnegllikeli ( const std::vector<double>& prm, const P
 		for (j=0; j<i; j++)
 			(*I)(i,j) = (*I)(j,i);
 
-	I->scale(-1);
-
 	return I;
 }
 
 std::vector<double> PsiPsychometric::dnegllikeli ( const std::vector<double>& prm, const PsiData* data ) const
 {
-	std::vector<double> out (prm.size());
-	double rz,xz,pz,nz,fac1;
+	std::vector<double> gradient (prm.size());
+	double rz,xz,pz,nz,dldf;
 	unsigned int z,i;
 	double guess (guessingrate);
 	if ( Nalternatives < 2 ) guess = prm[3];
@@ -203,15 +209,15 @@ std::vector<double> PsiPsychometric::dnegllikeli ( const std::vector<double>& pr
 		nz = data->getNtrials(z);
 		xz = data->getIntensity(z);
 		pz = evaluate(xz,prm);
-		fac1 = rz/pz - (nz-rz)/(1-pz);
-		for (i=0; i<2; i++)
-			out[i] -= fac1 * (1-guess-prm[2]) * Sigmoid->df(Core->g(xz,prm)) * Core->dg(xz,prm,i);
-	
-		for (i=2; i<prm.size(); i++)
-			out[i] -= fac1 * ( (i==2 ? 0 : 1) - Sigmoid->f(Core->g(xz,prm)) );
+		dldf = rz/pz - (nz-rz)/(1-pz);
+
+		// fill gradient vector
+		for ( i=0; i<prm.size(); i++ ) {
+			gradient[i] -= dldf * dpredict ( prm, xz, i );
+		}
 	}
 
-	return out;
+	return gradient;
 }
 
 double PsiPsychometric::deviance ( const std::vector<double>& prm, const PsiData* data ) const
@@ -533,30 +539,29 @@ double PsiPsychometric::dlposteri ( std::vector<double> prm, const PsiData* data
 }
 
 double PsiPsychometric::dpredict ( const std::vector<double>& prm, double x, unsigned int i ) const {
-	double guess ( getGuess() );
+	double guess ( getGuess(prm) );
 	if (i<2)
-		return (1-guess-prm[2]) * sigmoid->df ( core->g ( x, prm ) ) * core->dg ( x, prm, i );
+		return (1-guess-prm[2]) * Sigmoid->df ( Core->g ( x, prm ) ) * Core->dg ( x, prm, i );
 	if (i==2)
-		return -sigmoid->f(core->g(x,prm));
+		return -Sigmoid->f(Core->g(x,prm));
 	if (i==3 && getNalternatives()<2)
-		return 1-sigmoid->f(core->g(x,prm));
-	}
+		return 1-Sigmoid->f(Core->g(x,prm));
 }
 
 double PsiPsychometric::ddpredict ( const std::vector<double>& prm, double x, unsigned int i, unsigned int j ) const {
-	double guess ( getGuess() );
+	double guess ( getGuess(prm) );
 	double ddf;
 
 	if ( ((i==0)&&(j==0)) || ((i==0)&&(j==1)) || ((i==1)&&(j==0)) || ((i==1)&&(j==1)) ) {
-		ddf  = sigmoid->ddf ( core->g ( x,prm ) ) * core->dg ( x, prm, i ) * core->dg ( x, prm, j );
-		ddf += sigmoid->df ( core->g ( x, prm ) ) * core->ddg ( x, prm, i, j );
+		ddf  = Sigmoid->ddf ( Core->g ( x,prm ) )  * Core->dg  ( x, prm, i ) * Core->dg ( x, prm, j );
+		ddf += Sigmoid->df  ( Core->g ( x, prm ) ) * Core->ddg ( x, prm, i, j );
 		ddf *= (1-guess-prm[2]);
 	} else if ( ((i==2)&&(j==2)) || ((i==2)&&(j==3)) || ((i==3)&&(j==2)) || ((i==3)&&(j==3)) ) {
 		ddf = 0;
 	} else if ( ((i==0)&&(j==2)) || ((i==0)&&(j==3)) || ((i==1)&&(j==2)) || ((i==1)&&(j==3))
 			||  ((i==2)&&(j==0)) || ((i==3)&&(j==0)) || ((i==2)&&(j==1)) || ((i==3)&&(j==j)) ) {
 		i = ( i<j ? i : j );
-		ddf = - sigmoid->df ( core->g ( x, prm ) ) * core->dg ( x, prm, i );
+		ddf = - Sigmoid->df ( Core->g ( x, prm ) ) * Core->dg ( x, prm, i );
 	}
 	return ddf;
 }
