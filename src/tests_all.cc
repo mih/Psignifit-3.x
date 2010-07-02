@@ -164,15 +164,16 @@ int DerivativeCheck ( TestSuite * T ) {
 	PsiCore* core;
 	std::vector<PsiCore*> cores ( 6 );
 	std::vector<char*>    corenames ( 6 );
-	cores[0] = new abCore (data);        corenames[0] = "abCore";
-	cores[1] = new linearCore (data);    corenames[1] = "linearCore";
-	cores[2] = new logCore (data);       corenames[2] = "logCore";
-	cores[3] = new mwCore (data);        corenames[3] = "mwCore";
-	cores[4] = new polyCore (data);      corenames[4] = "polyCore";
-	cores[5] = new weibullCore (data);   corenames[5] = "weibullCore";
+	cores[0] = new abCore (data);        corenames[0] = new char [20]; sprintf ( corenames[0], "abCore");
+	cores[1] = new linearCore (data);    corenames[1] = new char [20]; sprintf ( corenames[1], "linearCore");
+	cores[2] = new logCore (data);       corenames[2] = new char [20]; sprintf ( corenames[2], "logCore");
+	cores[3] = new mwCore (data);        corenames[3] = new char [20]; sprintf ( corenames[3], "mwCore");
+	cores[4] = new polyCore (data);      corenames[4] = new char [20]; sprintf ( corenames[4], "polyCore");
+	cores[5] = new weibullCore (data);   corenames[5] = new char [20]; sprintf ( corenames[5], "weibullCore");
 
 	for ( coreindex=0; coreindex<cores.size(); coreindex++ ) {
 		core = cores[coreindex];
+		// First derivative
 		y0 = core->g ( x, prm );
 		for ( i=0; i<3; i++ ) {
 			prm[i] += 1e-7;
@@ -182,6 +183,7 @@ int DerivativeCheck ( TestSuite * T ) {
 			sprintf ( msg, "%s 1st derivative w.r.t. prm %d", corenames[coreindex], i );
 			failures += T->isequal ( core->dg ( x, prm, i ), d, msg, 1e-3 );
 		}
+		// Second derivative
 		for ( i=0; i<3; i++ ) {
 			y0 = core->dg ( x, prm, i );
 			for ( j=0; j<3; j++ ) {
@@ -194,7 +196,36 @@ int DerivativeCheck ( TestSuite * T ) {
 			}
 		}
 		delete cores[coreindex];
-		// delete corenames[coreindex];
+		delete corenames[coreindex];
+	}
+
+	// Sigmoids
+	PsiSigmoid * sigmoid;
+	std::vector<PsiSigmoid*> sigmoids ( 6 );
+	std::vector<char*>       sigmoidnames ( 6 );
+	sigmoids[0] = new PsiCauchy ();      sigmoidnames[0] = new char [20]; sprintf ( sigmoidnames[0], "PsiCauchy" );
+	sigmoids[1] = new PsiExponential (); sigmoidnames[1] = new char [20]; sprintf ( sigmoidnames[1], "PsiExponential" );
+	sigmoids[2] = new PsiGauss ();       sigmoidnames[2] = new char [20]; sprintf ( sigmoidnames[2], "PsiGauss" );
+	sigmoids[3] = new PsiGumbelL ();     sigmoidnames[3] = new char [20]; sprintf ( sigmoidnames[3], "PsiGumbelL" );
+	sigmoids[4] = new PsiGumbelR ();     sigmoidnames[4] = new char [20]; sprintf ( sigmoidnames[4], "PsiGumbelR" );
+	sigmoids[5] = new PsiLogistic ();    sigmoidnames[5] = new char [20]; sprintf ( sigmoidnames[5], "PsiLogistic" );
+
+	for ( coreindex=0; coreindex<sigmoids.size(); coreindex++ ) {
+		sigmoid = sigmoids[coreindex];
+		// First derivative
+		y0 = sigmoid->f ( x );
+		y1 = sigmoid->f ( x+1e-7 );
+		d = y1-y0; d /= 1e-7;
+		sprintf ( msg, "%s 1st derivative", sigmoidnames[coreindex] );
+		failures += T->isequal ( sigmoid->df ( x ), d, msg, 1e-3 );
+		// Second derivative
+		y0 = sigmoid->df ( x );
+		y1 = sigmoid->df ( x+1e-7 );
+		d = y1-y0; d /= 1e-7;
+		sprintf ( msg, "%s 2nd derivative", sigmoidnames[coreindex] );
+		failures += T->isequal ( sigmoid->ddf ( x ), d, msg, 1e-3 );
+		delete sigmoids[coreindex];
+		delete sigmoidnames[coreindex];
 	}
 
 	return failures;
