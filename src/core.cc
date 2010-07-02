@@ -34,7 +34,7 @@ double abCore::ddg ( double x, const std::vector<double>& prm, int i, int j ) co
 			return 0;
 			break;
 		case 1:
-			return (x-prm[0])/(prm[1]*prm[1]*prm[1]);
+			return 2*(x-prm[0])/(prm[1]*prm[1]*prm[1]);
 			break;
 		default:
 			// If the parameter does not exist in the abCore the derivative with respect to it will always be 0
@@ -262,7 +262,8 @@ double weibullCore::dg ( double x, const std::vector<double>& prm, int i ) const
 		throw BadArgumentError("weibullCore.dg is only valid in the range x>=0");
 
 	if (i==0) {
-		return -twooverlog2*prm[1] * log(prm[0]);
+		// return -twooverlog2*prm[1] * log(prm[0]);
+		return twooverlog2*prm[1] * ( log(x) - log(prm[0]) - 1);
 	} else if (i==1) {
 		return twooverlog2*prm[0]*((x==0 ? -1e10 : log(x))-log(prm[0]));
 	} else {
@@ -286,7 +287,8 @@ double weibullCore::ddg ( double x, const std::vector<double>& prm, int i, int j
 			return 0;
 	} else {
 		if ( (i==0 && j==1) || (i==1 && j==0) ) {
-			return -twooverlog2 * log(prm[0]);
+			// return -twooverlog2 * log(prm[0]);
+			return twooverlog2 * ( log(x) - log(prm[0]) - 1 );
 		} else
 			return 0;
 	}
@@ -376,7 +378,7 @@ double polyCore::ddg ( double x, const std::vector<double>& prm, int i, int j ) 
 			else
 				return 0;
 		} else if ( (i==0 && j==1) || (j==0 && i==1) ) {
-			return - pow(x/prm[0],prm[1]-1)*(1-prm[1]*log(x/prm[0]))/prm[0];
+			return - pow(x/prm[0],prm[1]) * ( prm[1]*log(x/prm[0]) + 1. ) / prm[0];
 		} else
 			return 0;
 	}
