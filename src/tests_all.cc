@@ -18,7 +18,7 @@
 
 
 int PsychometricValues ( TestSuite* T ) {
-	int failures(0),i;
+	int failures(0),i,j;
 	char message[40];
 	std::vector <double> x ( 6 );
 	std::vector <int>    n ( 6, 50 );
@@ -63,6 +63,22 @@ int PsychometricValues ( TestSuite* T ) {
 		prm[i] -= 1e-5;
 		failures += T->isequal ( dl[i], d, "PsychometricValues likelihood derivative", .05 );
 	}
+
+	// Test likelihood hessian
+	Matrix *H = pmf->ddnegllikeli ( prm, data );
+	dl = pmf->dnegllikeli ( prm, data );
+	for ( i=0; i<3; i++ ) {
+		prm[i] += 1e-9;
+		dl1 = pmf->dnegllikeli ( prm, data );
+		prm[i] -= 1e-9;
+		for ( j=0; j<3; j++ ) {
+			d = dl1[j] - dl[j];
+			d /= 1e-9;
+			std::cerr << i << " " << j << " ";
+			failures += T->isequal ( (*H)(i,j), -d, "Psychometric function likelihood Hessian", .1 );
+		}
+	}
+	delete H;
 	delete pmf;
 
 	// Yes no task
@@ -102,6 +118,22 @@ int PsychometricValues ( TestSuite* T ) {
 		bprm[i] -= 1e-5;
 		failures += T->isequal ( dl[i], d, "PsychometricValues beta likelihood derivative", .05 );
 	}
+
+	// test likelihood hessian
+	H = pmf->ddnegllikeli ( bprm, data );
+	// H->print();
+	for ( i=0; i<4; i++ ) {
+		bprm[i] += 1e-5;
+		dl1 = pmf->dnegllikeli ( bprm, data );
+		bprm[i] -= 1e-5;
+		for ( j=0; j<4; j++ ) {
+			d = dl[j] - dl1[j];   // negative derivative
+			d /= 1e-5;
+			// failures += T->isequal ( log((*H)(i,j)/ d), 0, "Psychometric Values beta likelihood Hessian", .15 );
+			failures += T->isequal ( (*H)(i,j), d, "Psychometric Values beta likelihood Hessian" );
+		}
+	}
+	delete H;
 	delete pmf;
 
 	delete core;
