@@ -16,18 +16,26 @@ import swignifit_raw as sfr
 class PsignifitException(Exception):
     pass
 
-def extract_subclasses(base):
+def extract_subclasses(base, sub_func):
     to_visit = base.__subclasses__()
     subclasses = dict()
     for cl in to_visit:
-        descriptor = cl.getDescriptor()
+        descriptor = eval("cl."+sub_func)
         if descriptor not in subclasses.keys():
             subclasses[descriptor] = cl
             to_visit.extend(cl.__subclasses__())
     return subclasses
 
-sig_dict = extract_subclasses(sfr.PsiSigmoid)
-core_dict = extract_subclasses(sfr.PsiCore)
+def extract_subclasses_descriptor(base):
+    return extract_subclasses(base, "getDescriptor()")
+
+def extract_subclasses_reflection(base):
+    return extract_subclasses(base, "__name__")
+
+sig_dict = extract_subclasses_descriptor(sfr.PsiSigmoid)
+core_dict = extract_subclasses_descriptor(sfr.PsiCore)
+prior_dict = extract_subclasses_reflection(sfr.PsiPrior)
+sampler_dict = extract_subclasses_reflection(sfr.PsiSampler)
 
 def available_cores():
     print "The following cores are availabe:"
@@ -36,6 +44,14 @@ def available_cores():
 def available_sigmoids():
     print "The following sigmoids are available:"
     print sig_dict.keys()
+
+def available_priors():
+    print "The following priors are available:"
+    print prior_dict.keys()
+
+def available_samplers():
+    print "The following mcmc samplers are available:"
+    print sampler_dict.keys()
 
 def make_dataset(data, nafc):
     """ create a PsiData object from column based input """
