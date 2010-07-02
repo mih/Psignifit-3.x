@@ -96,7 +96,7 @@ psipy-install: psipy
 	$(PYTHON) setup_psipy.py install
 
 psipy-test:
-	-PYTHONPATH=build/`ls -1 build | grep lib` python tests/psipy_test.py
+	-PYTHONPATH=build/`ls -1 build | grep lib` INTERFACE="psipy" python tests/interface_test.py
 
 # }}}
 
@@ -120,9 +120,17 @@ test-swignifit-raw:
 	-PYTHONPATH=build/`ls -1 build | grep lib` $(PYTHON) tests/swignifit_raw_test.py
 
 test-interface:
-	-PYTHONPATH=build/`ls -1 build | grep lib` $(PYTHON) tests/interface_test.py
+	-PYTHONPATH=build/`ls -1 build | grep lib` INTERFACE="swignifit" $(PYTHON) tests/interface_test.py
 
 test-utility:
 	-PYTHONPATH=build/`ls -1 build | grep lib` $(PYTHON) tests/utility_test.py
+
+# }}}
+
+#################### PYPSIGNIFIT COMMANDS ################### {{{
+
+test-pypsignifit:
+	-PYTHONPATH=build/`ls -1 build | grep lib` $(PYTHON) pypsignifit/psignidata.py
+
 
 # }}}

@@ -196,6 +196,19 @@ class TestDiagnostics(ut.TestCase):
         compare_wrappers(TestDiagnostics.intensities_helper,
                 TestDiagnostics.output_description)
 
+    def test_single_cut(self):
+        # this test was added to ensure the return type of swignifit
+        # is also an ndarray. Before it was a list. Unfortunately a list with
+        # one item cannot be cast to a float, but an ndarray with one item can
+        # this was a problem in the getThres() of the PsiInference class in
+        # psignidata.py
+        sfi_output = float(sfi.diagnostics(data, TestDiagnostics.prm,
+            cuts=[0.5])[3])
+        psipy_output = float(psipy.diagnostics(data, TestDiagnostics.prm,
+            cuts=[0.5])[3])
+        self.assertEqual(sfi_output, psipy_output)
+
+
 if __name__ == "__main__":
     #s = ut.TestSuite()
     #s.addTest(TestMCMC("test_fail_two_same_psipy"))
