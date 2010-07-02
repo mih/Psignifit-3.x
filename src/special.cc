@@ -60,14 +60,30 @@ double psi ( double z ) {
 	 * 1. The first is an approximation formula that works for large z
 	 *       psi(z) ~ log(z) - 1./(2*z) - 1./12*z**2 + 1./120*z**4 - 1./252*z**6 + O(1./z**8)
 	 *	See for example Abramowitz & Stegun eq 6.3.18
-	 *	2. The second is a recursion formula (Abramowitz & Stegun eq 6.3.5)
+	 * 2. The second is a recursion formula (Abramowitz & Stegun eq 6.3.5)
 	 *	     psi(z+1) = psi(z) + 1./z
-	 *	Thus, for sufficiently large z (z>5 results in accuracies of order 1e-9) we take the approximation
-	 *	formula. For smaller z, we apply the second formula as a telescope.
+	 * Thus, for sufficiently large z (z>5 results in accuracies of order 1e-9) we take the approximation
+	 * formula. For smaller z, we apply the second formula as a telescope.
 	 */
 	if ( z > 5 ) {
 		return log ( z ) - 1./(2*z) - 1./(12*z*z) + 1./(120*z*z*z*z) - 1./(252*z*z*z*z*z*z);
 	} else {
 		return psi ( z+1 ) - 1./z;
 	}
+}
+
+double digamma ( double z ) {
+	/*
+	 * This algorithm is similar to that for evaluation of the psi function.
+	 * 1. There is again an approximation formula for large z
+	 *		digamma(z) ~ 1./z + 1./(2*z**2) - 1./(6*z**3) + 1./(42*z**5) - 1./(30*z**9) + O(1./z**10)
+	 *	See for example Abramowitz & Stegun eq 6.4.12
+	 * 2. There is a recursion formula (Abraomowitz & Stegun eq 6.4.6
+	 *      digamma(z) ~ digamma(z+1) = digamma(z) - 1./z**2
+	 * Again, we combine these two and use the recursion for z<5. This results in accuracies of order 1e-9.
+	 */
+	if ( z > 5 )
+		return 1./z + 1./(2*z*z) + 1./(6*z*z*z) - 1./(30*z*z*z*z*z) + 1./(42*z*z*z*z*z*z*z) - 1./(30*z*z*z*z*z*z*z*z*z);
+	else
+		return digamma ( z+1 ) + 1./(z*z);
 }
