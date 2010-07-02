@@ -209,7 +209,7 @@ double PsiCauchy::df ( double x ) const
 
 double PsiCauchy::ddf ( double x ) const
 {
-	return -2*x/( M_PI * (1+2*x*x+4*x*x*x*x) );
+	return -2*x/( M_PI * (1+2*x*x+x*x*x*x) );
 }
 
 double PsiCauchy::inv ( double p ) const
