@@ -111,6 +111,63 @@ int PsychometricValues ( TestSuite* T ) {
 	return failures;
 }
 
+int DerivativeCheck ( TestSuite * T ) {
+	/* Check all derivatives */
+	int failures (0);
+	unsigned int i,j, coreindex;
+	double d;
+	double y1,y0;
+	double x(2.);
+	std::vector<double> prm (3);
+	prm[0] = 4.; prm[1] = 1.5; prm[2] = .02;
+	char msg[50];
+	std::vector <double> intensity ( 6 );
+	std::vector <int>    n ( 6, 50 );
+	std::vector <int>    k ( 6 );
+	intensity[0] =  0.1; intensity[1] =  2.; intensity[2] =  4.; intensity[3] =  6.; intensity[4] =  8.; intensity[5] = 10.;
+	k[0] = 29;  k[1] = 31;  k[2] = 36;  k[3] = 42;  k[4] = 46;  k[5] = 49;
+	PsiData * data = new PsiData (intensity,n,k,2);
+
+	// Cores
+	PsiCore* core;
+	std::vector<PsiCore*> cores ( 6 );
+	std::vector<char*>    corenames ( 6 );
+	cores[0] = new abCore (data);        corenames[0] = "abCore";
+	cores[1] = new linearCore (data);    corenames[1] = "linearCore";
+	cores[2] = new logCore (data);       corenames[2] = "logCore";
+	cores[3] = new mwCore (data);        corenames[3] = "mwCore";
+	cores[4] = new polyCore (data);      corenames[4] = "polyCore";
+	cores[5] = new weibullCore (data);   corenames[5] = "weibullCore";
+
+	for ( coreindex=0; coreindex<cores.size(); coreindex++ ) {
+		core = cores[coreindex];
+		y0 = core->g ( x, prm );
+		for ( i=0; i<3; i++ ) {
+			prm[i] += 1e-7;
+			y1 = core->g ( x, prm );
+			prm[i] -= 1e-7;
+			d = y1-y0; d /= 1e-7;
+			sprintf ( msg, "%s 1st derivative w.r.t. prm %d", corenames[coreindex], i );
+			failures += T->isequal ( core->dg ( x, prm, i ), d, msg, 1e-3 );
+		}
+		for ( i=0; i<3; i++ ) {
+			y0 = core->dg ( x, prm, i );
+			for ( j=0; j<3; j++ ) {
+				prm[j] += 1e-7;
+				y1 = core->dg ( x, prm, i );
+				prm[j] -= 1e-7;
+				d = y1-y0; d /= 1e-7;
+				sprintf ( msg, "%s 2nd derivative w.r.t. prm %d and %d", corenames[coreindex], i, j );
+				failures += T->isequal ( core->ddg ( x, prm, i, j ), d, msg, 1e-3 );
+			}
+		}
+		delete cores[coreindex];
+		// delete corenames[coreindex];
+	}
+
+	return failures;
+}
+
 int OptimizerSolution ( TestSuite * T ) {
 	int failures(0);
 	unsigned int i;
@@ -914,6 +971,7 @@ int ReturnTest ( TestSuite * T ) {
 int main ( int argc, char ** argv ) {
 	TestSuite Tests ( "tests_all.log" );
 	Tests.addTest(&PsychometricValues,"Values of the psychometric function");
+	Tests.addTest(&DerivativeCheck, "Derivaties of elements" );
 	/*
 	Tests.addTest(&OptimizerSolution, "Solutions of optimizer");
 	Tests.addTest(&BootstrapTest,     "Bootstrap properties");
