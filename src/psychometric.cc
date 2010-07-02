@@ -631,7 +631,7 @@ std::vector<double> BetaPsychometric::dnegllikeli ( const std::vector<double>& p
 		out[i] -= dldnu;
 	}
 
-	return out;
+	return -out;
 };
 
 Matrix * BetaPsychometric::ddnegllikeli ( const std::vector<double>& prm, const PsiData* data ) const
