@@ -660,6 +660,7 @@ Matrix * BetaPsychometric::ddnegllikeli ( const std::vector<double>& prm, const 
 			// partial derivatives w.r.t. classical and nu
 			(*I)(i,nupos) = - nz*psi(fz*nunz) - fz*nunz*nz*digamma(fz*nunz) + nz*psi( (1-fz)*nunz ) + (1-fz)*nunz*nz*digamma( (1-fz)*nunz );
 			(*I)(i,nupos) += (pz>0 ? (pz<1 ? log(pz/(1-pz)) : 1e10) : -1e10 );
+			(*I)(nupos,i) = (*I)(i,nupos);
 		}
 	}
 
