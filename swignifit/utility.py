@@ -17,6 +17,17 @@ class PsignifitException(Exception):
     pass
 
 def extract_subclasses(base, sub_func):
+    """ Recursively extract subclasses, given a swig base class
+        
+        :Parameters:
+            *base* : swig class
+                the base class from which to start
+            *sub_func* : string
+                the function or attribute to use as name for subclass
+
+        :Return:
+            (dict) a dictionary mapping subclass names to constructors
+    """
     to_visit = base.__subclasses__()
     subclasses = dict()
     for cl in to_visit:
@@ -27,9 +38,11 @@ def extract_subclasses(base, sub_func):
     return subclasses
 
 def extract_subclasses_descriptor(base):
+    """ Recursively extract subclasses, using the 'getDescriptor()' method. """
     return extract_subclasses(base, "getDescriptor()")
 
 def extract_subclasses_reflection(base):
+    """ Recursively extract subclasses, using the __name__ attribute. """
     return extract_subclasses(base, "__name__")
 
 sig_dict = extract_subclasses_descriptor(sfr.PsiSigmoid)
@@ -54,7 +67,18 @@ def available_samplers():
     print sampler_dict.keys()
 
 def make_dataset(data, nafc):
-    """ create a PsiData object from column based input """
+    """ Create a PsiData object from column based input.
+
+        :Parameters:
+            *data* : sequence on length 3 sequences
+                data in colum based input, e.g.
+                [[1, 1, 5], [2, 3, 5] [3, 5, 5]]
+            *nafc* : int
+                number of 'alternative forced choices'
+
+        :Return:
+            PsiData object
+    """
     data = np.array(data).T
     x = sfr.vector_double(data[0])
     k = sfr.vector_int([int(i) for i in data[1].astype(int)])
@@ -62,6 +86,22 @@ def make_dataset(data, nafc):
     return sfr.PsiData(x,N,k,nafc)
 
 def make_pmf(dataset, nafc, sigmoid, core, priors):
+    """ Assemble PsiPsychometric object from model parameters.
+
+        :Parameters:
+            *nafc* : int
+                number of 'alternative forced choices'
+            *sigmoid* : string
+                description of model sigmoid
+            *core* : string
+                description of model core
+            *priors* : list of strings
+                the model priors
+
+        :Returns:
+            (PsiPsychometric, int)
+            PsiPsychometric object and number of free parameters in model
+    """
     sigmoid = get_sigmoid(sigmoid)
     core = get_core(core, dataset, sigmoid)
     pmf = sfr.PsiPsychometric(nafc, core, sigmoid)
@@ -70,6 +110,14 @@ def make_pmf(dataset, nafc, sigmoid, core, priors):
     return pmf, nparams
 
 def make_dataset_and_pmf(data, nafc, sigmoid, core, priors):
+    """ Assemble PsiData and PsiPsychometric objects simultaneously.
+
+        :Parameters:
+            see: make_dataset and make_pmf
+
+        :Return:
+            (PsiData, PsiPsychometric, int)
+    """
     dataset = make_dataset(data, nafc)
     pmf, nparams = make_pmf(dataset, nafc, sigmoid, core, priors)
     return dataset, pmf, nparams
