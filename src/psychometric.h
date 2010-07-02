@@ -116,7 +116,7 @@ class PsiPsychometric {
 			unsigned int i                                                               ///< index of the parameter for which the derivative should be evaluated
 			) const;                                                                 ///< derivative of the negative log posterior with respect to parameter i
 		void setgammatolambda ( void ) { gammaislambda=true; };                          ///< calling this function applies the constraint that gamma and lambda should be equal in a yes/no paradigm
-		double getGuess ( const std::vector<double>& prm ) const { return ( getNalternatives() < 2 ? prm[3] : 1./Nalternatives ); }
+		double getGuess ( const std::vector<double>& prm ) const { return (gammaislambda ? prm[2] : ( getNalternatives() < 2 ? prm[3] : 1./Nalternatives )); }
 		double dpredict ( const std::vector<double>& prm, double x, unsigned int i ) const;
 };
 

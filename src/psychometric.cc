@@ -533,9 +533,7 @@ double PsiPsychometric::dlposteri ( std::vector<double> prm, const PsiData* data
 }
 
 double PsiPsychometric::dpredict ( const std::vector<double>& prm, double x, unsigned int i ) const {
-	double guess ( guessingrate );
-	if ( getNalternatives()<2 )
-		guess = prm[3];
+	double guess ( getGuess() );
 	if (i<2)
 		return (1-guess-prm[2]) * sigmoid->df ( core->g ( x, prm ) ) * core->dg ( x, prm, i );
 	if (i==2)
