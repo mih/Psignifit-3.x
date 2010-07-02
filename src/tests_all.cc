@@ -74,7 +74,6 @@ int PsychometricValues ( TestSuite* T ) {
 		for ( j=0; j<3; j++ ) {
 			d = dl1[j] - dl[j];
 			d /= 1e-9;
-			std::cerr << i << " " << j << " ";
 			failures += T->isequal ( (*H)(i,j), -d, "Psychometric function likelihood Hessian", .1 );
 		}
 	}
@@ -105,7 +104,7 @@ int PsychometricValues ( TestSuite* T ) {
 	std::vector<double> bprm(4);
 	bprm[0] = 4; bprm[1] = 1.5; bprm[2] = .02; bprm[3] = 1;
 
-	// Observer, that beta likelihood can also be > 1 implying that both signs for log likelihood are possible
+	// Observe, that beta likelihood can also be > 1 implying that both signs for log likelihood are possible
 	failures += T->isequal ( pmf->negllikeli(bprm,data), -11.3918, "PsychometricValues beta likelihood", 1e-4);
 
 	// Test likelihood gradient
@@ -123,14 +122,15 @@ int PsychometricValues ( TestSuite* T ) {
 	H = pmf->ddnegllikeli ( bprm, data );
 	// H->print();
 	for ( i=0; i<4; i++ ) {
-		bprm[i] += 1e-5;
+		bprm[i] += 1e-9;
 		dl1 = pmf->dnegllikeli ( bprm, data );
-		bprm[i] -= 1e-5;
+		bprm[i] -= 1e-9;
 		for ( j=0; j<4; j++ ) {
-			d = dl[j] - dl1[j];   // negative derivative
-			d /= 1e-5;
+			d = dl1[j] - dl[j];
+			d /= 1e-9;
+			std::cerr << i << " " << j << " ";
 			// failures += T->isequal ( log((*H)(i,j)/ d), 0, "Psychometric Values beta likelihood Hessian", .15 );
-			failures += T->isequal ( (*H)(i,j), d, "Psychometric Values beta likelihood Hessian" );
+			failures += T->isequal ( (*H)(i,j), -d, "Psychometric Values beta likelihood Hessian", .05 );
 		}
 	}
 	delete H;
@@ -152,7 +152,7 @@ int DerivativeCheck ( TestSuite * T ) {
 	double x(2.);
 	std::vector<double> prm (3);
 	prm[0] = 4.; prm[1] = 1.5; prm[2] = .02;
-	char msg[50];
+	char msg[500];
 	std::vector <double> intensity ( 6 );
 	std::vector <int>    n ( 6, 50 );
 	std::vector <int>    k ( 6 );
