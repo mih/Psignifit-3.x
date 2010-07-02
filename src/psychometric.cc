@@ -643,7 +643,7 @@ Matrix * BetaPsychometric::ddnegllikeli ( const std::vector<double>& prm, const 
 {
 	Matrix * I = new Matrix ( prm.size(), prm.size() );
 	unsigned int i, j, z;
-	double xz, pz, nz, nunz, fz, dldf, ddlddf;
+	double xz, pz, nz, nunz, fz, dldf, ddlddf, dfda, ddldfdnu;
 	unsigned int nupos ( getNparams()-1 );
 	double nu ( prm[nupos] );
 
@@ -654,18 +654,24 @@ Matrix * BetaPsychometric::ddnegllikeli ( const std::vector<double>& prm, const 
 		fz = evaluate ( xz, prm );
 		nunz = nz*nu;
 		// d2l/dnu2
-		(*I)(nupos,nupos) = digamma(nunz)*nz*nz - fz*fz*nz*nz * digamma(fz*nunz) - (1-fz)*(1-fz)*nz*nz*digamma((1-fz)*nunz);
-		ddlddf =   nunz*nunz * ( digamma(fz*nunz) + digamma((1-fz)*nunz) );
-		dldf   = - nunz* ( (pz>0 ? (pz<1 ? log(pz/(1-pz)) : 1e10 ) : -1e10 ) + psi( (1-fz)*nunz ) - psi ( fz*nunz ));
+		(*I)(nupos,nupos) += digamma(nunz)*nz*nz - fz*fz*nz*nz * digamma(fz*nunz) - (1-fz)*(1-fz)*nz*nz*digamma((1-fz)*nunz);
+
+		// Now partial derivatives for chainrule
+		ddlddf   = - nunz*nunz * ( digamma(fz*nunz) + digamma((1-fz)*nunz) );
+		dldf     =   nunz* ( (pz>0 ? (pz<1 ? log(pz/(1-pz)) : 1e10 ) : -1e10 ) + psi( (1-fz)*nunz ) - psi ( fz*nunz ));
+		ddldfdnu = - nz *  ( (pz>0 ? (pz<1 ? log(pz/(1-pz)) : 1e10 ) : -1e10 )
+				+ psi((1-fz)*nunz) - psi(fz*nunz)
+				+ (1-fz)*nunz*digamma ((1-fz)*nunz) - fz*nunz*digamma(fz*nunz) );
+
 		for ( i=0; i<nupos; i++ ) {
+			dfda = dpredict ( prm, xz, i);
 			// partial derivatives (classical)
 			for ( j=i; j<nupos; j++ ) {
-				(*I)(i,j) += ddlddf * dpredict ( prm, xz, i) * dpredict ( prm, xz, j );
+				(*I)(i,j) += ddlddf * dfda * dpredict ( prm, xz, j );
 				(*I)(i,j) += dldf   * ddpredict ( prm, xz, i, j );
 			}
 			// partial derivatives w.r.t. classical and nu
-			(*I)(i,nupos) += nz*psi(fz*nunz) - fz*nunz*nz*digamma(fz*nunz) + nz*psi( (1-fz)*nunz ) + (1-fz)*nunz*nz*digamma( (1-fz)*nunz );
-			(*I)(i,nupos) += (pz>0 ? (pz<1 ? log(pz/(1-pz)) : 1e10) : -1e10 );
+			(*I)(i,nupos) += ddldfdnu * dfda;
 		}
 	}
 
