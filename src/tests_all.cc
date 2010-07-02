@@ -228,6 +228,54 @@ int DerivativeCheck ( TestSuite * T ) {
 		delete sigmoidnames[coreindex];
 	}
 
+	// Psychometric function
+	core = new abCore(); sigmoid = new PsiLogistic ();
+	PsiPsychometric * pmf = new PsiPsychometric ( 2, core, sigmoid );
+	delete core;
+	delete sigmoid;
+	// First derivatives
+	y1 = pmf->evaluate ( x, prm );
+	for ( i=0; i<3; i++ ) {
+		prm[i] += 1e-7;
+		y0 = pmf->evaluate ( x, prm );
+		prm[i] -= 1e-7;
+		d = y0-y1; d /= 1e-7;
+		sprintf ( msg, "Psychometric function 1st derivative w.r.t. prm %d", i );
+		failures += T->isequal ( pmf->dpredict ( prm, x, i ), d, msg );
+	}
+	// Second derivatives
+	for ( i=0; i<3; i++ ) {
+		for ( j=0; j<3; j++ ) {
+			y0 = pmf->dpredict ( prm, x, i );
+			prm[j] += 1e-7;
+			y1 = pmf->dpredict ( prm, x, i );
+			prm[j] -= 1e-7;
+			d = y1 - y0; d /= 1e-7;
+			sprintf ( msg, "Psychometric function 2nd derivative w.r.t. prm %d and %d", i, j );
+			failures += T->isequal ( pmf->ddpredict ( prm, x, i, j ), d, msg );
+		}
+	}
+	delete pmf;
+
+	// Special functions
+	// psi = d log(Gamma)/ d x
+	for ( x=.5; x<55; x+=5 ) {
+		y1 = gammaln ( x );
+		y0 = gammaln ( x+1e-7 );
+		d = y0-y1; d /= 1e-7;
+		sprintf ( msg, "psi function at x=%g", x );
+		failures += T->isequal ( psi(x), d, msg, 1e-5 );
+	}
+
+	// digamma = d psi / dx
+	for ( x=.5; x<55; x+=5 ) {
+		y1 = psi ( x );
+		y0 = psi ( x+1e-7 );
+		d = y0-y1; d /= 1e-7;
+		sprintf ( msg, "digamma function at x=%g", x );
+		failures += T->isequal ( digamma(x), d, msg, 1e-5 );
+	}
+
 	return failures;
 }
 
@@ -1034,8 +1082,8 @@ int ReturnTest ( TestSuite * T ) {
 int main ( int argc, char ** argv ) {
 	TestSuite Tests ( "tests_all.log" );
 	Tests.addTest(&PsychometricValues,"Values of the psychometric function");
-	Tests.addTest(&DerivativeCheck, "Derivaties of elements" );
 	/*
+	Tests.addTest(&DerivativeCheck, "Derivaties of elements" );
 	Tests.addTest(&OptimizerSolution, "Solutions of optimizer");
 	Tests.addTest(&BootstrapTest,     "Bootstrap properties");
 	Tests.addTest(&SigmoidTests,      "Properties of sigmoids");
