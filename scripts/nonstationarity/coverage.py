@@ -136,9 +136,9 @@ if options.fixed_levels is not None:
     try:
         x = eval(options.fixed_levels)
     except Exception:
-        raise ValueError(message)
+        raise ValueError(message + options.fixed_levels)
     if not operator.isSequenceType(x) or False in [operator.isNumberType(i) for i in x]:
-        raise ValueError(message)
+        raise ValueError(message + options.fixed_levels)
     if not len(x) == options.nblocks:
         raise ValueError("Argument mismatch: You gave "+str(len(x))+" levels on the command line"+\
                 " but specified "+str(options.nblocks)+" blocks.")
