@@ -543,6 +543,24 @@ double PsiPsychometric::dpredict ( const std::vector<double>& prm, double x, uns
 	}
 }
 
+double PsiPsychometric::ddpredict ( const std::vector<double>& prm, double x, unsigned int i, unsigned int j ) const {
+	double guess ( getGuess() );
+	double ddf;
+
+	if ( ((i==0)&&(j==0)) || ((i==0)&&(j==1)) || ((i==1)&&(j==0)) || ((i==1)&&(j==1)) ) {
+		ddf  = sigmoid->ddf ( core->g ( x,prm ) ) * core->dg ( x, prm, i ) * core->dg ( x, prm, j );
+		ddf += sigmoid->df ( core->g ( x, prm ) ) * core->ddg ( x, prm, i, j );
+		ddf *= (1-guess-prm[2]);
+	} else if ( ((i==2)&&(j==2)) || ((i==2)&&(j==3)) || ((i==3)&&(j==2)) || ((i==3)&&(j==3)) ) {
+		ddf = 0;
+	} else if ( ((i==0)&&(j==2)) || ((i==0)&&(j==3)) || ((i==1)&&(j==2)) || ((i==1)&&(j==3))
+			||  ((i==2)&&(j==0)) || ((i==3)&&(j==0)) || ((i==2)&&(j==1)) || ((i==3)&&(j==j)) ) {
+		i = ( i<j ? i : j );
+		ddf = - sigmoid->df ( core->g ( x, prm ) ) * core->dg ( x, prm, i );
+	}
+	return ddf;
+}
+
 /******************************** BetaPsychometric **************************************/
 
 double BetaPsychometric::negllikeli ( const std::vector<double>& prm, const PsiData* data ) const
