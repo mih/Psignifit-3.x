@@ -532,6 +532,19 @@ double PsiPsychometric::dlposteri ( std::vector<double> prm, const PsiData* data
 		return 0;
 }
 
+double PsiPsychometric::dpredict ( const std::vector<double>& prm, double x, unsigned int i ) const {
+	double guess ( guessingrate );
+	if ( getNalternatives()<2 )
+		guess = prm[3];
+	if (i<2)
+		return (1-guess-prm[2]) * sigmoid->df ( core->g ( x, prm ) ) * core->dg ( x, prm, i );
+	if (i==2)
+		return -sigmoid->f(core->g(x,prm));
+	if (i==3 && getNalternatives()<2)
+		return 1-sigmoid->f(core->g(x,prm));
+	}
+}
+
 /******************************** BetaPsychometric **************************************/
 
 double BetaPsychometric::negllikeli ( const std::vector<double>& prm, const PsiData* data ) const

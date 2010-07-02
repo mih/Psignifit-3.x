@@ -117,6 +117,7 @@ class PsiPsychometric {
 			) const;                                                                 ///< derivative of the negative log posterior with respect to parameter i
 		void setgammatolambda ( void ) { gammaislambda=true; };                          ///< calling this function applies the constraint that gamma and lambda should be equal in a yes/no paradigm
 		double getGuess ( const std::vector<double>& prm ) const { return ( getNalternatives() < 2 ? prm[3] : 1./Nalternatives ); }
+		double dpredict ( const std::vector<double>& prm, double x, unsigned int i ) const;
 };
 
 /** \brief Psychometric function that allows for models the variance of the data by a beta distribution
