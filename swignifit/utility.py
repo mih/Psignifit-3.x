@@ -8,6 +8,9 @@
 #   the copyright and license terms
 #
 ######################################################################
+
+"""Variety of utilities for working with swig generated code."""
+
 import operator as op
 import re
 import numpy as np
