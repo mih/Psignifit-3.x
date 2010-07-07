@@ -690,11 +690,12 @@ Matrix * BetaPsychometric::ddnegllikeli ( const std::vector<double>& prm, const 
 
 double BetaPsychometric::fznull ( unsigned int z, const PsiData * data, double nu ) const {
 	double x ( data->getPcorrect ( z ) );
-	int k;
 	double nunz (nu*data->getNtrials ( z ) );
+	double pz ( x );
 	double d (1);
 
-	while ( d>.01 ) {
+	// Newton optimization (will typically be fine with pz, i.e. without optimization)
+	while ( d>.001 ) {
 		d =  -( (pz>0 ? (pz<1 ? log(pz/(1-pz)) : 1e10 ) : -1e10 ) + psi ( (1-x) * nunz ) - psi ( x * nunz ) ) / (nunz * ( digamma(x*nunz)+digamma( (1-x)*nunz) ) );
 		x -= d;
 	}
@@ -704,23 +705,34 @@ double BetaPsychometric::fznull ( unsigned int z, const PsiData * data, double n
 
 double BetaPsychometric::negllikelinull ( const PsiData * data, double nu ) const {
 	double l ( 0 );
-	int z, nz;
+	unsigned int z, nz;
 	double nunz, pz;
 	double fz;
+	double al, bt;
 
 	for ( z=0; z<data->getNblocks(); z++ ) {
 		fz = fznull ( z, data, nu );
 		nunz = nu*data->getNtrials ( z );
 		pz = data->getPcorrect ( z );
+		al = fz*nunz;
+		bt = (1-fz)*nunz;
 
-		l -= gammaln ( nunz ) - gammaln ( fz*nunz ) - gammaln ( (1-fz)*nunz ) + (fz*nunz-1) * ( pz>0 ? log(pz) : -1e10 ) + (1-fz)*nunz * ( pz<1 ? log(1-pz) : -1e10 );
+		l -= gammaln ( nunz ) - gammaln ( al ) - gammaln ( bt );
+		if (pz>0)
+			l -= (al-1)*log(pz);
+		else
+			l += 1e10;
+		if (pz<1)
+			l -= (bt-1)*log(1-pz);
+		else
+			l += 1e10;
 	}
 
 	return l;
 };
 
 double BetaPsychometric::deviance ( const std::vector<double>& prm, const PsiData * data ) const {
-	return 2*( negllikeli ( prm, data ) - negllikelinull ( data, prm[prm.size()-1] ) );
+	return 2*( negllikeli ( prm, data ) - negllikelinull ( data, prm[getNparams()-1] ) );
 };
 
 
