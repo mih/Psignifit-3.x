@@ -33,7 +33,8 @@ def extract_subclasses(base, sub_func):
 
     Returns
     -------
-    A dictionary mapping subclass names to constructors.
+    subs : dict
+        A dictionary mapping subclass names to constructors.
 
     """
     to_visit = base.__subclasses__()
@@ -83,10 +84,12 @@ def make_dataset(data, nafc):
         Psychometric data in colum based input,
         e.g.[[1, 1, 5], [2, 3, 5] [3, 5, 5]].
     nafc : int
+        Number of alternative choices in forced choice procedure.
 
     Returns
     -------
-    PsiData object
+    data: PsiData
+        Dataset object.
 
     """
     data = np.array(data).T
@@ -101,6 +104,7 @@ def make_pmf(dataset, nafc, sigmoid, core, priors):
     Parameters
     ----------
     nafc : int
+        Number of alternative choices in forced choice procedure.
     sigmoid : string
         Description of model sigmoid.
     core : string
@@ -110,8 +114,10 @@ def make_pmf(dataset, nafc, sigmoid, core, priors):
 
     Returns
     -------
-    (PsiPsychometric, int)
-    PsiPsychometric object and number of free parameters in model.
+    pmf : PsiPsychometric
+        Model object.
+    nparams : int
+        Number of free parameters in model..
 
     """
     sigmoid = get_sigmoid(sigmoid)
@@ -130,8 +136,12 @@ def make_dataset_and_pmf(data, nafc, sigmoid, core, priors):
 
     Returns
     -------
-    (PsiData, PsiPsychometric, int)
-    PsiData object, PsiPsychometric object and number of free parameters.
+    data : PsiData
+        Dataset object.
+    pmf : PsiPsychometric
+        Model object.
+    nparams : int
+        Number of free parameters.
 
     """
     dataset = make_dataset(data, nafc)
@@ -139,14 +149,65 @@ def make_dataset_and_pmf(data, nafc, sigmoid, core, priors):
     return dataset, pmf, nparams
 
 def get_sigmoid(descriptor):
-    """Convert string representation of sigmoid to PsiSigmoid object."""
+    """Convert string representation of sigmoid to PsiSigmoid object.
+
+    Parameters
+    ----------
+    descriptor : string
+        Description of sigmoid.
+
+    Returns
+    -------
+    sigmoid : subclass of PsiSigmoid
+        An instantiated sigmoid of the requested type.
+
+    Raises
+    ------
+    ValueError
+        If the requested sigmoid is not available.
+
+    See Also
+    --------
+    `available_sigmoids()`
+
+    """
     if not sig_dict.has_key(descriptor):
         raise ValueError("The sigmoid '%s' you requested, is not available." %
                 descriptor)
     return sig_dict[descriptor]()
 
 def get_core(descriptor, data, sigmoid):
-    """Convert string representation of core to PsiCore object."""
+    """Convert string representation of core to PsiCore object.
+
+    Parameters
+    ----------
+    descriptor : string
+        Description of core.
+    data : PsiData
+        Instantiated dataset.
+    sigmoid : PsiSigmoid
+        Instantiated sigmoid.
+
+    Returns
+    -------
+    prior : subclass of PsiCore
+        An instantiated core of the requested type.
+
+    Raises
+    ------
+    ValueError
+        If the requested core is not available.
+
+    See Also
+    --------
+    `available_cores()`
+
+    Notes
+    -----
+    The core objects may require a dataset and a sigmoid type identifier to be
+    instantiated. See the Psi++ code for details.
+
+    """
     descriptor, parameter = re.match('([a-z]+)([\d\.]*)', descriptor).groups()
     sigmoid_type = sigmoid.getcode()
     if descriptor not in core_dict.keys():
@@ -158,7 +219,28 @@ def get_core(descriptor, data, sigmoid):
         return core_dict[descriptor](data, sigmoid_type)
 
 def get_prior(prior):
-    """Convert string based representation of prior to PsiPrior object."""
+    """Convert string based representation of prior to PsiPrior object.
+
+    Parameters
+    ----------
+    prior : string
+        Description of prior, with paramters.
+
+    Returns
+    -------
+    prior : PsiPrior
+        An instantiated prior of the requested type.
+
+    See Also
+    --------
+    `available_priors()`
+
+    Notes
+    -----
+    This function does not raise any error and silently returns `None` if the
+    prior does not exist.
+
+    """
     try:
         prior = "sfr."+"Prior(".join(prior.split('('))
         return eval(prior)
@@ -171,22 +253,48 @@ def set_priors(pmf, priors):
     Parameters
     ----------
     pmf : PsiPsychometric object
-        the model
-    priors : list of strings of length of free parameters of `pmf`
-        list of priors
+        Instantiated model.
+    priors : Sequence of strings of length of free parameters of `pmf`
+         Model priors.
+
+    Raises
+    ------
+    ValueError
+        If the number of priors is not equal to the number of free parameters in
+        the model.
 
     """
     if priors is not None:
         nparams = pmf.getNparams()
         if len(priors) != nparams:
-            raise ValueError("You specified %d priors, " % len(priors)
+            raise ValueError("You specified %d priors, " % len(priors) +
                     "but there are %d free parameters in the model." % nparams)
         for (i,p) in enumerate((get_prior(p) for p in priors)):
             if p is not None:
                 pmf.setPrior(i, p)
 
 def get_start(start, nparams):
-    """Convert sequence of starting values to vector_double type."""
+    """Convert sequence of starting values to vector_double type.
+
+    Parameters
+    ----------
+    start : sequence of numbers
+        Starting values.
+    nparams : int
+        Number of free parameters of the model.
+
+    Returns
+    -------
+    start: vector_double
+        Starting values.
+
+    Raises
+    ------
+    ValueError
+        If the length of the sequence is not equal to the number of free
+        parameters.
+
+    """
     if len(start) != nparams:
             raise ValueError("You specified %d starting value(s), " % len(start)
                     +"but there are %d parameters." % nparams)
@@ -194,7 +302,27 @@ def get_start(start, nparams):
         return sfr.vector_double(start)
 
 def get_params(params, nparams):
-    """Convert sequence of parameter values to vector_double type."""
+    """Convert sequence of parameter values to vector_double type.
+
+    Parameters
+    ----------
+    params : sequence of numbers
+        Parameter values.
+    nparams : int
+        Number of free parameters in the model.
+
+    Returns
+    -------
+    params : vector_double
+        Parameter values.
+
+    Raises
+    ------
+    ValueError
+        If the length of the sequence is not equal to the number of free
+        parameters.
+
+    """
     if len(params) != nparams:
                 raise ValueError("You specified %d parameters, " % len(params) +
                         "but the model has parameters." % nparams)
@@ -212,10 +340,17 @@ def get_cuts(cuts):
     Parameters
     ----------
     cuts : None, number or sequence of numbers
+        Cut values
 
     Returns
     -------
-    vector_double
+    cuts : vector_double
+        Cut values.
+
+    Raises
+    ------
+    TypeError
+        If `cuts` is not None, a number or a sequence of numbers.
 
     """
     if cuts is None:
