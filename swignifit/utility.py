@@ -11,6 +11,8 @@
 
 """Variety of utilities for working with swig generated code."""
 
+__docformat__ = "restructuredtext"
+
 import operator as op
 import re
 import numpy as np
