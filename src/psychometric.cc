@@ -657,10 +657,11 @@ Matrix * BetaPsychometric::ddnegllikeli ( const std::vector<double>& prm, const 
 		(*I)(nupos,nupos) += digamma(nunz)*nz*nz - fz*fz*nz*nz * digamma(fz*nunz) - (1-fz)*(1-fz)*nz*nz*digamma((1-fz)*nunz);
 
 		// Now partial derivatives for chainrule
-		ddlddf   = - nunz*nunz * ( digamma(fz*nunz) + digamma((1-fz)*nunz) );
-		dldf     =   nunz* ( (pz>0 ? (pz<1 ? log(pz/(1-pz)) : 1e10 ) : -1e10 ) + psi( (1-fz)*nunz ) - psi ( fz*nunz ));
-		ddldfdnu = - nz *  ( (pz>0 ? (pz<1 ? log(pz/(1-pz)) : 1e10 ) : -1e10 )
-				+ psi((1-fz)*nunz) - psi(fz*nunz)
+		ddlddf   = - nunz*nunz * ( digamma( fz*nunz ) + digamma( (1-fz)*nunz) );
+		dldf     =   nunz* ( (pz>0 ? (pz<1 ? log(pz/(1-pz)) : 1e10 ) : -1e10 ) + psi( (1-fz)*nunz ) - psi ( fz*nunz ) );
+		ddldfdnu =   nz *  (
+				  (pz>0 ? (pz<1 ? log(pz/(1-pz)) : 1e10 ) : -1e10 )
+				+ (psi((1-fz)*nunz) - psi(fz*nunz))
 				+ (1-fz)*nunz*digamma ((1-fz)*nunz) - fz*nunz*digamma(fz*nunz) );
 
 		for ( i=0; i<nupos; i++ ) {
@@ -681,6 +682,8 @@ Matrix * BetaPsychometric::ddnegllikeli ( const std::vector<double>& prm, const 
 			(*I)(j,i) = (*I)(i,j);
 		}
 	}
+
+	I->scale(-1);
 
 	return I;
 };
