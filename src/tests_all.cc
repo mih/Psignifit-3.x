@@ -128,12 +128,13 @@ int PsychometricValues ( TestSuite* T ) {
 		for ( j=0; j<4; j++ ) {
 			d = dl1[j] - dl[j];
 			d /= 1e-9;
-			std::cerr << i << " " << j << " ";
 			// failures += T->isequal ( log10((*H)(i,j)/ d), 0, "Psychometric Values beta likelihood Hessian", .12 );
 			failures += T->isequal_rel ( (*H)(i,j), d, "Psychometric Values beta likelihood Hessian", .12 );
 		}
 	}
 	delete H;
+
+	failures += T->ismore ( pmf->deviance ( bprm, data ), 0, "Psychometric Values beta deviance" );
 	delete pmf;
 
 	delete core;
