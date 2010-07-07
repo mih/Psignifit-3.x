@@ -141,7 +141,8 @@ def make_dataset_and_pmf(data, nafc, sigmoid, core, priors):
 def get_sigmoid(descriptor):
     """Convert string representation of sigmoid to PsiSigmoid object."""
     if not sig_dict.has_key(descriptor):
-        raise PsignifitException("The sigmoid \'"+str(descriptor)+"\' you requested, is not available.")
+        raise ValueError("The sigmoid '%s' you requested, is not available." %
+                descriptor)
     return sig_dict[descriptor]()
 
 def get_core(descriptor, data, sigmoid):
@@ -149,9 +150,8 @@ def get_core(descriptor, data, sigmoid):
     descriptor, parameter = re.match('([a-z]+)([\d\.]*)', descriptor).groups()
     sigmoid_type = sigmoid.getcode()
     if descriptor not in core_dict.keys():
-        raise PsignifitException("The core \'"\
-                +str(descriptor)\
-                +"\' you requested, is not available.")
+        raise ValueError("The core '%s' you requested, is not available." %
+                descriptor)
     if len(parameter) > 0:
         return core_dict[descriptor](data, sigmoid_type, float(parameter))
     else:
@@ -179,8 +179,8 @@ def set_priors(pmf, priors):
     if priors is not None:
         nparams = pmf.getNparams()
         if len(priors) != nparams:
-            raise PsignifitException("You specified \'"+str(len(priors))+\
-                    "\' priors, but there are \'"+str(nparams)+ "\' parameters.")
+            raise ValueError("You specified %d priors, " % len(priors)
+                    "but there are %d free parameters in the model." % nparams)
         for (i,p) in enumerate((get_prior(p) for p in priors)):
             if p is not None:
                 pmf.setPrior(i, p)
@@ -188,16 +188,16 @@ def set_priors(pmf, priors):
 def get_start(start, nparams):
     """Convert sequence of starting values to vector_double type."""
     if len(start) != nparams:
-            raise PsignifitException("You specified \'"+str(len(start))+\
-                    "\' starting value(s), but there are \'"+str(nparams)+ "\' parameters.")
+            raise ValueError("You specified %d starting value(s), " % len(start)
+                    +"but there are %d parameters." % nparams)
     else:
         return sfr.vector_double(start)
 
 def get_params(params, nparams):
     """Convert sequence of parameter values to vector_double type."""
     if len(params) != nparams:
-                raise PsignifitException("You specified \'"+str(len(start))+\
-                        "\' parameters, but the model has \'"+str(nparams)+ "\' parameters.")
+                raise ValueError("You specified %d parameters, " % len(params) +
+                        "but the model has parameters." % nparams)
     else:
         return sfr.vector_double(params)
 
@@ -225,6 +225,6 @@ def get_cuts(cuts):
     elif op.isNumberType(cuts):
         return sfr.vector_double([cuts])
     else:
-        raise PsignifitException("'cuts' must be either None, a number or a "+\
+        raise TypeError("'cuts' must be either None, a number or a "+
                 "sequence of numbers.")
 
