@@ -688,6 +688,42 @@ Matrix * BetaPsychometric::ddnegllikeli ( const std::vector<double>& prm, const 
 	return I;
 };
 
+double BetaPsychometric::fznull ( unsigned int z, const PsiData * data, double nu ) const {
+	double x ( data->getPcorrect ( z ) );
+	int k;
+	double nunz (nu*data->getNtrials ( z ) );
+	double d (1);
+
+	while ( d>.01 ) {
+		d =  -( (pz>0 ? (pz<1 ? log(pz/(1-pz)) : 1e10 ) : -1e10 ) + psi ( (1-x) * nunz ) - psi ( x * nunz ) ) / (nunz * ( digamma(x*nunz)+digamma( (1-x)*nunz) ) );
+		x -= d;
+	}
+
+	return x;
+};
+
+double BetaPsychometric::negllikelinull ( const PsiData * data, double nu ) const {
+	double l ( 0 );
+	int z, nz;
+	double nunz, pz;
+	double fz;
+
+	for ( z=0; z<data->getNblocks(); z++ ) {
+		fz = fznull ( z, data, nu );
+		nunz = nu*data->getNtrials ( z );
+		pz = data->getPcorrect ( z );
+
+		l -= gammaln ( nunz ) - gammaln ( fz*nunz ) - gammaln ( (1-fz)*nunz ) + (fz*nunz-1) * ( pz>0 ? log(pz) : -1e10 ) + (1-fz)*nunz * ( pz<1 ? log(1-pz) : -1e10 );
+	}
+
+	return l;
+};
+
+double BetaPsychometric::deviance ( const std::vector<double>& prm, const PsiData * data ) const {
+	return 2*( negllikeli ( prm, data ) - negllikelinull ( data, prm[prm.size()-1] ) );
+};
+
+
 /******************************** Outlier model *****************************************/
 
 double OutlierModel::getp ( const std::vector<double>& prm ) const

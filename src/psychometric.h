@@ -130,6 +130,8 @@ class PsiPsychometric {
  */
 class BetaPsychometric : public PsiPsychometric {
 	private:
+		double fznull ( unsigned int z, const PsiData* data, double nu ) const;
+		double negllikelinull ( const PsiData* data, double nu ) const;
 	public:
 		BetaPsychometric ( int nAFC, PsiCore * core, PsiSigmoid * sigmoid ) : PsiPsychometric ( nAFC, core, sigmoid ) {}
 		double negllikeli (
@@ -145,6 +147,10 @@ class BetaPsychometric : public PsiPsychometric {
 				const PsiData* data                   ///< data for which the likelihood should be evaluated
 				) const;                 ///< 2nd derivative of the negative log likelihood (newly allocated matrix)
 		unsigned int getNparams ( void ) const { return PsiPsychometric::getNparams()+1; }   ///< get the number of free parameters of the psychometric function
+		double deviance (
+			const std::vector<double>& prm,                      ///< parameters of the psychometric function model
+			const PsiData * data                                 ///< data for which the likelihood should be evaluated
+			) const; ///< deviance for a given data set and parameter constellation
 };
 
 /** \brief Psychometric function with one separate data point
