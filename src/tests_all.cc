@@ -129,8 +129,8 @@ int PsychometricValues ( TestSuite* T ) {
 			d = dl1[j] - dl[j];
 			d /= 1e-9;
 			std::cerr << i << " " << j << " ";
-			// failures += T->isequal ( log((*H)(i,j)/ d), 0, "Psychometric Values beta likelihood Hessian", .15 );
-			failures += T->isequal ( (*H)(i,j), -d, "Psychometric Values beta likelihood Hessian", .05 );
+			// failures += T->isequal ( log10((*H)(i,j)/ d), 0, "Psychometric Values beta likelihood Hessian", .12 );
+			failures += T->isequal_rel ( (*H)(i,j), d, "Psychometric Values beta likelihood Hessian", .12 );
 		}
 	}
 	delete H;
