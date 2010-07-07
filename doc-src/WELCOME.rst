@@ -113,9 +113,11 @@ Documentation
 .............
 
 `sphinx <http://sphinx.pocoo.org/>`_ (0.6.5-1)
-    to generate the python documentation
+    to generate the html documentation
 `doxygen <http://www.stack.nl/~dimitri/doxygen/>`_ (1.6.3-1)
    to generate the C++ documentation
+`epydoc <http://epydoc.sourceforge.net/>`_ (3.0.1-5)
+   to generate the Python API documentation
 
 Testing
 .......
