@@ -132,11 +132,19 @@ Tags should mark critical points in the development history in the following way
 Extending
 ---------
 
-In principle every part of the library can be replaced. This is generally done by deriving from the fundamental base classes.
-An exception is adding a new sigmoid:
+Coding Style
+............
+
+We try to adhere to the:
+`Numpy Docstring Conventions <http://projects.scipy.org/numpy/wiki/CodingStyleGuidelines#docstring-standard>`_
+as far as possible.
+
 
 Adding a new sigmoid
 ....................
+
+In principle every part of the library can be replaced. This is generally done by deriving from the fundamental base classes.
+An exception is adding a new sigmoid:
 
 Adding a new sigmoid requires two steps:
 
