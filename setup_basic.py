@@ -17,6 +17,7 @@ Provides definitions commmon to all setup files.
 
 from distutils.core import setup, Extension
 import numpy
+import os
 
 name = "pypsignifit"
 version = "3.0beta"
@@ -48,5 +49,18 @@ swignifit = Extension('swignifit._swignifit_raw',
         sources = psipp_sources + swignifit_sources,
         include_dirs=["src"])
 
+interface = os.getenv("INTERFACE")
+ext_modules = []
+if interface == "swignifit" or interface == None:
+    packages.append("swignifit")
+    ext_modules.append(swignifit)
+if interface == "psipy" or interface == None:
+    ext_modules.append(psipy)
+
 if __name__ == "__main__":
-    pass
+    setup(name = name,
+        version = version,
+        author = author,
+        description = description,
+        packages = packages,
+        ext_modules = ext_modules)
