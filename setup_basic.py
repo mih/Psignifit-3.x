@@ -48,3 +48,5 @@ swignifit = Extension('swignifit._swignifit_raw',
         sources = psipp_sources + swignifit_sources,
         include_dirs=["src"])
 
+if __name__ == "__main__":
+    pass
