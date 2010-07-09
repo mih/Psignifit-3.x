@@ -9,11 +9,7 @@
 #
 ######################################################################
 
-""" part of the build system for psignifit 3.x
-
-Provides definitions commmon to all setup files.
-
-"""
+""" setup.py for Psignifit 3.x """
 
 from distutils.core import setup, Extension
 import numpy
