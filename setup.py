@@ -52,6 +52,8 @@ swignifit = Extension('swignifit._swignifit_raw',
 
 interface = os.getenv("INTERFACE")
 ext_modules = []
+if interface not in ("swignifit", "psipy", None):
+    raise ValueError("The interface '%s' does not exist!" % interface)
 if interface == "swignifit" or interface == None:
     packages.append("swignifit")
     ext_modules.append(swignifit)
