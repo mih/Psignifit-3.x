@@ -15,6 +15,7 @@ from distutils.core import setup, Extension
 import numpy
 import os
 
+# metadata definitions
 name = "pypsignifit"
 version = "3.0beta"
 author = "Ingo Fründ & Valentin Haenel"
@@ -22,6 +23,7 @@ description = "Statistical inference for psychometric functions"
 license = "MIT"
 packages = ["pypsignifit"]
 
+# Psi++ source files
 psipp_sources = [
     "src/bootstrap.cc",
     "src/core.cc",
@@ -36,16 +38,20 @@ psipp_sources = [
     "src/linalg.cc",
     "src/prior.cc"]
 
+# psipy interface
 psipy_sources = ["psipy/psipy.cc"]
 psipy = Extension ( "_psipy",
     sources = psipp_sources + psipy_sources,
     include_dirs=[numpy.get_include(), "src", "psipy"])
 
+# swignifit interface
 swignifit_sources = ["swignifit/swignifit_raw.cxx"]
 swignifit = Extension('swignifit._swignifit_raw',
         sources = psipp_sources + swignifit_sources,
         include_dirs=["src"])
 
+# decide which interface to use
+# control this via the INTERFACE environment varible
 interface = os.getenv("INTERFACE")
 ext_modules = []
 if interface not in ("swignifit", "psipy", None):
