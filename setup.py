@@ -23,6 +23,7 @@ name = "pypsignifit"
 version = "3.0beta"
 author = "Ingo Fründ & Valentin Haenel"
 description = "Statistical inference for psychometric functions"
+license = "MIT"
 packages = ["pypsignifit"]
 
 psipp_sources = [
@@ -62,5 +63,6 @@ if __name__ == "__main__":
         version = version,
         author = author,
         description = description,
+        license = license,
         packages = packages,
         ext_modules = ext_modules)
