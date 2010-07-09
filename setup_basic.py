@@ -18,6 +18,12 @@ Provides definitions commmon to all setup files.
 from distutils.core import setup, Extension
 import numpy
 
+name = "pypsignifit"
+version = "3.0beta"
+author = "Ingo Fründ & Valentin Haenel"
+description = "Statistical inference for psychometric functions"
+packages = ["pypsignifit"]
+
 psipp_sources = [
     "src/bootstrap.cc",
     "src/core.cc",
@@ -41,10 +47,4 @@ swignifit_sources = ["swignifit/swignifit_raw.cxx"]
 swignifit = Extension('swignifit._swignifit_raw',
         sources = psipp_sources + swignifit_sources,
         include_dirs=["src"])
-
-name = "pypsignifit"
-version = "3.0beta"
-author = "Ingo Fründ & Valentin Haenel"
-description = "Statistical inference for psychometric functions"
-packages = ["pypsignifit"]
 
