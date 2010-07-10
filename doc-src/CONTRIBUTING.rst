@@ -45,20 +45,14 @@ targets will invoke separate targets to build the individual components of the
 software. If during development you wish to build components separately, have a
 look at the main makefile, it should contain everything you need.
 
-There are several ``setup.py`` files, which we use to compile the ``psi++`` and
-the python interfaces:
+There is a single ``setup.py`` file that can be used to compile and install
+``pypsignifit`` including the ``swignifit`` and ``psipy`` interfaces. For more
+information about how to use this file, you may look at: `Installing Pyhon Modules
+<http://docs.python.org/install/>`_. The default behaviour is to build both
+interfaces, but you can use the ``INTERFACE`` environment variable to build only
+of them. For example::
 
-:setup_basic.py:
-        contains definitions
-:setup_psipy.py:
-        will compile/install ``psipy`` only
-:setup_swignifit.py:
-        will compile/install ``swignifit`` only
-:setup.py:
-        will compile ``psipy`` and ``swignifit``
-
-When asked to install, the setup scripts will also install ``pypsignifit``.
-
+    INTERFACE="swignifit" python setup.py build
 
 Git-Repository
 --------------
