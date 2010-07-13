@@ -87,6 +87,7 @@ satisfy the dependencies listed below:
 * ``python-matplotlib``
 * ``python-sphinx``
 * ``doxygen``
+* ``python-nose``
 
 Compile-Time
 ............
@@ -122,7 +123,10 @@ Documentation
 Testing
 .......
 
-No additional testing frameworks are required.
+`nosetest <http://somethingaboutorange.com/mrl/projects/nose/0.11.2/>`_
+(0.11.1-1)
+  for running some of the unit tests
+
 
 Linux
 -----
