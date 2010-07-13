@@ -42,6 +42,13 @@ class PsiPsychometric {
 		PsiCore * Core;
 		PsiSigmoid * Sigmoid;
 		std::vector<PsiPrior*> priors;
+	protected:
+		PsiPsychometric (
+			int nAFC,                                                               ///< number of alternatives (1 indicating yes/no)
+			PsiCore * core,                                                         ///< internal part of the nonlinear function
+			PsiSigmoid * sigmoid,                                                   ///< "external" saturating part of the nonlinear function
+			unsigned int nparameters                                                ///< number of parameters given explicitely
+			);                  ///< Set up a psychometric function model for an nAFC task, explicitely specifiing the number of parameters (useful for derived classes)
 	public:
 		PsiPsychometric (
 			int nAFC,                                                                ///< number of alternatives in the task (1 indicating yes/no)

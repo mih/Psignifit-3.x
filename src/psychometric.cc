@@ -25,6 +25,21 @@ PsiPsychometric::PsiPsychometric (
 		priors[k] = new PsiPrior;
 }
 
+PsiPsychometric::PsiPsychometric (
+			int nAFC,
+			PsiCore * core,
+			PsiSigmoid * sigmoid,
+			unsigned int nparameters
+			) : Nalternatives ( nAFC ), guessingrate(1./nAFC), gammaislambda(false), priors ( nparameters )
+{
+	unsigned int k;
+	Core = core->clone();
+	Sigmoid = sigmoid->clone();
+	for (k=0; k<priors.size(); k++)
+		priors[k] = new PsiPrior;
+}
+
+
 PsiPsychometric::~PsiPsychometric ( void )
 {
 	unsigned int k;
