@@ -44,6 +44,10 @@ clean: clean-python-doc clean-python-build psipp-clean swignifit-clean
 
 test: psipy-test swignifit-test psipp-test
 
+# }}}
+
+#################### PYTHON DEFINITIONS ################### {{{
+
 python-install:
 	python setup.py install
 
