@@ -12,6 +12,7 @@
 
 SPHINX_DOCOUT=doc-html
 EPYDOC_DCOOUT=api
+PSIPP_DOCOUT=psipp-api
 PSIPP_SRC=src
 PYTHON=python
 .PHONY : swignifit psipy ipython psipp-doc
@@ -58,8 +59,8 @@ clean-python-build:
 
 python-doc: $(DOCFILES) $(PYTHONFILES) python-build
 	mkdir -p $(SPHINX_DOCOUT)/$(EPYDOC_DCOOUT)
-	PYTHONPATH=build/`ls -1 build | grep lib` epydoc -o $(SPHINX_DOCOUT)/$(EPYDOC_DCOOUT) $(EPYDOC_TARGET)
-	PYTHONPATH=build/`ls -1 build | grep lib`:doc-src sphinx-build doc-src $(SPHINX_DOCOUT)
+	epydoc -o $(SPHINX_DOCOUT)/$(EPYDOC_DCOOUT) $(EPYDOC_TARGET)
+	PYTHONPATH=.:doc-src sphinx-build doc-src $(SPHINX_DOCOUT)
 
 clean-python-doc:
 	-rm -rv $(DOCOUT)
@@ -86,7 +87,7 @@ psipp-doc:
 
 psipp-clean:
 	cd $(PSIPP_SRC) && $(MAKE) clean
-	-rm -rf psipp-doc
+	-rm -rf $(SPHINX_DOCOUT)/$(PSIPP_DOCOUT)
 
 psipp-test:
 	cd $(PSIPP_SRC) && $(MAKE) test
