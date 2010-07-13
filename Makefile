@@ -64,8 +64,8 @@ python-doc: $(DOCFILES) $(PYTHONFILES) python-build
 clean-python-doc:
 	-rm -rv $(DOCOUT)
 
-ipython:
-	cd .. ; PYTHONPATH=psignifit/build/`ls -1 psignifit/build | grep lib` ipython; cd -
+ipython: psipy swignifit
+	ipython
 
 psipy_vs_swignifit:
 	cd .. ; PYTHONPATH=psignifit/build/`ls -1 psignifit/build | grep lib` nosetests -s --pdb psignifit/tests/psipy_vs_swignifit.py; cd -
