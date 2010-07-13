@@ -34,7 +34,7 @@ EPYDOC_TARGET=swignifit psipy pypsignifit
 
 #################### MAIN DEFINITIONS ################### {{{
 
-build: python-build python-doc
+build: python-build
 
 install: python-install python-doc
 
@@ -46,7 +46,6 @@ python-install: psipy-install
 	echo "Installing python extension"
 
 python-build: psipy swignifit
-	echo "Building python extension"
 
 clean-python-build:
 	echo "clean python build"
