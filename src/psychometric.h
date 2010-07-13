@@ -140,7 +140,7 @@ class BetaPsychometric : public PsiPsychometric {
 		double fznull ( unsigned int z, const PsiData* data, double nu ) const;
 		double negllikelinull ( const PsiData* data, double nu ) const;
 	public:
-		BetaPsychometric ( int nAFC, PsiCore * core, PsiSigmoid * sigmoid ) : PsiPsychometric ( nAFC, core, sigmoid ) {}
+		BetaPsychometric ( int nAFC, PsiCore * core, PsiSigmoid * sigmoid ) : PsiPsychometric ( nAFC, core, sigmoid, ( nAFC<2 ? 5 : 4 ) ) {}
 		double negllikeli (
 			const std::vector<double>& prm,           ///< parameters of the psychometric function model
 			const PsiData* data                       ///< data for which the likelihood should be evaluated
