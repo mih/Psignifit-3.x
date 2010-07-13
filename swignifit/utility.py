@@ -103,6 +103,9 @@ def make_pmf(dataset, nafc, sigmoid, core, priors):
 
     Parameters
     ----------
+    dataset: sequence of length 3 sequences
+        Psychometric data in colum based input,
+        e.g.[[1, 1, 5], [2, 3, 5] [3, 5, 5]].
     nafc : int
         Number of alternative choices in forced choice procedure.
     sigmoid : string
