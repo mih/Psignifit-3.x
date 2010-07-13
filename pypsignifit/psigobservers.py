@@ -54,6 +54,13 @@ class Observer ( object ):
         [[2, 27, 50], [4, 38, 50], [6, 46, 50]]
         >>> O.data
         [[3, 1, 1], [4, 28, 40], [6, 37, 40], [2, 27, 50], [4, 38, 50], [6, 46, 50]]
+
+        :Example:
+        >>> model ={"sigmoid" : "gumbel_r", "core" : "mw01", "nafc" : 2}
+        >>> correct = [0.1, 0.3, 0.5, 0.7, 0.9, 0.99]
+        >>> ob = Observer(4, 4, 0.05, **model)
+        >>> levels = ob.getlevels(correct)
+        >>> data = ob.DoAnExperiment(levels, ntrials=50)
         """
         if model.setdefault( "nafc", 2 ) == 1:
             self.a,self.b,self.lapse,self.guess = params
