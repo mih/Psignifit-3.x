@@ -101,8 +101,8 @@ psipy: $(PYTHONFILES) $(CFILES) $(HFILES) $(PSIPY_INTERFACE) setup.py
 psipy-install:
 	INTERFACE=psipy $(PYTHON) setup.py install
 
-psipy-test:
-	-PYTHONPATH=build/`ls -1 build | grep lib` INTERFACE="psipy" python tests/interface_test.py
+psipy-test: psipy swignifit
+	-PYTHONPATH=. INTERFACE="psipy" python tests/interface_test.py
 
 psipy-clean:
 	-rm -rv _psipy.so
@@ -128,14 +128,14 @@ swignifit-clean:
 
 swignifit-test: test-swignifit-raw test-interface test-utility
 
-test-swignifit-raw:
-	-PYTHONPATH=build/`ls -1 build | grep lib` $(PYTHON) tests/swignifit_raw_test.py
+test-swignifit-raw: swignifit
+	-PYTHONPATH=. $(PYTHON) tests/swignifit_raw_test.py
 
-test-interface:
-	-PYTHONPATH=build/`ls -1 build | grep lib` INTERFACE="swignifit" $(PYTHON) tests/interface_test.py
+test-interface: swignifit
+	-PYTHONPATH=. INTERFACE="swignifit" $(PYTHON) tests/interface_test.py
 
-test-utility:
-	-PYTHONPATH=build/`ls -1 build | grep lib` $(PYTHON) tests/utility_test.py
+test-utility: swignifit
+	-PYTHONPATH=. $(PYTHON) tests/utility_test.py
 
 # }}}
 
