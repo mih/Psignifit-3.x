@@ -18,8 +18,10 @@ import os
 # metadata definitions
 name = "pypsignifit"
 version = "3.0beta"
-author = "Ingo Fründ & Valentin Haenel"
+author = "Ingo Fründ, Valentin Haenel"
+author_email = "psignifit-users@lists.sourceforge.net"
 description = "Statistical inference for psychometric functions"
+url= "http://sourceforge.net/projects/psignifit/"
 license = "MIT"
 packages = ["pypsignifit"]
 
@@ -66,7 +68,9 @@ if __name__ == "__main__":
     setup(name = name,
         version = version,
         author = author,
+        author_email = author_email,
         description = description,
+        url = url,
         license = license,
         packages = packages,
         ext_modules = ext_modules)
