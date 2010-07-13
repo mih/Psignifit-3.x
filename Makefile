@@ -48,17 +48,14 @@ python-install:
 python-build: psipy swignifit
 
 clean-python-build:
-	echo "clean python build"
 	-rm -rv build
 
 python-doc: $(DOCFILES) $(PYTHONFILES) python-build
-	echo "building sphinx documentation"
 	mkdir -p $(SPHINX_DOCOUT)/$(EPYDOC_DCOOUT)
 	PYTHONPATH=build/`ls -1 build | grep lib` epydoc -o $(SPHINX_DOCOUT)/$(EPYDOC_DCOOUT) $(EPYDOC_TARGET)
 	PYTHONPATH=build/`ls -1 build | grep lib`:doc-src sphinx-build doc-src $(SPHINX_DOCOUT)
 
 clean-python-doc:
-	echo "clean sphinx documentation"
 	-rm -rv $(DOCOUT)
 
 ipython:
