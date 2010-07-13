@@ -36,14 +36,14 @@ EPYDOC_TARGET=swignifit psipy pypsignifit
 
 build: python-build
 
-install: python-install python-doc
+install: python-install
 
 clean: clean-python-doc clean-python-build psipp-clean swignifit-clean
 
 test: psipy-test swignifit-test psipp-test
 
-python-install: psipy-install
-	echo "Installing python extension"
+python-install:
+	python setup.py install
 
 python-build: psipy swignifit
 
