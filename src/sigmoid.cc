@@ -152,7 +152,7 @@ double PsiGumbelR::inv ( double p )
 {
 	if ( p!=lastp ) {
 		lastp = p;
-		lastinvp = log(-log(p));
+		lastinvp = -log(-log(p));
 	}
 	return lastinvp;
 }
