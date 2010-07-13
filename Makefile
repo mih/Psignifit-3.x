@@ -68,12 +68,11 @@ clean-python-doc:
 ipython: psipy swignifit
 	ipython
 
-psipy_vs_swignifit:
-	cd .. ; PYTHONPATH=psignifit/build/`ls -1 psignifit/build | grep lib` nosetests -s --pdb psignifit/tests/psipy_vs_swignifit.py; cd -
+psipy_vs_swignifit: psipy swignifit
+	PYTHONPATH=. $(PYTHON) tests/psipy_vs_swignifit.py
 
-psipy_vs_swignifit_time:
-	cd .. ; PYTHONPATH=psignifit/build/`ls -1 psignifit/build | grep lib` $(PYTHON) psignifit/tests/psipy_vs_swignifit_time.py ; cd -
-
+psipy_vs_swignifit_time: psipy swignifit
+	PYTHONPATH=. $(PYTHON) tests/psipy_vs_swignifit_time.py
 
 # }}}
 
