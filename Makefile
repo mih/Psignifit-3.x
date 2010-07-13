@@ -38,6 +38,8 @@ build: python-build
 
 install: python-install
 
+doc: python-doc psipp-doc
+
 clean: clean-python-doc clean-python-build psipp-clean swignifit-clean
 
 test: psipy-test swignifit-test psipp-test
