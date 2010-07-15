@@ -665,7 +665,7 @@ Matrix * BetaPsychometric::ddnegllikeli ( const std::vector<double>& prm, const 
 	for ( z=0; z<data->getNblocks(); z++ ) {
 		xz = data->getIntensity(z);
 		pz = data->getPcorrect(z);
-		nz = data->getNcorrect(z);
+		nz = data->getNtrials(z);
 		fz = evaluate ( xz, prm );
 		nunz = nz*nu;
 		// d2l/dnu2
