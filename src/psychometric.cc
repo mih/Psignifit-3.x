@@ -597,6 +597,8 @@ double BetaPsychometric::negllikeli ( const std::vector<double>& prm, const PsiD
 	{
 		n = data->getNtrials(i);
 		k = data->getPcorrect(i);
+		if ( k==1 || k==0 )
+			k = double (data->getNcorrect(i))/(0.5+n);
 		x = data->getIntensity(i);
 		p = evaluate (x, prm);
 		nu = prm[nupos];
@@ -628,8 +630,10 @@ std::vector<double> BetaPsychometric::dnegllikeli ( const std::vector<double>& p
 	const PsiSigmoid * sigmoid = getSigmoid ();
 
 	for (z=0; z<data->getNblocks(); z++) {
-		pz = data->getPcorrect(z);
 		nz = data->getNtrials(z);
+		pz = data->getPcorrect(z);
+		if ( pz==1 || pz==0 )
+			pz = double (data->getNcorrect(i))/(0.5+nz);
 		xz = data->getIntensity(z);
 		nunz = nu*nz;
 		f = evaluate ( xz, prm );
@@ -666,6 +670,8 @@ Matrix * BetaPsychometric::ddnegllikeli ( const std::vector<double>& prm, const 
 		xz = data->getIntensity(z);
 		pz = data->getPcorrect(z);
 		nz = data->getNtrials(z);
+		if ( pz==0 || pz==1 )
+			pz = double (data->getNcorrect(i)) / (0.5+nz);
 		fz = evaluate ( xz, prm );
 		nunz = nz*nu;
 		// d2l/dnu2
