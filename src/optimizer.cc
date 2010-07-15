@@ -67,11 +67,17 @@ std::vector<double> PsiOptimizer::optimize ( const PsiPsychometric * model, cons
 	double fstepsize(1);// Measure of size of a step in function values
 	int iter(0);        // Number of simplex iterations
 	int run;            // the model should be rerun after convergence
+	double d;
 	std::vector<double> output ( start );
 
 
 	for (run=0; run<2; run++) {
-		for (k=1; k<nparameters+1; k++) simplex[k][k-1] *= 1.5;
+		for (k=1; k<nparameters+1; k++) {
+			d = simplex[k][k-1] * 0.5;
+			simplex[k][k-1] += d;
+			if ( fabs ( model->neglpost ( simplex[k], data ) ) > 1e7 )
+				simplex[k][k-1] -= 2*d;
+		}
 		// for (k=1; k<nparameters+1; k++) simplex[k][k-1] += .05;
 		iter = 0;
 		while (1) {
