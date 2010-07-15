@@ -93,7 +93,7 @@ class PsiPsychometric {
 		virtual double randPrior ( unsigned int index ) const { return priors[index]->rand(); }                            ///< sample form a prior
 		int getNalternatives ( void ) const { return Nalternatives; }         ///< get the number of alternatives (1 means yes/no)
 		virtual unsigned int getNparams ( void ) const { return (Nalternatives==1 ? (gammaislambda ? 3 : 4 ) : 3 ); } ///< get the number of free parameters of the psychometric function
-		std::vector<double> getStart ( const PsiData* data ) const ;                ///< determine a starting value using logistic regression on a dataset
+		virtual std::vector<double> getStart ( const PsiData* data ) const ;                ///< determine a starting value using logistic regression on a dataset
 		double getThres (
 			const std::vector<double>& prm,                                          ///< parameters of the psychometric function model
 			double cut                                                               ///< performance level at which the threshold should be evaluated
@@ -158,6 +158,8 @@ class BetaPsychometric : public PsiPsychometric {
 			const std::vector<double>& prm,                      ///< parameters of the psychometric function model
 			const PsiData * data                                 ///< data for which the likelihood should be evaluated
 			) const; ///< deviance for a given data set and parameter constellation
+
+		std::vector<double> getStart ( const PsiData* data ) const { std::vector<double> out (PsiPsychometric::getStart ( data )); out[out.size()-1] = .99999; return out;}
 };
 
 /** \brief Psychometric function with one separate data point
