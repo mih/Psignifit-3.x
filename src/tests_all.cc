@@ -280,6 +280,56 @@ int DerivativeCheck ( TestSuite * T ) {
 	return failures;
 }
 
+int BetaModelTest ( TestSuite * T ) {
+	int failures ( 0 );
+	unsigned int i;
+
+	std::vector<double> x ( 6 );
+	std::vector<int>    n ( 6, 50 );
+	std::vector<int>    k ( 6 );
+
+	// Set up data
+	x[0] =  0.; x[1] =  2.; x[2] =  4.; x[3] =  6.; x[4] =  8.; x[5] = 10.;
+	k[0] = 24;  k[1] = 32;  k[2] = 40;  k[3] = 48;  k[4] = 50;  k[5] = 48;
+	PsiData * data = new PsiData (x,n,k,2);
+
+	PsiCore * core = new mwCore ();
+	PsiSigmoid * sigmoid = new PsiLogistic ();
+
+	PsiPrior * prior = new BetaPrior ( 2, 30 );
+	PsiPsychometric * pmf = new BetaPsychometric ( 2, core, sigmoid );
+	std::vector<double> prm(4);
+	prm[0] = 4; prm[1] = 0.8; prm[2] = 0.02; prm[3] = .99;
+	pmf->setPrior( 2, prior );
+	delete prior;
+	prior = new UniformPrior ( 0, 1 );
+	pmf->setPrior( 3, prior );
+	delete prior;
+
+	PsiOptimizer optimizer ( pmf, data );
+	std::vector<double> mapestimate = optimizer.optimize ( pmf, data );
+
+	failures += T->isequal ( mapestimate[0], 3.31412,   "Beta model MAP estimate m"     , 1e-5 );
+	failures += T->isequal ( mapestimate[1], 4.60593,   "Beta model MAP estimate w"     , 1e-5 );
+	failures += T->isequal ( mapestimate[2], 0.0261324, "Beta model MAP estimate lambda", 1e-5 );
+	failures += T->isequal ( mapestimate[3], 0.967118,  "Beta model MAP estimate nu"    , 1e-5 );
+
+	setSeed(0);
+	GenericMetropolis * gmS = new GenericMetropolis ( pmf, data, new GaussRandom() );
+	gmS->setTheta ( prm );
+
+	MCMCList pilot ( gmS->sample(1000) );
+	gmS->findOptimalStepwidth(pilot);
+	MCMCList post = gmS->sample(3000);
+
+	failures += T->isequal ( post.getMean ( 0 ), 3.17265,   "Beta model MEAN estimate m"     , 1e-5 );
+	failures += T->isequal ( post.getMean ( 1 ), 5.28704,   "Beta model MEAN estimate w"     , 1e-5 );
+	failures += T->isequal ( post.getMean ( 2 ), 0.0365552, "Beta model MEAN estimate lambda", 1e-5 );
+	failures += T->isequal ( post.getMean ( 3 ), 0.624741,  "Beta model MEAN estimate nu"    , 1e-5 );
+
+	return failures;
+}
+
 int OptimizerSolution ( TestSuite * T ) {
 	int failures(0);
 	unsigned int i;
@@ -1082,18 +1132,17 @@ int ReturnTest ( TestSuite * T ) {
 
 int main ( int argc, char ** argv ) {
 	TestSuite Tests ( "tests_all.log" );
-	Tests.addTest(&PsychometricValues,"Values of the psychometric function");
-	/*
-	Tests.addTest(&DerivativeCheck, "Derivaties of elements" );
-	Tests.addTest(&OptimizerSolution, "Solutions of optimizer");
-	Tests.addTest(&BootstrapTest,     "Bootstrap properties");
-	Tests.addTest(&SigmoidTests,      "Properties of sigmoids");
-	Tests.addTest(&CoreTests,         "Tests of core objects");
-	Tests.addTest(&MCMCTest,          "MCMC");
-	Tests.addTest(&PriorTest,         "Priors");
-	Tests.addTest(&LinalgTests,       "Linear algebra routines");
-	Tests.addTest(&ReturnTest,        "Testing return bug in jackknifedata");
+	Tests.addTest(&PsychometricValues,    "Values of the psychometric function");
+	Tests.addTest(&BetaModelTest,         "Beta psychometric function model");
+	Tests.addTest(&DerivativeCheck,       "Derivaties of elements" );
+	Tests.addTest(&OptimizerSolution,     "Solutions of optimizer");
+	Tests.addTest(&BootstrapTest,         "Bootstrap properties");
+	Tests.addTest(&SigmoidTests,          "Properties of sigmoids");
+	Tests.addTest(&CoreTests,             "Tests of core objects");
+	Tests.addTest(&MCMCTest,              "MCMC");
+	Tests.addTest(&PriorTest,             "Priors");
+	Tests.addTest(&LinalgTests,           "Linear algebra routines");
+	Tests.addTest(&ReturnTest,            "Testing return bug in jackknifedata");
 	Tests.addTest(&InitialParametersTest, "Initial parameter heuristics");
-	*/
 	Tests.runTests();
 }
