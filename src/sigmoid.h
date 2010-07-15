@@ -14,10 +14,10 @@
 class PsiSigmoid
 {
 	public:
-		virtual double f   ( double x ) { throw NotImplementedError(); }            ///< This should return the value of the sigmoid itself (between 0 and 1)
-		virtual double df  ( double x ) { throw NotImplementedError(); }            ///< This should give the first derivative of the sigmoid
-		virtual double ddf ( double x ) { throw NotImplementedError(); }            ///< This should give the second derivative of the sigmoid
-		virtual double inv ( double p ) { throw NotImplementedError(); }            ///< This should give the inverse of the sigmoid (taking values between 0 and 1)
+		virtual double f   ( double x ) const { throw NotImplementedError(); }            ///< This should return the value of the sigmoid itself (between 0 and 1)
+		virtual double df  ( double x ) const { throw NotImplementedError(); }            ///< This should give the first derivative of the sigmoid
+		virtual double ddf ( double x ) const { throw NotImplementedError(); }            ///< This should give the second derivative of the sigmoid
+		virtual double inv ( double p ) const { throw NotImplementedError(); }            ///< This should give the inverse of the sigmoid (taking values between 0 and 1)
 		virtual int    getcode ( void ) const { throw NotImplementedError(); }            ///< return the sigmoid identifier
         virtual PsiSigmoid * clone ( void ) const { throw NotImplementedError(); }                ///< clone object by value
         static std::string getDescriptor ( void ) { throw NotImplementedError(); }///< get a short string that identifies the type of sigmoid
@@ -29,16 +29,13 @@ class PsiSigmoid
  */
 class PsiLogistic : public PsiSigmoid
 {
-	private:
-		double lastx;
-		double lastfx;
 	public:
-		PsiLogistic ( void ) : lastx(1e20) {}  ///< constructor
-		PsiLogistic ( const PsiLogistic& original) : lastx(original.lastx) {}  ///< copy constructor
-		double f ( double x );                 ///< value of the sigmoid at position x
-		double df ( double x );                ///< derivative of the sigmoid at position x
-		double ddf ( double x );               ///< second derivative of the sigmoid
-		double inv ( double p ) { return log(p/(1-p)); }  ///< inverse of the sigmoid
+		PsiLogistic ( void ) {}  ///< constructor
+		PsiLogistic ( const PsiLogistic& original) {}  ///< copy constructor
+		double f ( double x ) const;                 ///< value of the sigmoid at position x
+		double df ( double x ) const;                ///< derivative of the sigmoid at position x
+		double ddf ( double x ) const;               ///< second derivative of the sigmoid
+		double inv ( double p ) const { return log(p/(1-p)); }  ///< inverse of the sigmoid
 		int getcode ( void ) const { return 1; }     ///< return the sigmoid identifier
         PsiSigmoid * clone ( void ) const {
             return new PsiLogistic(*this);
@@ -54,25 +51,13 @@ class PsiLogistic : public PsiSigmoid
  */
 class PsiGauss : public PsiSigmoid
 {
-	private:
-		double lastx;
-		double lastf;
-		double lastx_d;
-		double lastdf;
-		double lastx_dd;
-		double lastddf;
-		double lastp;
-		double lastinvp;
 	public:
-		PsiGauss ( void ) : lastx(1e20), lastx_d(1e20),lastx_dd(1e20),lastp(1e20) {}; ///< constructor
-		PsiGauss ( const PsiGauss& original) : lastx(original.lastx),
-                                        lastx_d(original.lastx_d),
-                                        lastx_dd(original.lastx_dd),
-                                        lastp(original.lastp) {}; ///< copy constructor
-		double f   ( double x );                 ///< value of the sigmoid at x
-		double df  ( double x );                 ///< derivative of the sigmoid at x
-		double ddf ( double x );                 ///< second derivative of the sigmoid at x
-		double inv ( double p );                 ///< inverse of the sigmoid
+		PsiGauss ( void ) {} ///< constructor
+		PsiGauss ( const PsiGauss& original) {} ///< copy constructor
+		double f   ( double x ) const;                 ///< value of the sigmoid at x
+		double df  ( double x ) const;                 ///< derivative of the sigmoid at x
+		double ddf ( double x ) const;                 ///< second derivative of the sigmoid at x
+		double inv ( double p ) const;                 ///< inverse of the sigmoid
 		int getcode ( void ) const { return 2; }       ///< return the sigmoid identifier
         PsiSigmoid * clone (void ) const {
             return new PsiGauss(*this);
@@ -88,26 +73,13 @@ class PsiGauss : public PsiSigmoid
  */
 class PsiGumbelL : public PsiSigmoid
 {
-	private:
-		double lastx;
-		double lastf;
-		double lastdx;
-		double lastddx;
-		double lastdf;
-		double lastddf;
-		double lastp;
-		double lastinvp;
 	public:
-		PsiGumbelL ( void ) : lastx(-1e20), lastdx(-1e20), lastddx(-1e20), lastp(0), lastinvp(-1e20) {} ///< contructor
-		PsiGumbelL ( const PsiGumbelL& original ) : lastx(original.lastx),
-                                                    lastdx(original.lastdx),
-                                                    lastddx(original.lastddx),
-                                                    lastp(original.lastp),
-                                                    lastinvp(original.lastinvp) {} ///< copy constructor
-		double f   ( double x );              ///< returns the value of the gumbel cdf at position x
-		double df  ( double x );              ///< returns the derivative of the gumbel cdf at position x
-		double ddf ( double x );              ///< returns the 2nd derivative of the gumbel cdf at position x
-		double inv ( double p );              ///< returns the inverse of the gumbel cdf at position p
+		PsiGumbelL ( void ) {} ///< contructor
+		PsiGumbelL ( const PsiGumbelL& original ) {} ///< copy constructor
+		double f   ( double x ) const;              ///< returns the value of the gumbel cdf at position x
+		double df  ( double x ) const;              ///< returns the derivative of the gumbel cdf at position x
+		double ddf ( double x ) const;              ///< returns the 2nd derivative of the gumbel cdf at position x
+		double inv ( double p ) const;              ///< returns the inverse of the gumbel cdf at position p
 		int getcode ( void ) const { return 3; }    ///< return the sigmoid identifier
         PsiSigmoid * clone ( void ) const {
             return new PsiGumbelL(*this);
@@ -123,28 +95,13 @@ class PsiGumbelL : public PsiSigmoid
  */
 class PsiGumbelR : public PsiSigmoid
 {
-	private:
-		double lastx;
-		double lastf;
-		double lastdx;
-		double lastddx;
-		double lastdf;
-		double lastddf;
-		double lastp;
-		double lastinvp;
 	public:
-		PsiGumbelR ( void ) : lastx(-1e20), lastdx(-1e20), lastddx(-1e20), lastp(0), lastinvp(-1e20) {} ///< constructor
-
-		PsiGumbelR ( const PsiGumbelR& original ) : lastx(original.lastx),
-                                                    lastdx(original.lastdx),
-                                                    lastddx(original.lastddx),
-                                                    lastp(original.lastp),
-                                                    lastinvp(original.lastinvp) {} ///< copy constructor
-
-		double f   ( double x );             ///< returns the value of the right skewed gumbel cdf at position x
-		double df  ( double x );             ///< returns the derivative of the right skewed gumbel cdf at position x
-		double ddf ( double x );             ///< returns the 2nd derivative of the right skewed gumbel cdf at position x
-		double inv ( double p );             ///< returns the inverse of the right skewed gumbel cdf at position p
+		PsiGumbelR ( void ) {} ///< constructor
+		PsiGumbelR ( const PsiGumbelR& original ) {} ///< copy constructor
+		double f   ( double x ) const;             ///< returns the value of the right skewed gumbel cdf at position x
+		double df  ( double x ) const;             ///< returns the derivative of the right skewed gumbel cdf at position x
+		double ddf ( double x ) const;             ///< returns the 2nd derivative of the right skewed gumbel cdf at position x
+		double inv ( double p ) const;             ///< returns the inverse of the right skewed gumbel cdf at position p
 		int getcode ( void ) const { return 3; }   ///< return the sigmoid identifier
         PsiSigmoid * clone ( void ) const {
             return new PsiGumbelR(*this);
@@ -163,10 +120,10 @@ class PsiCauchy : public PsiSigmoid
 	public:
         PsiCauchy( void ) {}                 ///< constructor
         PsiCauchy( const PsiCauchy& oiginal) {} ///< copy constructor
-		double f   ( double x );             ///< returns the value of the cauchy cdf at position x
-		double df  ( double x );             ///< returns the derivative of the cauchy cdf at position x
-		double ddf ( double x );             ///< returns the 2nd derivative of the cauchy cdf at position x
-		double inv ( double p );             ///< returns the inverse of the cauchy cdf at position x
+		double f   ( double x ) const;             ///< returns the value of the cauchy cdf at position x
+		double df  ( double x ) const;             ///< returns the derivative of the cauchy cdf at position x
+		double ddf ( double x ) const;             ///< returns the 2nd derivative of the cauchy cdf at position x
+		double inv ( double p ) const;             ///< returns the inverse of the cauchy cdf at position x
 		int    getcode ( void ) const { return 4; }///< returns the sigmoid identifier
         PsiSigmoid * clone ( void ) const {
             return new PsiCauchy(*this);
@@ -186,10 +143,10 @@ class PsiExponential : public PsiSigmoid
 	public:
         PsiExponential( void ) {}                 ///< constructor
         PsiExponential( const PsiExponential& oiginal) {} ///< copy constructor
-		double f   (double x );              ///< returns the value of the exponential cdf at position x
-		double df  (double x );              ///< returns the derivative of the exponential cdf at position x
-		double ddf (double x );              ///< returns the 2nd derivative of the exponential cdf at position x
-		double inv (double p ) throw(BadArgumentError);              ///< returns the return the inverse of the exponential cdf at position x
+		double f   (double x ) const;              ///< returns the value of the exponential cdf at position x
+		double df  (double x ) const;              ///< returns the derivative of the exponential cdf at position x
+		double ddf (double x ) const;              ///< returns the 2nd derivative of the exponential cdf at position x
+		double inv (double p ) const throw(BadArgumentError);              ///< returns the return the inverse of the exponential cdf at position x
 		int    getcode ( void ) const { return 5; }///< returns the sigmoid identifier
         PsiSigmoid * clone ( void ) const {
             return new PsiExponential(*this);

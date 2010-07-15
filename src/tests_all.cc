@@ -18,7 +18,7 @@
 
 
 int PsychometricValues ( TestSuite* T ) {
-	int failures(0),i;
+	int failures(0),i,j;
 	char message[40];
 	std::vector <double> x ( 6 );
 	std::vector <int>    n ( 6, 50 );
@@ -63,6 +63,21 @@ int PsychometricValues ( TestSuite* T ) {
 		prm[i] -= 1e-5;
 		failures += T->isequal ( dl[i], d, "PsychometricValues likelihood derivative", .05 );
 	}
+
+	// Test likelihood hessian
+	Matrix *H = pmf->ddnegllikeli ( prm, data );
+	dl = pmf->dnegllikeli ( prm, data );
+	for ( i=0; i<3; i++ ) {
+		prm[i] += 1e-9;
+		dl1 = pmf->dnegllikeli ( prm, data );
+		prm[i] -= 1e-9;
+		for ( j=0; j<3; j++ ) {
+			d = dl1[j] - dl[j];
+			d /= 1e-9;
+			failures += T->isequal ( (*H)(i,j), -d, "Psychometric function likelihood Hessian", .1 );
+		}
+	}
+	delete H;
 	delete pmf;
 
 	// Yes no task
@@ -84,9 +99,233 @@ int PsychometricValues ( TestSuite* T ) {
 	}
 	delete pmf;
 
+	pmf = new BetaPsychometric ( 2, core, sigmoid );
+
+	std::vector<double> bprm(4);
+	bprm[0] = 4; bprm[1] = 1.5; bprm[2] = .02; bprm[3] = 1;
+
+	// Observe, that beta likelihood can also be > 1 implying that both signs for log likelihood are possible
+	failures += T->isequal ( pmf->negllikeli(bprm,data), -11.3918, "PsychometricValues beta likelihood", 1e-4);
+
+	// Test likelihood gradient
+	dl = pmf->dnegllikeli ( bprm, data );
+	l  = pmf->negllikeli ( bprm, data );
+	for ( i=0; i<4; i++ ) {
+		bprm[i] += 1e-5;
+		d = pmf->negllikeli ( bprm, data ) - l;
+		d /= 1e-5;
+		bprm[i] -= 1e-5;
+		failures += T->isequal ( dl[i], d, "PsychometricValues beta likelihood derivative", .05 );
+	}
+
+	// test likelihood hessian
+	H = pmf->ddnegllikeli ( bprm, data );
+	// H->print();
+	for ( i=0; i<4; i++ ) {
+		bprm[i] += 1e-9;
+		dl1 = pmf->dnegllikeli ( bprm, data );
+		bprm[i] -= 1e-9;
+		for ( j=0; j<4; j++ ) {
+			d = dl1[j] - dl[j];
+			d /= 1e-9;
+			// failures += T->isequal ( log10((*H)(i,j)/ d), 0, "Psychometric Values beta likelihood Hessian", .12 );
+			failures += T->isequal_rel ( (*H)(i,j), d, "Psychometric Values beta likelihood Hessian", .12 );
+		}
+	}
+	delete H;
+
+	failures += T->ismore ( pmf->deviance ( bprm, data ), 0, "Psychometric Values beta deviance" );
+	delete pmf;
+
 	delete core;
 	delete sigmoid;
 	delete data;
+
+	return failures;
+}
+
+int DerivativeCheck ( TestSuite * T ) {
+	/* Check all derivatives */
+	int failures (0);
+	unsigned int i,j, coreindex;
+	double d;
+	double y1,y0;
+	double x(2.);
+	std::vector<double> prm (3);
+	prm[0] = 4.; prm[1] = 1.5; prm[2] = .02;
+	char msg[500];
+	std::vector <double> intensity ( 6 );
+	std::vector <int>    n ( 6, 50 );
+	std::vector <int>    k ( 6 );
+	intensity[0] =  0.1; intensity[1] =  2.; intensity[2] =  4.; intensity[3] =  6.; intensity[4] =  8.; intensity[5] = 10.;
+	k[0] = 29;  k[1] = 31;  k[2] = 36;  k[3] = 42;  k[4] = 46;  k[5] = 49;
+	PsiData * data = new PsiData (intensity,n,k,2);
+
+	// Cores
+	PsiCore* core;
+	std::vector<PsiCore*> cores ( 6 );
+	std::vector<char*>    corenames ( 6 );
+	cores[0] = new abCore (data);        corenames[0] = new char [20]; sprintf ( corenames[0], "abCore");
+	cores[1] = new linearCore (data);    corenames[1] = new char [20]; sprintf ( corenames[1], "linearCore");
+	cores[2] = new logCore (data);       corenames[2] = new char [20]; sprintf ( corenames[2], "logCore");
+	cores[3] = new mwCore (data);        corenames[3] = new char [20]; sprintf ( corenames[3], "mwCore");
+	cores[4] = new polyCore (data);      corenames[4] = new char [20]; sprintf ( corenames[4], "polyCore");
+	cores[5] = new weibullCore (data);   corenames[5] = new char [20]; sprintf ( corenames[5], "weibullCore");
+
+	for ( coreindex=0; coreindex<cores.size(); coreindex++ ) {
+		core = cores[coreindex];
+		// First derivative
+		y0 = core->g ( x, prm );
+		for ( i=0; i<3; i++ ) {
+			prm[i] += 1e-7;
+			y1 = core->g ( x, prm );
+			prm[i] -= 1e-7;
+			d = y1-y0; d /= 1e-7;
+			sprintf ( msg, "%s 1st derivative w.r.t. prm %d", corenames[coreindex], i );
+			failures += T->isequal ( core->dg ( x, prm, i ), d, msg, 1e-3 );
+		}
+		// Second derivative
+		for ( i=0; i<3; i++ ) {
+			y0 = core->dg ( x, prm, i );
+			for ( j=0; j<3; j++ ) {
+				prm[j] += 1e-7;
+				y1 = core->dg ( x, prm, i );
+				prm[j] -= 1e-7;
+				d = y1-y0; d /= 1e-7;
+				sprintf ( msg, "%s 2nd derivative w.r.t. prm %d and %d", corenames[coreindex], i, j );
+				failures += T->isequal ( core->ddg ( x, prm, i, j ), d, msg, 1e-3 );
+			}
+		}
+		delete cores[coreindex];
+		delete corenames[coreindex];
+	}
+
+	// Sigmoids
+	PsiSigmoid * sigmoid;
+	std::vector<PsiSigmoid*> sigmoids ( 6 );
+	std::vector<char*>       sigmoidnames ( 6 );
+	sigmoids[0] = new PsiCauchy ();      sigmoidnames[0] = new char [20]; sprintf ( sigmoidnames[0], "PsiCauchy" );
+	sigmoids[1] = new PsiExponential (); sigmoidnames[1] = new char [20]; sprintf ( sigmoidnames[1], "PsiExponential" );
+	sigmoids[2] = new PsiGauss ();       sigmoidnames[2] = new char [20]; sprintf ( sigmoidnames[2], "PsiGauss" );
+	sigmoids[3] = new PsiGumbelL ();     sigmoidnames[3] = new char [20]; sprintf ( sigmoidnames[3], "PsiGumbelL" );
+	sigmoids[4] = new PsiGumbelR ();     sigmoidnames[4] = new char [20]; sprintf ( sigmoidnames[4], "PsiGumbelR" );
+	sigmoids[5] = new PsiLogistic ();    sigmoidnames[5] = new char [20]; sprintf ( sigmoidnames[5], "PsiLogistic" );
+
+	for ( coreindex=0; coreindex<sigmoids.size(); coreindex++ ) {
+		sigmoid = sigmoids[coreindex];
+		// First derivative
+		y0 = sigmoid->f ( x );
+		y1 = sigmoid->f ( x+1e-7 );
+		d = y1-y0; d /= 1e-7;
+		sprintf ( msg, "%s 1st derivative", sigmoidnames[coreindex] );
+		failures += T->isequal ( sigmoid->df ( x ), d, msg, 1e-3 );
+		// Second derivative
+		y0 = sigmoid->df ( x );
+		y1 = sigmoid->df ( x+1e-7 );
+		d = y1-y0; d /= 1e-7;
+		sprintf ( msg, "%s 2nd derivative", sigmoidnames[coreindex] );
+		failures += T->isequal ( sigmoid->ddf ( x ), d, msg, 1e-3 );
+		delete sigmoids[coreindex];
+		delete sigmoidnames[coreindex];
+	}
+
+	// Psychometric function
+	core = new abCore(); sigmoid = new PsiLogistic ();
+	PsiPsychometric * pmf = new PsiPsychometric ( 2, core, sigmoid );
+	delete core;
+	delete sigmoid;
+	// First derivatives
+	y1 = pmf->evaluate ( x, prm );
+	for ( i=0; i<3; i++ ) {
+		prm[i] += 1e-7;
+		y0 = pmf->evaluate ( x, prm );
+		prm[i] -= 1e-7;
+		d = y0-y1; d /= 1e-7;
+		sprintf ( msg, "Psychometric function 1st derivative w.r.t. prm %d", i );
+		failures += T->isequal ( pmf->dpredict ( prm, x, i ), d, msg );
+	}
+	// Second derivatives
+	for ( i=0; i<3; i++ ) {
+		for ( j=0; j<3; j++ ) {
+			y0 = pmf->dpredict ( prm, x, i );
+			prm[j] += 1e-7;
+			y1 = pmf->dpredict ( prm, x, i );
+			prm[j] -= 1e-7;
+			d = y1 - y0; d /= 1e-7;
+			sprintf ( msg, "Psychometric function 2nd derivative w.r.t. prm %d and %d", i, j );
+			failures += T->isequal ( pmf->ddpredict ( prm, x, i, j ), d, msg );
+		}
+	}
+	delete pmf;
+
+	// Special functions
+	// psi = d log(Gamma)/ d x
+	for ( x=.5; x<55; x+=5 ) {
+		y1 = gammaln ( x );
+		y0 = gammaln ( x+1e-7 );
+		d = y0-y1; d /= 1e-7;
+		sprintf ( msg, "psi function at x=%g", x );
+		failures += T->isequal ( psi(x), d, msg, 1e-5 );
+	}
+
+	// digamma = d psi / dx
+	for ( x=.5; x<55; x+=5 ) {
+		y1 = psi ( x );
+		y0 = psi ( x+1e-7 );
+		d = y0-y1; d /= 1e-7;
+		sprintf ( msg, "digamma function at x=%g", x );
+		failures += T->isequal ( digamma(x), d, msg, 1e-5 );
+	}
+
+	return failures;
+}
+
+int BetaModelTest ( TestSuite * T ) {
+	int failures ( 0 );
+	unsigned int i;
+
+	std::vector<double> x ( 6 );
+	std::vector<int>    n ( 6, 50 );
+	std::vector<int>    k ( 6 );
+
+	// Set up data
+	x[0] =  0.; x[1] =  2.; x[2] =  4.; x[3] =  6.; x[4] =  8.; x[5] = 10.;
+	k[0] = 24;  k[1] = 32;  k[2] = 40;  k[3] = 48;  k[4] = 50;  k[5] = 48;
+	PsiData * data = new PsiData (x,n,k,2);
+
+	PsiCore * core = new mwCore ();
+	PsiSigmoid * sigmoid = new PsiLogistic ();
+
+	PsiPrior * prior = new BetaPrior ( 2, 30 );
+	PsiPsychometric * pmf = new BetaPsychometric ( 2, core, sigmoid );
+	std::vector<double> prm(4);
+	prm[0] = 4; prm[1] = 0.8; prm[2] = 0.02; prm[3] = .99;
+	pmf->setPrior( 2, prior );
+	delete prior;
+	prior = new UniformPrior ( 0, 1 );
+	pmf->setPrior( 3, prior );
+	delete prior;
+
+	PsiOptimizer optimizer ( pmf, data );
+	std::vector<double> mapestimate = optimizer.optimize ( pmf, data );
+
+	failures += T->isequal ( mapestimate[0], 3.31412,   "Beta model MAP estimate m"     , 1e-5 );
+	failures += T->isequal ( mapestimate[1], 4.60593,   "Beta model MAP estimate w"     , 1e-5 );
+	failures += T->isequal ( mapestimate[2], 0.0261324, "Beta model MAP estimate lambda", 1e-5 );
+	failures += T->isequal ( mapestimate[3], 0.967118,  "Beta model MAP estimate nu"    , 1e-5 );
+
+	setSeed(0);
+	GenericMetropolis * gmS = new GenericMetropolis ( pmf, data, new GaussRandom() );
+	gmS->setTheta ( prm );
+
+	MCMCList pilot ( gmS->sample(1000) );
+	gmS->findOptimalStepwidth(pilot);
+	MCMCList post = gmS->sample(3000);
+
+	failures += T->isequal ( post.getMean ( 0 ), 3.17265,   "Beta model MEAN estimate m"     , 1e-5 );
+	failures += T->isequal ( post.getMean ( 1 ), 5.28704,   "Beta model MEAN estimate w"     , 1e-5 );
+	failures += T->isequal ( post.getMean ( 2 ), 0.0365552, "Beta model MEAN estimate lambda", 1e-5 );
+	failures += T->isequal ( post.getMean ( 3 ), 0.624741,  "Beta model MEAN estimate nu"    , 1e-5 );
 
 	return failures;
 }
@@ -893,17 +1132,17 @@ int ReturnTest ( TestSuite * T ) {
 
 int main ( int argc, char ** argv ) {
 	TestSuite Tests ( "tests_all.log" );
-	Tests.addTest(&PsychometricValues,"Values of the psychometric function");
-	/*
-	Tests.addTest(&OptimizerSolution, "Solutions of optimizer");
-	Tests.addTest(&BootstrapTest,     "Bootstrap properties");
-	Tests.addTest(&SigmoidTests,      "Properties of sigmoids");
-	Tests.addTest(&CoreTests,         "Tests of core objects");
-	Tests.addTest(&MCMCTest,          "MCMC");
-	Tests.addTest(&PriorTest,         "Priors");
-	Tests.addTest(&LinalgTests,       "Linear algebra routines");
-	Tests.addTest(&ReturnTest,        "Testing return bug in jackknifedata");
+	Tests.addTest(&PsychometricValues,    "Values of the psychometric function");
+	Tests.addTest(&BetaModelTest,         "Beta psychometric function model");
+	Tests.addTest(&DerivativeCheck,       "Derivaties of elements" );
+	Tests.addTest(&OptimizerSolution,     "Solutions of optimizer");
+	Tests.addTest(&BootstrapTest,         "Bootstrap properties");
+	Tests.addTest(&SigmoidTests,          "Properties of sigmoids");
+	Tests.addTest(&CoreTests,             "Tests of core objects");
+	Tests.addTest(&MCMCTest,              "MCMC");
+	Tests.addTest(&PriorTest,             "Priors");
+	Tests.addTest(&LinalgTests,           "Linear algebra routines");
+	Tests.addTest(&ReturnTest,            "Testing return bug in jackknifedata");
 	Tests.addTest(&InitialParametersTest, "Initial parameter heuristics");
-	*/
 	Tests.runTests();
 }

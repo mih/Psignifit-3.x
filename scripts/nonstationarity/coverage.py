@@ -285,9 +285,15 @@ for simulation in xrange ( options.nsimulations ):
         dataml[:,1] = ( data[:,1] * nu ).astype("i")
         dataml[:,2] = ( data[:,2] * nu ).astype("i")
         print dataml
-        Bnpr = pypsignifit.BootstrapInference ( dataml, sample=options.nbootstrap, priors=constraints, parametric=False, **ana_kwargs )
+        try:
+            Bnpr = pypsignifit.BootstrapInference ( dataml, sample=options.nbootstrap, priors=constraints, parametric=False, **ana_kwargs )
+        except:
+            sys.stderr ( "An error ocurred in simulation %d during nonparametric bootstrap\n" % ( simulation,) )
         print "Done npar"
-        Bpar = pypsignifit.BootstrapInference ( dataml, sample=options.nbootstrap, priors=constraints, parametric=True,  **ana_kwargs )
+        try:
+            Bpar = pypsignifit.BootstrapInference ( dataml, sample=options.nbootstrap, priors=constraints, parametric=True,  **ana_kwargs )
+        except:
+            sys.stderr ( "An error ocurred in simulation %d during parametric bootstrap\n" % ( simulation,) )
         print "Done par"
 
         ####################
@@ -300,18 +306,21 @@ for simulation in xrange ( options.nsimulations ):
         datamcmc[:,1] = ( data[:,1] * nu ).astype("i")
         datamcmc[:,2] = ( data[:,2] * nu ).astype("i")
         print datamcmc
-        mcmc = pypsignifit.BayesInference ( datamcmc, sample=True, priors=priors, **ana_kwargs )
-        for prm in [0,1,2]:
-            if not mcmc.geweke(prm)[2] is None:
-                for j in mcmc.geweke(prm)[2]:
-                    mcmc.resample(j)
-        N = mcmc.mcestimates.shape[0]
-        mcmc.sample( start = mcmc.farstart )
-        mcmc.sample( start = mcmc.farstart )
-        for prm in [0,1,2]:
-            if not mcmc.geweke(prm)[2] is None:
-                for j in mcmc.geweke(prm)[2]:
-                    mcmc.resample(j)
+        try:
+            mcmc = pypsignifit.BayesInference ( datamcmc, sample=True, priors=priors, **ana_kwargs )
+            for prm in [0,1,2]:
+                if not mcmc.geweke(prm)[2] is None:
+                    for j in mcmc.geweke(prm)[2]:
+                        mcmc.resample(j)
+            N = mcmc.mcestimates.shape[0]
+            mcmc.sample( start = mcmc.farstart )
+            mcmc.sample( start = mcmc.farstart )
+            for prm in [0,1,2]:
+                if not mcmc.geweke(prm)[2] is None:
+                    for j in mcmc.geweke(prm)[2]:
+                        mcmc.resample(j)
+        except:
+            sys.stderr ( "An error ocurred in simulation %d during mcmc sampling\n" % ( simulation,) )
         print "Rhat:  ",mcmc.Rhat(0),mcmc.Rhat(1),mcmc.Rhat(2)
         print "Geweke:",mcmc.geweke(0)[2],mcmc.geweke(1)[2],mcmc.geweke(2)[2]
         mcmc_conv = 1

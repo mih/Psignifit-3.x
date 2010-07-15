@@ -42,6 +42,13 @@ class PsiPsychometric {
 		PsiCore * Core;
 		PsiSigmoid * Sigmoid;
 		std::vector<PsiPrior*> priors;
+	protected:
+		PsiPsychometric (
+			int nAFC,                                                               ///< number of alternatives (1 indicating yes/no)
+			PsiCore * core,                                                         ///< internal part of the nonlinear function
+			PsiSigmoid * sigmoid,                                                   ///< "external" saturating part of the nonlinear function
+			unsigned int nparameters                                                ///< number of parameters given explicitely
+			);                  ///< Set up a psychometric function model for an nAFC task, explicitely specifiing the number of parameters (useful for derived classes)
 	public:
 		PsiPsychometric (
 			int nAFC,                                                                ///< number of alternatives in the task (1 indicating yes/no)
@@ -79,14 +86,14 @@ class PsiPsychometric {
 				const std::vector<double>& prm,                                      ///< parameters at which the first derivative should be evaluated
 				const PsiData* data                                                  ///< data for which the likelihood should be evaluated
 				) const;                                          ///< 1st derivative of the negative log likelihood
-		const PsiCore* getCore ( void ) { return Core; }                ///< get the core of the psychometric function
-		const PsiSigmoid* getSigmoid ( void ) { return Sigmoid; }       ///< get the sigmoid of the psychometric function
+		const PsiCore* getCore ( void ) const { return Core; }                ///< get the core of the psychometric function
+		const PsiSigmoid* getSigmoid ( void ) const { return Sigmoid; }       ///< get the sigmoid of the psychometric function
 		void setPrior ( unsigned int index, PsiPrior* prior ) throw(BadArgumentError);                   ///< set a Prior for the parameter indicated by index
 		double evalPrior ( unsigned int index, double x ) const {return priors[index]->pdf(x);}              ///< evaluate the respective prior at value x
 		virtual double randPrior ( unsigned int index ) const { return priors[index]->rand(); }                            ///< sample form a prior
 		int getNalternatives ( void ) const { return Nalternatives; }         ///< get the number of alternatives (1 means yes/no)
 		virtual unsigned int getNparams ( void ) const { return (Nalternatives==1 ? (gammaislambda ? 3 : 4 ) : 3 ); } ///< get the number of free parameters of the psychometric function
-		std::vector<double> getStart ( const PsiData* data ) const ;                ///< determine a starting value using logistic regression on a dataset
+		virtual std::vector<double> getStart ( const PsiData* data ) const ;                ///< determine a starting value using logistic regression on a dataset
 		double getThres (
 			const std::vector<double>& prm,                                          ///< parameters of the psychometric function model
 			double cut                                                               ///< performance level at which the threshold should be evaluated
@@ -116,6 +123,43 @@ class PsiPsychometric {
 			unsigned int i                                                               ///< index of the parameter for which the derivative should be evaluated
 			) const;                                                                 ///< derivative of the negative log posterior with respect to parameter i
 		void setgammatolambda ( void ) { gammaislambda=true; };                          ///< calling this function applies the constraint that gamma and lambda should be equal in a yes/no paradigm
+		double getGuess ( const std::vector<double>& prm ) const { return (gammaislambda ? prm[2] : ( getNalternatives() < 2 ? prm[3] : 1./Nalternatives )); }
+		double dpredict ( const std::vector<double>& prm, double x, unsigned int i ) const;    ///< partial derivative of psychometric function prediction w.r.t. i-th parameter
+		double ddpredict ( const std::vector<double>& prm, double x, unsigned int i, unsigned int j ) const;    ///< 2nd partial derivative of psychometric function prediction w.r.t. i-th and j-th parameters
+};
+
+/** \brief Psychometric function that allows for models the variance of the data by a beta distribution
+ *
+ * When fitting psychometric functions, we usually assume independence of the responses. Is this independence is violated,
+ * the binomial variance model is no longer adequate. The beta psychometric function can better deal with this. It fits an
+ * additional parameter nu, such that the subjects responses are distributed according to a beta distribution with parameters
+ * alpha = Psi(x)*nu*n+1, beta = (Psi(x)-1)*nu*n+1
+ */
+class BetaPsychometric : public PsiPsychometric {
+	private:
+		double fznull ( unsigned int z, const PsiData* data, double nu ) const;
+		double negllikelinull ( const PsiData* data, double nu ) const;
+	public:
+		BetaPsychometric ( int nAFC, PsiCore * core, PsiSigmoid * sigmoid ) : PsiPsychometric ( nAFC, core, sigmoid, ( nAFC<2 ? 5 : 4 ) ) {}
+		double negllikeli (
+			const std::vector<double>& prm,           ///< parameters of the psychometric function model
+			const PsiData* data                       ///< data for which the likelihood should be evaluated
+			) const; ///< negative log likelihood
+		std::vector<double> dnegllikeli (
+				const std::vector<double>& prm,       ///< parameters at which the first derivative should be evaluated
+				const PsiData* data                   ///< data for which the likelihood should be evaluated
+				) const;                 ///< 1st derivative of the negative log likelihood
+		Matrix * ddnegllikeli (
+				const std::vector<double>& prm,       ///< parameters at which the second derivative should be evaluated
+				const PsiData* data                   ///< data for which the likelihood should be evaluated
+				) const;                 ///< 2nd derivative of the negative log likelihood (newly allocated matrix)
+		unsigned int getNparams ( void ) const { return PsiPsychometric::getNparams()+1; }   ///< get the number of free parameters of the psychometric function
+		double deviance (
+			const std::vector<double>& prm,                      ///< parameters of the psychometric function model
+			const PsiData * data                                 ///< data for which the likelihood should be evaluated
+			) const; ///< deviance for a given data set and parameter constellation
+
+		std::vector<double> getStart ( const PsiData* data ) const { std::vector<double> out (PsiPsychometric::getStart ( data )); out[out.size()-1] = .99999; return out;}
 };
 
 /** \brief Psychometric function with one separate data point

@@ -41,6 +41,16 @@ class TestSuite
 				return 1;
 			}
 		}
+		int isequal_rel ( double x, double y, const char* testname, double accuracy=1e-7 ) {
+			if ( fabs ( log10 ( x/y ) ) < accuracy ) {
+				std::clog << "[ OK ]   " << testname << " value: " << x << "\n";
+				return 0;
+			} else {
+				std::clog << "[FAIL]   " << testname << " value: " << x << " should be: " << y << "\n";
+				testlog << testname << " value: " << x << " should be: " << y << "\n";
+				return 1;
+			}
+		}
 		int isless ( double x, double y, const char* testname ) {
 			if ( x<y ) {
 				std::clog << "[ OK ]   " << testname << " value: " << x << " < " << y << "\n";

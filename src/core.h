@@ -25,36 +25,36 @@ class PsiCore
 		virtual double g (
 			double x,                       ///< stimulus intensity
 			const std::vector<double>& prm  ///< parameter vector
-			) { throw NotImplementedError(); }          ///< evaluate the core of the sigmoid
+			) const { throw NotImplementedError(); }          ///< evaluate the core of the sigmoid
 		virtual double dg (
 			double x,                       ///< stimulus intensity
 			const std::vector<double>& prm, ///< parameter vector
 			int i                           ///< index of the parameter to which the derivative should be evaluated
-			) { throw  NotImplementedError(); }        ///< evaluate the first derivative of the core with respect to parameter i
+			) const { throw  NotImplementedError(); }        ///< evaluate the first derivative of the core with respect to parameter i
 		virtual double dgx (
 			double x,                        ///< stimulus intensity
 			const std::vector<double>& prm   ///< parameter vector
-			) { throw NotImplementedError(); }       ///< evaluate the first derivative of the core with respect to stimulus intensity
+			) const { throw NotImplementedError(); }       ///< evaluate the first derivative of the core with respect to stimulus intensity
 		virtual double ddg (
 			double x,                       ///< stimulus intensity
 			const std::vector<double>& prm, ///< parameter vector
 			int i,                          ///< index of the first parameter to which the derivative should be evaluated
 			int j                           ///< index of the second parameter to which the derivative should be evaluated
-			) { throw NotImplementedError(); }         ///< evaluate the second derivative of the core with respect to parameter i and j
+			) const { throw NotImplementedError(); }         ///< evaluate the second derivative of the core with respect to parameter i and j
 		virtual double inv (
 			double y,                       ///< transformed intensity
 			const std::vector<double>& prm  ///< parameter vector
-			) { throw NotImplementedError(); }         ///< invert the core
+			) const { throw NotImplementedError(); }         ///< invert the core
 		virtual double dinv (
 			double p,                        ///< transformed inensity at which to evaluate the derivative
 			const std::vector<double>& prm,  ///< parameter vector
 			int i                            ///< evaluate the derivative with respect to parameter i
-			) { throw NotImplementedError(); }         ///< derivative of the inverse core with respect to parameters
+			) const { throw NotImplementedError(); }         ///< derivative of the inverse core with respect to parameters
 		virtual std::vector<double> transform (
 				int nprm,                    ///< number of parameters in the final parameter vector
 				double a,                    ///< intercept of the logistic regression model
 				double b                     ///< slope of the logistic regression model
-				) {throw NotImplementedError();}       ///< transform parameters from logistic regression to those used for this core
+				) const {throw NotImplementedError();}       ///< transform parameters from logistic regression to those used for this core
         virtual PsiCore * clone ( void ) const { throw NotImplementedError(); } ///< clone object by value
         static std::string getDescriptor ( void ) { throw NotImplementedError(); }///< get a short string that identifies the type of core
 };
@@ -79,36 +79,36 @@ class abCore : public PsiCore
 		double g (
 			double x,                        ///< stimulus intensity
 			const std::vector<double>& prm   ///< parameter vector
-			) { return (x-prm[0])/prm[1]; }            ///< evaluate the core of the sigmoid
+			) const { return (x-prm[0])/prm[1]; }            ///< evaluate the core of the sigmoid
 		double dg (
 			double x,                        ///< stimulus intensity
 			const std::vector<double>& prm,  ///< parameter vector
 			int i                            ///< index of the parameter to which the derivative should be evaluated
-			);                                         ///< evaluate the first derivative of the core with respect to parameter i
+			) const ;                                        ///< evaluate the first derivative of the core with respect to parameter i
 		double dgx (
 			double x,                        ///< stimulus intensity
 			const std::vector<double>& prm   ///< parameter vector
-			);       ///< evaluate the first derivative of the core with respect to stimulus intensity
+			) const;       ///< evaluate the first derivative of the core with respect to stimulus intensity
 		double ddg (
 			double x,                        ///< stimulus intensity
 			const std::vector<double>& prm,  ///< parameter vector
 			int i,                           ///< index of the parameter to which the first derivative should be evaluated
 			int j                            ///< index of the parameter to which the second derivative should be evaluated
-			);                                         ///< evaluate the second derivative of the core with respect to parameters i and j
+			) const;                                         ///< evaluate the second derivative of the core with respect to parameters i and j
 		double inv (
 			 double y,                       ///< transformed intensity
 			 const std::vector<double>& prm  ///< parameter vector
-			 );                                        ///< invert the core
+			 ) const;                                        ///< invert the core
 		double dinv (
 			double p,                        ///< transformed intenstiy at which to evaluate the derivative
 			const std::vector<double>& prm,  ///< parameter vector
 			int i                            ///< evaluate the derivative with respect to parameter i
-			);                                         ///< derivative of the inverse core with respect to parameter i
+			) const;                                         ///< derivative of the inverse core with respect to parameter i
 		std::vector<double> transform (
 			int nprm,                        ///< number of parameters in the final parameter vector
 			double a,                        ///< intercept of the logistic regression model
 			double b                         ///< slope of the logistic regression model
-			);                                         ///< transform parameters from a logistic regression model to the parameters used here
+			) const;                                         ///< transform parameters from a logistic regression model to the parameters used here
         PsiCore * clone ( void ) const {
             return new abCore(*this);
         }
@@ -143,36 +143,36 @@ class mwCore : public PsiCore
 		double g (
 			double x,                        ///< stimulus intensity
 			const std::vector<double>& prm   ///< parameter vector
-			);                                          ///< evaluate the core of the sigmoid
+			) const;                                    ///< evaluate the core of the sigmoid
 		double dg (
 			double x,                        ///< stimulus intensity
 			const std::vector<double>& prm,  ///< parameter vector
 			int i                            ///< index of the parameter to which the derivative should be evaluated
-			);                                         ///< evaluate the first derivative of the core with respect to parameter i
+			) const;                                    ///< evaluate the first derivative of the core with respect to parameter i
 		double dgx (
 			double x,                        ///< stimulus intensity
 			const std::vector<double>& prm   ///< parameter vector
-			);       ///< evaluate the first derivative of the core with respect to stimulus intensity
+			) const;       ///< evaluate the first derivative of the core with respect to stimulus intensity
 		double ddg (
 			double x,                        ///< stimulus intensity
 			const std::vector<double>& prm,  ///< parameter vector
 			int i,                           ///< index of the parameter to which the first derivative should be evaluated
 			int j                            ///< index of the parameter to which the second derivative should be evaluated
-			);                                         ///< evaluate the second derivative of the core with respect to parameters i and j
+			) const;                                    ///< evaluate the second derivative of the core with respect to parameters i and j
 		double inv (
 			 double y,                       ///< transformed intensity
 			 const std::vector<double>& prm  ///< parameter vector
-			 );                                        ///< invert the core
+			 ) const;                                   ///< invert the core
 		double dinv (
 			double p,                        ///< transformed intenstiy at which to evaluate the derivative
 			const std::vector<double>& prm,  ///< parameter vector
 			int i                            ///< evaluate the derivative with respect to parameter i
-			);                                         ///< derivative of the inverse core with respect to parameter i
+			) const;                                    ///< derivative of the inverse core with respect to parameter i
 		std::vector<double> transform (
 			int nprm,                        ///< number of parameters in the final parameter vector
 			double a,                        ///< intercept of the logistic regression model
 			double b                         ///< slope of the logistic regression model
-			);                                         ///< transform parameters from a logistic regression model to the parameters used here
+			) const;                                    ///< transform parameters from a logistic regression model to the parameters used here
         PsiCore * clone ( void ) const {
             return new mwCore(*this);
         }
@@ -202,36 +202,36 @@ class linearCore : public PsiCore
 		double g (
 			double x,                           ///< stimulus intensity
 			const std::vector<double>& prm      ///< parameter vector
-			) { return prm[0] * x + prm[1]; }   ///< evaluate the core of the sigmoid
+			) const { return prm[0] * x + prm[1]; }   ///< evaluate the core of the sigmoid
 		double dg (
 			double x,                           ///< stimululs intensity
 			const std::vector<double>& prm,     ///< parameter vector
 			int i                               ///< index of the parameter we want the derivative to
-			) { switch (i) { case 0: return x; break; case 1: return 1; break; default: return 0; break; } } ///< first derivative w.r.t. parameter i
+			) const { switch (i) { case 0: return x; break; case 1: return 1; break; default: return 0; break; } } ///< first derivative w.r.t. parameter i
 		double dgx (
 			double x,                        ///< stimulus intensity
 			const std::vector<double>& prm   ///< parameter vector
-			) { return prm[0]; }       ///< evaluate the first derivative of the core with respect to stimulus intensity
+			) const { return prm[0]; }       ///< evaluate the first derivative of the core with respect to stimulus intensity
 		double ddg (
 			double x,                           ///< stimulus intensity
 			const std::vector<double>& prm,     ///< parameter vector
 			int i,                              ///< index of the parameter we want for the first derivative
 			int j                               ///< index of the parameter we want for the second derivative
-			) { return 0; }                     ///< second derivative w.r.t. parameters i and j
+			) const { return 0; }                     ///< second derivative w.r.t. parameters i and j
 		double inv (
 			double y,                           ///< value to be inverted
 			const std::vector<double>& prm      ///< parameter vector
-			) { return (y-prm[1])/prm[0]; }     ///< inverse of the core
+			) const { return (y-prm[1])/prm[0]; }     ///< inverse of the core
 		double dinv (
 			double y,                           ///< value at which the derivative of the inverse should be evaluated
 			const std::vector<double>& prm,     ///< parameter vector
 			int i                               ///< index of the parameter we want the derivative to
-			) { switch (i) { case 0: return (prm[1]-y)/(prm[0]*prm[0]); break; case 1: return -1./prm[0]; break; default: return 0; break; } } ///< deriviative of the inverse w.r.t. parameter i
+			) const { switch (i) { case 0: return (prm[1]-y)/(prm[0]*prm[0]); break; case 1: return -1./prm[0]; break; default: return 0; break; } } ///< deriviative of the inverse w.r.t. parameter i
 		std::vector<double> transform (
 			int nprm,                           ///< number of parameters in the whole model
 			double a,                           ///< intercept parameter of the logistic regression model
 			double b                            ///< slope parameter of the logistic regression
-			) { std::vector<double> out (nprm,0); out[0] = b; out[1] = a; return out; }   ///< transform logistic regression parameters to useful ones for this core
+			) const { std::vector<double> out (nprm,0); out[0] = b; out[1] = a; return out; }   ///< transform logistic regression parameters to useful ones for this core
         PsiCore * clone ( void ) const {
             return new linearCore(*this);
         }
@@ -259,36 +259,36 @@ class logCore : public PsiCore
 		double g   (
 			double x,                                 ///< stimulus intensity
 			const std::vector<double>& prm            ///< parameter vector
-			) throw(BadArgumentError);   ///< evaluate the core
+			) const throw(BadArgumentError);   ///< evaluate the core
 		double dg  (
 			double x,                                 ///< stimulus intensity
 			const std::vector<double>& prm,           ///< parameter vector
 			int i                                     ///< parameter with respect to which the derivative should evaluated
-			);                   ///< evaluate derivative of the core
+			) const;                   ///< evaluate derivative of the core
 		double dgx (
 			double x,                        ///< stimulus intensity
 			const std::vector<double>& prm   ///< parameter vector
-			);       ///< evaluate the first derivative of the core with respect to stimulus intensity
+			) const;       ///< evaluate the first derivative of the core with respect to stimulus intensity
 		double ddg (
 			double x,                                 ///< stimulus intensity
 			const std::vector<double>& prm,           ///< parameter vector
 			int i,                                    ///< first parameter with respect to which the derivative should be taken
 			int j                                     ///< second parameter with respect to which the derivative should be taken
-			) { return 0; }      ///< evaluate 2nd derivative of the core
+			) const { return 0; }      ///< evaluate 2nd derivative of the core
 		double inv (
 			double y,                                 ///< value at which to evaluate the inverse
 			const std::vector<double>& prm            ///< parameter vector
-			) { return exp((y-prm[1])/prm[0]); }      ///< invert the core
+			) const { return exp((y-prm[1])/prm[0]); }      ///< invert the core
 		double dinv (
 			double y,                                 ///< value at which to evaluate the inverse
 			const std::vector<double>& prm,           ///< parameter vector
 			int i                                     ///< take derivative of the inverse core with respect to parameter i
-			);                   ///< evaluate derivative of the inverse core with respect to parameter i
+			) const;                   ///< evaluate derivative of the inverse core with respect to parameter i
 		std::vector<double> transform (
 				int nprm,                             ///< number of parameters in the final model
 				double a,                             ///< intercept of the logistic regression model
 				double b                              ///< slope of the logistic regression model
-			);                   ///< transform parameters from a logistic regression model to starting values
+			) const;                   ///< transform parameters from a logistic regression model to starting values
         PsiCore * clone ( void ) const {
             return new logCore(*this);
         }
@@ -323,36 +323,36 @@ class weibullCore : public PsiCore
 		double g (
 			double x,                           ///< stimulus intensity
 			const std::vector<double>& prm      ///< parameter vector (m,s,...)
-			) { return twooverlog2*prm[0]*prm[1] * (log(x)-log(prm[0])) + loglog2; } ///< evaluate the weibull core
+			) const { return twooverlog2*prm[0]*prm[1] * (log(x)-log(prm[0])) + loglog2; } ///< evaluate the weibull core
 		double dg (
 			double x,                           ///< stimulus intensity
 			const std::vector<double>& prm,     ///< parameter vector
 			int i                               ///< index of the parameter with respect to which the derivative should be evaluated
-			) throw(BadArgumentError) ;    ///< evaluate the derivateive of the core
+			) const throw(BadArgumentError) ;    ///< evaluate the derivateive of the core
 		double dgx (
 			double x,                        ///< stimulus intensity
 			const std::vector<double>& prm   ///< parameter vector
-			);       ///< evaluate the first derivative of the core with respect to stimulus intensity
+			) const;       ///< evaluate the first derivative of the core with respect to stimulus intensity
 		double ddg (
 			double x,                           ///< stimulus intenstiy
 			const std::vector<double>& prm,     ///< parameter vector
 			int i,                              ///< first parameter with respect to which the derivative should be taken
 			int j                               ///< second parameter with respect to which the derivative should be taken
-			) throw(BadArgumentError) ;            ///< evaluate the 2nd derivative of the core
+			) const throw(BadArgumentError) ;            ///< evaluate the 2nd derivative of the core
 		double inv (
 			double y,                           ///< value at which to evaluate the inverse
 			const std::vector<double>& prm      ///< parameter vector
-			);           ///< invert the core
+			) const;           ///< invert the core
 		double dinv (
 			double y,                           ///< value at which to evaluate the inverse
 			const std::vector<double>& prm,     ///< parameter vector
 			int i                               ///< take the derivative of the inverse core with respect to parameter i
-			);           ///< evaluate the derivative of the inverse core with respect to parameter i
+			) const;           ///< evaluate the derivative of the inverse core with respect to parameter i
 		std::vector<double> transform (
 			int nprm,                           ///< number of parameters in the final model
 			double a,                           ///< intercept of the logistic regression model
 			double b                            ///< slope of the logistic regression model
-			);          ///< transform the parameters from a logistic regression model to starting values
+			) const;          ///< transform the parameters from a logistic regression model to starting values
         PsiCore * clone ( void ) const {
             return new weibullCore(*this);
         }
@@ -381,36 +381,36 @@ class polyCore : public PsiCore
 		double g (
 			double x,                                ///< stimulus intensity
 			const std::vector<double>& prm           ///< parameter vector (alpha,beta, ...)
-			) { return pow( x/prm[0], prm[1] ); }    ///< evaluate the polyCore
+			) const { return pow( x/prm[0], prm[1] ); }    ///< evaluate the polyCore
 		double dg (
 			double x,                                ///< stimulus intensity
 			const std::vector<double>& prm,          ///< parameter vector
 			int i                                    ///< index of the parameter to which the derivative should be evaluated
-			);              ///< derivative of the polyCore with respect to a parameter
+			) const;              ///< derivative of the polyCore with respect to a parameter
 		double dgx (
 			double x,                        ///< stimulus intensity
 			const std::vector<double>& prm   ///< parameter vector
-			);       ///< evaluate the first derivative of the core with respect to stimulus intensity
+			) const;       ///< evaluate the first derivative of the core with respect to stimulus intensity
 		double ddg (
 			double x,                                ///< stimulus intensity
 			const std::vector<double>& prm,          ///< parameter vector
 			int i,                                   ///< index of the first derivative parameter
 			int j                                    ///< index of the 2nd derivatibe parameter
-			);              ///< 2nd derivative of the polyCore object with respect to parameters
+			) const;              ///< 2nd derivative of the polyCore object with respect to parameters
 		double inv (
 			double y,                                ///< value for which the core should be inverted
 			const std::vector<double>& prm           ///< parameter vector
-			);              ///< inverse of the core
+			) const;              ///< inverse of the core
 		double dinv (
 			double y,                                ///< value at which to evaluate the inverse
 			const std::vector<double>& prm,          ///< parameter vector
 			int i                                    ///< index of the parameter for which the derivative should be evaluated
-			);              ///< derivative of the inverse core
+			) const;              ///< derivative of the inverse core
 		std::vector<double> transform (
 			int nprm,                                ///< number of parameters in the final model
 			double a,                                ///< intercept of the logistic regression model
 			double b                                 ///< slope of the logistic regression model to starting values
-			);              ///< transform the parameter from a logistic regression model to starting values
+			) const;              ///< transform the parameter from a logistic regression model to starting values
         PsiCore * clone ( void ) const {
             return new polyCore(*this);
         }
