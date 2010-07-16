@@ -23,6 +23,25 @@ class PsiSigmoid
         static std::string getDescriptor ( void ) { throw NotImplementedError(); }///< get a short string that identifies the type of sigmoid
 };
 
+/** \brief identity function as sigmoid
+ *
+ * This is useful if the desired function cannot be separated to the form sigmoid + core
+ * and the whole function has to be implemented in the core object. An example for this
+ * case is the Naka-Rushton nonlinearity typically used to model electrophysiological
+ * data.
+ */
+class PsiId : public PsiSigmoid
+{
+	public:
+		double f   ( double x ) const { return x; }
+		double df  ( double x ) const { return 1; }
+		double ddf ( double x ) const { return 0; }
+		double inv ( double x ) const { return x; }
+		int getcode ( void ) const { return 6; }
+		PsiSigmoid * clone ( void ) const { return new PsiId(*this); }
+		static std::string getDescriptor ( void ) { return "id"; }
+};
+
 /** \brief logistic function
  *
  * The logistic function is given by f(x) = 1/(1+exp(-x))
