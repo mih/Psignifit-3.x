@@ -147,6 +147,9 @@ To generate the documentation use::
 
     make doc
 
+If you want to try psignifit without installing it into your system, you might
+consider reading the section `Execute without Installation`_ below.
+
 If you want a special flavor of the python installation and are familiar with using python
 setup-scripts, you can also use special options for the installation, by
 executing the ``setup.py`` script explicitly. Note however, that in this case
@@ -187,18 +190,11 @@ python interpreter using the ``os`` module.
 Execute without Installation
 ----------------------------
 
-If you wish to build and execute pypsignifit in place, you must add the results
-of the build process to the ``$PYTHONPATH``.
+If you wish to build and execute pypsignifit in place, simply type:
 
-Build with::
+    make
 
-    python setup.py build
-
-Execute with::
-
-    PYTHONPATH=build/lib.macosx-10.3-i386-2.5 python -c "import pypsignifit"
-
-But remember to replace ``lib.macosx-10.3-i386-2.5`` with whatever is appropriate to
-your operating system. You will find this in the ``build`` directory.
+This will build everything into the current working directory, and allow you to
+import psignifit as long as you remain in the current working directory.
 
 .. [1] That means both, free as in "free beer" and free as in "free speech".
