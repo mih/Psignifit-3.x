@@ -45,7 +45,10 @@ To contact the authors and current maintainers please use:
 
     psignifit-users@lists.sourceforge.net
 
-If you use psignifit on a regular basis we recommend you subscribe to this list.
+
+This list can be used to ask questions about usage and installation, report
+bugs, and request new features. If you use psignifit we recommend you subscribe
+to this list.
 
 How to install
 ==============
