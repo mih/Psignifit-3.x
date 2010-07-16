@@ -131,8 +131,8 @@ Testing
   for running some of the unit tests
 
 
-Linux
------
+Linux and Mac OSX
+-----------------
 
 On the command line, navigate to the root directory of the psignifit distribution. By default,
 the installation process will install the psignifit documentation into the root directory into
@@ -151,20 +151,7 @@ If you want a special flavor of the python installation and are familiar with us
 setup-scripts, you can also use special options for the installation, by
 executing the ``setup.py`` script explicitly. Note however, that in this case
 you will first have to generate the swig interface. An example can be found in
-the section see `Install into users home directory`_.
-
-Mac OSX
--------
-
-A simple::
-
-    python setup.py install
-
-should install the python toolbox for you. However, keep in mind that you need the abovementioned
-dependencies.
-
-In some cases, you may want to install psignifit locally in your users home
-directory. For details about this, see `Install into users home directory`_.
+the section `Install into users home directory`_.
 
 Install into users home directory
 ---------------------------------
