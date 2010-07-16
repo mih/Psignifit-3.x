@@ -147,15 +147,11 @@ To generate the documentation use::
 
     make doc
 
-which will internally call::
-
-    python setup.py install
-
-So, if you want a special flavor of the python installation and are familiar with using python
-setup-scripts, you can also use special options for the installation.
-
-In some cases, you may want to install psignifit locally in your users home
-directory. For details about this, see `Install into users home directory`_.
+If you want a special flavor of the python installation and are familiar with using python
+setup-scripts, you can also use special options for the installation, by
+executing the ``setup.py`` script explicitly. Note however, that in this case
+you will first have to generate the swig interface. An example can be found in
+the section see `Install into users home directory`_.
 
 Mac OSX
 -------
@@ -176,7 +172,12 @@ Install into users home directory
 In some cases, you do not have root/admin rights on the computer you are working
 on. This would prevent you from installing psignifit in the system path as
 described above. As a workaround, the setup routine allows installation into a
-users home-directory using the command::
+users home-directory. In this case you must first generate the ``swig``
+interface::
+
+    make swig
+
+After this you may install psignifit locally by typing::
 
     python setup.py install --home=$HOME
 
