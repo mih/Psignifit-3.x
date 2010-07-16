@@ -141,10 +141,11 @@ should be self-explaining). Now, you can simply type::
 
     make install
 
-as root and everything will be installed to the right place. If you don't want the documentation
-be installed, you can also say::
+as root and everything will be installed to the right place.
 
-    make python-install
+To generate the documentation use::
+
+    make doc
 
 which will internally call::
 
