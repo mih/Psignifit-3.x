@@ -419,4 +419,59 @@ class polyCore : public PsiCore
         }
 };
 
+/** \brief Naka-Rushton function
+ *
+ * The Naka-Rushton function cannot be separated into sigmoid + core. Thus, the complete nonlinear function is implemented
+ * in the Naka-Rushton core object. To use the Naka-Rushton function for fitting psychometric data, this core should be
+ * combined with a PsiId sigmoid.
+ */
+class NakaRushton : public PsiCore
+{
+	private:
+		std::vector<double> x;
+	public:
+		NakaRushton (
+			const PsiData* data=NULL,
+			const int sigmoid=6,
+			const double alpha=0.1
+			);
+		NakaRushton ( const NakaRushton& original ) : x ( original.x ) {}
+
+		double g (
+				double x,
+				const std::vector<double>& prm
+				) const { return (x<0 ? 0 : pow ( x, prm[1] ) / (pow(prm[0],prm[1])+pow(x,prm[1]))); }
+		double dg (
+				double x,
+				const std::vector<double>& prm,
+				int i
+				) const;
+		double ddg (
+				double x,
+				const std::vector<double>& prm,
+				int i,
+				int j
+				) const;
+		double inv (
+				double y,
+				const std::vector<double>& prm
+				) const;
+		double dinv (
+				double y,
+				const std::vector<double>& prm,
+				int i
+				) const;
+		std::vector<double> transform (
+				int nprm,
+				double a,
+				double b
+				) const;
+		PsiCore * clone ( void ) const {
+			return new NakaRushton ( *this );
+		}
+		static std::string getDescriptor ( void ) {
+			return "NakaRushton";
+		}
+};
+
 #endif

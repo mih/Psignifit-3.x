@@ -414,3 +414,114 @@ std::vector<double> polyCore::transform ( int nprm, double a, double b ) const
 	return prm;
 }
 
+/************************************************************
+ * NakaRushton
+ */
+
+NakaRushton::NakaRushton ( const PsiData *data, const int sigmoid, const double alpha )
+	: x(data->getNblocks())
+{
+	unsigned int i;
+
+	for ( i=0; i<data->getNblocks(); i++ ) {
+		x[i] = data->getIntensity(i);
+	}
+}
+
+NakaRushton::dg ( double x, const std::vector<double>& prm, int i ) const
+{
+	double sigm, k;
+	double xk,sigmk;
+	if (x<0)
+		return 0;
+	sigm = prm[0];
+	k    = prm[1];
+	xk = pow(x,k);
+	sigmk = pow(sigm,k);
+
+	// These derivatives are from sympy
+	switch (i) {
+		case 0:
+			return -k * xk * sigmk / ( sigm * pow( xk + sigmk, 2) );
+			break;
+		case 1:
+			return xk*log(x)/(xk+sigmk) - xk * ( xk * log(x) - sigmk*log(sigm) ) / pow(xk+sigmk,2);
+			break;
+		default:
+			return 0;
+	}
+}
+
+NakaRushton::ddg ( double x, const std::vector<double>& prm, int i, int j ) const
+{
+	double sigm,k;
+	double xk,sigmk;
+	double logx,logsigm;
+	if (x<0)
+		return 0;
+	sigm = prm[0];
+	k    = prm[1];
+	xk   = pow(x,k);
+	sigmk= pow(sigm,k);
+	logx = log(x);
+	logsigm = log(sigm);
+
+	// These derivatives are from sympy
+	if ( (i==0) && (j==0) ) {
+		return 2*xk*k*k*sigmk*sigmk/(sigm*sigm*pow(xk+sigmk,3))
+			+ (k*xk*sigmk - xk*y*y*sigmk)/(sigm*sigm*pow(xk+sigmk,2));
+	} else if ( (i==1) && (j==1) ) {
+		return -xk * (xk*logx*logx + sigmk*logsigm*logsigm)/pow(xk+sigmk,2)
+			+ xk*(xk*logx+sigmk*logsigm)*(2*xk*logx+2*sigmk*logsigm)/pow(xk+sigmk,3)
+			- 2*xk*(xk*logx+sigmk*logsigm)*logx/pow(xk+sigmk,2)
+			+ xk*logx*logx/(xk+sigmk);
+	} else if ( ((i==0) && (j==1)) || ((i==1) && (j==0)) ) {
+		return -xk*(x*sigmk*logsigm - xk)/(sigm*pow(xk+sigmk,2))
+			- k*xk*sigmk*logx / (sigm*pow(xk+sigmk,2))
+			+ 2*k*xk*sigmk*(xk*logx+sigmk*logsigm)/(sigm*pow(xk+sigmk,3));
+	} else
+		return 0;
+}
+
+NakaRushton::inv ( double y, const std::vector<double>& prm ) const
+{
+	return pow ( pow(prm[0], prm[1])/(1-y), 1.0/prm[1] );
+}
+
+NakaRushton::dinv ( double y, const std::vector<double>& prm, int i ) const
+{
+	double sqrtpart, k, sigm, logsigm, sigmk;
+	sigmk    = pow(sigm,k);
+	sqrtpart = pow ( sigmk / (1-y), 1.0/prm[1] );
+	logsigm  = log ( sigm );
+	return sqrtpart * ( logsigm/k - log(sigmk/(1-y))/(k*k));
+}
+
+std::vector<double> transform ( int nprm, double a, double b ) const
+{
+	double s1(0),s2(0),s3(0),s4(0), logx, xi;
+	double khat, klogsigmhat;
+	unsigned int i;
+
+	// Using linear regression to approximate the logarithm linearly on the desired stimulus range
+	for ( i=0; i<x.size(); i++ ) {
+		xi    = x[i];
+		logxi = log(xi);
+		s1 += logxi*(a+b*xi);
+		s2 += logxi;
+		s3 += a+b*xi;
+		s4 += logxi*logxi;
+	}
+
+	khat = s1-s2*s3;
+	khat /= (s4-s2*s2);
+	s2 /= x.size();
+	s3 /= x.size();
+	klogsigmhat = s3 - khat * s2;
+
+	std::vector<double> prm ( nprm );
+	prm[1] = khat;
+	prm[0] = exp ( klogsigmhat/khat );
+
+	return prm;
+}
