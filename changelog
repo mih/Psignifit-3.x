@@ -1,0 +1,7 @@
+2010-07-16
+
+* Activates new interface layer swignifit
+* Fixes a number of memory leaks
+* Overhall of build system
+* Makes available Beta-regression for psychometric functions (so far only via
+  swig/C++)
