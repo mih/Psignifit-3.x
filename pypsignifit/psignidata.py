@@ -15,7 +15,7 @@ import operator
 import numpy as N
 import pylab as p
 from scipy import stats,special,optimize
-import _psipy
+import swignifit as interface
 
 import pygibbsit
 
@@ -84,13 +84,13 @@ class PsiInference ( object ):
         if prm==None:
             prm = self.estimate
 
-        return N.array( _psipy.diagnostics ( x, prm, sigmoid=self.model["sigmoid"], core=self.model["core"], nafc=self.model["nafc"] ) )
+        return N.array( interface.diagnostics ( x, prm, sigmoid=self.model["sigmoid"], core=self.model["core"], nafc=self.model["nafc"] ) )
 
     def getThres ( self, cut=0.5 ):
         """Get thresholds at cut"""
         if self.data == None:
             raise NotImplementedError
-        return float(_psipy.diagnostics ( self.data, self.estimate, cuts=cut, nafc=self.model["nafc"], sigmoid=self.model["sigmoid"], core=self.model["core"] )[3])
+        return float(interface.diagnostics ( self.data, self.estimate, cuts=cut, nafc=self.model["nafc"], sigmoid=self.model["sigmoid"], core=self.model["core"] )[3])
 
     def __repr__ ( self ):
         return "< PsiInference object >"
@@ -256,11 +256,11 @@ class BootstrapInference ( PsiInference ):
             self.conf = conf
 
         # Store point estimates
-        self.estimate,self.fisher,self.thres,self.deviance = _psipy.mapestimate(self.data,cuts=self.cuts,start=start,**self.model)
-        self.predicted,self.devianceresiduals,self.deviance,thres,self.Rpd,self.Rkd = _psipy.diagnostics(self.data,self.estimate, \
+        self.estimate,self.fisher,self.thres,self.deviance = interface.mapestimate(self.data,cuts=self.cuts,start=start,**self.model)
+        self.predicted,self.devianceresiduals,self.deviance,thres,self.Rpd,self.Rkd = interface.diagnostics(self.data,self.estimate, \
                 nafc=self.model["nafc"],sigmoid=self.model["sigmoid"],core=self.model["core"])
 
-        # The _psipy arrays are not numpy arrays
+        # The interface arrays are not numpy arrays
         self.estimate          = N.array(self.estimate)
         self.predicted         = N.array(self.predicted)
         self.devianceresiduals = N.array(self.devianceresiduals)
@@ -300,7 +300,7 @@ class BootstrapInference ( PsiInference ):
         self.__nsamples = Nsamples
         # print self.estimate
         self.__bdata,self.__bestimate,self.__bdeviance,self.__bthres,self.__th_bias,self.__th_acc,\
-                self.__bRkd,self.__bRpd,self.__outl,self.__infl = _psipy.bootstrap(self.data,self.estimate,Nsamples,
+                self.__bRkd,self.__bRpd,self.__outl,self.__infl = interface.bootstrap(self.data,self.estimate,Nsamples,
                         cuts=self.cuts,**self.model)
         if not self.parametric:
             self.sample_nonparametric ( Nsamples )
@@ -325,7 +325,7 @@ class BootstrapInference ( PsiInference ):
                 number of bootstrapsamples to be drawn
         """
         self.__bdata,self.__bestimate,dev,self.__bthres,self.__th_bias,self.__th_acc,\
-                Rkd,Rpd,outl,infl = _psipy.bootstrap(self.data,self.estimate,Nsamples,
+                Rkd,Rpd,outl,infl = interface.bootstrap(self.data,self.estimate,Nsamples,
                         cuts=self.cuts,parametric=False,**self.model)
 
     def getCI ( self, cut, conf=None ):
@@ -452,8 +452,8 @@ class BootstrapInference ( PsiInference ):
             # Perform bootstrap on this next point
             fullprm = self.estimate.copy()
             fullprm[:2] = self._expansionPoints[-1]
-            fullthres = _psipy.diagnostics(self.data,fullprm, nafc=self.model["nafc"],sigmoid=self.model["sigmoid"],core=self.model["core"],cuts=self.cuts)[3]
-            bthres,th_bias,th_acc = _psipy.bootstrap(self.data,fullprm,Nsamples,cuts=self.cuts,**self.model)[3:6]
+            fullthres = interface.diagnostics(self.data,fullprm, nafc=self.model["nafc"],sigmoid=self.model["sigmoid"],core=self.model["core"],cuts=self.cuts)[3]
+            bthres,th_bias,th_acc = interface.bootstrap(self.data,fullprm,Nsamples,cuts=self.cuts,**self.model)[3:6]
             thresholdCI = []
             for l,cut in enumerate(self.cuts):
                 for pp,prob in enumerate(conf):
@@ -621,7 +621,7 @@ class BayesInference ( PsiInference ):
 
         self.afac = kwargs.setdefault ( "afac", 0.4 )
 
-        self.mapestimate,self.fisher,thres,self.mapdeviance = _psipy.mapestimate(self.data,start=None,**self.model)
+        self.mapestimate,self.fisher,thres,self.mapdeviance = interface.mapestimate(self.data,start=None,**self.model)
 
         if cuts is None:
             self.cuts = (.25,.5,.75)
@@ -632,7 +632,7 @@ class BayesInference ( PsiInference ):
         else:
             self.Ncuts = len(self.cuts)
 
-        self.Rpd,self.Rkd = _psipy.diagnostics ( self.data, self.mapestimate, cuts=self.cuts, nafc=self.model["nafc"],
+        self.Rpd,self.Rkd = interface.diagnostics ( self.data, self.mapestimate, cuts=self.cuts, nafc=self.model["nafc"],
                 sigmoid=self.model["sigmoid"], core=self.model["core"] )[4:]
 
         self.__meanestimate = None
@@ -690,7 +690,7 @@ class BayesInference ( PsiInference ):
 
         if start is None:
             start = self.mapestimate
-        chain,deviance,ppdata,ppdeviances,ppRpd,ppRkd,logpostratios = _psipy.mcmc ( self.data, start, Nsamples, stepwidths=self._steps, **self.model )
+        chain,deviance,ppdata,ppdeviances,ppRpd,ppRkd,logpostratios = interface.mcmc ( self.data, start, Nsamples, stepwidths=self._steps, **self.model )
         self.__mcmc_chains.append(N.array(chain))
         self.__mcmc_deviances.append(N.array(deviance))
         self.__mcmc_posterior_predictives.append(N.array(ppdata))
@@ -747,7 +747,7 @@ class BayesInference ( PsiInference ):
         elif isinstance (Nsamples,int):
             start = self.__mcmc_chains[chain][start,:]
 
-        mcchain,deviance,ppdata,ppdeviances,ppRpd,ppRkd,logpostratios = _psipy.mcmc ( self.data, start, Nsamples, stepwidths=self._steps, **self.model )
+        mcchain,deviance,ppdata,ppdeviances,ppRpd,ppRkd,logpostratios = interface.mcmc ( self.data, start, Nsamples, stepwidths=self._steps, **self.model )
         self.__mcmc_chains[chain] = N.array(mcchain)
         self.__mcmc_deviances[chain] = N.array(deviance)
         self.__mcmc_posterior_predictives[chain] = N.array(ppdata)
@@ -1059,7 +1059,7 @@ class BayesInference ( PsiInference ):
         deviances = N.clip(.4+4*deviances,0,1)
         for i in indices:
             # i = N.random.randint(samples.shape[0])
-            psi = N.array(_psipy.diagnostics ( x, samples[i,:], sigmoid=self.model["sigmoid"], core=self.model["core"], nafc=self.model["nafc"] ))
+            psi = N.array(interface.diagnostics ( x, samples[i,:], sigmoid=self.model["sigmoid"], core=self.model["core"], nafc=self.model["nafc"] ))
             # Lines are colored according to their deviance
             ax.plot(x,psi,color=[deviances[i]]*2+[1])
 
@@ -1140,7 +1140,7 @@ class BayesInference ( PsiInference ):
                 if len(self.__mcmc_chains) > 0:
                     # But we have samples!
                     self.__meanestimate = self.getsamples().mean(0)
-                    self.devianceresiduals,self.__meandeviance,self.thres,self.Rpd,self.Rkd = _psipy.diagnostics ( \
+                    self.devianceresiduals,self.__meandeviance,self.thres,self.Rpd,self.Rkd = interface.diagnostics ( \
                             self.data, self.__meanestimate, cuts=self.cuts, nafc=self.model["nafc"], sigmoid=self.model["sigmoid"], core=self.model["core"] )[1:]
                 else:
                     # We have no samples ~> return mapestimate
@@ -1343,7 +1343,7 @@ class BayesInference ( PsiInference ):
         self._PsiInference__infl   = N.zeros(self.data.shape[0], 'd' )
 
         for k,theta in enumerate(samples):
-            self.__pthres[k,:],self.__pRpd[k],self.__pRkd[k] = _psipy.diagnostics (\
+            self.__pthres[k,:],self.__pRpd[k],self.__pRkd[k] = interface.diagnostics (\
                     self.data, theta, cuts=self.cuts, nafc=self.model["nafc"], sigmoid=self.model["sigmoid"], core=self.model["core"] )[3:]
         lpr = []
         for l in self.__mcmc_logposterior_ratios:
@@ -1385,7 +1385,7 @@ class BayesInference ( PsiInference ):
         # a = self.afac*N.sqrt(asympvar)
         # print a
 
-        # chain,deviance,ppdata,ppdeviances,ppRpd,ppRkd,logpostratios = _psipy.mcmc ( self.data, self.mapestimate, NN, stepwidths=a, **self.model )
+        # chain,deviance,ppdata,ppdeviances,ppRpd,ppRkd,logpostratios = interface.mcmc ( self.data, self.mapestimate, NN, stepwidths=a, **self.model )
         # a = N.sqrt(N.diag(N.cov(chain.T)))
         # print a
 
@@ -1393,7 +1393,7 @@ class BayesInference ( PsiInference ):
         oldthin   = 1
         oldnsamples = NN
         for n in xrange ( noptimizations ):
-            samples,deviances,ppdata,ppdeviances,ppRpd,ppRkd,logpostratios = _psipy.mcmc ( self.data, self.mapestimate, NN, stepwidths=a, **self.model )
+            samples,deviances,ppdata,ppdeviances,ppRpd,ppRkd,logpostratios = interface.mcmc ( self.data, self.mapestimate, NN, stepwidths=a, **self.model )
 
             # Check all desired thresholds
             for q in self.conf:
@@ -1432,7 +1432,7 @@ class BayesInference ( PsiInference ):
         except N.linalg.LinAlgError:
             # It seems as if the regularized fisher matrix can not be inverted
             # We directly get an estimate form bootstrap
-            bsamples = _psipy.bootstrap ( self.data, self.estimate, 100, cuts=self.cuts, **self.model )[1]
+            bsamples = interface.bootstrap ( self.data, self.estimate, 100, cuts=self.cuts, **self.model )[1]
             return bsamples.std(0)
         cond = abs(fisherI.A).sum(1).max() * abs(fisherIinv.A).sum(1).max()
         # print "Condition of Fisher Information Matrix:",cond
@@ -1465,7 +1465,7 @@ class BayesInference ( PsiInference ):
 
         if abs(a).min() < 1e-10 or abs(a).max() > 1e10 or a[2] > 0.5:
             # It seems as if the Variance estimation via the Fisher Matrix failed
-            bsamples = _psipy.bootstrap(self.data,self.estimate,100,cuts=self.cuts,**self.model)[1]
+            bsamples = interface.bootstrap(self.data,self.estimate,100,cuts=self.cuts,**self.model)[1]
             a = bsamples.std(0)
             # print "a_boots =",a
 

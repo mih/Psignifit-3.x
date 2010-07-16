@@ -87,6 +87,7 @@ satisfy the dependencies listed below:
 * ``python-matplotlib``
 * ``python-sphinx``
 * ``doxygen``
+* ``python-nose``
 
 Compile-Time
 ............
@@ -113,14 +114,19 @@ Documentation
 .............
 
 `sphinx <http://sphinx.pocoo.org/>`_ (0.6.5-1)
-    to generate the python documentation
+    to generate the html documentation
 `doxygen <http://www.stack.nl/~dimitri/doxygen/>`_ (1.6.3-1)
    to generate the C++ documentation
+`epydoc <http://epydoc.sourceforge.net/>`_ (3.0.1-5)
+   to generate the Python API documentation
 
 Testing
 .......
 
-No additional testing frameworks are required.
+`nosetest <http://somethingaboutorange.com/mrl/projects/nose/0.11.2/>`_
+(0.11.1-1)
+  for running some of the unit tests
+
 
 Linux
 -----

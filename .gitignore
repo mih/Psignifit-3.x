@@ -15,3 +15,5 @@ scripts/nonstationarity/test*
 documents/*.aux
 documents/*.log
 documents/*.pdf
+_psipy.so
+swignifit/_swignifit_raw.so

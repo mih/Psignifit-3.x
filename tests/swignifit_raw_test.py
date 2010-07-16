@@ -293,8 +293,10 @@ class TestMCList(ut.TestCase):
         bs_list.getThres_byPos(0,0)
         bs_list.getNblocks()
         bs_list.getCut(0)
-        bs_list.getAcc(0)
-        bs_list.getBias(0)
+        bs_list.getAcc_t(0)
+        bs_list.getAcc_s(0)
+        bs_list.getBias_t(0)
+        bs_list.getBias_s(0)
         bs_list.getRpd(0)
         # should this not throw a BadIndexError
         bs_list.percRpd(0)
@@ -302,7 +304,8 @@ class TestMCList(ut.TestCase):
         # should this not thow a BadIndexError?
         bs_list.percRkd(0)
 
-        bs_list.setBCa(0, 0.1, 0.1)
+        bs_list.setBCa_t(0, 0.1, 0.1)
+        bs_list.setBCa_s(0, 0.1, 0.1)
         bs_list.setData(0, sfr.vector_int([24, 32, 40,48, 50,48]))
         bs_list.setThres(0.5, 0, 0)
         bs_list.setRpd(0, 0.5)

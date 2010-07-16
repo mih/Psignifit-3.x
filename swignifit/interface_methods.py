@@ -11,6 +11,7 @@
 import numpy as np
 import swignifit_raw as sfr
 import swignifit.utility as sfu
+import operator as op
 
 def bootstrap(data, start=None, nsamples=2000, nafc=2, sigmoid="logistic",
         core="ab", priors=None, cuts=None, parametric=True ):
@@ -45,8 +46,8 @@ def bootstrap(data, start=None, nsamples=2000, nafc=2, sigmoid="logistic",
     acc = np.zeros((ncuts))
     bias = np.zeros((ncuts))
     for cut in xrange(ncuts):
-        acc[cut] = bs_list.getAcc(cut)
-        bias[cut] = bs_list.getBias(cut)
+        acc[cut] = bs_list.getAcc_t(cut)
+        bias[cut] = bs_list.getBias_t(cut)
 
     ci_lower = sfr.vector_double(nparams)
     ci_upper = sfr.vector_double(nparams)
@@ -65,7 +66,7 @@ def bootstrap(data, start=None, nsamples=2000, nafc=2, sigmoid="logistic",
     return samples, estimates, deviance, thres, bias, acc, Rpd, Rkd, outliers, influential
 
 def mcmc( data, start=None, nsamples=10000, nafc=2, sigmoid='logistic',
-        core='mw0.1', priors=None, stepwidths=None ):
+        core='mw0.1', priors=None, stepwidths=None, sampler="MetropolisHastings"):
 
     dataset, pmf, nparams = sfu.make_dataset_and_pmf(data, nafc, sigmoid, core, priors)
 
@@ -77,7 +78,10 @@ def mcmc( data, start=None, nsamples=10000, nafc=2, sigmoid='logistic',
         start = opt.optimize(pmf, dataset)
 
     proposal = sfr.GaussRandom()
-    sampler  = sfr.MetropolisHastings(pmf, dataset, proposal)
+    if sampler not in sfu.sampler_dict.keys():
+        raise sfu.PsignifitException("The sampler: " + sampler + " is not available.")
+    else:
+        sampler  = sfu.sampler_dict[sampler](pmf, dataset, proposal)
     sampler.setTheta(start)
 
     if stepwidths != None:
@@ -140,7 +144,16 @@ def mapestimate ( data, nafc=2, sigmoid='logistic', core='ab', priors=None,
 
 def diagnostics(data, params, nafc=2, sigmoid='logistic', core='ab', cuts=None):
     # here we need to hack stuff, since data can be either 'real' data, or just
-    # a list of intensities.
+    # a list of intensities, or just an empty sequence
+
+    # in order to remain compatible with psipy we must check for an empty
+    # sequence here, and return a specially crafted return value in that case.
+    # sorry..
+    if op.isSequenceType(data) and len(data) == 0:
+        pmf, nparams =  sfu.make_pmf(sfr.PsiData([0],[0],[0],1), nafc, sigmoid, core, None )
+        thres = np.array([pmf.getThres(params, cut) for cut in sfu.get_cuts(cuts)])
+        return np.array([]), np.array([]), 0.0, thres, np.nan, np.nan
+
     shape = np.shape(np.array(data))
     intensities_only = False
     if len(shape) == 1:
@@ -163,7 +176,7 @@ def diagnostics(data, params, nafc=2, sigmoid='logistic', core='ab', cuts=None):
     else:
         deviance_residuals = pmf.getDevianceResiduals(params, dataset)
         deviance = pmf.deviance(params, dataset)
-        thres = [pmf.getThres(params, cut) for cut in cuts]
+        thres = np.array([pmf.getThres(params, cut) for cut in cuts])
         rpd = pmf.getRpd(deviance_residuals, params, dataset)
         rkd = pmf.getRkd(deviance_residuals, dataset)
         return predicted, deviance_residuals, deviance, thres, rpd, rkd

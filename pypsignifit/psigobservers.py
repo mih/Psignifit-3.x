@@ -12,7 +12,7 @@ __docformat__ = "restructuredtext"
 
 import numpy as N
 from scipy import stats
-import _psipy
+import swignifit as interface
 
 from psignidata import Property
 
@@ -54,6 +54,13 @@ class Observer ( object ):
         [[2, 27, 50], [4, 38, 50], [6, 46, 50]]
         >>> O.data
         [[3, 1, 1], [4, 28, 40], [6, 37, 40], [2, 27, 50], [4, 38, 50], [6, 46, 50]]
+
+        :Example:
+        >>> model ={"sigmoid" : "gumbel_r", "core" : "mw01", "nafc" : 2}
+        >>> correct = [0.1, 0.3, 0.5, 0.7, 0.9, 0.99]
+        >>> ob = Observer(4, 4, 0.05, **model)
+        >>> levels = ob.getlevels(correct)
+        >>> data = ob.DoAnExperiment(levels, ntrials=50)
         """
         if model.setdefault( "nafc", 2 ) == 1:
             self.a,self.b,self.lapse,self.guess = params
@@ -85,7 +92,7 @@ class Observer ( object ):
             The response in the trail (1/0 coding for Yes/No in Yes/No-Tasks or for
             Correct/Incorrect in nAFC tasks)
         """
-        prob = float( _psipy.diagnostics ( [stimulus_intensity], self.params,
+        prob = float( interface.diagnostics ( [stimulus_intensity], self.params,
             sigmoid=self.model["sigmoid"], core=self.model["core"], nafc=self.model["nafc"] ) )
 
         resp = int ( N.random.rand()<prob )
@@ -110,7 +117,7 @@ class Observer ( object ):
         :Output:
             The number of Yes-responses (in Yes/No) or the number of correct responses (nAFC)
         """
-        prob = float( _psipy.diagnostics ( [stimulus_intensity], self.params,
+        prob = float( interface.diagnostics ( [stimulus_intensity], self.params,
             sigmoid=self.model["sigmoid"], core=self.model["core"], nafc=self.model["nafc"] ) )
 
         resp = N.random.binomial ( ntrials, prob )
@@ -156,7 +163,7 @@ class Observer ( object ):
 
     def getlevels ( self, cuts ):
         """Determine stimulus levels that correspond to predefinde levels of performance"""
-        return _psipy.diagnostics ( [[1,2,3]], self.params, self.model["nafc"], self.model["sigmoid"], self.model["core"], cuts )[3]
+        return interface.diagnostics ( [[1,2,3]], self.params, self.model["nafc"], self.model["sigmoid"], self.model["core"], cuts )[3]
 
     def evaluate ( self, stimulus_intensities ):
         """Evaluate the psychometric function
@@ -166,7 +173,7 @@ class Observer ( object ):
                 stimulus intensities at which the psychometric function
                 should be evaluated.
         """
-        return _psipy.diagnostics ( stimulus_intensities, self.params,
+        return interface.diagnostics ( stimulus_intensities, self.params,
                 sigmoid=self.model["sigmoid"], core = self.model["core"], nafc=self.model["nafc"] )
 
     @Property
@@ -182,7 +189,7 @@ class Observer ( object ):
     def thres ():
         "determine 50%% of the model"
         def fget ( self ):
-            return float(_psipy.diagnostics ( [], self.params, cuts=0.5, nafc=self.model["nafc"], sigmoid=self.model["sigmoid"], core=self.model["core"] )[3])
+            return float(interface.diagnostics ( [], self.params, cuts=0.5, nafc=self.model["nafc"], sigmoid=self.model["sigmoid"], core=self.model["core"] )[3])
 
 class LinearSystemLearner ( Observer ):
     def __init__( self, *params, **model ):
@@ -349,7 +356,7 @@ class CriterionSettingObserver ( Observer ):
             A number 1 or 0, depending on the task, this means correct/incorrect (nAFC)
             or signal present, signal absent (Yes/No)
         """
-        prob = float( _psipy.diagnostics ( [stimulus_intensity], self.params,
+        prob = float( interface.diagnostics ( [stimulus_intensity], self.params,
             sigmoid=self.model["sigmoid"], core=self.model["core"], nafc=2 ) )
         d = stats.norm.ppf(prob) - stats.norm.ppf(1-prob)
 
@@ -504,7 +511,7 @@ class BetaBinomialObserver ( Observer ):
         :Output:
             number of correct responses (nAFC) or number of yes responses (Yes/No-Task)
         """
-        psi = float( _psipy.diagnostics ( [stimulus_intensity], self.params,
+        psi = float( interface.diagnostics ( [stimulus_intensity], self.params,
             sigmoid=self.model["sigmoid"], core=self.model["core"], nafc=self.model["nafc"] ) )
 
         alpha = psi*self.dispersion

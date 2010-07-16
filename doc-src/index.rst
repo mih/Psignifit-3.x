@@ -24,6 +24,7 @@ Contents:
    BAYESINTRO
    CONTRIBUTING
    API
+   swig-api
 
 Indices and tables
 ==================

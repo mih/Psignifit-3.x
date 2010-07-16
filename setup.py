@@ -9,19 +9,68 @@
 #
 ######################################################################
 
-""" setup: part of the build system for psignifit 3.x
+""" setup.py for Psignifit 3.x """
 
-This file will build the pypsignifit module, and compile both the psipy and the
-swignifit extension.
+from distutils.core import setup, Extension
+import numpy
+import os
 
-"""
+# metadata definitions
+name = "pypsignifit"
+version = "3.0beta"
+author = "Ingo Fründ, Valentin Haenel"
+author_email = "psignifit-users@lists.sourceforge.net"
+description = "Statistical inference for psychometric functions"
+url= "http://sourceforge.net/projects/psignifit/"
+license = "MIT"
+packages = ["pypsignifit"]
 
-from setup_basic import *
+# Psi++ source files
+psipp_sources = [
+    "src/bootstrap.cc",
+    "src/core.cc",
+    "src/data.cc",
+    "src/mclist.cc",
+    "src/mcmc.cc",
+    "src/optimizer.cc",
+    "src/psychometric.cc",
+    "src/rng.cc",
+    "src/sigmoid.cc",
+    "src/special.cc",
+    "src/linalg.cc",
+    "src/prior.cc"]
 
-setup ( name = name,
-    version = version,
-    author = author,
-    description = description,
-    packages = packages,
-    ext_modules = [psipy, swignifit] )
+# psipy interface
+psipy_sources = ["psipy/psipy.cc"]
+psipy = Extension ( "_psipy",
+    sources = psipp_sources + psipy_sources,
+    include_dirs=[numpy.get_include(), "src", "psipy"])
 
+# swignifit interface
+swignifit_sources = ["swignifit/swignifit_raw.cxx"]
+swignifit = Extension('swignifit._swignifit_raw',
+        sources = psipp_sources + swignifit_sources,
+        include_dirs=["src"])
+
+# decide which interface to use
+# control this via the INTERFACE environment varible
+interface = os.getenv("INTERFACE")
+ext_modules = []
+if interface not in ("swignifit", "psipy", None):
+    raise ValueError("The interface '%s' does not exist!" % interface)
+if interface == "swignifit" or interface == None:
+    packages.append("swignifit")
+    ext_modules.append(swignifit)
+if interface == "psipy" or interface == None:
+    ext_modules.append(psipy)
+
+if __name__ == "__main__":
+    setup(name = name,
+        version = version,
+        author = author,
+        author_email = author_email,
+        description = description,
+        url = url,
+        license = license,
+        packages = packages,
+        ext_modules = ext_modules)

@@ -80,6 +80,12 @@ class TestUtility(ut.TestCase):
         unconstrained = sfu.get_prior("unconstrained")
         self.assertEqual(None, unconstrained)
 
+    def test_get_cuts(self):
+        # this used to cause an error since
+        # operator.isNumberType() on an ndarry is always true
+        cuts = np.array([1.0, 2.0, 3.0])
+        sfu.get_cuts(cuts)
+
 if __name__ == "__main__":
     ut.main()
 
