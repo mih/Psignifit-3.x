@@ -108,6 +108,7 @@ Development Snapshots
 
 Development snapshots are made on a regular basis. They consist of the following steps
 
+* make a changelog entry
 * create a tarball. The tarball should be named as
   ``psignifit3.0_beta_DD-MM-YYYY.tar.gz``
 * create a tag in the git repository. The tag for a snapshot should be
