@@ -163,14 +163,15 @@ int DerivativeCheck ( TestSuite * T ) {
 
 	// Cores
 	PsiCore* core;
-	std::vector<PsiCore*> cores ( 6 );
-	std::vector<char*>    corenames ( 6 );
+	std::vector<PsiCore*> cores ( 7 );
+	std::vector<char*>    corenames ( 7 );
 	cores[0] = new abCore (data);        corenames[0] = new char [20]; sprintf ( corenames[0], "abCore");
 	cores[1] = new linearCore (data);    corenames[1] = new char [20]; sprintf ( corenames[1], "linearCore");
 	cores[2] = new logCore (data);       corenames[2] = new char [20]; sprintf ( corenames[2], "logCore");
 	cores[3] = new mwCore (data);        corenames[3] = new char [20]; sprintf ( corenames[3], "mwCore");
 	cores[4] = new polyCore (data);      corenames[4] = new char [20]; sprintf ( corenames[4], "polyCore");
 	cores[5] = new weibullCore (data);   corenames[5] = new char [20]; sprintf ( corenames[5], "weibullCore");
+	cores[6] = new NakaRushton ( data ); corenames[6] = new char [20]; sprintf ( corenames[6], "NakaRushton");
 
 	for ( coreindex=0; coreindex<cores.size(); coreindex++ ) {
 		core = cores[coreindex];
@@ -193,7 +194,7 @@ int DerivativeCheck ( TestSuite * T ) {
 				prm[j] -= 1e-7;
 				d = y1-y0; d /= 1e-7;
 				sprintf ( msg, "%s 2nd derivative w.r.t. prm %d and %d", corenames[coreindex], i, j );
-				failures += T->isequal ( core->ddg ( x, prm, i, j ), d, msg, 1e-3 );
+				failures += T->isequal ( core->ddg ( x, prm, i, j ), d, msg, 2.5*1e-3 );
 			}
 		}
 		delete cores[coreindex];
@@ -210,6 +211,7 @@ int DerivativeCheck ( TestSuite * T ) {
 	sigmoids[3] = new PsiGumbelL ();     sigmoidnames[3] = new char [20]; sprintf ( sigmoidnames[3], "PsiGumbelL" );
 	sigmoids[4] = new PsiGumbelR ();     sigmoidnames[4] = new char [20]; sprintf ( sigmoidnames[4], "PsiGumbelR" );
 	sigmoids[5] = new PsiLogistic ();    sigmoidnames[5] = new char [20]; sprintf ( sigmoidnames[5], "PsiLogistic" );
+	sigmoids[6] = new PsiId ();          sigmoidnames[6] = new char [20]; sprintf ( sigmoidnames[6], "PsiId" );
 
 	for ( coreindex=0; coreindex<sigmoids.size(); coreindex++ ) {
 		sigmoid = sigmoids[coreindex];
