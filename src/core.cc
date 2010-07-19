@@ -428,7 +428,7 @@ NakaRushton::NakaRushton ( const PsiData *data, const int sigmoid, const double 
 	}
 }
 
-NakaRushton::dg ( double x, const std::vector<double>& prm, int i ) const
+double NakaRushton::dg ( double x, const std::vector<double>& prm, int i ) const
 {
 	double sigm, k;
 	double xk,sigmk;
@@ -445,14 +445,14 @@ NakaRushton::dg ( double x, const std::vector<double>& prm, int i ) const
 			return -k * xk * sigmk / ( sigm * pow( xk + sigmk, 2) );
 			break;
 		case 1:
-			return xk*log(x)/(xk+sigmk) - xk * ( xk * log(x) - sigmk*log(sigm) ) / pow(xk+sigmk,2);
+			return xk*log(x)/(xk+sigmk) - xk * ( xk * log(x) + sigmk*log(sigm) ) / pow(xk+sigmk,2);
 			break;
 		default:
 			return 0;
 	}
 }
 
-NakaRushton::ddg ( double x, const std::vector<double>& prm, int i, int j ) const
+double NakaRushton::ddg ( double x, const std::vector<double>& prm, int i, int j ) const
 {
 	double sigm,k;
 	double xk,sigmk;
@@ -483,12 +483,12 @@ NakaRushton::ddg ( double x, const std::vector<double>& prm, int i, int j ) cons
 		return 0;
 }
 
-NakaRushton::inv ( double y, const std::vector<double>& prm ) const
+double NakaRushton::dgx ( double x, const std::vector<double>& prm ) const
 {
 	return pow ( pow(prm[0], prm[1])/(1-y), 1.0/prm[1] );
 }
 
-NakaRushton::dinv ( double y, const std::vector<double>& prm, int i ) const
+double NakaRushton::dinv ( double y, const std::vector<double>& prm, int i ) const
 {
 	double sqrtpart, k, sigm, logsigm, sigmk;
 	sigmk    = pow(sigm,k);
@@ -497,7 +497,7 @@ NakaRushton::dinv ( double y, const std::vector<double>& prm, int i ) const
 	return sqrtpart * ( logsigm/k - log(sigmk/(1-y))/(k*k));
 }
 
-std::vector<double> transform ( int nprm, double a, double b ) const
+std::vector<double> NakaRushton::transform ( int nprm, double a, double b ) const
 {
 	double s1(0),s2(0),s3(0),s4(0), logx, xi;
 	double khat, klogsigmhat;
