@@ -469,14 +469,14 @@ double NakaRushton::ddg ( double x, const std::vector<double>& prm, int i, int j
 	// These derivatives are from sympy
 	if ( (i==0) && (j==0) ) {
 		return 2*xk*k*k*sigmk*sigmk/(sigm*sigm*pow(xk+sigmk,3))
-			+ (k*xk*sigmk - xk*y*y*sigmk)/(sigm*sigm*pow(xk+sigmk,2));
+			+ (k*xk*sigmk - xk*k*k*sigmk)/(sigm*sigm*pow(xk+sigmk,2));
 	} else if ( (i==1) && (j==1) ) {
 		return -xk * (xk*logx*logx + sigmk*logsigm*logsigm)/pow(xk+sigmk,2)
 			+ xk*(xk*logx+sigmk*logsigm)*(2*xk*logx+2*sigmk*logsigm)/pow(xk+sigmk,3)
 			- 2*xk*(xk*logx+sigmk*logsigm)*logx/pow(xk+sigmk,2)
 			+ xk*logx*logx/(xk+sigmk);
 	} else if ( ((i==0) && (j==1)) || ((i==1) && (j==0)) ) {
-		return -xk*(x*sigmk*logsigm - xk)/(sigm*pow(xk+sigmk,2))
+		return -xk*(x*sigmk*logsigm + xk)/(sigm*pow(xk+sigmk,2))
 			- k*xk*sigmk*logx / (sigm*pow(xk+sigmk,2))
 			+ 2*k*xk*sigmk*(xk*logx+sigmk*logsigm)/(sigm*pow(xk+sigmk,3));
 	} else
@@ -485,21 +485,43 @@ double NakaRushton::ddg ( double x, const std::vector<double>& prm, int i, int j
 
 double NakaRushton::dgx ( double x, const std::vector<double>& prm ) const
 {
-	return pow ( pow(prm[0], prm[1])/(1-y), 1.0/prm[1] );
+	double xmk ( pow(x,prm[1]-1) );
+	double xk (xmk*x), sgk ( pow(prm[0], prm[1]) );
+	if ( x<0 )
+		return 0;
+	else
+		return prm[1]*xmk*(sgk+xk+xk)/((sgk+xk)*(sgk+xk));
+}
+
+double NakaRushton::inv ( double y, const std::vector<double>& prm ) const
+{
+	return pow ( pow(prm[0], prm[1])*y/(1-y), 1.0/prm[1] );
 }
 
 double NakaRushton::dinv ( double y, const std::vector<double>& prm, int i ) const
 {
+	/*
 	double sqrtpart, k, sigm, logsigm, sigmk;
 	sigmk    = pow(sigm,k);
 	sqrtpart = pow ( sigmk / (1-y), 1.0/prm[1] );
 	logsigm  = log ( sigm );
 	return sqrtpart * ( logsigm/k - log(sigmk/(1-y))/(k*k));
+	*/
+	double odds (y/(1-y)), sigm(prm[0]), k(prm[1]);
+	switch (i) {
+		case 0:
+			return pow(odds, 1./k);
+			break;
+		case 1:
+			return sigm*pow(odds, 1./k) * (
+					log(sigm)/k - log(odds*pow(sigm,k))/(k*k)
+					);
+	}
 }
 
 std::vector<double> NakaRushton::transform ( int nprm, double a, double b ) const
 {
-	double s1(0),s2(0),s3(0),s4(0), logx, xi;
+	double s1(0),s2(0),s3(0),s4(0), logxi, xi;
 	double khat, klogsigmhat;
 	unsigned int i;
 
