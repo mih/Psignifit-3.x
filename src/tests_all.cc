@@ -894,6 +894,26 @@ int SigmoidTests ( TestSuite * T ) {
 	failures += T->ismore  ( sigmoid->ddf(-3),0,    "PsiCauchy->ddf(-3)");
 	delete sigmoid;
 
+	sigmoid = new PsiId ();
+	// A number of values
+	failures += T->isequal ( sigmoid->f ( -1. ), -1., "PsiId->f(-1)" );
+	failures += T->isequal ( sigmoid->f (  0. ),  0., "PsiId->f(0)"  );
+	failures += T->isequal ( sigmoid->f (  1. ),  1., "PsiId->f( 1)" );
+
+	// df
+	failures += T->isequal ( sigmoid->df ( -1. ), 1., "PsiId->df(-1)" );
+	failures += T->isequal ( sigmoid->df (  0. ), 1., "PsiId->df( 0)" );
+	failures += T->isequal ( sigmoid->df (  1. ), 1., "PsiId->df( 1)" );
+
+	// ddf
+	failures += T->isequal ( sigmoid->ddf ( -1. ), 0., "PsiId->ddf(-1)" );
+	failures += T->isequal ( sigmoid->ddf (  0. ), 0., "PsiId->ddf( 0)" );
+	failures += T->isequal ( sigmoid->ddf (  1. ), 0., "PsiId->ddf( 1)" );
+
+	// inv
+	failures += T->isequal ( sigmoid->inv ( sigmoid->f ( -1. ) ), -1., "PsiId->inv(PsiId->f(-1))" );
+	failures += T->isequal ( sigmoid->inv ( sigmoid->f (  0. ) ),  0., "PsiId->inv(PsiId->f( 0))" );
+	failures += T->isequal ( sigmoid->inv ( sigmoid->f (  1. ) ),  1., "PsiId->inv(PsiId->f( 1))" );
 
 	return failures;
 }
@@ -991,9 +1011,28 @@ int CoreTests ( TestSuite * T ) {
 	prm2[1] += 1e-8;
 	failures += T->isequal ( core->dinv(2.,prm,1), (core->inv(2,prm2)-core->inv(2,prm))/1e-8, "logCore inversion dinv(2,1)");
 	prm2[1] = prm[1];
+	delete core;
+
+	core = new NakaRushton ( data );
+	prm2[0] = 4.; prm2[1] = 2.; prm2[2] = .02;
+	prm = prm2;
+	th = prm2[0];
+	failures += T->isequal ( core->g(th,prm), 0.5,                  "NakaRushton at threshold");
+	failures += T->isequal ( core->dgx(2.,prm), 96./400.,           "NakaRushton derivative stimulus");
+	// Derivatives are tested separately
+	failures += T->isequal ( core->inv(0.5,prm), th,                "NakaRushton inverse");
+	failures += T->isequal ( core->inv(core->g(2.,prm),prm),2.,     "NakaRushton inversion inv(g(2))");
+	failures += T->isequal ( core->g(core->inv(.5,prm),prm),.5,     "NakaRushton inversion g(inv(0.5))");
+	prm2[0] += 1e-8;
+	failures += T->isequal ( core->dinv(.2,prm,0), (core->inv(.2,prm2)-core->inv(.2,prm))/1e-8, "NakaRushton inversion dinv(2,0)");
+	prm2[0] = prm[0];
+	prm2[1] += 1e-8;
+	failures += T->isequal ( core->dinv(.2,prm,1), (core->inv(.2,prm2)-core->inv(.2,prm))/1e-8, "NakaRushton inversion dinv(2,1)");
+	prm2[1] = prm[1];
+	delete core;
+
 
 	delete data;
-	delete core;
 	delete x;
 	delete k;
 	delete n;
