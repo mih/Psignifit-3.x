@@ -452,6 +452,10 @@ class NakaRushton : public PsiCore
 				int i,
 				int j
 				) const;
+		double dgx (
+				double x,
+				const std::vector<double>& prm
+				) const;
 		double inv (
 				double y,
 				const std::vector<double>& prm
