@@ -1443,7 +1443,7 @@ class BayesInference ( PsiInference ):
                 localdata = self.data.copy()
                 for l in xrange ( localdata.shape[0] ):
                     localdata[l,1] = N.random.binomial ( self.data[l,2], self.data[l,1].astype('d')/self.data[l,2] )
-                fisherII = N.matrix(_psipy.mapestimate(localdata,start=None,**self.model)[1])
+                fisherII = N.matrix(interface.mapestimate(localdata,start=None,**self.model)[1])
                 try:
                     fisherIIinv = N.linalg.solve ( fisherII.T*fisherII+0.01*N.eye(fisherII.shape[0]), fisherII.T )
                 except N.linalg.LinAlgError:
