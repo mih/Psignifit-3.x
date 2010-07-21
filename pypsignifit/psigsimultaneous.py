@@ -5,6 +5,19 @@ from scipy.special import gamma,digamma,polygamma
 from numpy import log,mean,var,exp,array
 from math import sqrt
 
+__all__ = ["derive_informed_priors"]
+__doc__ = """Routines to derive informed priors for quasi-simultaneous bayesian inference
+
+These routines are described in more detail in the document located in
+
+documents/simultaneous.pdf
+
+In short, these routines take a number of fits that were performed with (improper) flat priors
+and derive an list of informed priors. These informed priors can be used to perform the bayesian
+inference a second time, this time with non flat prios, such that in the end the posterior
+distributions of certain parameters are equal.
+"""
+
 def normpdf ( x, prm ):
     """normal pdf
 
