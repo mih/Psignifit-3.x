@@ -151,12 +151,8 @@ def combinegauss ( prm ):
         mean an variance of the product prior
     """
     prm = array ( prm )
-    mubar = mean ( prm[:,0] )
-    varbar = prod ( prm[:,1] )
-    denominator = 0.
-    for s in prm[:,1]:
-        denominator += varbar/s
-    varbar /= prm.shape[0] * denominator
+    varbar = 1./sum(1./prm[:,1])
+    mubar = sum(prm[:,0]/prm[:,1]) * varbar
     return mubar,varbar
 
 def combinegamma ( prm ):
