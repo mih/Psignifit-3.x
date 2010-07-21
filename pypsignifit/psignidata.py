@@ -1381,6 +1381,7 @@ class BayesInference ( PsiInference ):
             self.nsamples = NN
 
         a = self.__roughvariance ()
+        # a = 0.1*self.mapestimate
         # asympvar = N.diag(fisherinv)
         # a = self.afac*N.sqrt(asympvar)
         # print a
@@ -1426,7 +1427,7 @@ class BayesInference ( PsiInference ):
 
     def __roughvariance ( self ):
         # Determine an initial variance estimate using the Fisher Information Matrix
-        fisherI = N.matrix(self.fisher)
+        fisherI = -N.matrix(self.fisher)
         try:
             fisherIinv = N.linalg.solve ( fisherI.T*fisherI+0.01*N.eye(fisherI.shape[0]), fisherI.T )
         except N.linalg.LinAlgError:
@@ -1463,7 +1464,7 @@ class BayesInference ( PsiInference ):
             a = zeros(2)
         # print "a =",a
 
-        if abs(a).min() < 1e-10 or abs(a).max() > 1e10 or a[2] > 0.5:
+        if abs(a).min() < 1e-10 or abs(a).max() > 1e10 or a[2] > 0.5 or N.any(N.isnan(a)):
             # It seems as if the Variance estimation via the Fisher Matrix failed
             bsamples = interface.bootstrap(self.data,self.estimate,100,cuts=self.cuts,**self.model)[1]
             a = bsamples.std(0)
