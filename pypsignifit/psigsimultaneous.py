@@ -134,7 +134,7 @@ def fitbeta ( samples ):
     s = var ( samples )
     al = m * ( m*(1-m)/s - 1 )
     bt = (1-m) * ( m*(1-m)/s - 1 )
-    l = sum(log(betapdf(samples, al, bt ) ) )
+    l = sum(log(betapdf(samples, (al, bt) ) ) )
     return (al,bt),l
 
 def combinegauss ( prm ):
