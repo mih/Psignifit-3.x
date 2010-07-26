@@ -12,7 +12,8 @@ __docformat__ = "restructuredtext"
 
 import numpy as N
 from scipy import stats
-import swignifit as interface
+import pypsignifit
+interface = pypsignifit.interface
 
 from psignidata import Property
 

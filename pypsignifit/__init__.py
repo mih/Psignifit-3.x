@@ -10,12 +10,18 @@
 
 __docformat__ = "restructuredtext"
 
+# This is the interface to psi++
+import swignifit as interface
+
 # This is "real" psignifit
 from psignidata import *
 from psigniplot import *
 
 # This is to enable display of graphics
 from pylab import show
+
+def set_seed(value):
+    interface.set_seed(value)
 
 def __test__ ( ):
     "If we call the file directly, we perform a test run"
