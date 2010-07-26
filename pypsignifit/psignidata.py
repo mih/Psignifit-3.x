@@ -1382,6 +1382,7 @@ class BayesInference ( PsiInference ):
             self.nsamples = NN
 
         a = self.__roughvariance ()
+        # a = 0.1*self.mapestimate
         # asympvar = N.diag(fisherinv)
         # a = self.afac*N.sqrt(asympvar)
         # print a
@@ -1427,8 +1428,10 @@ class BayesInference ( PsiInference ):
 
     def __roughvariance ( self ):
         # Determine an initial variance estimate using the Fisher Information Matrix
-        fisherI = N.matrix(self.fisher)
+        fisherI = -N.matrix(self.fisher)
         try:
+            # Solve regularized problem
+            # (A.T*A+lambda*I) * X = A.T
             fisherIinv = N.linalg.solve ( fisherI.T*fisherI+0.01*N.eye(fisherI.shape[0]), fisherI.T )
         except N.linalg.LinAlgError:
             # It seems as if the regularized fisher matrix can not be inverted
@@ -1439,16 +1442,17 @@ class BayesInference ( PsiInference ):
         # print "Condition of Fisher Information Matrix:",cond
         # print fisherI
 
+        # If fisherI is ill conditioned
         if cond > 1e6:
             for k in xrange(20):
                 localdata = self.data.copy()
                 for l in xrange ( localdata.shape[0] ):
                     localdata[l,1] = N.random.binomial ( self.data[l,2], self.data[l,1].astype('d')/self.data[l,2] )
-                fisherII = N.matrix(_psipy.mapestimate(localdata,start=None,**self.model)[1])
+                fisherII = N.matrix(interface.mapestimate(localdata,start=None,**self.model)[1])
                 try:
                     fisherIIinv = N.linalg.solve ( fisherII.T*fisherII+0.01*N.eye(fisherII.shape[0]), fisherII.T )
                 except N.linalg.LinAlgError:
-                    break
+                    continue
                 cond = abs(fisherII.A).sum(1).max() * abs(fisherIIinv.A).sum(1).max()
                 # print "Condition of Fisher Information Matrix:",cond
                 # print fisherI
@@ -1461,10 +1465,13 @@ class BayesInference ( PsiInference ):
             a = N.sqrt(N.diag(fisherIinv))
         except:
             # There doesn't seem to be a fisherIinv variable...
-            a = zeros(2)
+            a = zeros(3)
         # print "a =",a
 
-        if abs(a).min() < 1e-10 or abs(a).max() > 1e10 or a[2] > 0.5:
+        if abs(a).min() < 1e-10 \
+                or abs(a).max() > 1e10 \
+                or a[2] > 0.5 \
+                or N.any(N.isnan(a)):
             # It seems as if the Variance estimation via the Fisher Matrix failed
             bsamples = interface.bootstrap(self.data,self.estimate,100,cuts=self.cuts,**self.model)[1]
             a = bsamples.std(0)
