@@ -8,6 +8,7 @@ from numpy import array,arange,mgrid,clip,zeros,sort, random
 import os,sys
 import pylab
 import operator
+import time
 
 __helptext__ = """
 Determine coverage of confidence intervals for a given combination of analysis/generating parameters.
@@ -56,6 +57,9 @@ parser.add_option ( "--nblocks",      dest="nblocks",      default=5,    type="i
 parser.add_option ( "--fixed-levels", dest="fixed_levels", default=None,
         type="string", help="list of stimulus levels, if desired, if None,"+\
                 "psychometric function will be sampled. Default: None")
+parser.add_option ( "--seed", dest="seed", default="fixed",
+        type="string", help="seed for simulation, can be 'fixed, 'time', or an"+\
+                "integer value.")
 
 parser.add_option ( "-o", "--output", dest="outputfile", default="test.log",
         help="name of the output file in which the data should be stored. By default, no output file is used" )
@@ -182,6 +186,27 @@ if len(options.outputfile) > 0:
 else:
     outfile = os.path.devnull
 
+# Parse and set seed
+
+def check_int(value):
+    try:
+        int(value)
+        return True
+    except ValueError:
+        return False
+
+if options.seed not in ["fixed", "time"] and not check_int(options.seed):
+    raise ValueError("'seed' must be either 'fixed', 'time' or an integer value.")
+elif options.seed == 'fixed':
+    print "Seed is default."
+elif options.seed == 'time':
+    seed = int(time.time())
+    print "Seed is time since epoch in seconds: '%d'" % seed
+    pypsignifit.set_seed(seed)
+else:
+    seed = int(options.seed)
+    print "Seeed is value given on command line: '%d'" % seed
+    pypsignifit.set_seed(seed)
 
 ############################################################
 #                                                          #
