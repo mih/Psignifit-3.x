@@ -4,6 +4,7 @@
 master thesis """
 
 import os
+import time
 
 output = """universe = vanilla
 notification = Always
@@ -78,6 +79,7 @@ for (levels, blocksize, lapse_rate, width, nalt, gen_sigmoid, ana_sigmoid) in \
                          " --ana-nafc=" + nalt +\
                          " --gen-sigmoid=" + gen_sigmoid +\
                          " --ana-sigmoid=" + ana_sigmoid +\
+                         " --seed=" + str(job_number) +\
                          " --output=" + os.path.join(data_root,
                                  "job"+str(job_number)+data_suffix) +\
                          "\n"
