@@ -1050,6 +1050,8 @@ class BayesInference ( PsiInference ):
         xmax = self.data[:,0].max()
         x = N.mgrid[xmin:xmax:100j]
 
+        lines = []
+
         # Now we sample Nsamples psychometric functions from all the chains we have
         samples = self.getsamples()
         deviances = self.getmcdeviance()
@@ -1062,7 +1064,9 @@ class BayesInference ( PsiInference ):
             # i = N.random.randint(samples.shape[0])
             psi = N.array(interface.diagnostics ( x, samples[i,:], sigmoid=self.model["sigmoid"], core=self.model["core"], nafc=self.model["nafc"] ))
             # Lines are colored according to their deviance
-            ax.plot(x,psi,color=[deviances[i]]*2+[1])
+            lines.append ( ax.plot(x,psi,color=[deviances[i]]*2+[1]) )
+
+        return lines
 
     ############################################
     # Convergence diagnostics
