@@ -63,7 +63,6 @@ def make_levels(nblocks):
     """ will make levels for the desired number of blocks """
     Fx = mgrid[.1:.99:1j*(nblocks)]
     x = ob.getlevels(Fx)
-    print x
     return x
 
 # Simulations
