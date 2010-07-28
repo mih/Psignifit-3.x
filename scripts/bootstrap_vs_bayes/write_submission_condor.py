@@ -15,7 +15,7 @@ notify_user = val
 should_transfer_files = NO
 initialdir = /home/val/git-working/psignifit/scripts/bootstrap_vs_bayes/
 executable =/home/val/git-working/psignifit/scripts/nonstationarity/coverage.py
-environment ="PYTHONPATH=/home/val/git-working/psignifit/build/lib.linux-x86_64-2.5"
+environment ="PYTHONPATH=/home/val/git-working/psignifit/"
 
 """
 
