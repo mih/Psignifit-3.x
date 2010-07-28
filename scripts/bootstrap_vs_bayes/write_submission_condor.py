@@ -29,12 +29,10 @@ error_suffix = ".error"
 
 
 if os.path.exists(sim_root):
-    #raise Exception("simulation data directory exists, DON'T OVERWRITE IT!!!")
-    pass
+    raise Exception("simulation data directory exists, DON'T OVERWRITE IT!!!")
 else:
-    #os.makedirs (data_root)
-    #os.makedirs (log_root)
-    pass
+    os.makedirs (data_root)
+    os.makedirs (log_root)
 
 # create levels
 
