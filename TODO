@@ -1,5 +1,8 @@
+psignifit TODO
+==============
+
 Python interface (pypsignifit)
-==============================
+------------------------------
 
 - optimize automatic proposal distribution generation
 - enable fixing the guessing rate to an arbitrary value (? which?)        <- This is actually possible by putting a strong prior on the guessing rate...
@@ -20,16 +23,17 @@ Python interface (pypsignifit)
 - Replace "model correction" with psi(x) or psi(stimulus intensity) (for people with less elaborated statistics background)
 - Influence for Slope and Influence for Threshold seperately instead of using an
   aggregation in the Plot for the Influential Observers.
+- GoodnessOfFit looks really ugly
 
 Python interface (swignifit/psypy)
-============================
+----------------------------
 
 - warn if constraint/prior list is too short
 - Check when we need #include <numpy/arrayobject.h> and when #include <Numeric/arrayobject.h>
 - Make sure that sscanf does not use locale for Numbers!
 
 C++ engine
-==========
+----------
 
 - noninformative Jeffreys Priors
 - seed the random number generator
@@ -60,7 +64,7 @@ MayBe:
     - alternative: Perform some gradient based steps as a special case of simplex optimization (e.g. particularly good points are moved in the direction of the gradient?)
 
 Documentation
-=============
+-------------
 
 - add a delete/uninstall possibility
 - Makefile/setup.py call for doctests
@@ -80,14 +84,14 @@ Documentation
   for display style math.
 
 R statistical computing language
-================================
+--------------------------------
 
 - continue R interface -- maybe swig?
 - Diagnostic plots: Influential, Parameter inspection
 - MCMC convergence diagnostics and Raftery & Lewis stuff
 
 Recently done
-=============
+-------------
 
 + negative Gamma prior
 + Influential observations and outliers for Bayes                          [OK]
