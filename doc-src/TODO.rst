@@ -5,12 +5,10 @@ psignifit TODO
 Python interface (pypsignifit)
 ------------------------------
 
-- optimize automatic proposal distribution generation
 - enable fixing the guessing rate to an arbitrary value (? which?)        <- This is actually possible by putting a strong prior on the guessing rate...
 - what is going on with type checking in psigniplot.GoodnessOfFit?
 - add a dictionary to the data objects to make them know what they are (stimulus intensity, ...)
 - ROC curves for 1AFC
-- allow for the gamma=lambda prior
 
 - Blob size reduction for PF
 - Deviance Bootstrap only one sided test
@@ -25,13 +23,12 @@ Python interface (pypsignifit)
 - Influence for Slope and Influence for Threshold seperately instead of using an
   aggregation in the Plot for the Influential Observers.
 - GoodnessOfFit looks really ugly
+- directly use swignifit
 
 Python interface (swignifit/psypy)
 ----------------------------------
 
-- warn if constraint/prior list is too short
-- Check when we need #include <numpy/arrayobject.h> and when #include <Numeric/arrayobject.h>
-- Make sure that sscanf does not use locale for Numbers!
+- speed!
 
 C++ engine
 ----------
@@ -74,16 +71,6 @@ Documentation
   sphinx etc...)
 
 - Figure for sigmoid/core philosophy
-- math symbols in documentation according to
-  http://matplotlib.sourceforge.net/sampledoc/extensions.html
-  in particular:
-  :math:`f(g(x,m,w))` for inline math and
-
-  .. math::
-
-    f(g(x,m,w))
-
-  for display style math.
 
 R statistical computing language
 --------------------------------
@@ -94,6 +81,12 @@ R statistical computing language
 
 Recently done
 -------------
+
++ math symbols in documentation according to
+  http://matplotlib.sourceforge.net/sampledoc/extensions.html
++ allow for the gamma=lambda prior
++ optimize automatic proposal distribution generation
++ swignifit solves psipy problems
 
 + negative Gamma prior
 + Influential observations and outliers for Bayes                          [OK]
