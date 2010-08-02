@@ -32,20 +32,27 @@ What do these numbers tell us? Obviously, the last block has a relatively high "
 the second to last has a lower "influence".
 
 In order to detect influential observations, [Wichmann_and_Hill_2001a]_ suggest to generate a number of
-new data sets d_k by leaving out each data block in turn. We fit a psychometric function to each of these
-new data sets. If the psychometric function fitted to data set d_k is significantly different from the psychometric
-function fitted to the whole data set, block k is considered influential.
-Thus, for a parameter theta_i, we define for dataset d_k the following quantity
+new data sets :math:`\mathcal{D}_k` by leaving out the :math:`k`-th data block. We fit a psychometric function to each of these
+new data sets. If the psychometric function fitted to data set :math:`\mathcal{D}_k` is significantly different from the psychometric
+function fitted to the whole data set, block :math:`k` is considered influential.
+Thus, for a parameter :math:`\theta_i`, we define for dataset :math:`\mathcal{D}_k` the following quantity
 
-if theta_i(d_k) < theta_i(fulldataset)
-    f_ik = (theta_i(fulldataset) - theta_i(d_k)) / (theta_i(fulldataset) - c2.5%(theta_i,fulldataset))
+If :math:`\theta_i(\mathcal{D}_k) < \theta_i(\mathcal{D})`, where :math:`\mathcal{D}` is the complete dataset
+
+.. math::
+
+    f_{ik} = \frac{\theta_i(\mathcal{D}) - \theta_i(\mathcal{D}_k)}{\theta_i(\mathcal{D}) - c_{2.5\%}(\theta_i,\mathcal{D})}
+
 else
-    f_ik = (theta_i(d_k) - theta_i(fulldataset)) / (c97.5%(theta_i,fulldataset) - theta_i(fulldataset))
 
-f_ik is simply the distance between the fit to the whole dataset and the reduced dataset d_k, where the distance
-has been scaled such that a value of f_ik==1 indicates that the respective parameter in the reduced dataset
+.. math::
+
+    f_{ik} = \frac{\theta_i(\mathcal{D}_k) - \theta_i(\mathcal{D})}{c_{97.5\%}(\theta_i,\mathcal{D}) - \theta_i(\mathcal{D})}
+
+:math:`f_{ik}` is simply the distance between the fit to the whole dataset and the reduced dataset :math:`\mathcal{D}_k`, where the distance
+has been scaled such that a value of :math:`f_{ik}=1` indicates that the respective parameter in the reduced dataset
 lies precisely on the border of the confidence interval for parameter i in the full data set.
-The influence of a data point is then simply defined as the maximum of the f_ik over all parameters i.
+The influence of a data point is then simply defined as the maximum of the :math:`f_{ik}` over all parameters i.
 Thus, the relatively high influence of 0.95 for the last block is still not really serious. All parameter
 estimates for reduced data sets are still perfectly within the confidence limits of the full data set.
 
@@ -68,7 +75,7 @@ from the fit to the whole data set.
 
 We can note here that it is reasonable that actually the only serious difference between the fit to the whole data set and
 the fit to the reduced dataset might originate from a difference in the lapse rate. (It is as you can see if you calculate
-the f_ik manually). In many cases, the lapse rate is considered a nuissance parameter. Usually what we want to know is more
+the :math:`f_{ik}` manually). In many cases, the lapse rate is considered a nuissance parameter. Usually what we want to know is more
 like "is the whole inference influenced by this one data point". It is difficult to derive a riguorous definition for this
 kind of influence in a frequentist setting, even in a relatively data driven frequentist setting such as the employed
 bootstrap procedure. However, in a Bayesian setting such an influence measure is readily available.
