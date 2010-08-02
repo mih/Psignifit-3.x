@@ -44,19 +44,23 @@ Constrained maximum likelihood provides a way to estimate parameters from a psyc
 using maximum likelihood estimation while imposing constraints on some of the parameters.
 Typically, the psychometric function is parameterized as
 
-Psi (x) = guess + (1-guess-lapse) * F ( x | a,b ),
+.. math::
 
-where guess is the guessing rate, lapse is the lapsing rate, F is a sigmoid function and a and
-b are parameters governing the shape of the sigmoid function. In this example, we will try to fit
+    \Psi (x) = \gamma + (1-\gamma-\lambda) F ( x | a,b ),
+
+where :math:`\gamma` is the guessing rate, :math:`\lambda` is the lapsing rate, :math:`F` is a sigmoid function and :math:`a` and
+:math:`b` are parameters governing the shape of the sigmoid function. In this example, we will try to fit
 the above data with a logistic function, using the same parameterization as in the original
 psignifit software [Hill_2001]_:
 
-F ( x | a,b ) = 1. / ( 1 + exp ( - (x-a)/b ) )
+.. math::
+
+    F ( x | a,b ) = \frac{1}{1 + \exp ( - (x-a)/b ) }.
 
 This is the default setting.
 
-For a 2AFC task, the guessing rate is fixed at 0.5. Thus, our model has three free parameters:
-a, b, and lapse. We want to keep a and b unconstrained and restrict lapse to values between
+For a 2AFC task, the guessing rate is fixed at :math:`\gamma=0.5`. Thus, our model has three free parameters:
+:math:`a`, :math:`b`, and :math:`\lambda`. We want to keep :math:`a` and :math:`b` unconstrained and restrict :math:`\lambda` to values between
 0 and 0.1:
 
 >>> constraints = ( 'unconstrained', 'unconstrained', 'Uniform(0,0.1)' )
@@ -74,8 +78,8 @@ array([ 2.7517686 ,  1.45723724,  0.01555636])
 Here, we could have omitted the argument nafc=nafc in the call to BootstrapInference(). All inference
 functions assume a 2AFC task by default.
 
-The code snippet shows, that a is approximately 2.75, b is approximately 1.46, and lambda is approximately 0.016.
-How well do these parameters describe the data? The deviance is approximately 8.07. Is this a
+The code snippet shows, that :math:`a` is approximately 2.75, :math:`b` is approximately 1.46, and :math:`\lambda` is approximately 0.016.
+How well do these parameters describe the data? The deviance is a measure that describes the goodness of fit for a model. The deviance is approximately 8.07. Is this a
 high or a low value? To know this, we have to draw a number of bootstrap samples:
 
 >>> B.sample()
@@ -127,7 +131,7 @@ marked by dotted vertical lines. The confidence interval limits and the estimate
 on top of the graph.
 
 In some cases, we may not directly be interested in the parameters of the model. Instead, we
-ask for "thresholds", that is predifined performance levels of the sigmoid F. We can get a plot
+ask for "thresholds", that is predifined performance levels of the sigmoid :math:`F`. We can get a plot
 of such thresholds and the associated confidence intervals using the function
 
 >> ThresholdPlot(B)
@@ -159,7 +163,7 @@ function should open a plot window showing something like this:
 
 .. image:: BootstrapSensitivity.png
 
-This shows the joint probability distribution of the parameters a and b of the model. The dark shading
+This shows the joint probability distribution of the parameters :math:`a` and :math:`b` of the model. The dark shading
 indicates the density of this joint distribution as estimated from the bootstrap parameters. The red dot
 in the center of the cloud of points is the parameter estimate that was determined by maximum likelihood.
 The red diamonds that are connected by red lines are the points at which an additional bootstrap sample
@@ -170,13 +174,13 @@ the red diamonds).
 Reparameterizing the model
 --------------------------
 
-pypsignifit reformulates the function F ( x | a,b ) by means of two separate functions f: \R->\R
-and g: \R^3->\R. We can think of f as the nonlinear part of the psychometric function, while
-g is in most cases linear in x. Often g can be changed without seriously altering the possible
-model shapes. In pypsignifit f is called the 'sigmoid' and g is called the 'core'. Using different
+pypsignifit reformulates the function :math:`F ( x | a,b )` by means of two separate functions :math:`f: \mathbb{R}\to\mathbb{R}`
+and :math:`g: \mathbb{R}^3\to\mathbb{R}`. We can think of :math:`f` as the nonlinear part of the psychometric function, while
+:math:`g` is in most cases linear in x. Often g can be changed without seriously altering the possible
+model shapes. In pypsignifit :math:`f` is called the 'sigmoid' and :math:`g` is called the 'core'. Using different
 combinations of sigmoid and core allows a high flexibility of model fitting. For instance
-Kuss, et al (2005) used a parameterization in terms of the 'midpoint' m of the sigmoid and the
-'width' w. Here width is defined as the distance F^(-1) ( 1-alpha ) - F^(-1) ( alpha ). To
+Kuss, et al (2005) used a parameterization in terms of the 'midpoint' :math:`m` of the sigmoid and the
+'width' :math:`w`. Here width is defined as the distance :math:`F^{-1} ( 1-\alpha ) - F^{-1} ( \alpha )`. To
 perform BootstrapInference for this model we can proceed as follows
 
 >>> Bmw = BootstrapInference ( data, sample=2000, priors=constraints, core="mw0.1", nafc=nafc )
@@ -193,6 +197,9 @@ array([ 1.4842732 ,  4.06407509])
 
 Note that this model has the same deviance as the model fitted above. Also the obtained thresholds are the same.
 However, as the parameterization is different, the actual fitted parameter values are different.
+More details on sigmoids and cores and how they can be used to specify models can be found in the section
+about _`Specification of Models for Psychometric functions`
+
 
 Example 2: Bayesian inference
 =============================
@@ -228,9 +235,9 @@ and data in generating the posterior distribution.
 
 In accordance with Kuss et al (2005), the default parameterization for psychometric functions for
 Bayesian inference is the mw-parameterization. That means, the core object of the psychometric
-function is defined in terms of a 'midpoint' m of the sigmoid and the 'widths' w. As explained above
-w can be interpreted as the length of the interval on which F rises from alpha to 1-alpha. In
-the default parameterization, alpha=0.1.
+function is defined in terms of a 'midpoint' :math:`m` of the sigmoid and the 'width' :math:`w`. As explained above
+:math:`w` can be interpreted as the length of the interval on which :math:`F` rises from :math:`\alpha` to :math:`1-\alpha`. In
+the default parameterization, :math:`\alpha=0.1`.
 
 The priors we defined above say in words that
 
@@ -240,7 +247,9 @@ The priors we defined above say in words that
 * We believe that the widths of the psychometric function is positive (the Gamma distribution is 0
   for negative values) and most probabily somewhere around 3.
 
-* We feel like having observed 32 trials in which 2 trials were lapses and 30 were not.
+* We feel like having observed 30 trials in which 1 trial was a lapse and 29 were not.
+
+More information about prior selection can be found in the section _`Bayesian model fitting and prior selection`.
 
 We will now set up a data object that allows inference based on the posterior distribution of
 parameters given the observed data.
@@ -252,8 +261,8 @@ array([ 2.54226166,  7.10800435,  0.02670357])
 8.8533301101840411
 
 As we can see, the BayesInference object knows a single number as an estimate for the parameters:
-m seems to be approximately 2.54, w seems to be approximately 7.11 and the lapse rate seems to
-be somewhere around 0.027. What are these numbers? How accurate are they? Can we trust in them?
+:math:`m` seems to be approximately 2.54, :math:`w` seems to be approximately 7.11 and the lapse rate :math:`\lambda` seems to
+be somewhere around 0.027. These numbers are averages of the posterior distribution. How accurate are they? Can we trust in them?
 
 Convergence diagnostics
 -----------------------
@@ -291,10 +300,10 @@ We draw two more chains from starting values that are relatively far away from o
 As we can see, now there are three chains. The last line compares all three chains. This value
 is the variance between chains devided by the variance within chains as suggested by [Gelman_1996]_.
 If there are large differences between chains, the variance between chains will
-be very high and thus R^ will be very high, too. If R^ is larger than 1.1, this is typically an
-indication, that the chains did not converge. In the example above, R^ is nearly exactly 1 for
-parameter 0 (which is m). Thus, we can be quite sure that the samples of m where from the
-posterior distribution of m. To see the same for the other two parameters, w and lapse, we can
+be very high and thus :math:`\hat{R}` will be very high, too. If :math:`\hat{R}` is larger than 1.1, this is typically an
+indication, that the chains did not converge. In the example above, :math:`\hat{R}` is nearly exactly 1 for
+parameter 0 (which is :math:`m`). Thus, we can be quite sure that the samples of :math:`m` where from the
+posterior distribution of :math:`m`. To see the same for the other two parameters, :math:`w` and :math:`\lambda`, we can
 say:
 
 >>> mcmc.Rhat ( 1 )
@@ -312,7 +321,7 @@ To get an even better idea, we can also look at a convergence plot:
 
 This plot consists of three panels. The first simply shows the three chains in three different
 colors. These chains should look like a "hairy caterpillar" and they should not differ statistically
-from each others.This seems to be the case. In addition, the plot shows The R^ estimate we had
+from each others.This seems to be the case. In addition, the plot shows The :math:`\hat{R}` estimate we had
 already seen above.
 
 The second plot in the middle shows a convergence criterion proposed by [Geweke_1992]_: Every chain
