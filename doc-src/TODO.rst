@@ -1,3 +1,4 @@
+==============
 psignifit TODO
 ==============
 
@@ -26,7 +27,7 @@ Python interface (pypsignifit)
 - GoodnessOfFit looks really ugly
 
 Python interface (swignifit/psypy)
-----------------------------
+----------------------------------
 
 - warn if constraint/prior list is too short
 - Check when we need #include <numpy/arrayobject.h> and when #include <Numeric/arrayobject.h>
@@ -60,8 +61,9 @@ C++ engine
 MayBe:
 - implement fullmodel, nullmodel
 - Implement alternative SimplexAlgorithm (Numerical Recipes?, gsl-Wrapper-Object?) The current one depends heavily on the initial simplex!
-    - Perform some gradient based steps after simplex optimization (doesn't work good)
-    - alternative: Perform some gradient based steps as a special case of simplex optimization (e.g. particularly good points are moved in the direction of the gradient?)
+
+    * Perform some gradient based steps after simplex optimization (doesn't work good)
+    * alternative: Perform some gradient based steps as a special case of simplex optimization (e.g. particularly good points are moved in the direction of the gradient?)
 
 Documentation
 -------------
@@ -124,15 +126,6 @@ Recently done
 + Documentation                                                            [OK]
 + pointer arithmetic for datasets                                          [OK]
 + low level Python interface
-	+ generate some functions that perform the parameter parsing -- the code is really ugly in its current state
-	+ bootstrap, missing:
-		+ return BCa stuff                                                 [OK] but is this what we wanted?
-        + return correlations and outliers                                 [OK]
-		+ many python functions return new references. Not all of them are
-		  properly dereferenced yet.                                       [OK]
-	+ ML/MAP-estimate separately                                           [OK]
-	+ MCMC                                                                 [OK]
-    + evaluation, deviance and deviance residuals                          [OK]
 + refactor the python toolbox to have "strict" data objects and plot functions working on top of these  [OK]
 + Convergence diagnostics for MCMC                                         [OK]
 + posterior intervals and posterior histograms for model parameters        [OK]
