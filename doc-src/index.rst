@@ -25,6 +25,7 @@ Contents:
    CONTRIBUTING
    API
    swig-api
+   TODO
 
 Indices and tables
 ==================
