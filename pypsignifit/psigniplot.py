@@ -57,6 +57,80 @@ def drawaxes ( ax, xtics=None, xfmt=None, ytics=None, yfmt=None, xname=None, yna
     ax.set_xlabel ( xname )
     ax.set_ylabel ( yname )
 
+def prepare_axes ( ax, haveon=("bottom","left" ) ):
+    """Prepare an axes object to look nicer than standard matplotlib
+
+    :Parameters:
+        *ax* :
+            axes object that should be prepared
+        *haveon* :
+            axes that should be shown
+
+    :Return:
+        the prepared axes object
+    """
+    for loc,spine in ax.spines.iteritems():
+        if loc in haveon:
+            spine.set_position ( ("outward",10) )
+        else:
+            spine.set_color ( "none" )
+
+    if "bottom" in haveon:
+        ax.xaxis.set_ticks_position ( "bottom" )
+    elif "top" in haveon:
+        ax.xaxis.set_ticks_position ( "top" )
+    else:
+        ax.xaxis.set_ticks_position ( "none" )
+        ax.xaxis.set_ticklabels ( "" )
+    if "left" in haveon:
+        ax.yaxis.set_ticks_position ( "left" )
+    elif "right" in haveon:
+        ax.yaxis.set_ticks_position ( "right" )
+    else:
+        ax.yaxis.set_ticks_position ( "none" )
+        ax.yaxis.set_ticklabels ( "" )
+
+    return ax
+
+def axes_array_h ( fig, naxes, axsize, lowerleft=(0.1,0.1), dist=0.05, showally=True, nox=False ):
+    """Draw a horizontal array of axes
+
+    :Parameters:
+        *fig*, matplotlib.figure instance :
+            the figure in which to plot the axes
+        *naxes*, integer :
+            how many axes should be generated
+        *axsize*, tuple:
+            size of each axes system
+        *lowerleft*, tuple:
+            lower left corner of the first axes system
+        *dist*, float:
+            horizontal separation of adjacent axes
+        *showally*, bool:
+            indicates whether all y-axes should be shown or not
+        *nox*, bool:
+            if True, no x-axes are shown
+
+    :Return:
+        a sequence of the newly generated axes objects
+    """
+    xsize,ysize = axsize
+    xdist,ydist = lowerleft
+    step = xsize+dist
+
+    if nox:
+        axs = [prepare_axes ( fig.add_axes ( [xdist,ydist,xsize,ysize] ), haveon="left" )]
+    else:
+        axs = [prepare_axes ( fig.add_axes ( [xdist,ydist,xsize,ysize] ) )]
+    for n in xrange(1,naxes):
+        xdist += step
+        if nox:
+            axs.append ( prepare_axes ( fig.add_axes ( [xdist,ydist,xsize,ysize] ), haveon=[] ) )
+        else:
+            axs.append ( prepare_axes ( fig.add_axes ( [xdist,ydist,xsize,ysize] ), haveon=("bottom",) ) )
+
+    return axs
+
 def plotRd ( InferenceObject, ax=None, regressor="p" ):
     """plot deviance residuals against a regressor
 
