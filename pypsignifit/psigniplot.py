@@ -57,32 +57,6 @@ def drawaxes ( ax, xtics=None, xfmt=None, ytics=None, yfmt=None, xname=None, yna
     ax.set_xlabel ( xname )
     ax.set_ylabel ( yname )
 
-
-    # # Data ranges
-    # yr = ytics.max()-ytics.min()
-    # xr = xtics.max()-xtics.min()
-
-    # # x axis
-    # yt = ytics.min()
-    # ax.plot ( [xtics.min(),xtics.max()], [yt-.05*yr]*2, 'k-' )
-    # for xt in xtics:
-    #     ax.plot ( [xt]*2, [yt-.05*yr,yt-.03*yr], 'k-' )
-    #     ax.text ( xt, yt-.08*yr, xfmt % (xt,), horizontalalignment="center", verticalalignment="top",fontsize=10 )
-    # ax.text ( xtics.mean(), yt-.14*yr, xname, horizontalalignment="center", verticalalignment="top", fontsize=16 )
-
-    # # y axis
-    # xt = xtics.min()
-    # ax.plot ( [xt-.05*xr]*2, [ytics.min(),ytics.max()] ,'k-' )
-    # for yt in ytics:
-    #     ax.plot ( [xt-.05*xr,xt-.03*xr], [yt]*2, 'k-' )
-    #     ax.text ( xt-.06*xr, yt, yfmt % (yt,), horizontalalignment="right", verticalalignment="center", fontsize=10 )
-    # ax.text ( xt-.18*xr, ytics.mean(), yname, horizontalalignment="right", verticalalignment="center", fontsize=16, rotation=90 )
-
-    # # Delete all the ugly parts of the axis
-    # p.setp(ax, frame_on=False,\
-    #         xticks=(), xlim=(xtics.min()-.3*xr,xtics.max()+.1*xr), \
-    #         yticks=(), ylim=(ytics.min()-.3*yr,ytics.max()+.1*yr) )
-
 def plotRd ( InferenceObject, ax=None, regressor="p" ):
     """plot deviance residuals against a regressor
 
