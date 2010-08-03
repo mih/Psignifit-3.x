@@ -100,8 +100,30 @@ that determines the shape of the psychometric function is :math:`F ( x; \alpha, 
     F ( x; \alpha, \beta) := f ( g ( x, \alpha, \beta ) ).
 
 In many cases (but not all), :math:`g` will be a simple linear transformation, while :math:`f` will inject a
-nonlinearity. We will call :math:`f` the 'sigmoid' and :math:`g` the 'core'. The following two sections
-describe the sigmoids and cores in more detail. Then finally, there is a section about
+nonlinearity. We will call :math:`f` the 'sigmoid' and :math:`g` the 'core'.
+
+.. image:: coreandsigmoid.png
+
+The figure illustrates how sigmoid and core are related to each other. A sigmoid does not have any parameters. Thus,
+fitting a psychometric function with only a sigmoid would always result in the same psychometric function. Two such sigmoids
+are shown in the left column of the figure: The first is a logistic sigmoid and the second is the cumulative distribution function of
+the standard exponential distribution. In order to have parameters that describe the shape of the psychometric function, we use a core
+object. The top row of the figure illustrates two core objects: the first is an abCore that can be requested with the keyword 'ab'.
+We can see that the output of this core is simply a linear function of :math:`x`. However, the slope and intercept of this linear function
+depends on the two parameters :math:`a` and :math:`b`. The second plot in the first row illustrates a polyCore, as requested with the
+keyword 'poly'. Note that the poly core is a nonlinear function of :math:`x`. Again, the two parameters :math:`a` and :math:`b` determine the
+precise form of the nonlinear function. In order to illustrate the fact that each core object represents a large number of different
+functions in :math:`x`, four different combinations of :math:`a` and :math:`b` have been plotted.
+
+The four plots in the lower right of the figure demonstrate how sigmoids and cores can be combined to allow for a large number of possible
+psychometric function shapes. For instance, the lower right plot is a combination of the Exponential sigmoid and the poly core. The resulting
+function is the cumulative distribution function of the weibull distribution. The combination of logistic sigmoid and ab core corresponds to
+the logistic function that was the default setting in earlier versions of psignifit. The advantage of separating sigmoid and core is that
+we can now use a different core object, to specify that a function should be fitted on different axes (e.g. logarithmic instead of linear) or
+in a different parameterization. Also note, that the figure only presents two sigmoids and two cores. This results in two different function families
+for the psychometric function. Psignifit includes 6 different sigmoids and 5 different cores, resulting in 30 different function families.
+
+The following two sections describe the sigmoids and cores in more detail. Then finally, there is a section about
 common combinations of sigmoids and cores.
 
 Valid sigmoids
