@@ -124,10 +124,12 @@ def axes_array_h ( fig, naxes, axsize, lowerleft=(0.1,0.1), dist=0.05, showally=
         axs = [prepare_axes ( fig.add_axes ( [xdist,ydist,xsize,ysize] ) )]
     for n in xrange(1,naxes):
         xdist += step
-        if nox:
-            axs.append ( prepare_axes ( fig.add_axes ( [xdist,ydist,xsize,ysize] ), haveon=[] ) )
-        else:
-            axs.append ( prepare_axes ( fig.add_axes ( [xdist,ydist,xsize,ysize] ), haveon=("bottom",) ) )
+        haveon = []
+        if not nox:
+            haveon.append ( "bottom" )
+        if showally:
+            haveon.append ( "left" )
+        axs.append ( prepare_axes ( fig.add_axes ( [xdist,ydist,xsize,ysize] ), haveon=haveon ) )
 
     return axs
 
@@ -226,8 +228,9 @@ def plotppScatter ( simdata, observed, quantity, shortname=None, ax=None ):
 
     # Write diagnostics
     pval = N.mean( (simdata-observed)>=0 )
-    ax.text ( xt.min(), yt.max()+.1, "Bayesian p (%s)=%.3f" % (shortname,pval),\
-            horizontalalignment="left", verticalalignment="bottom", fontsize=8 )
+    # ax.text ( xt.min(), yt.max()+.1, "Bayesian p (%s)=%.3f" % (shortname,pval),\
+    #         horizontalalignment="left", verticalalignment="bottom", fontsize=8 )
+    ax.set_title ( "Bayesian p (%s)=%.3f" % (shortname,pval), fontsize=8 )
 
     if pval<0.975 and pval>0.025:
         return True
@@ -297,11 +300,11 @@ def plotHistogram ( simdata, observed, xname, shortname=None, ax=None, hideobser
 
     # Draw the full plot
     drawaxes ( ax, xtics, "%g", ytics, "%d", xname, "number per bin" )
+    ax.set_ylim ( yy )
 
     # Write diagnostics
     yt = ytics.max()
-    ax.text ( xtics.min(), yt+.1, "%s=%.3f, c(2.5%%)=%.3f, c(97.5%%)=%.3f" % (shortname,observed,p25,p975),\
-            horizontalalignment="left",verticalalignment="bottom", fontsize=8 )
+    ax.set_title ( "%s=%.3f, c(2.5%%)=%.3f, c(97.5%%)=%.3f" % (shortname,observed,p25,p975), fontsize=8 )
 
     if reference>p25 and reference<p975:
         return True
@@ -405,9 +408,10 @@ def plotPMF ( InferenceObject, xlabel_text="Stimulus intensity", ylabel_text=Non
 
     # Write some model information
     if showdesc:
+        txt = InferenceObject.desc
         if not InferenceObject.deviance is None:
-            ax.text(0.5*(xmin+xmax),ymin+.05,"D=%g" % ( InferenceObject.deviance, ) )
-        ax.text ( 0.5*(xmin+xmax),ymin+.1,InferenceObject.desc )
+            txt = txt+"\nD=%g" % (InferenceObject.deviance,)
+        ax.text ( 0.3*(xmin+xmax),ymin+.1,txt, fontsize=8 )
 
     return pmfline,pmfpoints,(xtics.min(),xtics.max())
 
@@ -512,59 +516,51 @@ def GoodnessOfFit ( InferenceObject, warn=True ):
     if InferenceObject.mcestimates is None:
         raise ValueError, "Goodness of fit diagnostics require monte carlo samples. Try to call the sample() method of your inference object."
 
-    p.figure(figsize=(10,8))
+    fig = p.figure ( figsize=(10,8) )
 
-    # First part: Data and fitted function, bottom deviance
-    # ax = p.axes([0,.5,.33,.5] )
-    ax = p.subplot ( 231 )
-    if InferenceObject.__repr__().split()[1] == "BayesInference":
-        InferenceObject.drawposteriorexamples ( ax=ax )
-    plotThres ( InferenceObject, ax=ax )
-    plotPMF   ( InferenceObject, ax=ax, showdesc=True )
-    if InferenceObject.__repr__().split()[1] == "BayesInference":
+    ax_plot,ax_rpd,ax_rkd       = axes_array_h ( fig, 3, (.22,.3), (.1,.6), dist=0.1, showally=True )
+    ax_deviance,ax_rpdh,ax_rkdh = axes_array_h ( fig, 3, (.22,.3), (.1,.1), dist=0.1, showally=True )
+
+    infer = InferenceObject.__repr__().split()[1]
+    if infer not in ["BayesInference","BootstrapInference"]:
+        raise ValueError, "Unknown InferenceObject: %s" % (InferenceObject.__repr__().split()[1],)
+
+    # First plot about deviance
+    if infer  == "BayesInference":
+        InferenceObject.drawposteriorexamples ( ax=ax_plot )
+    plotThres ( InferenceObject, ax=ax_plot )
+    plotPMF   ( InferenceObject, ax=ax_plot, showdesc=True )
+    if infer == "BayesInference":
         distname = "posterior"
-        observed = -2*N.log(InferenceObject.nullevidence)
-    else:
+        observed = -2*N.log ( InferenceObject.nullevidence )
+        good = plotppScatter ( InferenceObject.ppdeviance, InferenceObject.mcdeviance, "deviance", "D", ax_deviance )
+    elif infer == "BootstrapInference":
         distname = "bootstrap"
         observed = InferenceObject.deviance
-    # ax = p.axes ( [0,0,.33,.5] )
-    ax = p.subplot ( 234 )
-    if InferenceObject.__repr__().split()[1] == "BayesInference":
-        good = plotppScatter ( InferenceObject.ppdeviance, InferenceObject.mcdeviance, "deviance", "D", ax)
-    elif InferenceObject.__repr__().split()[1] == "BootstrapInference":
-        good = plotHistogram ( InferenceObject.mcdeviance, observed, distname+" deviance", "D", ax )
+        good = plotHistogram ( InferenceObject.mcdeviance, observed, "bootstrap deviance", "D", ax_deviance )
     if warn and not good:
         ax.text ( N.array(ax.get_xlim()).mean(), N.array(ax.get_ylim()).mean(),
                 "The fitted model is a bad\ndescription of the data!",
                 fontsize=16, color=__warnred, horizontalalignment="center", verticalalignment="center", rotation=45 )
 
-    # Second part: Correlations between model prediction and residuals
-    # ax = p.axes([.33,.5,.33,.5])
-    ax = p.subplot ( 232 )
-    plotRd ( InferenceObject, ax, "p" )
-    # ax = p.axes([.33,0,.33,.5])
-    ax = p.subplot ( 235 )
-    if InferenceObject.__repr__().split()[1] == "BayesInference":
-        good = plotppScatter ( InferenceObject.ppRpd, InferenceObject.mcRpd, "Rpd", "Rpd", ax )
-    elif InferenceObject.__repr__().split()[1] == "BootstrapInference":
-        good = plotHistogram ( InferenceObject.mcRpd, InferenceObject.Rpd, distname+" Rpd", "Rpd", ax, reference=InferenceObject.__repr__().split()[1] )
-    if warn and not good:
-        ax.text ( 0, N.mean(p.getp(ax,'ylim')) , "Simulated Rpd differs from observed!\nTry other sigmoid?", \
-                fontsize=16, color=__warnred, horizontalalignment="center", verticalalignment="center", rotation=45 )
+    # The other two plots are in a loop: Rpd, Rkd
+    ax = [ax_rpd,ax_rkd]
+    axh = [ax_rpdh,ax_rkdh]
+    index = ["p","k"]
+    warningtext = ["Simulated Rpd differs from observed!\nTry other sigmoid?",
+            "Simulated Rkd differs from observed!\nData are nonstationary!"]
 
-    # Third part: Correlations between model prediction and block index
-    # ax = p.axes([.66,.5,.33,.5])
-    ax = p.subplot ( 233 )
-    plotRd ( InferenceObject, ax, "k" )
-    # ax = p.axes([.66,0,.33,.5])
-    ax = p.subplot ( 236 )
-    if InferenceObject.__repr__().split()[1] == "BayesInference":
-        good = plotppScatter ( InferenceObject.ppRkd, InferenceObject.mcRkd, "Rkd", "Rkd", ax )
-    elif InferenceObject.__repr__().split()[1] == "BootstrapInference":
-        good = plotHistogram ( InferenceObject.mcRkd, InferenceObject.Rkd, distname+" Rkd", "Rkd", ax, reference=InferenceObject.__repr__().split()[1])
-    if warn and not good:
-        ax.text ( 0, N.mean(p.getp(ax,'ylim')), "Simulated Rkd differs from observed!\nData are nonstationary!",\
-                fontsize=16, color=__warnred, horizontalalignment="center", verticalalignment="center", rotation=45 )
+    for k in xrange ( 2 ):
+        plotRd ( InferenceObject, ax[k], index[k] )
+        name = "R%sd" % (index[k],)
+        if infer == "BayesInference":
+            good = plotppScatter ( eval("InferenceObject.pp%s" % (name,)), eval("InferenceObject.mc%s"%(name,)), name,name, axh[k] )
+        else:
+            good = plotHistogram ( eval("InferenceObject.mc%s" % (name,)), eval("InferenceObject.%s"%(name,)), "bootstrap "+name, name, axh[k] )
+        if warn and not good:
+            ax.text ( 0, N.mean(p.getp(ax,'ylim')) , warningtext[k], \
+                    fontsize=16, color=__warnred, horizontalalignment="center", verticalalignment="center", rotation=45 )
+
 
 def plotGeweke ( BayesInferenceObject, parameter=0, ax=None, warn=True ):
     """Geweke plot of moving average of samples

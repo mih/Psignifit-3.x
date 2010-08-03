@@ -22,7 +22,6 @@ Python interface (pypsignifit)
 - Replace "model correction" with psi(x) or psi(stimulus intensity) (for people with less elaborated statistics background)
 - Influence for Slope and Influence for Threshold seperately instead of using an
   aggregation in the Plot for the Influential Observers.
-- GoodnessOfFit looks really ugly
 - directly use swignifit
 
 Python interface (swignifit/psypy)
@@ -82,6 +81,7 @@ R statistical computing language
 Recently done
 -------------
 
++ GoodnessOfFit looks better now
 + math symbols in documentation according to
   http://matplotlib.sourceforge.net/sampledoc/extensions.html
 + allow for the gamma=lambda prior
