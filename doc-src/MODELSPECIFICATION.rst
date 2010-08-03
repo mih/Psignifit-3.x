@@ -180,7 +180,7 @@ weibull
     log core, the weibull core uses more meaningful parameters: the first parameter can be
     interpreted as some sort of "midpoint" (i.e. threshold) and the second parameter gives
     the slope at the midpoint of the weibull that results with a gumbel_l sigmoid. The weibull
-    core is :math:`g(x,m,s) = \frac{2}{\log(2)} m s (x-m)+\log(\log(2))`.
+    core is :math:`g(x,m,s) = \frac{2}{\log(2)} m s (\log(x)-\log(m))+\log(\log(2))`.
 poly
     While the weibull and the log core perform at the heart a fit on a logarithmic axis, this
     core performs something clearly different: :math:`g(x,a,b) = (x/a)^b`. In combination with a exp
