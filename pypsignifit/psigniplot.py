@@ -19,6 +19,24 @@ import psignidata
 __all__ = ["GoodnessOfFit","ConvergenceMCMC","ParameterPlot","ThresholdPlot","plotSensitivity","plotInfluential","plotMultiplePMFs"]
 __warnred = [.7,0,0]
 
+class parameterdict ( dict ):
+    def __add__ ( self, other ):
+        out = parameterdict ( self )
+        for k,i in other.iteritems ():
+            out.setdefault ( k, i )
+        return out
+
+class DefaultParameters ( object ):
+    def __init__ ( self ):
+        self.alltext = parameterdict()
+        self.text    = parameterdict()
+        self.title   = parameterdict()
+        self.label   = parameterdict()
+        self.allplots= parameterdict(color='b')
+        self.line    = parameterdict()
+
+rc = DefaultParameters()
+
 def drawaxes ( ax, xtics=None, xfmt=None, ytics=None, yfmt=None, xname=None, yname=None ):
     """Draw x and y axes that look nicer than standard matplotlib
 
@@ -54,8 +72,8 @@ def drawaxes ( ax, xtics=None, xfmt=None, ytics=None, yfmt=None, xname=None, yna
     ax.xaxis.set_ticks_position('bottom')
     ax.yaxis.set_ticks_position('left')
 
-    ax.set_xlabel ( xname )
-    ax.set_ylabel ( yname )
+    ax.set_xlabel ( xname, **(rc.label+rc.alltext) )
+    ax.set_ylabel ( yname, **(rc.label+rc.alltext) )
 
 def prepare_axes ( ax, haveon=("bottom","left" ) ):
     """Prepare an axes object to look nicer than standard matplotlib
