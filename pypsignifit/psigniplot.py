@@ -242,12 +242,12 @@ def plotppScatter ( simdata, observed, quantity, shortname=None, ax=None ):
     ax.set_xlim ( axmin, axmax )
     ax.set_ylim ( axmin, axmax )
 
-    ax.set_xlabel ( "observed "+quantity, **(rc.label+rc.text) )
-    ax.set_xlabel ( "predicted "+quantity, **(rc.label+rc.text) )
+    ax.set_xlabel ( "observed "+quantity, **(rc.label+rc.alltext) )
+    ax.set_xlabel ( "predicted "+quantity, **(rc.label+rc.alltext) )
 
     # Write diagnostics
     pval = N.mean( (simdata-observed)>=0 )
-    ax.set_title ( "Bayesian p (%s)=%.3f" % (shortname,pval), fontsize=8 )
+    ax.set_title ( "Bayesian p (%s)=%.3f" % (shortname,pval), **(rc.text+rc.alltext) )
 
     if pval<0.975 and pval>0.025:
         return True
