@@ -189,7 +189,7 @@ def plotRd ( InferenceObject, ax=None, regressor="p" ):
     A = N.ones((len(psi),2),'d')
     A[:,1] = psi
     a,b = N.linalg.lstsq(A,devianceresiduals)[0]
-    ax.plot(psilims,a+b*psilims,':', color=rc.allplot['color'] )
+    ax.plot(psilims,a+b*psilims,':', color=rc.allplots['color'] )
 
     if regressor=="p":
         if InferenceObject.model["nafc"]==1:
