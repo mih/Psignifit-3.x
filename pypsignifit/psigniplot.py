@@ -29,11 +29,12 @@ class parameterdict ( dict ):
 class DefaultParameters ( object ):
     def __init__ ( self ):
         self.alltext = parameterdict()
-        self.text    = parameterdict()
-        self.title   = parameterdict()
-        self.label   = parameterdict()
+        self.text    = parameterdict(fontsize=8)
+        self.title   = parameterdict(fontsize=12)
+        self.label   = parameterdict(fontsize=10)
         self.allplots= parameterdict(color='b')
         self.line    = parameterdict()
+        self.highlight = parameterdict(color='r')
 
 rc = DefaultParameters()
 
