@@ -169,38 +169,37 @@ def plotRd ( InferenceObject, ax=None, regressor="p" ):
             against block index (k)
     """
     if ax==None:
-        ax = p.axes()
+        ax = prepare_axes ( p.axes() )
+    else:
+        ax = prepare_axes ( ax )
 
     # Plot the data points
     if regressor=="p":
         psi = InferenceObject.evaluate ( InferenceObject.data[:,0] )
     elif regressor=="k":
-        psi = N.arange(len(InferenceObject.data[:,0]))
+        psi = N.arange(len(InferenceObject.data[:,0]))+1
     else:
         raise ValueError,"regressor %s is unknown" % regressor
     psilims = N.array([psi.min(),psi.max()])
     devianceresiduals = InferenceObject.devianceresiduals
-    ax.plot ( psi, devianceresiduals, "bo" )
+    ax.plot ( psi, devianceresiduals, "o", color=rc.allplots['color'] )
 
     # Linear regression
     A = N.ones((len(psi),2),'d')
     A[:,1] = psi
     a,b = N.linalg.lstsq(A,devianceresiduals)[0]
-    ax.plot(psilims,a+b*psilims,'b:')
+    ax.plot(psilims,a+b*psilims,':', color=rc.allplot['color'] )
 
     if regressor=="p":
         if InferenceObject.model["nafc"]==1:
-            p.setp(ax,xlim=(0,1))
+            ax.set_xlim (0,1)
         else:
-            p.setp(ax,xlim=(1./InferenceObject.model["nafc"],1))
-    xtics = p.getp(ax,"xticks").tolist()
-    if regressor=="p":
+            ax.set_xlim(1./InferenceObject.model["nafc"],1)
+
         # In this case predictions larger than 1 and less than 0 are impossible
-        for k,xt in enumerate(xtics):
+        for k,xt in enumerate(ax.get_xticks()):
             if xtics[k]>1. or xtics[k]<0.:
                 xtics.pop(k)
-    xtics = N.array(xtics)
-    ytics = p.getp(ax,"yticks")
 
     # Generate the respective labels
     if regressor=="p":
@@ -210,7 +209,10 @@ def plotRd ( InferenceObject, ax=None, regressor="p" ):
         ax.text(psilims.mean(),ytics[-2],"Rkd=%.3f" % ( InferenceObject.Rkd, ) )
         xname = "block index"
 
-    drawaxes ( ax, xtics, "%g", ytics, "%g", xname, "deviance residuals" )
+    ax.set_xlabel ( "deviance residuals" )
+    ax.set_ylabel ( xname )
+
+    return ax
 
 def plotppScatter ( simdata, observed, quantity, shortname=None, ax=None ):
     """plot a scatter diagram to compare observed and predicted data
