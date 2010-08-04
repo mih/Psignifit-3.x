@@ -209,8 +209,8 @@ def plotRd ( InferenceObject, ax=None, regressor="p" ):
         ax.text(psilims.mean(),ytics[-2],"Rkd=%.3f" % ( InferenceObject.Rkd, ), **rc.text )
         xname = "block index"
 
-    ax.set_xlabel ( "deviance residuals", **(rc.label+rc.text) )
-    ax.set_ylabel ( xname, **(rc.label+rc.text) )
+    ax.set_ylabel ( "deviance residuals", **(rc.label+rc.text) )
+    ax.set_xlabel ( xname, **(rc.label+rc.text) )
 
     return ax
 
@@ -232,7 +232,7 @@ def plotppScatter ( simdata, observed, quantity, shortname=None, ax=None ):
     if ax==None:
         ax = p.gca()
 
-    ax.plot ( simdata, observed, '.' )
+    ax.plot ( simdata, observed, '.', color=rc.allplots['color'] )
     xl = ax.get_xlim()
     yl = ax.get_ylim()
     axmin = N.min ( list(xl)+list(yl) )
@@ -241,15 +241,11 @@ def plotppScatter ( simdata, observed, quantity, shortname=None, ax=None ):
     ax.set_xlim ( axmin, axmax )
     ax.set_ylim ( axmin, axmax )
 
-    xt = ax.get_xticks()
-    yt = ax.get_yticks()
-
-    drawaxes ( ax, xt, "%g", yt, "%g", "predicted "+quantity, "observed "+quantity )
+    ax.set_xlabel ( "observed "+quantity, **(rc.label+rc.text) )
+    ax.set_xlabel ( "predicted "+quantity, **(rc.label+rc.text) )
 
     # Write diagnostics
     pval = N.mean( (simdata-observed)>=0 )
-    # ax.text ( xt.min(), yt.max()+.1, "Bayesian p (%s)=%.3f" % (shortname,pval),\
-    #         horizontalalignment="left", verticalalignment="bottom", fontsize=8 )
     ax.set_title ( "Bayesian p (%s)=%.3f" % (shortname,pval), fontsize=8 )
 
     if pval<0.975 and pval>0.025:
