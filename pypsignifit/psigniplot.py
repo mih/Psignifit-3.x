@@ -203,14 +203,14 @@ def plotRd ( InferenceObject, ax=None, regressor="p" ):
 
     # Generate the respective labels
     if regressor=="p":
-        ax.text(psilims.mean(),ytics[-2],"Rpd=%.3f" % ( InferenceObject.Rpd, ) )
+        ax.text(psilims.mean(),ytics[-2],"Rpd=%.3f" % ( InferenceObject.Rpd, ), **rc.text )
         xname = "model prediction"
     elif regressor=="k":
-        ax.text(psilims.mean(),ytics[-2],"Rkd=%.3f" % ( InferenceObject.Rkd, ) )
+        ax.text(psilims.mean(),ytics[-2],"Rkd=%.3f" % ( InferenceObject.Rkd, ), **rc.text )
         xname = "block index"
 
-    ax.set_xlabel ( "deviance residuals" )
-    ax.set_ylabel ( xname )
+    ax.set_xlabel ( "deviance residuals", **(rc.label+rc.text) )
+    ax.set_ylabel ( xname, **(rc.label+rc.text) )
 
     return ax
 
