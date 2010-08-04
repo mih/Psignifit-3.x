@@ -581,7 +581,6 @@ def GoodnessOfFit ( InferenceObject, warn=True ):
             ax.text ( 0, N.mean(p.getp(ax,'ylim')) , warningtext[k], \
                     fontsize=16, color=__warnred, horizontalalignment="center", verticalalignment="center", rotation=45 )
 
-
 def plotGeweke ( BayesInferenceObject, parameter=0, ax=None, warn=True ):
     """Geweke plot of moving average of samples
 
