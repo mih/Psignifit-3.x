@@ -287,7 +287,6 @@ def plotHistogram ( simdata, observed, xname, shortname=None, ax=None, hideobser
     elif reference.lower()[:5]=="bayes":
         reference = 0
 
-
     # Remove nan
     simdata = N.nan_to_num ( simdata )
     simdata = simdata[simdata!=0]
@@ -299,29 +298,29 @@ def plotHistogram ( simdata, observed, xname, shortname=None, ax=None, hideobser
     # Correlations plots should be treated differently
     if shortname[0] == "R":
         ax.hist ( simdata, bins=N.arange(-1,1,.1) )
-        p.setp(ax,xlim=(-1,1))
+        ax.set_xlim ( -1, 1 )
     else:
         ax.hist ( simdata, bins=20 )
 
     # Get the tics and ranges
-    xtics = p.getp(ax,"xticks")
-    ytics = p.getp(ax,"yticks")
-    xr = xtics.max()-xtics.min()
-    yy = [ytics.min(),ytics.max()+0.02*xr]
+    # xtics = p.getp(ax,"xticks")
+    # ytics = p.getp(ax,"yticks")
+    # xr = xtics.max()-xtics.min()
+    # yy = [ytics.min(),ytics.max()+0.02*xr]
+    yy = ax.get_ylim ()
+    yy[1] += 0.02*(yy[1]-yy[0])
 
     # Plot percentile bars
     p25,p975 = p.prctile ( simdata, (2.5,97.5) )
     if not hideobserved:
-        ax.plot ( [observed]*2, yy, 'r', linewidth=2 )
-    ax.plot ( [p25]*2, yy, 'r:', [p975]*2, yy, 'r:' )
+        ax.plot ( [observed]*2, yy, color=rc.highlight['color'], **(rc.line+rc.allplots) )
+    ax.plot ( [p25]*2, yy, 'r:', [p975]*2, yy, ':', color=rc.highlight['color'] )
 
     # Draw the full plot
-    drawaxes ( ax, xtics, "%g", ytics, "%d", xname, "number per bin" )
     ax.set_ylim ( yy )
 
     # Write diagnostics
-    yt = ytics.max()
-    ax.set_title ( "%s=%.3f, c(2.5%%)=%.3f, c(97.5%%)=%.3f" % (shortname,observed,p25,p975), fontsize=8 )
+    ax.set_title ( "%s=%.3f, c(2.5%%)=%.3f, c(97.5%%)=%.3f" % (shortname,observed,p25,p975), **(rc.text+rc.alltext) )
 
     if reference>p25 and reference<p975:
         return True
