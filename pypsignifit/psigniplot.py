@@ -746,26 +746,28 @@ def plotThresholdDist ( InferenceObject, cut=0, ax=None ):
         raise ValueError, "Plotting distributions of thresholds requires monte carlo samples. Try to call the sample() method of your inference object."
 
     if ax is None:
-        ax = p.axes()
+        ax = prepare_axes ( p.axes() )
 
     # Plot histogram
     mcthres = InferenceObject.mcthres[:,cut]
-    h,b,ptch = p.hist ( mcthres, bins=20, normed=True, histtype="step", lw=2 )
-
-    # Store ticks
-    xtics = N.array(ax.get_xticks())
-    ytics = N.array(ax.get_yticks())
+    h,b,ptch = ax.hist ( mcthres, bins=20, normed=True, histtype="step", lw=2 )
 
     # Highlight estimate and credibility intervals
     thres = InferenceObject.getThres ( InferenceObject.cuts[cut] )
     c25,c975 = InferenceObject.getCI ( cut, (0.025,0.975) )
-    ym = ytics.max()
-    p.plot( [c25]*2,[0,ym],'b:', [c975]*2,[0,ym],'b:' )
-    p.plot ( [thres]*2, [0,ym], 'b' )
-    p.text ( xtics.mean(), ym, "F^{-1}(%.2f)=%.3f, CI(95%%)=(%.3f,%.3f)" % (InferenceObject.cuts[cut], thres, c25, c975 ),
-            fontsize=8, horizontalalignment="center", verticalalignment="bottom" )
 
-    drawaxes ( ax, xtics, "%g", ytics, "%g", "F^{-1}(%.2f)" % (InferenceObject.cuts[cut],), "density estimate" )
+    yl = ax.get_ylim ()
+    ax.plot( [c25]*2,yl,'b:', [c975]*2,yl,'b:' )
+    ax.plot ( [thres]*2, yl, 'b' )
+    ax.set_title ( r"F$^{-1}$(%.2f)=%.3f, CI(95%%)=(%.3f,%.3f)" % (InferenceObject.cuts[cut], thres, c25, c975 ),
+            horizontalalignment="center", verticalalignment="bottom", **(rc.text+rc.alltext) )
+
+    ax.set_xlabel ( r"F$^{-1}$(%.2f)" % ( InferenceObject.cuts[cut], ), **(rc.label+rc.alltext) )
+    ax.set_ylabel ( "density estimate", **(rc.label+rc.alltext) )
+
+    ax.set_ylim ( yl )
+
+    return ax
 
 def ThresholdPlot ( InferenceObject ):
     """Show distributions and estimates for all thresholds
@@ -782,10 +784,13 @@ def ThresholdPlot ( InferenceObject ):
     nthres = len(InferenceObject.cuts)
     axw = 1./nthres
     fig = p.figure ( figsize=(3*nthres,3) )
+    allax = axes_array_h ( fig, nthres, (.8/nthres-.08/(nthres-1),.7), (.1,.2), dist=.1 )
 
-    for k in xrange ( nthres ):
-        ax = p.subplot ( 1,nthres,k+1 )
-        plotThresholdDist ( InferenceObject, k, ax )
+    for k,ax in enumerate ( allax ):
+        # ax = p.subplot ( 1,nthres,k+1 )
+        ax = plotThresholdDist ( InferenceObject, k, prepare_axes ( ax ) )
+
+    return allax
 
 def ParameterPlot ( InferenceObject ):
     """Show distributions and estimates for all parameters in the model
@@ -802,10 +807,13 @@ def ParameterPlot ( InferenceObject ):
     nparams = len(InferenceObject.parnames)
     axw = 1./nparams
     fig = p.figure (figsize=(3*nparams,3))
+    allax = axes_array_h ( fig, nparams, (.8/nparams-.08/(nparams-1),.65), (.1,.2), dist=.1 )
 
-    for k in xrange ( nparams ):
-        ax = p.subplot ( 1, nparams, k+1 )
+    for k,ax in enumerate ( allax ):
+        # ax = p.subplot ( 1, nparams, k+1 )
         plotParameterDist ( InferenceObject, k, ax )
+
+    return allax
 
 def ConvergenceMCMC ( BayesInferenceObject, parameter=0, warn=True ):
     """Diagram to check convergence of MCMC chains for a single parameter
@@ -825,15 +833,10 @@ def ConvergenceMCMC ( BayesInferenceObject, parameter=0, warn=True ):
         raise ValueError, "MCMC convergence diagnostics require monte carlo samples. Try to call the sample() method of your inference object."
 
     fig = p.figure ( figsize=[9,3] )
-    # ax =  p.axes ( [0,0.,0.33,1] )
-    ax = p.subplot ( 1, 3, 1 )
-    plotChains ( BayesInferenceObject, parameter, ax, warn=warn )
-    # ax = p.axes ( [.33,0,.33,1] )
-    ax = p.subplot ( 1, 3, 2 )
-    plotGeweke ( BayesInferenceObject, parameter, ax, warn=warn )
-    # ax = p.axes ( [.66,0,.33,1] )
-    ax = p.subplot ( 1, 3, 3 )
-    plotParameterDist ( BayesInferenceObject, parameter, ax )
+    ax_chains,ax_geweke,ax_prm = axes_array_h ( fig, 3, (.2,.65),(.1,.2), dist=.1 )
+    plotChains ( BayesInferenceObject, parameter, ax_chains, warn=warn )
+    plotGeweke ( BayesInferenceObject, parameter, ax_geweke, warn=warn )
+    plotParameterDist ( BayesInferenceObject, parameter, ax_prm )
 
 def plotSensitivity ( BootstrapInferenceObject, ax=None ):
     """Visualize a sensitivity analysis to determine expanded bootstrap confidence intervals
