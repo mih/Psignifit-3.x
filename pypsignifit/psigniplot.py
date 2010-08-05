@@ -475,6 +475,7 @@ def plotThres ( InferenceObject, ax=None, color="b" ):
         ax.plot ( bar,[ylev]*len(bar), '-', color=color )
         for x,m in zip(bar,markers):
             ax.plot ( x, ylev, marker=m, color=color )
+    return ax
 
 def GoodnessOfFit ( InferenceObject, warn=True ):
     """Draw a diagnostic figure to help assessing goodness of fit
