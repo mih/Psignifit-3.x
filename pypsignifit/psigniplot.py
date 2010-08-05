@@ -388,7 +388,6 @@ def plotPMF ( InferenceObject, xlabel_text="Stimulus intensity", ylabel_text=Non
     xmin = InferenceObject.data[:,0].min()
     xmax = InferenceObject.data[:,0].max()
     x = N.mgrid[xmin:xmax:100j]
-    # psi = N.array(_psipy.diagnostics ( x, self.estimate, sigmoid=self.model["sigmoid"], core=self.model["core"], nafc=self.model["nafc"] ))
     psi = InferenceObject.evaluate ( x )
     pmfline = ax.plot(x,psi,
             color     = kwargs.setdefault ( 'color', InferenceObject.color ),
