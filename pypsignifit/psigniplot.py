@@ -685,10 +685,10 @@ def plotParameterDist ( InferenceObject, parameter=0, ax=None ):
         raise ValueError, "Plotting distribution of parameters requires monte carlo samples. Try to call the sample() method of your inference object."
 
     if ax is None:
-        ax = p.axes()
+        ax = prepare_axes ( p.axes() )
 
     samples = InferenceObject.mcestimates[:,parameter]
-    h,b,ptch = p.hist ( samples, bins=20, normed=True, histtype="step", lw=2 )
+    h,b,ptch = ax.hist ( samples, bins=20, normed=True, histtype="step", lw=2 )
 
     if InferenceObject.__repr__().split()[1] == "BayesInference":
         priorstr = InferenceObject.model["priors"]
@@ -701,32 +701,33 @@ def plotParameterDist ( InferenceObject, parameter=0, ax=None ):
                 dist,prm1,prm2 = m.groups()
                 prm1,prm2 = float(prm1),float(prm2)
                 x = N.mgrid[b.min():b.max():100j]
+
                 if dist.lower () == "gauss":
-                    p.plot(x,stats.norm.pdf(x,prm1,prm2))
+                    ax.plot(x,stats.norm.pdf(x,prm1,prm2))
                 elif dist.lower () == "beta":
-                    p.plot(x,stats.beta.pdf(x,prm1,prm2))
+                    ax.plot(x,stats.beta.pdf(x,prm1,prm2))
                 elif dist.lower () == "gamma":
-                    p.plot(x,stats.gamma.pdf(x,prm1,scale=prm2))
+                    ax.plot(x,stats.gamma.pdf(x,prm1,scale=prm2))
                 elif dist.lower () == "ngamma":
-                    p.plot(x,stats.gamma.pdf(-x,prm1,scale=prm2))
-
+                    ax.plot(x,stats.gamma.pdf(-x,prm1,scale=prm2))
                 elif dist.lower () == "uniform":
-                    p.plot(x,stats.uniform.pdf(x,prm1,prm2))
-
-    # Store ticks
-    xtics = ax.get_xticks()
-    ytics = ax.get_yticks()
+                    ax.plot(x,stats.uniform.pdf(x,prm1,prm2))
 
     # Highlight estimate and credibility intervals
     prm = InferenceObject.estimate[parameter]
     c25,c975 = p.prctile ( samples, (2.5,97.5) )
-    ym = ax.get_yticks().max()
-    p.plot ( [c25]*2,[0,ym],'b:', [c975]*2,[0,ym],'b:' )
-    p.plot ( [prm]*2,[0,ym],'b' )
-    p.text ( ax.get_xticks().mean(), ym, "%s^=%.3f, CI(95%%)=(%.3f,%.3f)" % ( InferenceObject.parnames[parameter],prm,c25,c975 ),
-            fontsize=8, horizontalalignment="center",verticalalignment="bottom" )
+    ym = ax.get_ylim()
+    ax.plot ( [c25]*2,ym,'b:', [c975]*2,ym,'b:' )
+    ax.plot ( [prm]*2,ym,'b' )
 
-    drawaxes ( ax, xtics, "%g", ytics, "%g", InferenceObject.parnames[parameter], "density estimate" )
+    prname = InferenceObject.parnames[parameter]
+    if prname in ["alpha","beta","gamma","lambda"]:
+        prname = r"\%s" % (prname,)
+    message = r"$\hat{%s}"%(prname,)
+    message += r"$=%.3f, CI(95)=(%.3f,%.3f)" % ( prm,c25,c975 )
+    ax.set_title ( message, **(rc.text+rc.alltext) )
+    ax.set_xlabel ( InferenceObject.parnames[parameter], **(rc.label+rc.alltext) )
+    ax.set_ylabel ( "density estimate", **(rc.label+rc.alltext) )
 
 def plotThresholdDist ( InferenceObject, cut=0, ax=None ):
     """Plot the distribution of thresholds
