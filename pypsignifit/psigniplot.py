@@ -35,6 +35,7 @@ class DefaultParameters ( object ):
         self.allplots= parameterdict(color='b')
         self.line    = parameterdict()
         self.highlight = parameterdict(color='r')
+        self.warning = parameterdict(fontsize=16, color=[.7,0,0])
 
 rc = DefaultParameters()
 
