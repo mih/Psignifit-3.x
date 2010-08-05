@@ -18,6 +18,9 @@ from scipy import stats,special,optimize
 import pypsignifit
 interface = pypsignifit.interface
 
+import swignifit.swignifit_raw as sft
+import swignifit.utility as sut
+
 import pygibbsit
 
 from psignierrors import NosamplesError
