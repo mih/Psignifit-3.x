@@ -556,7 +556,7 @@ def GoodnessOfFit ( InferenceObject, warn=True ):
     if warn and not good:
         ax.text ( N.array(ax.get_xlim()).mean(), N.array(ax.get_ylim()).mean(),
                 "The fitted model is a bad\ndescription of the data!",
-                fontsize=16, color=__warnred, horizontalalignment="center", verticalalignment="center", rotation=45 )
+                horizontalalignment="center", verticalalignment="center", rotation=45, **(rc.warning+rc.alltext) )
 
     # The other two plots are in a loop: Rpd, Rkd
     ax = [ax_rpd,ax_rkd]
@@ -574,7 +574,7 @@ def GoodnessOfFit ( InferenceObject, warn=True ):
             good = plotHistogram ( eval("InferenceObject.mc%s" % (name,)), eval("InferenceObject.%s"%(name,)), "bootstrap "+name, name, axh[k] )
         if warn and not good:
             ax.text ( 0, N.mean(p.getp(ax,'ylim')) , warningtext[k], \
-                    fontsize=16, color=__warnred, horizontalalignment="center", verticalalignment="center", rotation=45 )
+                     horizontalalignment="center", verticalalignment="center", rotation=45, **(rc.warning+rc.alltext) )
 
 def plotGeweke ( BayesInferenceObject, parameter=0, ax=None, warn=True ):
     """Geweke plot of moving average of samples
