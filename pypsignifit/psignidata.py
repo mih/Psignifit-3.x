@@ -19,7 +19,7 @@ import pypsignifit
 interface = pypsignifit.interface
 
 import swignifit.swignifit_raw as sft
-import swignifit.utility as sut
+import swignifit.utility as sfu
 
 import pygibbsit
 
