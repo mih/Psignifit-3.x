@@ -400,7 +400,8 @@ def plotPMF ( InferenceObject, xlabel_text="Stimulus intensity", ylabel_text=Non
     xd = InferenceObject.data[:,0]
     pd = InferenceObject.data[:,1].astype("d")/InferenceObject.data[:,2]
     nd = InferenceObject.data[:,2]
-    pmfpoints = ax.scatter ( xd, pd, s=nd, c=kwargs.setdefault ( 'color', InferenceObject.color ),marker=kwargs.setdefault("markertype", InferenceObject.marker) )
+    pmfpoints = ax.scatter ( xd, pd, s=nd, c=kwargs.setdefault ( 'color', InferenceObject.color ),
+            marker=kwargs.setdefault("markertype", InferenceObject.marker) )
 
     # Check axes limits
     ymin,ymax = -.05,1.05
@@ -411,25 +412,22 @@ def plotPMF ( InferenceObject, xlabel_text="Stimulus intensity", ylabel_text=Non
             ylabel_text = "P(Yes)"
 
     # Determine tics
-    p.setp(ax,ylim=(ymin,ymax))
-    xtics = p.getp(ax,'xticks')
-    ytics = list(p.getp(ax,'yticks'))
+    ax.set_ylim ( ymin, ymax )
+    ytics = list(ax.get_yticks())
     # Clean up ytics
     for k,yt in enumerate(ytics):
         if yt<0 or yt>1:
             ytics.pop(k)
-    ytics = N.array(ytics)
-
-    drawaxes ( ax, xtics, "%g", ytics, "%g", xlabel_text, ylabel_text )
+    ax.set_yticks ( ytics )
 
     # Write some model information
     if showdesc:
         txt = InferenceObject.desc
         if not InferenceObject.deviance is None:
             txt = txt+"\nD=%g" % (InferenceObject.deviance,)
-        ax.text ( 0.3*(xmin+xmax),ymin+.1,txt, fontsize=8 )
+        ax.text ( 0.3*(xmin+xmax),ymin+.1,txt, **(rc.text+rc.alltext) )
 
-    return pmfline,pmfpoints,(xtics.min(),xtics.max())
+    return pmfline,pmfpoints,ax
 
 def plotThres ( InferenceObject, ax=None, color="b" ):
     """Plot thresholds and confidence intervals
