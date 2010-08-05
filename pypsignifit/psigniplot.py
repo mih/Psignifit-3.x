@@ -639,12 +639,12 @@ def plotChains ( BayesInferenceObject, parameter=0, ax=None, raw=False, warn=Tru
 
     # Do we have an appropriate axis?
     if ax==None:
-        ax = p.axes()
+        ax = prepare_axes ( p.axes() )
 
     # Plot the chains
     for c in xrange(BayesInferenceObject.nchains):
         samples = BayesInferenceObject.getsamples ( c, raw=raw )
-        p.plot ( samples[:,parameter] )
+        ax.plot ( samples[:,parameter] )
 
     # Learn something about the axes
     xtics = N.array(ax.get_xticks())
@@ -654,13 +654,19 @@ def plotChains ( BayesInferenceObject, parameter=0, ax=None, raw=False, warn=Tru
     y0    = ytics.min()
     yr    = N.array(ytics.max()-ytics.min())
 
-    p.text(x0+0.6*xr,y0+0.95*yr,"R^ = %.4f" % (BayesInferenceObject.Rhat ( parameter ) ) )
+    ax.text(x0+0.6*xr,y0+0.95*yr,r"$\hat{R} = %.4f$" % (BayesInferenceObject.Rhat ( parameter ) ) )
 
     if warn and BayesInferenceObject.Rhat(parameter)>1.1:
-        p.text(x0+0.5*xr,y0+0.5*yr,"Chains do not seem to sample\nfrom the same distribution!",
-                horizontalalignment="center",verticalalignment="center",fontsize=16,rotation=45,color=__warnred)
+        ax.text(x0+0.5*xr,y0+0.5*yr,"Chains do not seem to sample\nfrom the same distribution!",
+                horizontalalignment="center",verticalalignment="center",rotation=45,**(rc.warning+rc.alltext))
 
-    drawaxes ( ax, ax.get_xticks(), "%g", ax.get_yticks(), "%g", "sample #", BayesInferenceObject.parnames[parameter] )
+    ax.set_xlabel ( "sample #", **(rc.label+rc.alltext) )
+    parname = BayesInferenceObject.parnames[parameter]
+    if parname in ["alpha","beta","gamma","lambda"]:
+        parname = r"$\%s$" % (parname,)
+    ax.set_ylabel ( parname, **(rc.label+rc.alltext) )
+
+    return ax
 
 def plotParameterDist ( InferenceObject, parameter=0, ax=None ):
     """Plot the distribution of parameters
