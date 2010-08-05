@@ -598,19 +598,27 @@ def plotGeweke ( BayesInferenceObject, parameter=0, ax=None, warn=True ):
     stationary,z,bad = BayesInferenceObject.geweke ( parameter )
 
     if ax is None:
-        ax = p.axes()
+        ax = prepare_axes (p.axes())
 
+    x = N.arange (z[:,0].shape[0])+1
     for k in xrange ( z.shape[-1] ):
-        p.plot(z[:,k],'o-')
-    xtics = N.array(p.getp(ax,"xticks"))
-    p.setp(ax,"xticks",xtics,"yticks",N.array((-3,-2,-1,0,1,2,3)))
-    p.plot ( [xtics.min(),xtics.max()],[-2]*2,'k:')
-    p.plot ( [xtics.min(),xtics.max()],[ 2]*2,'k:')
-    drawaxes ( ax, xtics, "%g", N.array((-3,-2,-1,0,1,2,3)), "%g", "chain segment", "z-score" )
+        ax.plot ( x, z[:,k], 'o-' )
+    ax.plot ( ax.get_xlim(), [-2]*2, 'k:' )
+    ax.plot ( ax.get_xlim(), [ 2]*2, 'k:' )
 
     if warn and not stationary:
         nsegments = z.shape[0]
-        p.text(0.5*nsegments,0,"chains did not converge" , color=__warnred, fontsize=16, rotation=45, verticalalignment="center", horizontalalignment="center" )
+        p.text(0.5*nsegments,0,"chains did not converge", rotation=45, verticalalignment="center", horizontalalignment="center", **(rc.warning+rc.alltext) )
+
+    ax.set_yticks ( N.array( (-3,-2,-1,0,1,2,3) ) )
+    ax.set_xticks ( x )
+    ax.set_ylim ( -3,3 )
+    ax.set_xlim ( 0.5, z[:,k].shape[0]+.5 )
+
+    ax.set_xlabel ( "chain segment", **(rc.label+rc.alltext) )
+    ax.set_ylabel ( "z-score", **(rc.label+rc.alltext) )
+
+    return ax
 
 def plotChains ( BayesInferenceObject, parameter=0, ax=None, raw=False, warn=True ):
     """Simply plot all chains for a single parameter
