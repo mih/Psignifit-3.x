@@ -82,19 +82,22 @@ class PsiInference ( object ):
         defaults = {"label": "Psychometric function fit","color": "b", "linestyle": "-", "marker": "o", "linewidth": 1 }
         for k in defaults.keys():
             self.__plotting.setdefault ( k, defaults[k] )
+        self._data,self._pmf,self._nparams = sfu.make_dataset_and_pmf (
+                [[1,2,3]], self.model["nafc"], self.model["sigmoid"], self.model["core"], self.model["priors"] )
 
     def evaluate ( self, x, prm=None ):
         """Evaluate the psychometric function model at positions given by x"""
         if prm==None:
             prm = self.estimate
 
-        return N.array( interface.diagnostics ( x, prm, sigmoid=self.model["sigmoid"], core=self.model["core"], nafc=self.model["nafc"] ) )
+        return N.array ( [self._pmf.evaluate ( xx, prm ) for xx in x] )
 
     def getThres ( self, cut=0.5 ):
         """Get thresholds at cut"""
         if self.data == None:
             raise NotImplementedError
-        return float(interface.diagnostics ( self.data, self.estimate, cuts=cut, nafc=self.model["nafc"], sigmoid=self.model["sigmoid"], core=self.model["core"] )[3])
+
+        return float(self._pmf.getThres ( self.estimate, cut ))
 
     def __repr__ ( self ):
         return "< PsiInference object >"
@@ -240,6 +243,9 @@ class BootstrapInference ( PsiInference ):
                 "priors":  kwargs.setdefault("priors", None),
                 "nafc":    kwargs.setdefault("nafc",    2)
                 }
+
+        self._data,self._pmf,self._nparams = sfu.make_dataset_and_pmf (
+                self.data, self.model["nafc"], self.model["sigmoid"], self.model["core"], self.model["priors"] )
 
         self.parametric = kwargs.setdefault ( "parametric", True )
 
@@ -456,8 +462,23 @@ class BootstrapInference ( PsiInference ):
             # Perform bootstrap on this next point
             fullprm = self.estimate.copy()
             fullprm[:2] = self._expansionPoints[-1]
-            fullthres = interface.diagnostics(self.data,fullprm, nafc=self.model["nafc"],sigmoid=self.model["sigmoid"],core=self.model["core"],cuts=self.cuts)[3]
-            bthres,th_bias,th_acc = interface.bootstrap(self.data,fullprm,Nsamples,cuts=self.cuts,**self.model)[3:6]
+            # fullthres = interface.diagnostics(self.data,fullprm, nafc=self.model["nafc"],sigmoid=self.model["sigmoid"],core=self.model["core"],cuts=self.cuts)[3]
+            fullthres = [self._pmf.getThres ( fullprm, cut ) for cut in self.cuts]
+
+            # Perform bootstrap without full conversion of data
+            cuts = sfu.get_cuts(self.cuts)
+            ncuts = len(cuts)
+            bs_list = sft.bootstrap(self.nsamples, self._data, self._pmf, cuts, sfu.get_start ( fullprm, len(fullprm) ), True, self.parametric)
+            th_bias = N.zeros ( ncuts )
+            th_acc  = N.zeros ( ncuts )
+            for c in xrange ( ncuts ):
+                th_bias[c] = bs_list.getAcc_t (c)
+                th_acc[c]  = bs_list.getBias_t (c)
+            bthres = N.zeros((self.nsamples, ncuts))
+            for row_index in xrange(self.nsamples):
+                bthres[row_index] = [bs_list.getThres_byPos(row_index, j) for j in xrange(ncuts)]
+            # bthres,th_bias,th_acc = interface.bootstrap(self.data,fullprm,Nsamples,cuts=self.cuts,**self.model)[3:6]
+
             thresholdCI = []
             for l,cut in enumerate(self.cuts):
                 for pp,prob in enumerate(conf):
@@ -613,6 +634,9 @@ class BayesInference ( PsiInference ):
                 }
         self.retry = resample
 
+        self._data,self._pmf,self._nparams = sfu.make_dataset_and_pmf (
+                self.data, self.model["nafc"], self.model["sigmoid"], self.model["core"], self.model["priors"] )
+
         if self.model["core"][:2] == "mw":
             self.parnames = ["m","w"]
         elif self.model["core"] == "weibull":
@@ -666,7 +690,7 @@ class BayesInference ( PsiInference ):
         # print self._steps
 
         if automatic:
-            self.__determineoptimalsampling ()
+            self.__determineoptimalsampling (verbose=kwargs.setdefault("verbose",False))
             sample = True
 
         if sample:
@@ -1379,8 +1403,6 @@ class BayesInference ( PsiInference ):
         if noptimizations==0:
             return
         mcmcpars = {}
-
-        verbose = True
 
         # Determine size of initial test run
         if self.nsamples is None:
