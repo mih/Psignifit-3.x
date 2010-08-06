@@ -48,6 +48,9 @@ class PsiMClist
 		virtual double getMean (
 			unsigned int prm                              ///< index of the parameter of interest
 			) const ;                                                          ///< get the average of parameter prm
+		virtual double getStd (
+			unsigned int prm                             ///< index of the parameter of interest
+			) const ;                                                          ///< get the standard deviantion of parameter prm
 		double getdeviance ( unsigned int i ) const;                                    ///< get the deviance of sample i
 		unsigned int getNsamples ( void ) const { return mcestimates[0].size(); }       ///< get the total number of samples
 		unsigned int getNparams ( void ) const { return mcestimates.size(); }           ///< get the number of parameters

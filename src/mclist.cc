@@ -109,6 +109,21 @@ double PsiMClist::getMean ( unsigned int prm ) const {
 	return m;
 }
 
+double PsiMClist::getStd ( unsigned int prm ) const {
+	double m ( getMean ( prm ) ), s(0), ss;
+	unsigned int i, Nsamples(getNsamples());
+	if ( prm>=getNparams() )
+		throw BadIndexError();
+
+	for (i=0; i<Nsamples; i++) {
+		ss = getEst ( i, prm ) - m;
+		s += ss*ss;
+	}
+
+	s /= Nsamples-1;
+	return sqrt(s);
+}
+
 /************************************************************
  * BootstrapList methods
  */
