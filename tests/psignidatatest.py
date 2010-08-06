@@ -5,9 +5,14 @@ import pypsignifit.psignidata as pd
 import swignifit.swignifit_raw as sft
 
 import numpy as np
+import sys
 
 def approximatedly_equal ( x, y, eps=1e-7 ):
-    return abs ( x-y ) > eps
+    e = abs ( x-y ) > eps
+    if not e==0:
+        sys.stderr.write ( "%g != %g\n" % (x,y) )
+    return e
+
 
 class TestPsiInference ( ut.TestCase ):
     def setUp ( self ):
@@ -107,6 +112,31 @@ class TestBayesInference ( ut.TestCase ):
         self.assertEqual ( burnin, self.mcmc.burnin )
         self.assertEqual ( thinning, self.mcmc.thin )
         self.assertEqual ( nsamples, self.mcmc.nsamples )
+
+        target_rpd = 0.0601711264595
+        target_rkd = -0.264457082124
+        self.assertEqual ( approximatedly_equal ( self.mcmc.Rpd, target_rpd ), 0 )
+        self.assertEqual ( approximatedly_equal ( self.mcmc.Rkd, target_rkd ), 0 )
+
+        target_dr = (1.5183703415503955, -0.78436814516921538, -0.66410579831627181, 1.0540310119876923, 2.0944600285216746, -0.27867862106892283)
+        target_thres =  [ 0.87176329, 2.58517722, 4.29859114]
+        target_deviance = 8.93712435176
+        for dr,tdr in zip ( self.mcmc.devianceresiduals, target_dr ):
+            self.assertEqual ( approximatedly_equal ( dr, tdr ), 0 )
+        for th,tth in zip ( self.mcmc.thres, target_thres ):
+            self.assertEqual ( approximatedly_equal ( th, tth ), 0 )
+        self.assertEqual ( approximatedly_equal ( self.mcmc.deviance, target_deviance ), 0 )
+
+        # Randomly check single samples
+        target_mcRpd = [-0.233536130482, 0.010834690825, -0.0807779600755]
+        target_mcRkd = [-0.460112280298, -0.414597681561, -0.479957633098]
+        target_mcthres = [ [ 1.25277837, 2.4956197,  3.73846103], [ 1.75585739, 3.49021135, 5.22456531], [ 1.92499074, 3.16941686, 4.41384299]]
+        indices = [10,50,100]
+        for k in xrange ( 3 ):
+            self.assertEqual ( approximatedly_equal ( self.mcmc.mcRpd[indices[k]], target_mcRpd[k] ), 0 )
+            self.assertEqual ( approximatedly_equal ( self.mcmc.mcRkd[indices[k]], target_mcRkd[k] ), 0 )
+            for l in xrange ( 3 ):
+                self.assertEqual ( approximatedly_equal ( self.mcmc.mcthres[indices[k]][l], target_mcthres[k][l] ), 0 )
 
 
 if __name__ == "__main__":
