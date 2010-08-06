@@ -650,8 +650,10 @@ class BayesInference ( PsiInference ):
         else:
             self.Ncuts = len(self.cuts)
 
-        self.Rpd,self.Rkd = interface.diagnostics ( self.data, self.mapestimate, cuts=self.cuts, nafc=self.model["nafc"],
-                sigmoid=self.model["sigmoid"], core=self.model["core"] )[4:]
+        deviance_residuals = self._pmf.getDevianceResiduals ( self.mapestimate, self._data )
+        self.Rpd = self._pmf.getRpd ( deviance_residuals, self.mapestimate, self._data )
+        self.Rkd = self._pmf.getRkd ( deviance_residuals, self._data )
+
 
         self.__meanestimate = None
         self.__meandeviance = None
@@ -1078,9 +1080,7 @@ class BayesInference ( PsiInference ):
         deviances /= deviances[indices].max()
         deviances = N.clip(.4+4*deviances,0,1)
         for i in indices:
-            # i = N.random.randint(samples.shape[0])
-            psi = N.array(interface.diagnostics ( x, samples[i,:], sigmoid=self.model["sigmoid"], core=self.model["core"], nafc=self.model["nafc"] ))
-            # Lines are colored according to their deviance
+            psi = N.array ( [ self._pmf.evaluate ( xx, samples[i,:] ) for xx in x] )
             lines.append ( ax.plot(x,psi,color=[deviances[i]]*2+[1]) )
 
         return lines
@@ -1161,10 +1161,13 @@ class BayesInference ( PsiInference ):
                 # We don't have a mean estimate
                 if len(self.__mcmc_chains) > 0:
                     # But we have samples!
-                    self.__meanestimate = self.getsamples().mean(0)
-                    self.devianceresiduals,self.__meandeviance,self.thres,self.Rpd,self.Rkd = interface.diagnostics ( \
-                            self.data, self.__meanestimate, cuts=self.cuts, nafc=self.model["nafc"], sigmoid=self.model["sigmoid"], core=self.model["core"] )[1:]
-                else:
+                    self.__meanestimate    = self.getsamples().mean(0)
+                    self.devianceresiduals = self._pmf.getDevianceResiduals ( self.__meanestimate, self._data )
+                    self.__meandeviance    = self._pmf.deviance ( self.__meanestimate, self._data )
+                    self.thres             = [self._pmf.getThres ( self.__meanestimate, c ) for c in self.cuts]
+                    self.Rpd               = self._pmf.getRpd ( self.devianceresiduals, self.__meanestimate, self._data )
+                    self.Rkd               = self._pmf.getRkd ( self.devianceresiduals, self._data )
+            else:
                     # We have no samples ~> return mapestimate
                     return self.mapestimate
             # In this case, we seem to have a meanestimate, so we return it
@@ -1367,8 +1370,10 @@ class BayesInference ( PsiInference ):
         self._PsiInference__infl   = N.zeros(self.data.shape[0], 'd' )
 
         for k,theta in enumerate(samples):
-            self.__pthres[k,:],self.__pRpd[k],self.__pRkd[k] = interface.diagnostics (\
-                    self.data, theta, cuts=self.cuts, nafc=self.model["nafc"], sigmoid=self.model["sigmoid"], core=self.model["core"] )[3:]
+            self.__pthres[k,:] = [self._pmf.getThres ( theta, c ) for c in self.cuts]
+            dr                 = self._pmf.getDevianceResiduals ( theta, self._data )
+            self.__pRpd[k]     = self._pmf.getRpd ( dr, theta, self._data )
+            self.__pRkd[k]     = self._pmf.getRkd ( dr, self._data )
         lpr = []
         for l in self.__mcmc_logposterior_ratios:
             lpr.append(l[self.burnin::self.thin,:])
@@ -1457,8 +1462,12 @@ class BayesInference ( PsiInference ):
         except N.linalg.LinAlgError:
             # It seems as if the regularized fisher matrix can not be inverted
             # We directly get an estimate form bootstrap
-            bsamples = interface.bootstrap ( self.data, self.estimate, 100, cuts=self.cuts, **self.model )[1]
-            return bsamples.std(0)
+            start = sfu.get_start ( self.estimate, len(self.estimate) )
+
+            # Perform bootstrap without full conversion of data
+            cuts = sfu.get_cuts(self.cuts)
+            bs_list = sft.bootstrap(self.nsamples, self._data, self._pmf, cuts, start, True, True)
+            return N.array ( [ bs_list.getStd(i) for i in xrange ( self.nparams )] )
         cond = abs(fisherI.A).sum(1).max() * abs(fisherIinv.A).sum(1).max()
         # print "Condition of Fisher Information Matrix:",cond
         # print fisherI
