@@ -82,7 +82,7 @@ class PsiInference ( object ):
         defaults = {"label": "Psychometric function fit","color": "b", "linestyle": "-", "marker": "o", "linewidth": 1 }
         for k in defaults.keys():
             self.__plotting.setdefault ( k, defaults[k] )
-        self._data,self._pmf,self._nparams = sfu.make_dataset_and_pmf (
+        self._data,self._pmf,self.nparams = sfu.make_dataset_and_pmf (
                 [[1,2,3]], self.model["nafc"], self.model["sigmoid"], self.model["core"], self.model["priors"] )
 
     def evaluate ( self, x, prm=None ):
@@ -244,7 +244,7 @@ class BootstrapInference ( PsiInference ):
                 "nafc":    kwargs.setdefault("nafc",    2)
                 }
 
-        self._data,self._pmf,self._nparams = sfu.make_dataset_and_pmf (
+        self._data,self._pmf,self.nparams = sfu.make_dataset_and_pmf (
                 self.data, self.model["nafc"], self.model["sigmoid"], self.model["core"], self.model["priors"] )
 
         self.parametric = kwargs.setdefault ( "parametric", True )
@@ -624,7 +624,7 @@ class BayesInference ( PsiInference ):
                 }
         self.retry = resample
 
-        self._data,self._pmf,self._nparams = sfu.make_dataset_and_pmf (
+        self._data,self._pmf,self.nparams = sfu.make_dataset_and_pmf (
                 self.data, self.model["nafc"], self.model["sigmoid"], self.model["core"], self.model["priors"] )
 
         if self.model["core"][:2] == "mw":
