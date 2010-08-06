@@ -73,7 +73,7 @@ class TestBootstrapInference ( ut.TestCase ):
 
     def test_sensitivity ( self ):
         self.parametric.sensitivity_analysis (verbose=False)
-        parci = [ 1.56765453, 3.9662069 ]
+        parci = [ 1.52167887, 3.8797201 ]
         extci = self.parametric.getCI(1)
         for par,ext in zip(parci,extci):
             self.assertEqual ( approximatedly_equal ( par, ext ), 0 )
