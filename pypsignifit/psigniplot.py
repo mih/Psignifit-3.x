@@ -556,7 +556,7 @@ def GoodnessOfFit ( InferenceObject, warn=True ):
         observed = InferenceObject.deviance
         good = plotHistogram ( InferenceObject.mcdeviance, observed, "bootstrap deviance", "D", ax_deviance )
     if warn and not good:
-        ax.text ( N.array(ax.get_xlim()).mean(), N.array(ax.get_ylim()).mean(),
+        ax_deviance.text ( N.array(ax_deviance.get_xlim()).mean(), N.array(ax_deviance.get_ylim()).mean(),
                 "The fitted model is a bad\ndescription of the data!",
                 horizontalalignment="center", verticalalignment="center", rotation=45, **(rc.warning+rc.alltext) )
 
@@ -575,7 +575,7 @@ def GoodnessOfFit ( InferenceObject, warn=True ):
         else:
             good = plotHistogram ( eval("InferenceObject.mc%s" % (name,)), eval("InferenceObject.%s"%(name,)), "bootstrap "+name, name, axh[k] )
         if warn and not good:
-            ax.text ( 0, N.mean(p.getp(ax,'ylim')) , warningtext[k], \
+            axh[k].text ( 0, 0 , warningtext[k], \
                      horizontalalignment="center", verticalalignment="center", rotation=45, **(rc.warning+rc.alltext) )
 
 def plotGeweke ( BayesInferenceObject, parameter=0, ax=None, warn=True ):
@@ -610,7 +610,8 @@ def plotGeweke ( BayesInferenceObject, parameter=0, ax=None, warn=True ):
 
     if warn and not stationary:
         nsegments = z.shape[0]
-        p.text(0.5*nsegments,0,"chains did not converge", rotation=45, verticalalignment="center", horizontalalignment="center", **(rc.warning+rc.alltext) )
+        ax.text(0.5*nsegments,0,"chains did not converge", rotation=45,
+                verticalalignment="center", horizontalalignment="center", **(rc.warning+rc.alltext) )
 
     ax.set_yticks ( N.array( (-3,-2,-1,0,1,2,3) ) )
     ax.set_xticks ( x )
@@ -926,7 +927,8 @@ def plotInfluential ( InferenceObject ):
     plotPMF ( InferenceObject, ax=ax, showaxes=False, showdesc=False, color="b", linewidth=2 )
     ax.plot ( [InferenceObject.data[maxinfl,0]], [InferenceObject.data[maxinfl,1].astype("d")/InferenceObject.data[maxinfl,2]],
             'rx', markersize=20, markeredgewidth=5 )
-    xl = plotPMF ( influencedDataset, ax=ax, showdesc=False, showaxes=True, color="r", markertype=([(0,0)],0), linewidth=2 )[-1]
+    ax = plotPMF ( influencedDataset, ax=ax, showdesc=False, showaxes=True, color="r", markertype=([(0,0)],0), linewidth=2 )[-1]
+    xl = ax.get_xlim ()
 
     # ax = p.axes ( (0.0, 0., .9, .5) )
     ax = p.subplot ( 2,1,2, sharex=ax )
