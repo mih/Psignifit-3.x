@@ -199,16 +199,18 @@ def plotRd ( InferenceObject, ax=None, regressor="p" ):
             ax.set_xlim(1./InferenceObject.model["nafc"],1)
 
         # In this case predictions larger than 1 and less than 0 are impossible
-        for k,xt in enumerate(ax.get_xticks()):
+        xtics = list(ax.get_xticks())
+        for k in xrange(len(xtics)):
             if xtics[k]>1. or xtics[k]<0.:
                 xtics.pop(k)
+        ax.set_xticks(xtics)
 
     # Generate the respective labels
     if regressor=="p":
-        ax.text(psilims.mean(),ytics[-2],"Rpd=%.3f" % ( InferenceObject.Rpd, ), **rc.text )
+        ax.text(psilims.mean(),ax.get_yticks()[-2],"Rpd=%.3f" % ( InferenceObject.Rpd, ), **rc.text )
         xname = "model prediction"
     elif regressor=="k":
-        ax.text(psilims.mean(),ytics[-2],"Rkd=%.3f" % ( InferenceObject.Rkd, ), **rc.text )
+        ax.text(psilims.mean(),ax.get_yticks()[-2],"Rkd=%.3f" % ( InferenceObject.Rkd, ), **rc.text )
         xname = "block index"
 
     ax.set_ylabel ( "deviance residuals", **(rc.label+rc.text) )
