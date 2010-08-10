@@ -163,8 +163,8 @@ int DerivativeCheck ( TestSuite * T ) {
 
 	// Cores
 	PsiCore* core;
-	std::vector<PsiCore*> cores ( 7 );
-	std::vector<char*>    corenames ( 7 );
+	std::vector<PsiCore*> cores ( 8 );
+	std::vector<char*>    corenames ( 8 );
 	cores[0] = new abCore (data);        corenames[0] = new char [20]; sprintf ( corenames[0], "abCore");
 	cores[1] = new linearCore (data);    corenames[1] = new char [20]; sprintf ( corenames[1], "linearCore");
 	cores[2] = new logCore (data);       corenames[2] = new char [20]; sprintf ( corenames[2], "logCore");
@@ -172,6 +172,7 @@ int DerivativeCheck ( TestSuite * T ) {
 	cores[4] = new polyCore (data);      corenames[4] = new char [20]; sprintf ( corenames[4], "polyCore");
 	cores[5] = new weibullCore (data);   corenames[5] = new char [20]; sprintf ( corenames[5], "weibullCore");
 	cores[6] = new NakaRushton ( data ); corenames[6] = new char [20]; sprintf ( corenames[6], "NakaRushton");
+	cores[7] = new mwCore (data,3);      corenames[3] = new char [20]; sprintf ( corenames[3], "mwCore (GumbelR)");
 
 	for ( coreindex=0; coreindex<cores.size(); coreindex++ ) {
 		core = cores[coreindex];
