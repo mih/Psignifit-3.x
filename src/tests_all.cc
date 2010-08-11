@@ -961,7 +961,33 @@ int CoreTests ( TestSuite * T ) {
 	failures += T->isequal ( core->dinv(2.,prm,0),1.,            "mwCore inversion dinv(2,0)");
 	failures += T->isequal ( core->dinv(2.,prm,1),1./log(9.),    "mwCore inversion dinv(2,1)");
 	// TODO: Transform Tests
+
 	delete core;
+
+	// Tests for m and w with all sigmoids
+	std::vector<PsiSigmoid*> sigmoids ( 6 );
+	std::vector<char*>       sigmnames ( 6 );
+	sigmoids[0] = new PsiLogistic();    sigmnames[0] = new char [20]; sprintf ( sigmnames[0], "Logistic" );
+	sigmoids[1] = new PsiGauss();       sigmnames[1] = new char [20]; sprintf ( sigmnames[1], "Gauss" );
+	sigmoids[2] = new PsiGumbelL();     sigmnames[2] = new char [20]; sprintf ( sigmnames[2], "GumbelL" );
+	sigmoids[3] = new PsiCauchy();      sigmnames[3] = new char [20]; sprintf ( sigmnames[3], "Cauchy" );
+	sigmoids[4] = new PsiExponential(); sigmnames[4] = new char [20]; sprintf ( sigmnames[4], "Exponential" );
+	sigmoids[5] = new PsiGumbelR();     sigmnames[5] = new char [20]; sprintf ( sigmnames[5], "GumbelR" );
+	prm[0] = 4;
+	prm[1] = 2;
+	char message[40];
+
+	prm[0] = 3.;
+	for (i=0; i<sigmoids.size(); i++) {
+		core = new mwCore ( NULL, sigmoids[i]->getcode(), 0.1 );
+		sprintf(message,"mwCore (m) for Psi%s", sigmnames[i]);
+		failures += T->isequal ( sigmoids[i]->f(core->g(prm[0],prm)), 0.5, message );
+		sprintf(message,"mwCore (w) for Psi%s", sigmnames[i]);
+		failures += T->isequal ( core->inv(sigmoids[i]->inv(0.9),prm) - core->inv(sigmoids[i]->inv(0.1),prm), prm[1], message );
+		delete core;
+		delete sigmoids[i];
+		delete sigmnames[i];
+	}
 
 	core = new linearCore;
 	prm2 = prm;
@@ -1185,5 +1211,6 @@ int main ( int argc, char ** argv ) {
 	Tests.addTest(&LinalgTests,           "Linear algebra routines");
 	Tests.addTest(&ReturnTest,            "Testing return bug in jackknifedata");
 	Tests.addTest(&InitialParametersTest, "Initial parameter heuristics");
+
 	Tests.runTests();
 }
