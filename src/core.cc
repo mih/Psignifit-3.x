@@ -104,7 +104,7 @@ mwCore::mwCore( const PsiData* data, const int sigmoid, const double alpha )
 			break;
 		case 6:
 			// gumbel_r
-			zalpha = log(-log(alpha))-log(-log(1.-alpha));
+			zalpha = -log(-log(1.-alpha))+log(-log(alpha));
 			zshift = -log(-log(0.5));
 			break;
 		default:

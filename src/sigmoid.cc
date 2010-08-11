@@ -192,7 +192,7 @@ double PsiGumbelR::inv ( double p ) const
 	}
 	return lastinvp;
 	*/
-	return log(-log(p));
+	return -log(-log(p));
 }
 
 /** Cauchy Sigmoid ************************************************************/
