@@ -121,7 +121,7 @@ class PsiGumbelR : public PsiSigmoid
 		double df  ( double x ) const;             ///< returns the derivative of the right skewed gumbel cdf at position x
 		double ddf ( double x ) const;             ///< returns the 2nd derivative of the right skewed gumbel cdf at position x
 		double inv ( double p ) const;             ///< returns the inverse of the right skewed gumbel cdf at position p
-		int getcode ( void ) const { return 3; }   ///< return the sigmoid identifier
+		int getcode ( void ) const { return 6; }   ///< return the sigmoid identifier
         PsiSigmoid * clone ( void ) const {
             return new PsiGumbelR(*this);
         }

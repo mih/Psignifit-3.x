@@ -101,6 +101,12 @@ mwCore::mwCore( const PsiData* data, const int sigmoid, const double alpha )
 			// Exponential
 			zalpha = log( (1-alpha)/alpha );
 			zshift = log(2.);
+			break;
+		case 6:
+			// gumbel_r
+			zalpha = log(-log(alpha))-log(-log(1.-alpha));
+			zshift = -log(-log(0.5));
+			break;
 		default:
 			throw NotImplementedError();
 	}
