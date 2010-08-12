@@ -1503,8 +1503,13 @@ class BayesInference ( PsiInference ):
                 or a[2] > 0.5 \
                 or N.any(N.isnan(a)):
             # It seems as if the Variance estimation via the Fisher Matrix failed
-            bsamples = interface.bootstrap(self.data,self.estimate,100,cuts=self.cuts,**self.model)[1]
-            a = bsamples.std(0)
+            # We directly get an estimate form bootstrap
+            start = sfu.get_start ( self.estimate, len(self.estimate) )
+
+            # Perform bootstrap without full conversion of data
+            cuts = sfu.get_cuts(self.cuts)
+            bs_list = sft.bootstrap(self.nsamples, self._data, self._pmf, cuts, start, True, True)
+            a = N.array ( [ bs_list.getStd(i) for i in xrange ( self.nparams )] )
             # print "a_boots =",a
 
         return a
