@@ -102,6 +102,12 @@ int main ( int argc, char ** argv ) {
 
 		if ( verbose ) std::cerr << "Read " << nblocks << " blocks ";
 
+		if ( verbose ) {
+			std::cerr << "Data:\n";
+			for (i=0; i<nblocks; i++)
+				std::cerr << i << " " << data->getIntensity ( i ) << " " << data->getNcorrect ( i ) << " " << data->getNtrials ( i ) << "\n";
+		}
+
 		// Get the psychometric function model
 		pmf  = allocatePsychometric ( parser.getOptArg ( "-c" ),
 			parser.getOptArg ( "-s" ),
