@@ -82,7 +82,7 @@ int main ( int argc, char ** argv ) {
 		if ( atoi (parser.getOptArg("-nafc").c_str()) < 2 ) std::cout << "   prm4: " << parser.getOptArg ( "-prior4" ) << "\n";
 		std::cout << "parametric bootstrap: " << (parser.getOptSet("-nonparametric")?"no":"yes");
 		std::cout << "number of bootstrap samples: " << nsamples << "\n";
-		if ( parser.getOptArg ( "-e" ) )
+		if ( parser.getOptSet ( "-e" ) )
 			std::cout << "gamma==lambda\n";
 	}
 
