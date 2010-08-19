@@ -1,4 +1,5 @@
 #include "cli_utilities.h"
+#include <cstring>
 
 PsiData * allocateDataFromFile ( std::string fname, int nafc ) {
 	std::fstream infile ( fname.c_str() );
@@ -9,7 +10,8 @@ PsiData * allocateDataFromFile ( std::string fname, int nafc ) {
 	
 	while ( !infile.eof() ) {
 		infile.getline ( line, 100 );
-		inputlines.push_back ( std::string ( line ) );
+		if (strlen(line)>0)
+			inputlines.push_back ( std::string ( line ) );
 	}
 
 	std::vector<double> x ( inputlines.size() );
