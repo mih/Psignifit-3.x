@@ -1504,7 +1504,7 @@ class BayesInference ( PsiInference ):
                 or N.any(N.isnan(a)):
             # It seems as if the Variance estimation via the Fisher Matrix failed
             # We directly get an estimate form bootstrap
-            start = sfu.get_start ( self.estimate, len(self.estimate) )
+            start = sfu.get_start ( self.estimate, self.nparams )
 
             # Perform bootstrap without full conversion of data
             cuts = sfu.get_cuts(self.cuts)
