@@ -177,33 +177,44 @@ std::vector<double> getCuts ( std::string cuts ) {
 
 void print ( std::vector<double> theta, bool matlabformat, std::string varname, FILE *ofile ) {
 	unsigned int i;
-	fprintf ( ofile, "%s = [ %lf", varname.c_str(), theta[0] );
-	for ( i=1; i<theta.size(); i++ )
-		fprintf ( ofile, ", %lf", theta[i] );
-
-	if ( matlabformat )
+	if ( matlabformat ) {
+		fprintf ( ofile, "%s = [ %lf", varname.c_str(), theta[0] );
+		for ( i=1; i<theta.size(); i++ ) {
+			fprintf ( ofile, ", %lf", theta[i] );
+		}
 		fprintf ( ofile, "];\n" );
-	else
-		fprintf ( ofile, "]\n" );
+	} else {
+		fprintf ( ofile, "\n# %s\n", varname.c_str() );
+		for ( i=0; i<theta.size(); i++ ) {
+			fprintf ( ofile, " %lf ", theta[i] );
+		}
+		fprintf ( ofile, "\n" );
+	}
 }
 
 void print ( std::vector<int> theta, bool matlabformat, std::string varname, FILE *ofile ) {
 	unsigned int i;
-	fprintf ( ofile, "%s = [ %d", varname.c_str(), theta[0] );
-	for ( i=1; i<theta.size(); i++ )
-		fprintf ( ofile, ", %d", theta[i] );
 
-	if ( matlabformat )
+	if ( matlabformat ) {
+		fprintf ( ofile, "%s = [ %d", varname.c_str(), theta[0] );
+		for ( i=1; i<theta.size(); i++ ) {
+			fprintf ( ofile, ", %d", theta[i] );
+		}
 		fprintf ( ofile, "];\n" );
-	else
-		fprintf ( ofile, "]\n" );
+	} else {
+		fprintf ( ofile, "\n# %s\n", varname.c_str() );
+		for ( i=0; i<theta.size(); i++ ) {
+			fprintf ( ofile, " %d ", theta[i] );
+		}
+		fprintf ( ofile, "\n" );
+	}
 }
 
 void print ( double theta, bool matlabformat, std::string varname, FILE *ofile ) {
 	if ( matlabformat )
 		fprintf ( ofile, "%s = %lf;\n", varname.c_str(), theta );
 	else
-		fprintf ( ofile, "%s = %lf\n", varname.c_str(), theta );
+		fprintf ( ofile, "\n# %s\n %lf\n\n", varname.c_str(), theta );
 }
 
 void print_fisher ( PsiPsychometric *pmf, std::vector<double> theta, PsiData *data, FILE* ofile, bool matlabformat ) {
@@ -241,33 +252,53 @@ void print_fisher ( PsiPsychometric *pmf, std::vector<double> theta, PsiData *da
 void print ( std::vector< std::vector<int> >& theta, bool matlabformat, std::string varname, FILE *ofile ) {
 	unsigned i, j;
 
-	fprintf ( ofile, "%s = [ ", varname.c_str() );
-	for ( i=0; i<theta.size(); i++ ) {
-		if ( matlabformat ) fprintf ( ofile, " " ); else fprintf ( ofile, "\n    [ " );
-		for ( j=0; j<theta[i].size()-1; j++ ) {
-			fprintf ( ofile, "%d, ", theta[i][j] );
+	if ( matlabformat ) {
+		fprintf ( ofile, "%s = [ ", varname.c_str() );
+		for ( i=0; i<theta.size(); i++ ) {
+			for ( j=0; j<theta[i].size()-1; j++ ) {
+				fprintf ( ofile, "%d, ", theta[i][j] );
+			}
+			if ( i<theta.size()-1 ) {
+				fprintf ( ofile, "%d; ...\n", theta[i][j] );
+			} else {
+				fprintf ( ofile, "%d];\n", theta[i][j] );
+			}
 		}
-		if ( i<theta.size()-1 ) {
-			if ( matlabformat ) fprintf ( ofile, "%d; ...\n", theta[i][j] ); else fprintf ( ofile, "%d],",   theta[i][j] );
-		} else {
-			if ( matlabformat ) fprintf ( ofile, "%d];\n",    theta[i][j] ); else fprintf ( ofile, "%d]]\n", theta[i][j] );
+	} else {
+		fprintf ( ofile, "\n# %s\n", varname.c_str() );
+		for ( i=0; i<theta.size(); i++ ) {
+			for ( j=0; j<theta[i].size()-1; j++ ) {
+				fprintf ( ofile, " %d ", theta[i][j] );
+			}
+			fprintf ( ofile,"\n" );
 		}
+		fprintf ( ofile, "\n" );
 	}
 }
 
 void print ( std::vector< std::vector<double> >& theta, bool matlabformat, std::string varname, FILE *ofile ) {
 	unsigned i, j;
 
-	fprintf ( ofile, "%s = [ ", varname.c_str() );
-	for ( i=0; i<theta.size(); i++ ) {
-		if ( matlabformat ) fprintf ( ofile, " " ); else fprintf ( ofile, "\n    [ " );
-		for ( j=0; j<theta[i].size()-1; j++ ) {
-			fprintf ( ofile, "%lf, ", theta[i][j] ); 
+	if ( matlabformat ) {
+		fprintf ( ofile, "%s = [ ", varname.c_str() );
+		for ( i=0; i<theta.size(); i++ ) {
+			for ( j=0; j<theta[i].size()-1; j++ ) {
+				fprintf ( ofile, "%lf, ", theta[i][j] );
+			}
+			if ( i<theta.size()-1 ) {
+				fprintf ( ofile, "%lf; ...\n", theta[i][j] );
+			} else {
+				fprintf ( ofile, "%lf];\n", theta[i][j] );
+			}
 		}
-		if ( i<theta.size()-1 ) {
-			if ( matlabformat ) fprintf ( ofile, "%lf; ...\n", theta[i][j] ); else fprintf ( ofile, "%lf],",   theta[i][j] );
-		} else {
-			if ( matlabformat ) fprintf ( ofile, "%lf];\n",    theta[i][j] ); else fprintf ( ofile, "%lf]]\n", theta[i][j] );
+	} else {
+		fprintf ( ofile, "\n# %s\n", varname.c_str() );
+		for ( i=0; i<theta.size(); i++ ) {
+			for ( j=0; j<theta[i].size()-1; j++ ) {
+				fprintf ( ofile, " %lf ", theta[i][j] );
+			}
+			fprintf ( ofile,"\n" );
 		}
+		fprintf ( ofile, "\n" );
 	}
 }
