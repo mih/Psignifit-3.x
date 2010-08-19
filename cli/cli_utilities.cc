@@ -27,6 +27,7 @@ PsiData * allocateDataFromFile ( std::string fname, int nafc ) {
 		x[i] = xx;
 		k[i] = kk;
 		n[i] = nn;
+		if ( nn < kk ) std::cerr << "Warning: number of correct trials is larger than the total number of trials!\n";
 	}
 
 	return new PsiData ( x, n, k, nafc );
