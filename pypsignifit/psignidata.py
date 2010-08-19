@@ -1167,7 +1167,7 @@ class BayesInference ( PsiInference ):
                     self.thres             = [self._pmf.getThres ( self.__meanestimate, c ) for c in self.cuts]
                     self.Rpd               = self._pmf.getRpd ( self.devianceresiduals, self.__meanestimate, self._data )
                     self.Rkd               = self._pmf.getRkd ( self.devianceresiduals, self._data )
-            else:
+                else:
                     # We have no samples ~> return mapestimate
                     return self.mapestimate
             # In this case, we seem to have a meanestimate, so we return it
