@@ -294,7 +294,7 @@ void print ( std::vector< std::vector<double> >& theta, bool matlabformat, std::
 	} else {
 		fprintf ( ofile, "\n# %s\n", varname.c_str() );
 		for ( i=0; i<theta.size(); i++ ) {
-			for ( j=0; j<theta[i].size()-1; j++ ) {
+			for ( j=0; j<theta[i].size(); j++ ) {
 				fprintf ( ofile, " %lf ", theta[i][j] );
 			}
 			fprintf ( ofile,"\n" );
