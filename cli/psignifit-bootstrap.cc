@@ -38,6 +38,7 @@ int main ( int argc, char ** argv ) {
 	JackKnifeList *jk_list;
 	unsigned int nsamples ( atoi ( parser.getOptArg("-nsamples").c_str() ) );
 	double th;
+	double m,s;
 
 	// Contents of the bootstrap lists
 	std::vector< std::vector<double> > mcthres ( nsamples, cuts );
@@ -177,17 +178,21 @@ int main ( int argc, char ** argv ) {
 		if ( summary ) {
 			std::cout << "Parameter estimates:\n";
 			std::cout << "--------------------\n";
-			for ( i=0; i<nparams; i++ )
-				std::cout << "parameter" << i+1 << " = " << theta[i] << " CI_95 = (" << (*ci_lower)[i] << "," << (*ci_upper)[i] << ")\n";
+			for ( i=0; i<nparams; i++ ) {
+				m = 0; for ( j=0; j<nsamples; j++ ) m += (*mcestimates)[j][i]; m /= nsamples;
+				s = 0; for ( j=0; j<nsamples; j++ ) s += ((*mcestimates)[j][i]-m)*((*mcestimates)[j][i]-m); s /= nsamples-1;
+				std::cout << "parameter" << i+1 << " = " << theta[i] << "\tCI_95 = (" << (*ci_lower)[i] << "," << (*ci_upper)[i] << ")\t"
+					<< "sd = " << sqrt(s) << "\n";
+			}
 			std::cout << "\n";
 			std::cout << "Threshold estimates:\n";
 			std::cout << "--------------------\n";
 			for ( i=0; i<ncuts; i++ ) {
 				th = pmf->getThres ( theta, cuts[i] );
-				std::cout << "Threshold(" << cuts[i] << ") = " << th << " CI_95 = ("
+				std::cout << "Threshold(" << cuts[i] << ") = " << th << "\tCI_95 = ("
 					<< bs_list->getThres(.025,cuts[i]) << ","
 					<< bs_list->getThres(.975,cuts[i]) << ") ";
-				std::cout << "Slope(" << cuts[i] << ") = " << pmf->getSlope ( theta, th ) << " CI_95 = ("
+				std::cout << "Slope(" << cuts[i] << ") = " << pmf->getSlope ( theta, th ) << "\tCI_95 = ("
 					<< bs_list->getSlope(.025,cuts[i]) << ","
 					<< bs_list->getSlope(.975,cuts[i]) << ")\n";
 			}
@@ -215,11 +220,11 @@ int main ( int argc, char ** argv ) {
 			std::cout << "\n";
 			std::cout << "Goodness of fit statistics:\n";
 			std::cout << "---------------------------\n";
-			std::cout << "Deviance: " << pmf->deviance ( theta, data ) <<             "   crit: " << bs_list->getDeviancePercentile ( .95 ) << "\n";
-			std::cout << "Rpd: " << pmf->getRpd (
-					*devianceresiduals, theta, data ) << "   crit: (" << bs_list->percRpd(.025) << "," << bs_list->percRpd(.975) << ")\n";
-			std::cout << "Rkd: " << pmf->getRkd (
-					*devianceresiduals, data ) <<        "   crit: (" << bs_list->percRkd(.025) << "," << bs_list->percRkd(.975) << ")\n";
+			std::cout << "Deviance: " << pmf->deviance ( theta, data ) <<             "\tcrit: " << bs_list->getDeviancePercentile ( .95 ) << "\n";
+			std::cout << "Rpd:      " << pmf->getRpd (
+					*devianceresiduals, theta, data ) << "\tcrit: (" << bs_list->percRpd(.025) << "," << bs_list->percRpd(.975) << ")\n";
+			std::cout << "Rkd:      " << pmf->getRkd (
+					*devianceresiduals, data ) <<        "\tcrit: (" << bs_list->percRkd(.025) << "," << bs_list->percRkd(.975) << ")\n";
 			delete devianceresiduals;
 		}
 
