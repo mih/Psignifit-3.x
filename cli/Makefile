@@ -10,17 +10,21 @@ OBJECTS= $(addprefix $(BUILD)/, core.o data.o optimizer.o psychometric.o sigmoid
 CLI_H= cli.h cli_utilities.h
 CLI_O= $(addprefix $(BUILD)/, cli.o cli_utilities.o)
 
-compile: psignifit-mapestimate psignifit-bootstrap
+compile: psignifit-mapestimate psignifit-bootstrap psignifit-mcmc
 
 psignifit-mapestimate: $(OBJECTS) $(HEADERS) $(BUILD)/psignifit-mapestimate.o $(CLI_H) $(CLI_O)
 	$(CC) -o psignifit-mapestimate $(OBJECTS) $(BUILD)/psignifit-mapestimate.o $(CLI_O) $(LFLAGS)
 psignifit-bootstrap: $(OBJECTS) $(HEADERS) $(BUILD)/psignifit-bootstrap.o $(CLI_H) $(CLI_O)
 	$(CC) -o psignifit-bootstrap $(OBJECTS) $(BUILD)/psignifit-bootstrap.o $(CLI_O) $(LFLAGS)
+psignifit-mcmc: $(OBJECTS) $(HEADERS) $(BUILD)/psignifit-mcmc.o $(CLI_H) $(CLI_O)
+	$(CC) -o psignifit-mcmc $(OBJECTS) $(BUILD)/psignifit-mcmc.o $(CLI_O) $(LFLAGS)
 
 $(BUILD)/psignifit-mapestimate.o: psignifit-mapestimate.cc $(HEADERS) $(CLI_H)
 	$(CC) -c $(CFLAGS) psignifit-mapestimate.cc -o $(BUILD)/psignifit-mapestimate.o
 $(BUILD)/psignifit-bootstrap.o: psignifit-bootstrap.cc $(HEADERS) $(CLI_H)
 	$(CC) -c $(CFLAGS) psignifit-bootstrap.cc -o $(BUILD)/psignifit-bootstrap.o
+$(BUILD)/psignifit-mcmc.o: psignifit-mcmc.cc $(HEADERS) $(CLI_H)
+	$(CC) -c $(CLFAGS) psignifit-mcmc.cc -o $(BUILD)/psignifit-mcmc.o
 
 $(BUILD)/cli.o: cli.cc cli.h
 	$(CC) -c $(CFLAGS) cli.cc -o $(BUILD)/cli.o
