@@ -44,13 +44,60 @@ int main ( int argc, char ** argv ) {
 	std::vector<double>         theta;
 	std::vector<double>         cuts (getCuts ( parser.getOptArg("-cuts") ) );
 	                            ncuts = cuts.size ();
+	PsiMClist                  *pilotsample = NULL;
+	char                        sline[80];
 	MCMCList                   *mcmc_list;
 	unsigned int                nsamples ( atoi ( parser.getOptArg("-nsamples").c_str() ) );
 	double                      th;
 	double                      meanestimate;
 	double                      bayesian_p;
 	GaussRandom                 proposal;
-	std::vector<double>         stepwidths ( getCuts ( parser.getOptArg("-proposal") ) );
+
+	// We might either want to read the stepwidths or a pilot sample
+	std::vector<double>         stepwidths;
+	std::fstream                pilotfile ( parser.getOptArg ( "-proposal" ).c_str() );
+	if ( pilotfile.fail() )
+		stepwidths = getCuts ( parser.getOptArg("-proposal") );
+	else {
+		// read data from file
+		while ( strcmp(sline,"# mcestimates") ) {
+			pilotfile.getline ( sline, 80 );
+		}
+		j = pilotfile.tellg();
+		nblocks = 1;
+		pilotfile.getline ( sline, 80 );
+		nparams = 0;
+		i = std::string ( sline ).find('.');
+		while ( i!=std::string::npos ) {
+			nparams ++;
+			i = std::string ( sline ).find ('.',i+1);
+		}
+		std::cout << "nparams:" << nparams << "\n";
+		while ( strcmp(sline,"") ) {
+			nblocks++;
+			pilotfile.getline ( sline, 80 );
+		}
+		pilotfile.seekg ( j, std::ios::beg );
+		theta = std::vector<double> ( nparams );
+		pilotsample = new PsiMClist ( nblocks, nparams );
+		for ( i=0; i<nblocks; i++ ) {
+			for ( j=0; j<nparams; j++ )
+				pilotfile >> theta[j];
+			pilotsample->setEst ( i, theta, 0 );
+		}
+		// In case we use MH-Sampling: determine stepwidths as averages
+		stepwidths = std::vector<double> ( nparams );
+		for ( j=0 ; j<nparams; j++ ) {
+			stepwidths[j] = 0;
+			theta[j] = pilotsample->getMean ( j );
+			for ( i=0; i<nblocks; i++ ) {
+				stepwidths[j] += (pilotsample->getEst ( i, j )-theta[j])*(pilotsample->getEst ( i, j )-theta[j]);
+			}
+			stepwidths[j] /= pilotsample->getNsamples()-1;
+			stepwidths[j] = sqrt(stepwidths[j]);
+			std::cout << stepwidths[j] << " ";
+		}
+	}
 
 	// Contents of the mcmc lists
 	std::vector< std::vector<double> >  mcthres ( nsamples, cuts );
@@ -137,9 +184,16 @@ int main ( int argc, char ** argv ) {
 		// Set up the sampler
 		if ( generic ) {
 			sampler = new GenericMetropolis ( pmf, data, &proposal );
-		} else
+			if ( pilotsample != NULL ) {
+				((GenericMetropolis*)sampler)->findOptimalStepwidth ( *pilotsample );
+			} else {
+				sampler->setStepSize ( stepwidths );
+			}
+		} else {
 			sampler = new MetropolisHastings ( pmf, data, &proposal );
-		sampler->setStepSize ( stepwidths );
+			sampler->setStepSize ( stepwidths );
+		}
+		((MetropolisHastings*)sampler)->setTheta ( theta );
 
 		// Sample
 		if ( verbose ) {
@@ -262,6 +316,8 @@ int main ( int argc, char ** argv ) {
 		delete pmf;
 		delete opt;
 	}
+
+	if (pilotsample!=NULL) delete pilotsample;
 
 	return 0;
 }
