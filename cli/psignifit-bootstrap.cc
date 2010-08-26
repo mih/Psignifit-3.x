@@ -1,3 +1,11 @@
+/**
+ * psignifit-bootstrap: bootstrap inference for psychometric functions
+ *
+ * This file is part of the command line interface to psignifit.
+ *
+ * See COPYING file distributed along with the psignifit package for the copyright and
+ * license terms
+ */
 #include "../src/psipp.h"
 #include "cli.h"
 
