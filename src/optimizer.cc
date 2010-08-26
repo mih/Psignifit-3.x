@@ -75,8 +75,9 @@ std::vector<double> PsiOptimizer::optimize ( const PsiPsychometric * model, cons
 		for (k=1; k<nparameters+1; k++) {
 			d = simplex[k][k-1] * 0.5;
 			simplex[k][k-1] += d;
-			if ( fabs ( model->neglpost ( simplex[k], data ) ) > 1e7 )
+			if ( model->evalPrior ( k-1, simplex[k][k-1] ) > 1000 ) {
 				simplex[k][k-1] -= 2*d;
+			}
 		}
 		// for (k=1; k<nparameters+1; k++) simplex[k][k-1] += .05;
 		iter = 0;
