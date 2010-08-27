@@ -15,7 +15,7 @@
 
 int main ( int argc, char ** argv ) {
 	// Parse command line
-	cli_parser parser ( "psignifit-mapestimate [options] <file> [ <file> ... ]" );
+	cli_parser parser ( "psignifit-bootstrap [options] <file> [ <file> ... ]" );
 	parser.add_option ( "-c", "psignifit core object to be used", "mw0.1" );
 	parser.add_option ( "-s", "psignifit sigmoid object to be used", "logistic" );
 	parser.add_option ( "-prior1", "prior for the first parameter (alpha,a,m,...)", "None" );

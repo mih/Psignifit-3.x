@@ -17,7 +17,7 @@
 
 int main ( int argc, char ** argv ) {
 	// Analyze the command line
-	cli_parser parser ( "psignifit-mapestimate [options] <file> [ <file> ... ]" );
+	cli_parser parser ( "psignifit-diagnostics [options] <file> [ <file> ... ]" );
 	parser.add_option ( "-c", "psignifit core object to be used", "mw0.1" );
 	parser.add_option ( "-s", "psignifit sigmoid object to be used", "logistic" );
 	parser.add_option ( "-nafc",   "number of response alternatives in forced choice designs (set this to 1 for yes-no tasks)", "2" );
