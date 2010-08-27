@@ -59,8 +59,6 @@ mapest = MapEstimate ( data, priors, varargin );
 % Check input
 while size(varargin,2) > 0
     [opt,varargin] = popoption ( varargin );
-    varargin
-    size(varargin,2)
     switch opt
     case 'nafc'
         [nafc,varargin] = popoption(varargin);
