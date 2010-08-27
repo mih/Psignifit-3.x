@@ -177,7 +177,7 @@ std::vector<double> getCuts ( std::string cuts ) {
 void print ( std::vector<double> theta, bool matlabformat, std::string varname, FILE *ofile ) {
 	unsigned int i;
 	if ( matlabformat ) {
-		fprintf ( ofile, "%s = [ %lf", varname.c_str(), theta[0] );
+		fprintf ( ofile, "results.%s = [ %lf", varname.c_str(), theta[0] );
 		for ( i=1; i<theta.size(); i++ ) {
 			fprintf ( ofile, ", %lf", theta[i] );
 		}
@@ -195,7 +195,7 @@ void print ( std::vector<int> theta, bool matlabformat, std::string varname, FIL
 	unsigned int i;
 
 	if ( matlabformat ) {
-		fprintf ( ofile, "%s = [ %d", varname.c_str(), theta[0] );
+		fprintf ( ofile, "results.%s = [ %d", varname.c_str(), theta[0] );
 		for ( i=1; i<theta.size(); i++ ) {
 			fprintf ( ofile, ", %d", theta[i] );
 		}
@@ -211,7 +211,7 @@ void print ( std::vector<int> theta, bool matlabformat, std::string varname, FIL
 
 void print ( double theta, bool matlabformat, std::string varname, FILE *ofile ) {
 	if ( matlabformat )
-		fprintf ( ofile, "%s = %lf;\n", varname.c_str(), theta );
+		fprintf ( ofile, "results.%s = %lf;\n", varname.c_str(), theta );
 	else
 		fprintf ( ofile, "\n# %s\n %lf\n\n", varname.c_str(), theta );
 }
@@ -223,7 +223,7 @@ void print_fisher ( PsiPsychometric *pmf, std::vector<double> theta, PsiData *da
 	Matrix * fisher = pmf->ddnegllikeli ( theta, data );
 
 	if ( matlabformat ) {
-		fprintf ( ofile, "fisher_info = [ " );
+		fprintf ( ofile, "results.fisher_info = [ " );
 		for ( i=0; i<nparameters; i++ ) {
 			for ( j=0; j<nparameters; j++ ) {
 				fprintf ( ofile, " %lf ", (*fisher)(i,j) );
@@ -252,7 +252,7 @@ void print ( std::vector< std::vector<int> >& theta, bool matlabformat, std::str
 	unsigned i, j;
 
 	if ( matlabformat ) {
-		fprintf ( ofile, "%s = [ ", varname.c_str() );
+		fprintf ( ofile, "results.%s = [ ", varname.c_str() );
 		for ( i=0; i<theta.size(); i++ ) {
 			for ( j=0; j<theta[i].size()-1; j++ ) {
 				fprintf ( ofile, "%d, ", theta[i][j] );
@@ -279,7 +279,7 @@ void print ( std::vector< std::vector<double> >& theta, bool matlabformat, std::
 	unsigned i, j;
 
 	if ( matlabformat ) {
-		fprintf ( ofile, "%s = [ ", varname.c_str() );
+		fprintf ( ofile, "results.%s = [ ", varname.c_str() );
 		for ( i=0; i<theta.size(); i++ ) {
 			for ( j=0; j<theta[i].size()-1; j++ ) {
 				fprintf ( ofile, "%lf, ", theta[i][j] );
