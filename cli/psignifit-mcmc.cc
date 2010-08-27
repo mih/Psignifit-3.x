@@ -69,6 +69,7 @@ int main ( int argc, char ** argv ) {
 		stepwidths = getCuts ( parser.getOptArg("-proposal") );
 	else {
 		// read data from file
+		if ( verbose ) std::cerr << "Reading pilot data...";
 		while ( strcmp(sline,"# mcestimates") ) {
 			pilotfile.getline ( sline, 80 );
 		}
@@ -81,20 +82,23 @@ int main ( int argc, char ** argv ) {
 			nparams ++;
 			i = std::string ( sline ).find ('.',i+1);
 		}
-		std::cout << "nparams:" << nparams << "\n";
+		if ( verbose ) std::cerr << "nparams: " << nparams;
 		while ( strcmp(sline,"") ) {
 			nblocks++;
 			pilotfile.getline ( sline, 80 );
 		}
+		pilotfile.clear(); // If we passed the end of the file
 		pilotfile.seekg ( j, std::ios::beg );
 		theta = std::vector<double> ( nparams );
 		pilotsample = new PsiMClist ( nblocks, nparams );
 		for ( i=0; i<nblocks; i++ ) {
-			for ( j=0; j<nparams; j++ )
+			for ( j=0; j<nparams; j++ ) {
 				pilotfile >> theta[j];
+			}
 			pilotsample->setEst ( i, theta, 0 );
 		}
 		// In case we use MH-Sampling: determine stepwidths as averages
+		if ( verbose ) std::cerr << " sd: ";
 		stepwidths = std::vector<double> ( nparams );
 		for ( j=0 ; j<nparams; j++ ) {
 			stepwidths[j] = 0;
@@ -104,8 +108,9 @@ int main ( int argc, char ** argv ) {
 			}
 			stepwidths[j] /= pilotsample->getNsamples()-1;
 			stepwidths[j] = sqrt(stepwidths[j]);
-			std::cout << stepwidths[j] << " ";
+			if ( verbose ) std::cerr << stepwidths[j] << " ";
 		}
+		if ( verbose ) std::cerr << "\n";
 	}
 
 	// Contents of the mcmc lists
@@ -132,27 +137,27 @@ int main ( int argc, char ** argv ) {
 	// Get the output file
 	FILE * ofile;
 	if ( !(parser.getOptArg ( "-o" ).compare( "stdout" )) ) {
-		if ( verbose ) std::cout << "Writing results to stdout\n";
+		if ( verbose ) std::cerr << "Writing results to stdout\n";
 		ofile = stdout;
 	} else 
 		ofile = fopen ( parser.getOptArg ( "-o" ).c_str(), "w" );
 
 	// Write some status messages
 	if (verbose) {
-		std::cout << "core:    " << parser.getOptArg ( "-c" ) << "\n";
-		std::cout << "sigmoid: " << parser.getOptArg ( "-s" ) << "\n";
-		std::cout << "cuts:    ";
-		for (i=0; i<cuts.size(); i++) std::cout << cuts[i] << " ";
-		std::cout << "\n";
-		std::cout << "priors:\n";
-		std::cout << "   prm1: " << parser.getOptArg ( "-prior1" ) << "\n";
-		std::cout << "   prm2: " << parser.getOptArg ( "-prior2" ) << "\n";
-		std::cout << "   prm3: " << parser.getOptArg ( "-prior3" ) << "\n";
-		if ( atoi (parser.getOptArg("-nafc").c_str()) < 2 ) std::cout << "   prm4: " << parser.getOptArg ( "-prior4" ) << "\n";
-		std::cout << "generic mcmc: " << (parser.getOptSet("-generic")?"no":"yes") << "\n";
-		std::cout << "number of mcmc samples: " << nsamples << "\n";
+		std::cerr << "core:    " << parser.getOptArg ( "-c" ) << "\n";
+		std::cerr << "sigmoid: " << parser.getOptArg ( "-s" ) << "\n";
+		std::cerr << "cuts:    ";
+		for (i=0; i<cuts.size(); i++) std::cerr << cuts[i] << " ";
+		std::cerr << "\n";
+		std::cerr << "priors:\n";
+		std::cerr << "   prm1: " << parser.getOptArg ( "-prior1" ) << "\n";
+		std::cerr << "   prm2: " << parser.getOptArg ( "-prior2" ) << "\n";
+		std::cerr << "   prm3: " << parser.getOptArg ( "-prior3" ) << "\n";
+		if ( atoi (parser.getOptArg("-nafc").c_str()) < 2 ) std::cerr << "   prm4: " << parser.getOptArg ( "-prior4" ) << "\n";
+		std::cerr << "generic mcmc: " << (parser.getOptSet("-generic")?"no":"yes") << "\n";
+		std::cerr << "number of mcmc samples: " << nsamples << "\n";
 		if ( parser.getOptSet ( "-e" ) )
-			std::cout << "gamma==lambda\n";
+			std::cerr << "gamma==lambda\n";
 	}
 
 	std::string fname;
@@ -210,8 +215,8 @@ int main ( int argc, char ** argv ) {
 
 		// Sample
 		if ( verbose ) {
-			std::cout << "Starting sampling ...";
-			std::cout.flush();
+			std::cerr << "Starting sampling ...";
+			std::cerr.flush();
 		}
 		mcmc_list = new MCMCList ( sampler->sample ( nsamples ) );
 
@@ -243,8 +248,8 @@ int main ( int argc, char ** argv ) {
 
 		// Write a summary of the parameter estimation if requested.
 		if ( summary ) {
-			std::cout << "Parameter estimates:\n";
-			std::cout << "--------------------\n";
+			std::cerr << "Parameter estimates:\n";
+			std::cerr << "--------------------\n";
 			for ( i=0; i<nparams; i++ ) {
 				meanestimate = 0;
 				for ( j=0; j<nsamples/2; j++ ) {
@@ -253,25 +258,25 @@ int main ( int argc, char ** argv ) {
 				}
 				meanestimate /= nsamples;
 				// Why are the parameter estiamtes so strange?
-				std::cout << "parameter" << i+1 << " = " << meanestimate << "\tCI_95 = (" << prctile(dummydata,.025) << "," << prctile(dummydata,.975) << ")\n";
+				std::cerr << "parameter" << i+1 << " = " << meanestimate << "\tCI_95 = (" << prctile(dummydata,.025) << "," << prctile(dummydata,.975) << ")\n";
 				theta[i] = meanestimate;
 			}
-			std::cout << "\n";
-			std::cout << "Threshold estimates:\n";
-			std::cout << "--------------------\n";
+			std::cerr << "\n";
+			std::cerr << "Threshold estimates:\n";
+			std::cerr << "--------------------\n";
 			for ( i=0; i<ncuts; i++ ) {
 				th = pmf->getThres ( theta, cuts[i] );
 
 				for ( j=0; j<nsamples/2; j++ ) {
 					dummydata[j] = pmf->getThres ( (*mcestimates)[nsamples/2+j], cuts[i] );
 				}
-				std::cout << "Threshold(" << cuts[i] << ") = " << th << "\tCI_95 = ("
+				std::cerr << "Threshold(" << cuts[i] << ") = " << th << "\tCI_95 = ("
 					<< prctile(dummydata,.025) << ","
 					<< prctile(dummydata,.975) << ") ";
 				for ( j=0; j<nsamples/2; j++ ) {
 					dummydata[j] = pmf->getSlope ( (*mcestimates)[nsamples/2+j], cuts[i] );
 				}
-				std::cout << "Slope(" << cuts[i] << ") = " << pmf->getSlope ( theta, th ) << "\tCI_95 = ("
+				std::cerr << "Slope(" << cuts[i] << ") = " << pmf->getSlope ( theta, th ) << "\tCI_95 = ("
 					<< prctile(dummydata,.025) << ","
 					<< prctile(dummydata,.975) << ")\n";
 			}
@@ -290,16 +295,16 @@ int main ( int argc, char ** argv ) {
 		// Write a summary of the goodness of fit statistics if requested
 		if ( summary ) {
 			devianceresiduals = new std::vector<double> ( pmf->getDevianceResiduals ( theta, data ) );
-			std::cout << "\n";
-			std::cout << "Goodness of fit statistics:\n";
-			std::cout << "---------------------------\n";
+			std::cerr << "\n";
+			std::cerr << "Goodness of fit statistics:\n";
+			std::cerr << "---------------------------\n";
 			bayesian_p = 0; for ( i=nsamples/2; i<nsamples; i++ ) bayesian_p += ppdeviance[i] > mcdeviance[i]; bayesian_p /= nsamples/2;
-			std::cout << "Deviance: " << pmf->deviance ( theta, data ) <<             "\tbayesian_p: " << bayesian_p << "\n";
+			std::cerr << "Deviance: " << pmf->deviance ( theta, data ) <<             "\tbayesian_p: " << bayesian_p << "\n";
 			bayesian_p = 0; for ( i=nsamples/2; i<nsamples; i++ ) bayesian_p += ppRpd[i] > mcRpd[i]; bayesian_p /= nsamples/2;
-			std::cout << "Rpd:      " << pmf->getRpd (
+			std::cerr << "Rpd:      " << pmf->getRpd (
 					*devianceresiduals, theta, data ) << "\tbayesian_p: " << bayesian_p << ")\n";
 			bayesian_p = 0; for ( i=nsamples/2; i<nsamples; i++ ) bayesian_p += ppRkd[i] > mcRkd[i]; bayesian_p /= nsamples/2;
-			std::cout << "Rkd:      " << pmf->getRkd (
+			std::cerr << "Rkd:      " << pmf->getRkd (
 					*devianceresiduals, data ) <<        "\tbayesian_p: " << bayesian_p << ")\n";
 			delete devianceresiduals;
 		}

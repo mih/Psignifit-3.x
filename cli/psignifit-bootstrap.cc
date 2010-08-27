@@ -72,27 +72,27 @@ int main ( int argc, char ** argv ) {
 	// Get the output file
 	FILE * ofile;
 	if ( !(parser.getOptArg ( "-o" ).compare( "stdout" )) ) {
-		if ( verbose ) std::cout << "Writing results to stdout\n";
+		if ( verbose ) std::cerr << "Writing results to stdout\n";
 		ofile = stdout;
 	} else 
 		ofile = fopen ( parser.getOptArg ( "-o" ).c_str(), "w" );
 
 	// Write some status messages
 	if (verbose) {
-		std::cout << "core:    " << parser.getOptArg ( "-c" ) << "\n";
-		std::cout << "sigmoid: " << parser.getOptArg ( "-s" ) << "\n";
-		std::cout << "cuts:    ";
-		for (i=0; i<cuts.size(); i++) std::cout << cuts[i] << " ";
-		std::cout << "\n";
-		std::cout << "priors:\n";
-		std::cout << "   prm1: " << parser.getOptArg ( "-prior1" ) << "\n";
-		std::cout << "   prm2: " << parser.getOptArg ( "-prior2" ) << "\n";
-		std::cout << "   prm3: " << parser.getOptArg ( "-prior3" ) << "\n";
-		if ( atoi (parser.getOptArg("-nafc").c_str()) < 2 ) std::cout << "   prm4: " << parser.getOptArg ( "-prior4" ) << "\n";
-		std::cout << "parametric bootstrap: " << (parser.getOptSet("-nonparametric")?"no":"yes");
-		std::cout << "number of bootstrap samples: " << nsamples << "\n";
+		std::cerr << "core:    " << parser.getOptArg ( "-c" ) << "\n";
+		std::cerr << "sigmoid: " << parser.getOptArg ( "-s" ) << "\n";
+		std::cerr << "cuts:    ";
+		for (i=0; i<cuts.size(); i++) std::cerr << cuts[i] << " ";
+		std::cerr << "\n";
+		std::cerr << "priors:\n";
+		std::cerr << "   prm1: " << parser.getOptArg ( "-prior1" ) << "\n";
+		std::cerr << "   prm2: " << parser.getOptArg ( "-prior2" ) << "\n";
+		std::cerr << "   prm3: " << parser.getOptArg ( "-prior3" ) << "\n";
+		if ( atoi (parser.getOptArg("-nafc").c_str()) < 2 ) std::cerr << "   prm4: " << parser.getOptArg ( "-prior4" ) << "\n";
+		std::cerr << "parametric bootstrap: " << (parser.getOptSet("-nonparametric")?"no":"yes");
+		std::cerr << "number of bootstrap samples: " << nsamples << "\n";
 		if ( parser.getOptSet ( "-e" ) )
-			std::cout << "gamma==lambda\n";
+			std::cerr << "gamma==lambda\n";
 	}
 
 	std::string fname;
@@ -138,15 +138,15 @@ int main ( int argc, char ** argv ) {
 
 		// Sample
 		if ( verbose ) {
-			std::cout << "Starting sampling ...";
-			std::cout << "bs...";
-			std::cout.flush();
+			std::cerr << "Starting sampling ...";
+			std::cerr << "bs...";
+			std::cerr.flush();
 		}
 		bs_list = new BootstrapList ( bootstrap ( atoi(parser.getOptArg("-nsamples").c_str()),
 				data, pmf, cuts, &theta,true,!(parser.getOptSet("-nonparametric")) ) );
-		if ( verbose ) { std::cout << "jk..."; std::cout.flush(); }
+		if ( verbose ) { std::cerr << "jk..."; std::cerr.flush(); }
 		jk_list = new JackKnifeList ( jackknifedata ( data, pmf ) );
-		if ( verbose ) { std::cout << " Done"; std::cout.flush(); }
+		if ( verbose ) { std::cerr << " Done"; std::cerr.flush(); }
 
 		if ( verbose ) std::cerr << "\n";
 
@@ -184,23 +184,23 @@ int main ( int argc, char ** argv ) {
 
 		// Write a summary of the parameter estimation if requested.
 		if ( summary ) {
-			std::cout << "Parameter estimates:\n";
-			std::cout << "--------------------\n";
+			std::cerr << "Parameter estimates:\n";
+			std::cerr << "--------------------\n";
 			for ( i=0; i<nparams; i++ ) {
 				m = 0; for ( j=0; j<nsamples; j++ ) m += (*mcestimates)[j][i]; m /= nsamples;
 				s = 0; for ( j=0; j<nsamples; j++ ) s += ((*mcestimates)[j][i]-m)*((*mcestimates)[j][i]-m); s /= nsamples-1;
-				std::cout << "parameter" << i+1 << " = " << theta[i] << "\tCI_95 = (" << (*ci_lower)[i] << "," << (*ci_upper)[i] << ")\t"
+				std::cerr << "parameter" << i+1 << " = " << theta[i] << "\tCI_95 = (" << (*ci_lower)[i] << "," << (*ci_upper)[i] << ")\t"
 					<< "sd = " << sqrt(s) << "\n";
 			}
-			std::cout << "\n";
-			std::cout << "Threshold estimates:\n";
-			std::cout << "--------------------\n";
+			std::cerr << "\n";
+			std::cerr << "Threshold estimates:\n";
+			std::cerr << "--------------------\n";
 			for ( i=0; i<ncuts; i++ ) {
 				th = pmf->getThres ( theta, cuts[i] );
-				std::cout << "Threshold(" << cuts[i] << ") = " << th << "\tCI_95 = ("
+				std::cerr << "Threshold(" << cuts[i] << ") = " << th << "\tCI_95 = ("
 					<< bs_list->getThres(.025,cuts[i]) << ","
 					<< bs_list->getThres(.975,cuts[i]) << ") ";
-				std::cout << "Slope(" << cuts[i] << ") = " << pmf->getSlope ( theta, th ) << "\tCI_95 = ("
+				std::cerr << "Slope(" << cuts[i] << ") = " << pmf->getSlope ( theta, th ) << "\tCI_95 = ("
 					<< bs_list->getSlope(.025,cuts[i]) << ","
 					<< bs_list->getSlope(.975,cuts[i]) << ")\n";
 			}
@@ -225,13 +225,13 @@ int main ( int argc, char ** argv ) {
 		// Write a summary of the goodness of fit statistics if requested
 		if ( summary ) {
 			devianceresiduals = new std::vector<double> ( pmf->getDevianceResiduals ( theta, data ) );
-			std::cout << "\n";
-			std::cout << "Goodness of fit statistics:\n";
-			std::cout << "---------------------------\n";
-			std::cout << "Deviance: " << pmf->deviance ( theta, data ) <<             "\tcrit: " << bs_list->getDeviancePercentile ( .95 ) << "\n";
-			std::cout << "Rpd:      " << pmf->getRpd (
+			std::cerr << "\n";
+			std::cerr << "Goodness of fit statistics:\n";
+			std::cerr << "---------------------------\n";
+			std::cerr << "Deviance: " << pmf->deviance ( theta, data ) <<             "\tcrit: " << bs_list->getDeviancePercentile ( .95 ) << "\n";
+			std::cerr << "Rpd:      " << pmf->getRpd (
 					*devianceresiduals, theta, data ) << "\tcrit: (" << bs_list->percRpd(.025) << "," << bs_list->percRpd(.975) << ")\n";
-			std::cout << "Rkd:      " << pmf->getRkd (
+			std::cerr << "Rkd:      " << pmf->getRkd (
 					*devianceresiduals, data ) <<        "\tcrit: (" << bs_list->percRkd(.025) << "," << bs_list->percRkd(.975) << ")\n";
 			delete devianceresiduals;
 		}
