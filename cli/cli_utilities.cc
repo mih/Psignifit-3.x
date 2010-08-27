@@ -17,11 +17,10 @@ PsiData * allocateDataFromFile ( std::string fname, int nafc ) {
 	std::vector<double> x ( inputlines.size() );
 	std::vector<int>    k ( inputlines.size() );
 	std::vector<int>    n ( inputlines.size() );
-	double xx,kk;
-	int nn;
+	double xx,kk,nn;
 
 	for ( i=0, inputlines_i=inputlines.begin(); inputlines_i != inputlines.end(); inputlines_i++, i++ ) {
-		sscanf ( (*inputlines_i).c_str(), "%lf %lf %d\n", &xx,&kk,&nn );
+		sscanf ( (*inputlines_i).c_str(), "%lf %lf %lf\n", &xx,&kk,&nn );
 		if ( kk<1 ) kk *= nn;
 		if ( kk != round(kk) ) std::cerr << "Warning: number of correct trials is " << kk << " and not an integer\n";
 		x[i] = xx;
