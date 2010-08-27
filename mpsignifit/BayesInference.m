@@ -98,8 +98,8 @@ if verbose
 end
 
 % Do the real work
-system ( cmd );
-__bayesana
+[status,output] = system ( cmd );
+eval ( output );
 
 % Store paradigm
 results.call = 'bayes';

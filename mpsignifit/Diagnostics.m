@@ -74,11 +74,6 @@ end
 
 [status,output] = system ( cmd, 1 );
 eval ( output );
-% while !exist ( name, 'file' )
-%     disp ( sprintf ( 'Waiting for file %s.m', name ) )
-%     pause ( 0.5 )
-% end
-% run(name)
 
 results.call = 'diagnostics';
 results.nafc = nafc;

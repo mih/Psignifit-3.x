@@ -71,8 +71,8 @@ if verbose
 end
 
 % Do the real work
-system ( cmd );
-__mapestimate
+[status,output] = system ( cmd );
+eval ( output );
 
 results.call = 'mapestimate';
 results.nafc = nafc;
