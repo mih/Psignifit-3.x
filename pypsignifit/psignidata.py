@@ -241,11 +241,12 @@ class BootstrapInference ( PsiInference ):
                 "sigmoid": kwargs.setdefault("sigmoid","logistic"),
                 "core":    kwargs.setdefault("core",   "ab"),
                 "priors":  kwargs.setdefault("priors", None),
-                "nafc":    kwargs.setdefault("nafc",    2)
+                "nafc":    kwargs.setdefault("nafc",    2),
+                "gammaislambda": kwargs.setdefault("gammaislambda", False)
                 }
 
         self._data,self._pmf,self.nparams = sfu.make_dataset_and_pmf (
-                self.data, self.model["nafc"], self.model["sigmoid"], self.model["core"], self.model["priors"] )
+                self.data, self.model["nafc"], self.model["sigmoid"], self.model["core"], self.model["priors"], self.model["gammaislambda"] )
 
         self.parametric = kwargs.setdefault ( "parametric", True )
 
@@ -268,7 +269,7 @@ class BootstrapInference ( PsiInference ):
         # Store point estimates
         self.estimate,self.fisher,self.thres,self.deviance = interface.mapestimate(self.data,cuts=self.cuts,start=start,**self.model)
         self.predicted,self.devianceresiduals,self.deviance,thres,self.Rpd,self.Rkd = interface.diagnostics(self.data,self.estimate, \
-                nafc=self.model["nafc"],sigmoid=self.model["sigmoid"],core=self.model["core"])
+                nafc=self.model["nafc"],sigmoid=self.model["sigmoid"],core=self.model["core"],self.cuts,self.model["gammaislambda"])
 
         # The interface arrays are not numpy arrays
         self.estimate          = N.array(self.estimate)
@@ -620,7 +621,8 @@ class BayesInference ( PsiInference ):
                 "sigmoid": kwargs.setdefault("sigmoid","logistic"),
                 "core":    kwargs.setdefault("core",   "mw0.1"),
                 "priors":  kwargs.setdefault("priors", None),
-                "nafc":    kwargs.setdefault("nafc",    2)
+                "nafc":    kwargs.setdefault("nafc",    2),
+                "gammaislambda": kwargs.setdefault("gammaislambda", False)
                 }
         self.retry = resample
 
