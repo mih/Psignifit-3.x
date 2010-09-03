@@ -310,13 +310,14 @@ def plotHistogram ( simdata, observed, xname, shortname=None, ax=None, hideobser
     # ytics = p.getp(ax,"yticks")
     # xr = xtics.max()-xtics.min()
     # yy = [ytics.min(),ytics.max()+0.02*xr]
-    yy = ax.get_ylim ()
+    yy = N.array(ax.get_ylim ())
     yy[1] += 0.02*(yy[1]-yy[0])
 
     # Plot percentile bars
     p25,p975 = p.prctile ( simdata, (2.5,97.5) )
     if not hideobserved:
-        ax.plot ( [observed]*2, yy, color=rc.highlight['color'], **(rc.line+rc.allplots) )
+        c = parameterdict ( {"color": rc.highlight['color']} )
+        ax.plot ( [observed]*2, yy, **(c+rc.line+rc.allplots) )
     ax.plot ( [p25]*2, yy, 'r:', [p975]*2, yy, ':', color=rc.highlight['color'] )
 
     # Draw the full plot
@@ -417,10 +418,13 @@ def plotPMF ( InferenceObject, xlabel_text="Stimulus intensity", ylabel_text=Non
     ax.set_ylim ( ymin, ymax )
     ytics = list(ax.get_yticks())
     # Clean up ytics
-    for k,yt in enumerate(ytics):
-        if yt<0 or yt>1:
-            ytics.pop(k)
-    ax.set_yticks ( ytics )
+    newytics = []
+    while len(ytics):
+        yt = ytics.pop(0)
+        if yt>=0 and yt<=1.01:
+            print "appending",yt
+            newytics.append(yt)
+    ax.set_yticks ( newytics )
 
     # Write some model information
     if showdesc:

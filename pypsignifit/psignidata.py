@@ -66,7 +66,8 @@ class PsiInference ( object ):
                 "sigmoid":  "logistic",
                 "core":     "ab",
                 "priors":   None,
-                "nafc":     2
+                "nafc":     2,
+                "gammaislambda": False
                 }
         self.estimate          = None
         self.deviance          = None
@@ -83,7 +84,7 @@ class PsiInference ( object ):
         for k in defaults.keys():
             self.__plotting.setdefault ( k, defaults[k] )
         self._data,self._pmf,self.nparams = sfu.make_dataset_and_pmf (
-                [[1,2,3]], self.model["nafc"], self.model["sigmoid"], self.model["core"], self.model["priors"] )
+                [[1,2,3]], self.model["nafc"], self.model["sigmoid"], self.model["core"], self.model["priors"], gammaislambda=self.model["gammaislambda"]  )
 
     def evaluate ( self, x, prm=None ):
         """Evaluate the psychometric function model at positions given by x"""
@@ -246,7 +247,7 @@ class BootstrapInference ( PsiInference ):
                 }
 
         self._data,self._pmf,self.nparams = sfu.make_dataset_and_pmf (
-                self.data, self.model["nafc"], self.model["sigmoid"], self.model["core"], self.model["priors"], self.model["gammaislambda"] )
+                self.data, self.model["nafc"], self.model["sigmoid"], self.model["core"], self.model["priors"], gammaislambda=self.model["gammaislambda"] )
 
         self.parametric = kwargs.setdefault ( "parametric", True )
 
@@ -269,7 +270,7 @@ class BootstrapInference ( PsiInference ):
         # Store point estimates
         self.estimate,self.fisher,self.thres,self.deviance = interface.mapestimate(self.data,cuts=self.cuts,start=start,**self.model)
         self.predicted,self.devianceresiduals,self.deviance,thres,self.Rpd,self.Rkd = interface.diagnostics(self.data,self.estimate, \
-                nafc=self.model["nafc"],sigmoid=self.model["sigmoid"],core=self.model["core"],self.cuts,self.model["gammaislambda"])
+                nafc=self.model["nafc"],sigmoid=self.model["sigmoid"],core=self.model["core"],cuts=self.cuts,gammaislambda=self.model["gammaislambda"])
 
         # The interface arrays are not numpy arrays
         self.estimate          = N.array(self.estimate)
@@ -627,7 +628,7 @@ class BayesInference ( PsiInference ):
         self.retry = resample
 
         self._data,self._pmf,self.nparams = sfu.make_dataset_and_pmf (
-                self.data, self.model["nafc"], self.model["sigmoid"], self.model["core"], self.model["priors"] )
+                self.data, self.model["nafc"], self.model["sigmoid"], self.model["core"], self.model["priors"], gammaislambda=self.model["gammaislambda"] )
 
         if self.model["core"][:2] == "mw":
             self.parnames = ["m","w"]
