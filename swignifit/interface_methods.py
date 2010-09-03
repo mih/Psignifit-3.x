@@ -14,9 +14,9 @@ import swignifit.utility as sfu
 import operator as op
 
 def bootstrap(data, start=None, nsamples=2000, nafc=2, sigmoid="logistic",
-        core="ab", priors=None, cuts=None, parametric=True ):
+        core="ab", priors=None, cuts=None, parametric=True, gammaislambda=False ):
 
-    dataset, pmf, nparams = sfu.make_dataset_and_pmf(data, nafc, sigmoid, core, priors)
+    dataset, pmf, nparams = sfu.make_dataset_and_pmf(data, nafc, sigmoid, core, priors, gammaislambda=gammaislambda)
 
     cuts = sfu.get_cuts(cuts)
     ncuts = len(cuts)
@@ -66,9 +66,9 @@ def bootstrap(data, start=None, nsamples=2000, nafc=2, sigmoid="logistic",
     return samples, estimates, deviance, thres, bias, acc, Rpd, Rkd, outliers, influential
 
 def mcmc( data, start=None, nsamples=10000, nafc=2, sigmoid='logistic',
-        core='mw0.1', priors=None, stepwidths=None, sampler="MetropolisHastings"):
+        core='mw0.1', priors=None, stepwidths=None, sampler="MetropolisHastings", gammaislambda=False):
 
-    dataset, pmf, nparams = sfu.make_dataset_and_pmf(data, nafc, sigmoid, core, priors)
+    dataset, pmf, nparams = sfu.make_dataset_and_pmf(data, nafc, sigmoid, core, priors, gammaislambda=gammaislambda)
 
     if start is not None:
         start = sfu.get_start(start, nparams)
@@ -119,9 +119,9 @@ def mcmc( data, start=None, nsamples=10000, nafc=2, sigmoid='logistic',
         posterior_predictive_Rkd, logposterior_ratios)
 
 def mapestimate ( data, nafc=2, sigmoid='logistic', core='ab', priors=None,
-        cuts = None, start=None):
+        cuts = None, start=None, gammaislambda=False):
 
-    dataset, pmf, nparams = sfu.make_dataset_and_pmf(data, nafc, sigmoid, core, priors)
+    dataset, pmf, nparams = sfu.make_dataset_and_pmf(data, nafc, sigmoid, core, priors, gammaislambda=gammaislambda)
 
     cuts = sfu.get_cuts(cuts)
 
@@ -142,7 +142,7 @@ def mapestimate ( data, nafc=2, sigmoid='logistic', core='ab', priors=None,
 
     return estimate, fisher, thres, deviance
 
-def diagnostics(data, params, nafc=2, sigmoid='logistic', core='ab', cuts=None):
+def diagnostics(data, params, nafc=2, sigmoid='logistic', core='ab', cuts=None, gammaislambda=False):
     # here we need to hack stuff, since data can be either 'real' data, or just
     # a list of intensities, or just an empty sequence
 
@@ -150,7 +150,7 @@ def diagnostics(data, params, nafc=2, sigmoid='logistic', core='ab', cuts=None):
     # sequence here, and return a specially crafted return value in that case.
     # sorry..
     if op.isSequenceType(data) and len(data) == 0:
-        pmf, nparams =  sfu.make_pmf(sfr.PsiData([0],[0],[0],1), nafc, sigmoid, core, None )
+        pmf, nparams =  sfu.make_pmf(sfr.PsiData([0],[0],[0],1), nafc, sigmoid, core, None, gammaislambda=gammaislambda )
         thres = np.array([pmf.getThres(params, cut) for cut in sfu.get_cuts(cuts)])
         return np.array([]), np.array([]), 0.0, thres, np.nan, np.nan
 
@@ -165,7 +165,7 @@ def diagnostics(data, params, nafc=2, sigmoid='logistic', core='ab', cuts=None):
         # data is 'real', just do nothing
         pass
 
-    dataset, pmf, nparams = sfu.make_dataset_and_pmf(data, nafc, sigmoid, core, None)
+    dataset, pmf, nparams = sfu.make_dataset_and_pmf(data, nafc, sigmoid, core, None, gammaislambda=gammaislambda)
     cuts = sfu.get_cuts(cuts)
     params = sfu.get_params(params, nparams)
     predicted = np.array([pmf.evaluate(intensity, params) for intensity in
