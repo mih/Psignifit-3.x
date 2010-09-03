@@ -98,7 +98,7 @@ def make_dataset(data, nafc):
     N = sfr.vector_int(map(int, data[2]))
     return sfr.PsiData(x,N,k,nafc)
 
-def make_pmf(dataset, nafc, sigmoid, core, priors):
+def make_pmf(dataset, nafc, sigmoid, core, priors, gammaislambda=False):
     """Assemble PsiPsychometric object from model parameters.
 
     Parameters
@@ -114,6 +114,8 @@ def make_pmf(dataset, nafc, sigmoid, core, priors):
         Description of model core.
     priors : sequence of strings
         The model priors.
+    gammaislambda : bool
+        Constrain guessing rate and lapsing rate to be equal
 
     Returns
     -------
@@ -126,11 +128,13 @@ def make_pmf(dataset, nafc, sigmoid, core, priors):
     sigmoid = get_sigmoid(sigmoid)
     core = get_core(core, dataset, sigmoid)
     pmf = sfr.PsiPsychometric(nafc, core, sigmoid)
+    if gammaislambda:
+        pmf.setgammatolambda()
     nparams = pmf.getNparams()
     set_priors(pmf,priors)
     return pmf, nparams
 
-def make_dataset_and_pmf(data, nafc, sigmoid, core, priors):
+def make_dataset_and_pmf(data, nafc, sigmoid, core, priors, gammaislambda=False ):
     """Assemble PsiData and PsiPsychometric objects simultaneously.
 
     Parameters
@@ -145,10 +149,12 @@ def make_dataset_and_pmf(data, nafc, sigmoid, core, priors):
         Model object.
     nparams : int
         Number of free parameters.
+    gammaislambda : bool
+        Constrain guessing rate and lapsing rate to be equal
 
     """
     dataset = make_dataset(data, nafc)
-    pmf, nparams = make_pmf(dataset, nafc, sigmoid, core, priors)
+    pmf, nparams = make_pmf(dataset, nafc, sigmoid, core, priors, gammaislambda)
     return dataset, pmf, nparams
 
 def get_sigmoid(descriptor):
