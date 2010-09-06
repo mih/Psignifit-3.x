@@ -33,7 +33,7 @@ int main ( int argc, char ** argv ) {
 	parser.add_option ( "-nsamples",    "number of markov chain monte carlo samples to be generated","2000" );
 	parser.add_option ( "-o",           "write output to this file", "stdout" );
 	parser.add_option ( "-cuts",        "cuts to be determined", "0.25,0.50,0.75" );
-	parser.add_option ( "-proposal",    "standard deviations of the proposal distribution", "0.1,0.1,0.01" );
+	parser.add_option ( "-proposal",    "standard deviations of the proposal distribution (or name of file with pilot samples)", "0.1,0.1,0.01" );
 	parser.add_option ( "-start",       "starting values for the sampling process", "mapestimate" );
 	parser.add_switch ( "-v",           "display status messages", false );
 	parser.add_switch ( "--summary",    "write a short summary to stdout" );
