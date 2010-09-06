@@ -189,6 +189,7 @@ void print ( std::vector<double> theta, bool matlabformat, std::string varname, 
 		}
 		fprintf ( ofile, "\n" );
 	}
+	fprintf ( ofile, "\n" );
 }
 
 void print ( std::vector<int> theta, bool matlabformat, std::string varname, FILE *ofile ) {
@@ -234,15 +235,15 @@ void print_fisher ( PsiPsychometric *pmf, std::vector<double> theta, PsiData *da
 				fprintf ( ofile, ";" );
 		}
 	} else {
-		fprintf ( ofile, "fisher_info = [\n" );
+		fprintf ( ofile, "# fisher_info\n" );
 		for ( i=0; i<nparameters; i++ ) {
-			fprintf ( ofile, "          [ %lf", (*fisher)(i,0));
+			fprintf ( ofile, " %lf", (*fisher)(i,0));
 			for (j=1; j<nparameters; j++) {
-				fprintf ( ofile, ", %lf", (*fisher)(i,j) );
+				fprintf ( ofile, " %lf", (*fisher)(i,j) );
 			}
-			fprintf ( ofile, " ],\n" );
+			fprintf ( ofile, " \n" );
 		}
-		fprintf ( ofile, "          ]\n" );
+		fprintf ( ofile, "\n" );
 	}
 
 	delete fisher;
@@ -266,7 +267,7 @@ void print ( std::vector< std::vector<int> >& theta, bool matlabformat, std::str
 	} else {
 		fprintf ( ofile, "\n# %s\n", varname.c_str() );
 		for ( i=0; i<theta.size(); i++ ) {
-			for ( j=0; j<theta[i].size()-1; j++ ) {
+			for ( j=0; j<theta[i].size(); j++ ) {
 				fprintf ( ofile, " %d ", theta[i][j] );
 			}
 			fprintf ( ofile,"\n" );
