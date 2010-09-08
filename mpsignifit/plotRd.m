@@ -1,7 +1,20 @@
 function axhandle = plotRd ( inference, regressor, varargin )
 % axhandle = plotRd ( inference, regressor, varargin )
 %
+% Illustrate the correlation between deviance residuals and a regressor.
+% Valid regressors are 'p' for model predictions or 'k' for block index.
 %
+% The the behavior of the plot can be modified using the following
+% parameter, value pairs:
+%
+% 'verbose'     switch on verbosity
+% 'axes'        give a handle where the plot should go
+% 'color'       specify the color of the plotted symbols
+% 'xlabel'      give the label for the x-axis
+% 'ylabel'      give the label for the y-axis
+%
+%
+% This file is part of psignifit3 for matlab (c) by Ingo Fründ
 
 % Check data format
 if size ( inference.data, 2 ) ~= 3
