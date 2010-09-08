@@ -102,6 +102,13 @@ for k = 1:nposteriorsamples
         deviance = pmf.deviance;
     end
     dpos = (deviance-drange(1))./(drange(2)-drange(1));
+    if isnan(dpos)
+        dpos = 0;
+    elseif dpos < 0
+        dpos = 0;
+    elseif dpos > 1
+        dpos = 1
+    end
 
     % Plot the example
     plot ( axhandle, pmf.pmf(:,1), pmf.pmf(:,2), '-', 'color', dpos*[1,1,1]+(1-dpos)*color, 'linewidth', 1 );
