@@ -1,5 +1,7 @@
 function writedata ( data, fname='__dummydata.txt' )
 % write data to be readible from the command line interface
+%
+% This file is part of psignifit3 for matlab. (c) 2010 by Ingo Fründ
 
 % Check data format
 if size ( data )(2) != 3
