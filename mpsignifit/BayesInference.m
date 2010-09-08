@@ -109,7 +109,6 @@ sigmoid = 'logistic';
 core    = 'mw0.1';
 gil = '';
 gammaislambda = false;
-npr = '';
 verbosity = '';
 cuts = [0.25,0.5,0.75];
 samples = 2000;
@@ -129,10 +128,8 @@ while size(varargin,2) > 0
     case 'core'
         [core,varargin] = popoption(varargin);
     case 'gammaislambda'
-        gil = '-gammaislambda';
+        gil = '-e';
         gammaislambda = true;
-    case 'nonparametric'
-        npr = '-nonparametric';
     case 'verbose'
         verbosity = '-v';
         verbose = true;
@@ -165,8 +162,6 @@ else
     stepwidths_or_pilot(end) = '"';
 end
 
-stepwidths_or_pilot
-
 % Store the data
 save ( '-ascii', '__data.txt', 'data' );
 
@@ -184,10 +179,10 @@ scuts = sprintf ( '"%s', num2str ( cuts, '%f,') );
 scuts(length(scuts)) = '"';
 
 % Write the command
-cmd = sprintf ( '%s/psignifit-mcmc %s __data.txt --matlab -prior1 "%s" -prior2 "%s" -prior3 "%s" %s -nsamples %d -s %s -c %s %s %s -cuts %s -proposal %s %s', ...
+cmd = sprintf ( '%s/psignifit-mcmc %s __data.txt --matlab -prior1 "%s" -prior2 "%s" -prior3 "%s" %s -nsamples %d -s %s -c %s %s -cuts %s -proposal %s %s', ...
     psignifitpath, verbosity, ...
     getfield(priors,'m_or_a'), getfield(priors,'w_or_b'), getfield(priors,'lambda'), prior4, ...
-    samples, sigmoid, core, gil, npr, scuts, stepwidths_or_pilot, generic );
+    samples, sigmoid, core, gil, scuts, stepwidths_or_pilot, generic );
 
 if verbose
     cmd
