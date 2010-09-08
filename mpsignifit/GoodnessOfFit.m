@@ -1,5 +1,18 @@
 function GoodnessOfFit ( inference )
 % GoodnessOfFit ( inference )
+%
+% Display a simple goodness-of-fit plot. The plot is structured in six displays.
+% The first row of these displays illustrates the situation for the fitted psychometric function,
+% the second row of these displays shows how the fitted psychometric function is related to the
+% situation that would be expected if the fitted model was correct (i.e. captured all the structure
+% in the given data).
+%
+% More detailed explanations of this plot can be found in the psignifit for python tutorial at
+%
+% http://psignifit.sourceforge.net/TUTORIAL.html
+%
+%
+% This file is part of psignifit3 for matlab. (c) 2010 by Ingo Fründ
 
 ax = subplot(231);
 cla(ax);
@@ -44,9 +57,15 @@ if strcmp(inference.call, 'bayes' )
     ylabel ( 'simulated Rpd' );
     hold off;
 else
-    diagnostics = Diagnostics ( inference.data, inference.thetahat, ...
-        'sigmoid', inference.sigmoid, 'core', inference.core, ...
-        'nafc', inference.nafc, 'gammaislambda', inference.gammaislambda );
+    if inference.gammaislambda
+        diagnostics = Diagnostics ( inference.data, inference.thetahat, ...
+            'sigmoid', inference.sigmoid, 'core', inference.core, ...
+            'nafc', inference.nafc, 'gammaislambda' );
+    else
+        diagnostics = Diagnostics ( inference.data, inference.thetahat, ...
+            'sigmoid', inference.sigmoid, 'core', inference.core, ...
+            'nafc', inference.nafc );
+    end
 
     ax = subplot(234);
     cla(ax);
