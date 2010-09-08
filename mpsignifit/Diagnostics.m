@@ -42,7 +42,7 @@ while size(varargin,2) > 0
     case 'cuts'
         [cuts,varargin] = popoption(varargin);
     otherwise
-        disp ( sprintf ( 'unknown option: %s !\n' , opt ) );
+        warning ( sprintf ( 'unknown option: %s !\n' , opt ) );
     end
 end
 

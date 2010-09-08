@@ -118,7 +118,7 @@ while size(varargin,2) > 0
     case 'samples'
         [samples,varargin] = popoption(varargin);
     otherwise
-        printf ( 'unknown option: %s !\n' , char(opt) );
+        warning ( sprintf ( 'unknown option: %s !\n' , opt ) );
     end
 end
 

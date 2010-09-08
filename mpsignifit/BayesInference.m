@@ -151,7 +151,7 @@ while size(varargin,2) > 0
     case 'generic'
         generic = '-generic';
     otherwise
-        printf ( 'unknown option: %s !\n' , char(opt) );
+        warning ( sprintf ( 'unknown option: %s !\n' , opt ) );
     end
 end
 
