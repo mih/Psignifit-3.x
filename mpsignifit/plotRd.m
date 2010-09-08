@@ -79,7 +79,9 @@ else
 end
 
 b = cov ( x, diagnostics.devianceresiduals ) ./ var ( x );
-b = b(1,2);
+if size(b) ~= [1,1]
+    b = b(1,2);
+end
 a = mean(diagnostics.devianceresiduals) - b*mean(x);
 
 r = cov ( x, diagnostics.devianceresiduals ) ./ sqrt( var(x).*var(diagnostics.devianceresiduals) );
