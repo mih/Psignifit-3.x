@@ -34,7 +34,7 @@ while size(varargin,2) > 0
     case 'core'
         [core,varargin] = popoption(varargin);
     case 'gammaislambda'
-        gil = '-gammaislambda';
+        gil = '-e';
         gammaislambda = true;
     case 'verbose'
         verbosity = '-v';
@@ -49,14 +49,6 @@ end
 % Store the data
 save ( '-ascii', '__data.txt', 'data' );
 
-if nafc > 1
-    prior4 = '';
-elseif gammaislambda
-    prior4 = '';
-else
-    prior4 = sprintf ( '-prior4 "%s"', getfield ( priors, 'gamma' ) );
-end
-
 sparams = sprintf ( '"%s', num2str ( parameters, '%f,') );
 sparams(end) = '"';
 
@@ -65,8 +57,8 @@ scuts = sprintf ( '"%s', num2str ( cuts, '%f,') );
 scuts(end) = '"';
 
 % Write the command
-cmd = sprintf ( '%s/psignifit-diagnostics __data.txt --matlab -c %s -s %s -params %s -cuts %s -nafc %d %s', ...
-    psignifitpath, core, sigmoid,sparams,scuts,nafc,verbosity );
+cmd = sprintf ( '%s/psignifit-diagnostics __data.txt --matlab -c %s -s %s -params %s -cuts %s -nafc %d %s %s', ...
+    psignifitpath, core, sigmoid,sparams,scuts,nafc,verbosity, gil );
 
 if verbose
     cmd

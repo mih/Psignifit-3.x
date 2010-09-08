@@ -106,7 +106,7 @@ while size(varargin,2) > 0
     case 'core'
         [core,varargin] = popoption(varargin);
     case 'gammaislambda'
-        gil = '-gammaislambda';
+        gil = '-e';
         gammaislambda = true;
     case 'nonparametric'
         npr = '-nonparametric';
