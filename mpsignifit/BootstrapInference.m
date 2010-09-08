@@ -37,7 +37,7 @@ function results = BootstrapInference ( data, priors, varargin )
 psignifitpath = '../cli';
 
 % Check data format
-if size ( data )(2) != 3
+if size ( data, 2 ) ~= 3
     error ( 'data should have three columns' );
 end
 
@@ -52,9 +52,6 @@ verbosity = '';
 cuts = [0.25,0.5,0.75];
 samples = 2000;
 verbose = false;
-
-% Get the point estimate
-mapest = MapEstimate ( data, priors, varargin );
 
 % Check input
 while size(varargin,2) > 0
@@ -81,6 +78,13 @@ while size(varargin,2) > 0
     otherwise
         printf ( 'unknown option: %s !\n' , char(opt) );
     end
+end
+
+% Get the point estimate
+if gammaislambda
+    mapest = MapEstimate ( data, priors, 'nafc', nafc, 'sigmoid', sigmoid, 'core', core, 'gammaislambda' );
+else
+    mapest = MapEstimate ( data, priors, 'nafc', nafc, 'sigmoid', sigmoid, 'core', core );
 end
 
 % Store the data
@@ -128,5 +132,4 @@ results.burnin = 1;
 results.nsamples = samples;
 
 % Clean up
-% delete ( '__data.txt' );
-% delete ( '__bootstrapana.m' );
+delete ( '__data.txt' );

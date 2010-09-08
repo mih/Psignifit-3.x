@@ -933,12 +933,17 @@ class TestCLIgmcmc ( ut.TestCase ):
 
         os.remove ( ".testdata" )
         os.remove ( ".testmcmc1" )
+        os.remove ( ".pilot1" )
 
     def test_1afc_e ( self ):
         f = open ( ".testdata", "w" )
-        writedata ( f, data2afc )
+        writedata ( f, data1afc )
+        f.close()
+        f = open ( ".testd", "w" )
+        writedata ( f, data1afc )
         f.close()
         cmd = "../cli/psignifit-bootstrap -nafc 1 -e -nsamples 100 .testdata -o .pilot1e"
+        os.system ( cmd )
         cmd = "../cli/psignifit-mcmc -nafc 1 -e -nsamples 100 -generic -proposal .pilot1e .testdata -o .testmcmc1e"
         os.system ( cmd )
         f = open ( ".testmcmc1e" )

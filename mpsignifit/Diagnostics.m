@@ -9,7 +9,7 @@ function results = Diagnostics ( data, parameters, varargin )
 psignifitpath = '../cli';
 
 % Check data format
-if size ( data )(2) != 3
+if size ( data, 2 ) ~= 3
     error ( 'data should have three columns' );
 end
 
@@ -42,7 +42,7 @@ while size(varargin,2) > 0
     case 'cuts'
         [cuts,varargin] = popoption(varargin);
     otherwise
-        printf ( 'unknown option: %s !\n' , char(opt) );
+        disp ( sprintf ( 'unknown option: %s !\n' , opt ) );
     end
 end
 
@@ -72,7 +72,7 @@ if verbose
     cmd
 end
 
-[status,output] = system ( cmd, 1 );
+[status,output] = system ( cmd );
 eval ( output );
 
 results.call = 'diagnostics';
@@ -84,5 +84,4 @@ results.cuts = cuts;
 results.data = data;
 
 % Clean up
-% delete ( '__data.txt' );
-% delete ( sprintf('%s.m',name) );
+delete ( '__data.txt' );

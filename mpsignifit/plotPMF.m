@@ -19,11 +19,11 @@ function axhandle = plotPMF ( inference, varargin )
 % This file is part of psignifit3 (c) by Ingo Fründ
 
 % Check data format
-if size ( inference.data )(2) != 3
+if size ( inference.data, 2 ) ~= 3
     error ( 'data should have three columns' );
 end
 
-if !isstruct ( inference )
+if ~isstruct ( inference )
     error ( 'inference should be a struct' );
 end
 

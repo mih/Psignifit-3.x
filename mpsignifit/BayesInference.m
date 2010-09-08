@@ -3,7 +3,7 @@ function results = BayesInference ( data, priors, varargin )
 psignifitpath = '../cli';
 
 % Check data format
-if size ( data )(2) != 3
+if size ( data, 2 ) ~= 3
     error ( 'data should have three columns' );
 end
 
@@ -115,5 +115,4 @@ results.burnin = samples/2;
 results.nsamples = samples;
 
 % Clean up
-% delete ( '__data.txt' );
-% delete ( '__bayesana.m' );
+delete ( '__data.txt' );

@@ -8,7 +8,7 @@ function results = MapEstimate ( data, priors, varargin )
 psignifitpath = '../cli';
 
 % Check data format
-if size ( data )(2) != 3
+if size ( data, 2 ) ~= 3
     error ( 'data should have three columns' );
 end
 
@@ -41,7 +41,7 @@ while size(varargin,2) > 0
     case 'cuts'
         [cuts,varargin] = popoption(varargin);
     otherwise
-        printf ( 'unknown option: %s !\n' , char(opt) );
+        disp ( sprintf ( 'unknown option: %s !\n' , opt ) );
     end
 end
 
@@ -61,8 +61,8 @@ scuts = sprintf ( '"%s', num2str ( cuts, '%f,') );
 scuts(length(scuts)) = '"';
 
 % Write the command
-cmd = sprintf ( '%s/psignifit-mapestimate __data.txt --matlab -prior1 "%s" -prior2 "%s" -prior3 "%s" %s -s %s -c %s -cuts "%s"', ...
-    psignifitpath,
+cmd = sprintf ( '%s/psignifit-mapestimate __data.txt --matlab -prior1 "%s" -prior2 "%s" -prior3 "%s" %s -s %s -c %s -cuts %s', ...
+    psignifitpath, ...
     getfield(priors,'m_or_a'), getfield(priors,'w_or_b'), getfield(priors,'lambda'), prior4, ...
     sigmoid, core, scuts);
 
@@ -86,5 +86,4 @@ results.burnin = 1;
 results.nsamples = 0;
 
 % clean up
-% delete ( '__data.txt' );
-% delete ( '__mapestimate.m' );
+delete ( '__data.txt' );

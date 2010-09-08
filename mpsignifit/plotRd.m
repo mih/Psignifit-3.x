@@ -4,11 +4,11 @@ function axhandle = plotRd ( inference, regressor, varargin )
 %
 
 % Check data format
-if size ( inference.data )(2) != 3
+if size ( inference.data, 2 ) ~= 3
     error ( 'data should have three columns' );
 end
 
-if !isstruct ( inference )
+if ~isstruct ( inference )
     error ( 'inference should be a struct' );
 end
 
@@ -21,7 +21,7 @@ elseif strcmp(regressor, 'k')
 else
     error ( sprintf ( 'Unknown regressor %s', regressor ) );
 end
-xname = 'block index';
+
 yname = 'deviance residual';
 
 while size(varargin,2) > 0
@@ -43,21 +43,30 @@ while size(varargin,2) > 0
 end
 
 
-diagnostics = Diagnostics ( inference.data, inference.thetahat, ...
-    'sigmoid', inference.sigmoid, 'core', inference.core, ...
-    'nafc', inference.nafc, 'gammaislambda', inference.gammaislambda );
+if inference.gammaislambda
+    diagnostics = Diagnostics ( inference.data, inference.thetahat, ...
+        'sigmoid', inference.sigmoid, 'core', inference.core, ...
+        'nafc', inference.nafc, 'gammaislambda' );
+else
+    diagnostics = Diagnostics ( inference.data, inference.thetahat, ...
+        'sigmoid', inference.sigmoid, 'core', inference.core, ...
+        'nafc', inference.nafc );
+end
 
 if strcmp(regressor, 'p')
     x = diagnostics.prediction(:,2);
     R = diagnostics.rpd;
+    xname = 'model prediction';
 elseif strcmp(regressor, 'k' )
     x = 1:size(diagnostics.prediction,1);
     R = diagnostics.rkd;
+    xname = 'block index';
 else
     error ( sprintf ( 'Unknown regressor %s', regressor ) );
 end
 
 b = cov ( x, diagnostics.devianceresiduals ) ./ var ( x );
+b = b(1,2);
 a = mean(diagnostics.devianceresiduals) - b*mean(x);
 
 r = cov ( x, diagnostics.devianceresiduals ) ./ sqrt( var(x).*var(diagnostics.devianceresiduals) );
