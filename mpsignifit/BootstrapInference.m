@@ -1,26 +1,68 @@
 function results = BootstrapInference ( data, priors, varargin )
-% results = BootstrapInference ( data, priors, ... )
+% results = BootstrapInference ( data, constraints, ... )
 %
-% Possible additional parameters
-% ------------------------------
+% Determine bias corrected and accelerated bootstrap confidence intervals for a psychometric function
 %
-% 'nafc', integer       Default: 2
-%     the keyword 'nafc' followed by an integer can be used to specify a yes-no task.
-% 'samples', integer    Default: 2000
-%     the keyword 'samples' followed by an integer can be used to specify the number of samples
-% 'sigmoid', string     Default: 'logistic'
-%     the keyword 'sigmoid' can be used to specify the form of the sigmoidal function. Valid choices are
-%     'logistic', 'gauss', 'gumbel_l', 'gumbel_r', 'exponential', and 'cauchy'
-% 'core', string        Default: 'mw0.1'
-%     the keyword 'core' can be used to specify the core object of the psychometric function. Valid choices
-%     are 'ab', 'mw', 'linear', 'log', 'poly', 'weibull'
-% 'cuts', vector        Default: [0.25,0.5,0.75]
-%     use this to specify the cuts, i.e. the positions at which thresholds should be determined
-% 'gammaislambda'
-%     switch on the constraint that gamma should always equal lambda
-% 'verbose'
-%     switch on higher verbosity
-% 'nonparametric'
+% data should be an array with three columns and one row for each block of trials.
+%    The first column should contain the stimulus intensity in the respective block,
+%    the second column should contain the number of correctly identified trials in
+%    the respective block, and the third column should contain the total number of
+%    trials presented in the respective block.
+%
+% constraints should be a struct with the fields m_or_a, w_or_b, lambda, and gamma. 'None'
+%    can be used to specify "No constraint". Valid constraints would
+%    be
+%
+%    >> priors.m_or_a = 'None';
+%    >> priors.w_or_b = 'None';
+%    >> priors.lambda = 'Uniform(0,.1)';
+%    >> prior.gamma   = 'Uniform(0,.1)';
+%
+%    Internally, the constraints are used like bayesian priors. This means that constraints
+%    could in principle be any probability distribution. Psignifit implements a number of
+%    probability distributions to be used as constraints / priors. For more information on
+%    the specification of constraints / priors for psychometric functions, see
+%
+%    http://psignifit.sourceforge.net/BAYESINTRO.html#specification-of-prior-distributions
+%
+% Parameters
+% ----------
+%
+% 'nafc', integer               Default: 2
+%       number of alternatives in the analyzed task. If nafc is 1 this means that a yes-no task was used.
+%       In this case, the lower asymptote is considered a free parameter and is fitted as a fourth parameter.
+%       See gammaislambda below too.
+%
+% 'sigmoid', char               Default: 'logistic'
+%       Name of the sigmoid object to be used for fitting. psignifit includes a large number of sigmoids.
+%       These include (but are not restricted to) 'logistic', 'gauss', or 'gumbel'. See
+%
+%       http://psignifit.sourceforge.net/MODELSPECIFICATION.html#specifiing-the-shape-of-the-psychometric-function
+%
+%       for further information.
+%
+% 'core', char                  Default: 'mw0.1'
+%       Name of the core object to be used for fitting. psignifit includes a large number of cores. These
+%       include (but are not restricted to) 'ab', 'mw0.1'. See
+%
+%       http://psignifit.sourceforge.net/MODELSPECIFICATION.html#specifiing-the-shape-of-the-psychometric-function
+%
+%       for further information.
+%
+% 'gammaislambda'               Default: false
+%       In yes-no tasks, it is sometimes of interest to constrain the model to have the same upper and lower
+%       asymptote. This can be achieved in psignifit by constraining gamma to be lambda, effectively reducing the
+%       number of free parameters by one.
+%
+% 'verbose'                     Default: false
+%       print out more about what is going on.
+%
+% 'cuts', double (vector)       Default: [0.25, 0.5, 0.75]
+%       Cuts are the performances at which thresholds should be determined. Thus, setting cuts to 0.5 will define
+%       the threshold to be the signal level that corresponds to a performance half way between the upper and the
+%       lower asymptote.
+%
+% 'nonparametric'               Default: false
 %     perform nonparametric bootstrap instead of the default parametric bootstrap
 %
 % Examples of usage:
@@ -32,7 +74,7 @@ function results = BootstrapInference ( data, priors, varargin )
 % results = BootstrapInference ( data, priors, 'nonparametric' )
 %    performs nonparametric bootstrap
 %
-% This function is part of psignifit3 (c) 2010 by Ingo Fründ
+% This function is part of psignifit3 for matlab (c) 2010 by Ingo Fründ
 
 psignifitpath = '../cli';
 
