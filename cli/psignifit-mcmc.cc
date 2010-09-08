@@ -154,10 +154,15 @@ int main ( int argc, char ** argv ) {
 		std::cerr << "   prm2: " << parser.getOptArg ( "-prior2" ) << "\n";
 		std::cerr << "   prm3: " << parser.getOptArg ( "-prior3" ) << "\n";
 		if ( atoi (parser.getOptArg("-nafc").c_str()) < 2 ) std::cerr << "   prm4: " << parser.getOptArg ( "-prior4" ) << "\n";
-		std::cerr << "generic mcmc: " << (parser.getOptSet("-generic")?"no":"yes") << "\n";
+		std::cerr << "generic mcmc: " << (parser.getOptSet("-generic")?"yes":"no") << "\n";
 		std::cerr << "number of mcmc samples: " << nsamples << "\n";
 		if ( parser.getOptSet ( "-e" ) )
 			std::cerr << "gamma==lambda\n";
+		std::cerr << "stepwidths:\n";
+		std::cerr << "   s1: " << stepwidths[0] << "\n";
+		std::cerr << "   s2: " << stepwidths[1] << "\n";
+		std::cerr << "   s3: " << stepwidths[2] << "\n";
+		if ( stepwidths.size()==4 ) std::cerr << "   s4: " << stepwidths[3] << "\n";
 	}
 
 	std::string fname;
