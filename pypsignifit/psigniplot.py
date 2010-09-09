@@ -422,7 +422,6 @@ def plotPMF ( InferenceObject, xlabel_text="Stimulus intensity", ylabel_text=Non
     while len(ytics):
         yt = ytics.pop(0)
         if yt>=0 and yt<=1.01:
-            print "appending",yt
             newytics.append(yt)
     ax.set_yticks ( newytics )
 
@@ -579,7 +578,7 @@ def GoodnessOfFit ( InferenceObject, warn=True ):
         else:
             good = plotHistogram ( eval("InferenceObject.mc%s" % (name,)), eval("InferenceObject.%s"%(name,)), "bootstrap "+name, name, axh[k] )
         if warn and not good:
-            axh[k].text ( 0, 0 , warningtext[k], \
+            axh[k].text ( p.array(axh[k].get_xlim()).mean(), p.array(axh[k].get_ylim()).mean() , warningtext[k], \
                      horizontalalignment="center", verticalalignment="center", rotation=45, **(rc.warning+rc.alltext) )
 
 def plotGeweke ( BayesInferenceObject, parameter=0, ax=None, warn=True ):
