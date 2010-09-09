@@ -310,7 +310,7 @@ def plotHistogram ( simdata, observed, xname, shortname=None, ax=None, hideobser
     # ytics = p.getp(ax,"yticks")
     # xr = xtics.max()-xtics.min()
     # yy = [ytics.min(),ytics.max()+0.02*xr]
-    yy = N.array(ax.get_ylim ())
+    yy = p.array(ax.get_ylim ())
     yy[1] += 0.02*(yy[1]-yy[0])
 
     # Plot percentile bars
