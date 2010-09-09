@@ -1,3 +1,11 @@
+2010-09-09
+
+* fixes some bugs with the plotting engine
+
+2010-09-03
+
+* enables gamma==lambda constraints from high level python interface
+
 2010-07-16
 
 * Activates new interface layer swignifit
