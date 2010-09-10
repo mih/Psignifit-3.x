@@ -12,6 +12,9 @@ CLI_O= $(addprefix $(BUILD)/, cli.o cli_utilities.o)
 
 compile: psignifit-mapestimate psignifit-bootstrap psignifit-mcmc psignifit-diagnostics
 
+clean:
+	rm -r $(BUILD)
+
 psignifit-mapestimate: $(OBJECTS) $(HEADERS) $(BUILD)/psignifit-mapestimate.o $(CLI_H) $(CLI_O)
 	$(CC) -o psignifit-mapestimate $(OBJECTS) $(BUILD)/psignifit-mapestimate.o $(CLI_O) $(LFLAGS)
 psignifit-bootstrap: $(OBJECTS) $(HEADERS) $(BUILD)/psignifit-bootstrap.o $(CLI_H) $(CLI_O)
