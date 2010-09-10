@@ -23,8 +23,6 @@ not guarantee support for this toolbox in future releases and we encourage users
 python version as this will be up to date. python also offers a further advantage to matlab:
 python is free [1]_.
 
-TODO: matlab toolbox
-
 We also noted that a growing number of statistical toolboxes are designed for the statistics
 environment R and there might be some users that are interested in using a R version of psignifit.
 Similar to the matlab interface, we provide a basic R version of psignifit 3.0. Again, we do not
@@ -55,7 +53,8 @@ How to install
 
 If you want to install psignifit on your computer make sure that you have all the dependencies installed.
 Currently this documentation only deals with the installation of the python version of psignifit.
-Installation instructions for matlab and R are going to follow as soon as these toolboxes are
+If you are looking for installation instructions for matlab, see `Installing mpsignifit and the command line interface`_.
+Installation instructions for R are going to follow as soon as these toolboxes are
 ready for use.
 
 The C++ core of psignifit does the real work. It is completely coded in C++ and does not require any
@@ -73,6 +72,19 @@ Dependencies
 
 This section lists all dependencies. The version numbers are the versions we
 used during development.
+
+When using EPD
+..............
+
+If you are using Windows or MacOS, the easiest way to use psignifit is to use the
+`Enthought Python Distribution <http://www.enthought.com/products/epd.php>`_.
+In that case, you might want to download one of the 'swigged' archives.
+
+Extract the archive to a folder. Navigate to this folder from the command line and type::
+
+    python setup.py install
+
+This should give you the python version of psignifit (and only the python version!).
 
 When using Debian
 .................
@@ -195,5 +207,90 @@ If you wish to build and execute pypsignifit in place, simply type:
 
 This will build everything into the current working directory, and allow you to
 import psignifit as long as you remain in the current working directory.
+
+Installing mpsignifit and the command line interface
+----------------------------------------------------
+
+mpsignifit is a matlab version for psignifit. As mentioned above, psignifit is developed as a
+python tool, thus in most cases the python version will be more up to date and have more features.
+There were technical reasons to switch the development of psignifit from matlab to python.
+To overcome these technical problems, we had to separate the workhorse functions of psignifit
+completely from the matlab environment. Psignifit now comes with a very rudimentary command line
+interface. The matlab version of psignifit, mpsignifit will then internally call commands from
+the command line and integrate the results in matlab. This means that in order to use psignifit
+from within matlab, you have to install both, the command line interface as well as mpsignifit.
+This section describes how to do so.
+
+Be aware however that the matlab version of psignifit provides significantly less features than
+the python version.
+
+Installing the command line interface on Mac OSX or Linux
+.........................................................
+
+Download psignifit from `sourceforge <http://sourceforge.net/projects/psignifit/files/>`_ and
+extract the compressed file to a folder in your home directory. Navigate into the folder.
+You have two installation options. By default, the command line interface will be installed to a
+folder called ``bin`` in your home directory. You can change this behavior by editing the
+``Makefile``. At the beginning of the ``Makefile``, you find a line::
+
+    CLI_INSTALL=$(HOME)/bin
+
+replace this by e.g. ``/usr/bin/`` for system wide installation.
+
+Once you have the Makefile in your desired shape type::
+
+    make cli-install
+
+If the installation directory is not on your system search path, you may have to add it.
+To do so, add::
+
+    export PATH=$PATH:$HOME/bin
+
+to your ``.bashrc`` (if you use bash). If you use zsh, the same line should be in your
+``.zshrc.local`` file.
+
+Now, you should be able to call::
+
+    psignifit-mcmc -h
+    psignifit-diagnostics -h
+    psignifit-bootstrap -h
+    psignifit-mapestimate -h
+
+And see some usage messages after each call.
+
+Installing the command line interface on Windows
+................................................
+
+Download the file ``psignifit_cli_3_beta_installer.exe`` form
+`sourceforge <http://sourceforge.net/projects/psignifit/files/>`_ and run it.
+Follow the instructions on the screen. At the end of the installation, you will be asked whether
+you want to add psignifit-cli to your environment path. You should leave this box checked. You
+will not be able to use psignifit from within matlab if you uncheck this box!
+
+Installing the matlab files
+...........................
+
+If you have not yet obtained a copy of the psignifit sources, get one now (see above).
+The file will most probably be a file ending either with ``.tar.gz`` or with ``.zip``.
+Unpack the file and navigate to the unpacked folder. Within that folder there is (amoung
+other things) one folder called ``mpsignifit``. Copy this folder to a save place (e.g. the
+``toolbox`` folder in your matlab installation directory).
+Now you have to make matlab aware that the new files are there. To do so, start matlab and
+type::
+
+    addpath path\to\mpsignfit\files
+
+where you replace ``path\to\mpsignifit\files`` with the path where you copied the ``mpsignifit``
+folder. You might now want to call::
+
+    savepath
+
+to avoid having to call the above command everytime you start matlab.
+
+You can check that everything went fine by calling::
+
+    test_psignifit
+
+
 
 .. [1] That means both, free as in "free beer" and free as in "free speech".
