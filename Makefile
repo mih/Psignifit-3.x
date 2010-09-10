@@ -99,6 +99,8 @@ psipp-test:
 cli-install: cli-build
 	cd $(CLI_SRC) && cp psignifit-mcmc psignifit-diagnostics psignifit-bootstrap psignifit-mapestimate $(CLI_INSTALL)
 cli-build:
+	cd $(CLI_SRC) && $(MAKE)
+cli-clean:
 	cd $(CLI_SRC) && $(MAKE) clean
 cli-test: cli-install
 	python tests/cli_test.py
