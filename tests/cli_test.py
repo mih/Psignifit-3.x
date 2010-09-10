@@ -35,7 +35,7 @@ class TestCLImapestimate ( ut.TestCase ):
         f = open ( ".testdata", "w" )
         writedata ( f, data2afc )
         f.close()
-        cmd = "../cli/psignifit-mapestimate -nafc 2 .testdata -o .testresults2"
+        cmd = "psignifit-mapestimate -nafc 2 .testdata -o .testresults2"
         os.system ( cmd )
         f = open ( ".testresults2" )
         results = f.read()
@@ -72,7 +72,7 @@ class TestCLImapestimate ( ut.TestCase ):
         f = open ( ".testdata", "w" )
         writedata ( f, data1afc )
         f.close()
-        cmd = "../cli/psignifit-mapestimate -nafc 1 .testdata -o .testresults1"
+        cmd = "psignifit-mapestimate -nafc 1 .testdata -o .testresults1"
         os.system ( cmd )
         f = open ( ".testresults1" )
         results = f.read()
@@ -117,7 +117,7 @@ class TestCLImapestimate ( ut.TestCase ):
         f = open ( ".testdata", "w" )
         writedata ( f, data1afc )
         f.close()
-        cmd = "../cli/psignifit-mapestimate -nafc 1 -e .testdata -o .testresults1e"
+        cmd = "psignifit-mapestimate -nafc 1 -e .testdata -o .testresults1e"
         os.system ( cmd )
         f = open ( ".testresults1e" )
         results = f.read()
@@ -155,7 +155,7 @@ class TestCLIdiagnostics ( ut.TestCase ):
         f = open ( ".testdata", "w" )
         writedata ( f, data2afc )
         f.close()
-        cmd = "../cli/psignifit-diagnostics -nafc 2 -params '4,2,.02' .testdata -o .testdiag2"
+        cmd = "psignifit-diagnostics -nafc 2 -params '4,2,.02' .testdata -o .testdiag2"
         os.system ( cmd )
         f = open ( ".testdiag2" )
         diagnostics = f.read()
@@ -198,7 +198,7 @@ class TestCLIdiagnostics ( ut.TestCase ):
         f = open ( ".testdata", "w" )
         writedata ( f, data1afc )
         f.close()
-        cmd = "../cli/psignifit-diagnostics -nafc 1 -params '4,2,.02,.01' .testdata -o .testdiag1"
+        cmd = "psignifit-diagnostics -nafc 1 -params '4,2,.02,.01' .testdata -o .testdiag1"
         os.system ( cmd )
         f = open ( ".testdiag1" )
         diagnostics = f.read ()
@@ -241,7 +241,7 @@ class TestCLIdiagnostics ( ut.TestCase ):
         f = open ( ".testdata", "w" )
         writedata ( f, data1afc )
         f.close()
-        cmd = "../cli/psignifit-diagnostics -nafc 1 -e -params '4,2,.02' .testdata -o .testdiag1e"
+        cmd = "psignifit-diagnostics -nafc 1 -e -params '4,2,.02' .testdata -o .testdiag1e"
         os.system ( cmd )
         f = open ( ".testdiag1e" )
         diagnostics = f.read ()
@@ -285,7 +285,7 @@ class TestCLIbootstrap ( ut.TestCase ):
         f = open ( ".testdata", "w" )
         writedata ( f, data2afc )
         f.close()
-        cmd = "../cli/psignifit-bootstrap -nafc 2 -nsamples 100 .testdata -o .testboots2"
+        cmd = "psignifit-bootstrap -nafc 2 -nsamples 100 .testdata -o .testboots2"
         os.system ( cmd )
         f = open ( ".testboots2" )
         results = f.read()
@@ -359,7 +359,7 @@ class TestCLIbootstrap ( ut.TestCase ):
         f = open ( ".testdata", "w" )
         writedata ( f, data1afc )
         f.close()
-        cmd = "../cli/psignifit-bootstrap -nafc 1 -nsamples 100 .testdata -o .testboots1"
+        cmd = "psignifit-bootstrap -nafc 1 -nsamples 100 .testdata -o .testboots1"
         os.system ( cmd )
         f = open ( ".testboots1" )
         results = f.read()
@@ -439,7 +439,7 @@ class TestCLIbootstrap ( ut.TestCase ):
         f = open ( ".testdata", "w" )
         writedata ( f, data1afc )
         f.close()
-        cmd = "../cli/psignifit-bootstrap -nafc 1 -e -nsamples 100 .testdata -o .testboots1e"
+        cmd = "psignifit-bootstrap -nafc 1 -e -nsamples 100 .testdata -o .testboots1e"
         os.system ( cmd )
         f = open ( ".testboots1e" )
         results = f.read()
@@ -514,7 +514,7 @@ class TestCLImcmc ( ut.TestCase ):
         f = open ( ".testdata", "w" )
         writedata ( f, data2afc )
         f.close()
-        cmd = "../cli/psignifit-mcmc -nafc 2 -nsamples 100 .testdata -o .testmcmc2"
+        cmd = "psignifit-mcmc -nafc 2 -nsamples 100 .testdata -o .testmcmc2"
         os.system ( cmd )
         f = open ( ".testmcmc2" )
         results = f.read()
@@ -596,7 +596,7 @@ class TestCLImcmc ( ut.TestCase ):
         f = open ( ".testdata", "w" )
         writedata ( f, data1afc )
         f.close()
-        cmd = "../cli/psignifit-mcmc -nafc 1 -nsamples 100 .testdata -o .testmcmc1"
+        cmd = "psignifit-mcmc -nafc 1 -nsamples 100 .testdata -o .testmcmc1"
         os.system ( cmd )
         f = open ( ".testmcmc1" )
         results = f.read()
@@ -682,7 +682,7 @@ class TestCLImcmc ( ut.TestCase ):
         f = open ( ".testdata", "w" )
         writedata ( f, data2afc )
         f.close()
-        cmd = "../cli/psignifit-mcmc -nafc 1 -e -nsamples 100 .testdata -o .testmcmc1e"
+        cmd = "psignifit-mcmc -nafc 1 -e -nsamples 100 .testdata -o .testmcmc1e"
         os.system ( cmd )
         f = open ( ".testmcmc1e" )
         results = f.read()
@@ -765,9 +765,9 @@ class TestCLIgmcmc ( ut.TestCase ):
         f = open ( ".testdata", "w" )
         writedata ( f, data2afc )
         f.close()
-        cmd = "../cli/psignifit-bootstrap -nafc 2 -nsamples 100 .testdata -o .pilot2"
+        cmd = "psignifit-bootstrap -nafc 2 -nsamples 100 .testdata -o .pilot2"
         os.system ( cmd )
-        cmd = "../cli/psignifit-mcmc -nafc 2 -nsamples 100 -generic -proposal .pilot2 .testdata -o .testmcmc2"
+        cmd = "psignifit-mcmc -nafc 2 -nsamples 100 -generic -proposal .pilot2 .testdata -o .testmcmc2"
         os.system ( cmd )
         f = open ( ".testmcmc2" )
         results = f.read()
@@ -850,9 +850,9 @@ class TestCLIgmcmc ( ut.TestCase ):
         f = open ( ".testdata", "w" )
         writedata ( f, data1afc )
         f.close()
-        cmd = "../cli/psignifit-bootstrap -nafc 1 -nsamples 100 .testdata -o .pilot1"
+        cmd = "psignifit-bootstrap -nafc 1 -nsamples 100 .testdata -o .pilot1"
         os.system ( cmd )
-        cmd = "../cli/psignifit-mcmc -nafc 1 -nsamples 100 .testdata -generic -proposal .pilot1 -o .testmcmc1"
+        cmd = "psignifit-mcmc -nafc 1 -nsamples 100 .testdata -generic -proposal .pilot1 -o .testmcmc1"
         os.system ( cmd )
         f = open ( ".testmcmc1" )
         results = f.read()
@@ -942,9 +942,9 @@ class TestCLIgmcmc ( ut.TestCase ):
         f = open ( ".testd", "w" )
         writedata ( f, data1afc )
         f.close()
-        cmd = "../cli/psignifit-bootstrap -nafc 1 -e -nsamples 100 .testdata -o .pilot1e"
+        cmd = "psignifit-bootstrap -nafc 1 -e -nsamples 100 .testdata -o .pilot1e"
         os.system ( cmd )
-        cmd = "../cli/psignifit-mcmc -nafc 1 -e -nsamples 100 -generic -proposal .pilot1e .testdata -o .testmcmc1e"
+        cmd = "psignifit-mcmc -nafc 1 -e -nsamples 100 -generic -proposal .pilot1e .testdata -o .testmcmc1e"
         os.system ( cmd )
         f = open ( ".testmcmc1e" )
         results = f.read()
