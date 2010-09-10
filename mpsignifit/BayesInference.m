@@ -205,3 +205,6 @@ results.nsamples = samples;
 
 % Clean up
 delete ( '__data.txt' );
+if exist ( '__pilot.txt', 'file' )
+    delete ( '__pilot.txt' );
+end
