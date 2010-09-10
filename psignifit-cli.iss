@@ -22,6 +22,7 @@ DefaultGroupName=psignifit-cli
 LicenseFile=COPYING
 InfoBeforeFile=doc-src\WELCOME.rst
 OutputBaseFilename=psignifit-cli_3_beta_installer
+OutputDir=WindowsInstaller
 Compression=lzma
 SolidCompression=yes
 ChangesEnvironment=true
