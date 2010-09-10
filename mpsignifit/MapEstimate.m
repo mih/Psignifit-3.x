@@ -80,8 +80,6 @@ function results = MapEstimate ( data, priors, varargin )
 %
 % This function is part of psignifit3 for matlab (c) 2010 by Ingo Fründ
 
-psignifitpath = '../cli';
-
 % Check data format
 if size ( data, 2 ) ~= 3
     error ( 'data should have three columns' );
@@ -136,8 +134,7 @@ scuts = sprintf ( '"%s', num2str ( cuts, '%f,') );
 scuts(length(scuts)) = '"';
 
 % Write the command
-cmd = sprintf ( '%s/psignifit-mapestimate __data.txt --matlab -prior1 "%s" -prior2 "%s" -prior3 "%s" %s -s %s -c %s -cuts %s', ...
-    psignifitpath, ...
+cmd = sprintf ( 'psignifit-mapestimate __data.txt --matlab -prior1 "%s" -prior2 "%s" -prior3 "%s" %s -s %s -c %s -cuts %s', ...
     getfield(priors,'m_or_a'), getfield(priors,'w_or_b'), getfield(priors,'lambda'), prior4, ...
     sigmoid, core, scuts);
 

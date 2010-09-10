@@ -61,8 +61,6 @@ function results = Diagnostics ( data, parameters, varargin )
 %
 % This function is part of psignifit3 for matlab (c) 2010 by Ingo Fründ
 
-psignifitpath = '../cli';
-
 % Check data format
 if size ( data, 2 ) ~= 3
     error ( 'data should have three columns' );
@@ -112,8 +110,8 @@ scuts = sprintf ( '"%s', num2str ( cuts, '%f,') );
 scuts(end) = '"';
 
 % Write the command
-cmd = sprintf ( '%s/psignifit-diagnostics __data.txt --matlab -c %s -s %s -params %s -cuts %s -nafc %d %s %s', ...
-    psignifitpath, core, sigmoid,sparams,scuts,nafc,verbosity, gil );
+cmd = sprintf ( 'psignifit-diagnostics __data.txt --matlab -c %s -s %s -params %s -cuts %s -nafc %d %s %s', ...
+    core, sigmoid,sparams,scuts,nafc,verbosity, gil );
 
 if verbose
     cmd

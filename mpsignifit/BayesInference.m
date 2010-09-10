@@ -96,8 +96,6 @@ function results = BayesInference ( data, priors, varargin )
 %
 % This file is part of psignifit3 for matlab. (c) 2010 by Ingo Fründ
 
-psignifitpath = '../cli';
-
 % Check data format
 if size ( data, 2 ) ~= 3
     error ( 'data should have three columns' );
@@ -179,8 +177,8 @@ scuts = sprintf ( '"%s', num2str ( cuts, '%f,') );
 scuts(length(scuts)) = '"';
 
 % Write the command
-cmd = sprintf ( '%s/psignifit-mcmc %s __data.txt --matlab -prior1 "%s" -prior2 "%s" -prior3 "%s" %s -nsamples %d -s %s -c %s %s -cuts %s -proposal %s %s', ...
-    psignifitpath, verbosity, ...
+cmd = sprintf ( 'psignifit-mcmc %s __data.txt --matlab -prior1 "%s" -prior2 "%s" -prior3 "%s" %s -nsamples %d -s %s -c %s %s -cuts %s -proposal %s %s', ...
+    verbosity, ...
     getfield(priors,'m_or_a'), getfield(priors,'w_or_b'), getfield(priors,'lambda'), prior4, ...
     samples, sigmoid, core, gil, scuts, stepwidths_or_pilot, generic );
 
