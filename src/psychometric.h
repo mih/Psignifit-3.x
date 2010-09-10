@@ -202,7 +202,7 @@ class OutlierModel : public PsiPsychometric {
 			const PsiData* data                                                  ///< data for which the deviance should be evaluated
 			) const;                        ///< deviance
 		unsigned int getNparams ( void ) const { return PsiPsychometric::getNparams()+1; }
-		double randPrior ( unsigned int index ) const { return ( index<PsiPsychometric::getNparams() ? PsiPsychometric::randPrior(index) : drand48() ); }                            ///< sample form a prior
+		double randPrior ( unsigned int index ) const { return ( index<PsiPsychometric::getNparams() ? PsiPsychometric::randPrior(index) : PsiRandom().rngcall() ); }                            ///< sample form a prior
 };
 
 #endif

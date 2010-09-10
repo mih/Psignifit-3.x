@@ -17,11 +17,10 @@ PsiData * allocateDataFromFile ( std::string fname, int nafc ) {
 	std::vector<double> x ( inputlines.size() );
 	std::vector<int>    k ( inputlines.size() );
 	std::vector<int>    n ( inputlines.size() );
-	double xx,kk;
-	int nn;
+	double xx,kk,nn;
 
 	for ( i=0, inputlines_i=inputlines.begin(); inputlines_i != inputlines.end(); inputlines_i++, i++ ) {
-		sscanf ( (*inputlines_i).c_str(), "%lf %lf %d\n", &xx,&kk,&nn );
+		sscanf ( (*inputlines_i).c_str(), "%lf %lf %lf\n", &xx,&kk,&nn );
 		if ( kk<1 ) kk *= nn;
 		if ( kk != round(kk) ) std::cerr << "Warning: number of correct trials is " << kk << " and not an integer\n";
 		x[i] = xx;
@@ -178,7 +177,7 @@ std::vector<double> getCuts ( std::string cuts ) {
 void print ( std::vector<double> theta, bool matlabformat, std::string varname, FILE *ofile ) {
 	unsigned int i;
 	if ( matlabformat ) {
-		fprintf ( ofile, "%s = [ %lf", varname.c_str(), theta[0] );
+		fprintf ( ofile, "results.%s = [ %lf", varname.c_str(), theta[0] );
 		for ( i=1; i<theta.size(); i++ ) {
 			fprintf ( ofile, ", %lf", theta[i] );
 		}
@@ -190,13 +189,14 @@ void print ( std::vector<double> theta, bool matlabformat, std::string varname, 
 		}
 		fprintf ( ofile, "\n" );
 	}
+	fprintf ( ofile, "\n" );
 }
 
 void print ( std::vector<int> theta, bool matlabformat, std::string varname, FILE *ofile ) {
 	unsigned int i;
 
 	if ( matlabformat ) {
-		fprintf ( ofile, "%s = [ %d", varname.c_str(), theta[0] );
+		fprintf ( ofile, "results.%s = [ %d", varname.c_str(), theta[0] );
 		for ( i=1; i<theta.size(); i++ ) {
 			fprintf ( ofile, ", %d", theta[i] );
 		}
@@ -212,7 +212,7 @@ void print ( std::vector<int> theta, bool matlabformat, std::string varname, FIL
 
 void print ( double theta, bool matlabformat, std::string varname, FILE *ofile ) {
 	if ( matlabformat )
-		fprintf ( ofile, "%s = %lf;\n", varname.c_str(), theta );
+		fprintf ( ofile, "results.%s = %lf;\n", varname.c_str(), theta );
 	else
 		fprintf ( ofile, "\n# %s\n %lf\n\n", varname.c_str(), theta );
 }
@@ -224,7 +224,7 @@ void print_fisher ( PsiPsychometric *pmf, std::vector<double> theta, PsiData *da
 	Matrix * fisher = pmf->ddnegllikeli ( theta, data );
 
 	if ( matlabformat ) {
-		fprintf ( ofile, "fisher_info = [ " );
+		fprintf ( ofile, "results.fisher_info = [ " );
 		for ( i=0; i<nparameters; i++ ) {
 			for ( j=0; j<nparameters; j++ ) {
 				fprintf ( ofile, " %lf ", (*fisher)(i,j) );
@@ -235,15 +235,15 @@ void print_fisher ( PsiPsychometric *pmf, std::vector<double> theta, PsiData *da
 				fprintf ( ofile, ";" );
 		}
 	} else {
-		fprintf ( ofile, "fisher_info = [\n" );
+		fprintf ( ofile, "# fisher_info\n" );
 		for ( i=0; i<nparameters; i++ ) {
-			fprintf ( ofile, "          [ %lf", (*fisher)(i,0));
+			fprintf ( ofile, " %lf", (*fisher)(i,0));
 			for (j=1; j<nparameters; j++) {
-				fprintf ( ofile, ", %lf", (*fisher)(i,j) );
+				fprintf ( ofile, " %lf", (*fisher)(i,j) );
 			}
-			fprintf ( ofile, " ],\n" );
+			fprintf ( ofile, " \n" );
 		}
-		fprintf ( ofile, "          ]\n" );
+		fprintf ( ofile, "\n" );
 	}
 
 	delete fisher;
@@ -253,7 +253,7 @@ void print ( std::vector< std::vector<int> >& theta, bool matlabformat, std::str
 	unsigned i, j;
 
 	if ( matlabformat ) {
-		fprintf ( ofile, "%s = [ ", varname.c_str() );
+		fprintf ( ofile, "results.%s = [ ", varname.c_str() );
 		for ( i=0; i<theta.size(); i++ ) {
 			for ( j=0; j<theta[i].size()-1; j++ ) {
 				fprintf ( ofile, "%d, ", theta[i][j] );
@@ -267,7 +267,7 @@ void print ( std::vector< std::vector<int> >& theta, bool matlabformat, std::str
 	} else {
 		fprintf ( ofile, "\n# %s\n", varname.c_str() );
 		for ( i=0; i<theta.size(); i++ ) {
-			for ( j=0; j<theta[i].size()-1; j++ ) {
+			for ( j=0; j<theta[i].size(); j++ ) {
 				fprintf ( ofile, " %d ", theta[i][j] );
 			}
 			fprintf ( ofile,"\n" );
@@ -280,7 +280,7 @@ void print ( std::vector< std::vector<double> >& theta, bool matlabformat, std::
 	unsigned i, j;
 
 	if ( matlabformat ) {
-		fprintf ( ofile, "%s = [ ", varname.c_str() );
+		fprintf ( ofile, "results.%s = [ ", varname.c_str() );
 		for ( i=0; i<theta.size(); i++ ) {
 			for ( j=0; j<theta[i].size()-1; j++ ) {
 				fprintf ( ofile, "%lf, ", theta[i][j] );

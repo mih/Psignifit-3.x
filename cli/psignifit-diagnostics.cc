@@ -17,7 +17,7 @@
 
 int main ( int argc, char ** argv ) {
 	// Analyze the command line
-	cli_parser parser ( "psignifit-mapestimate [options] <file> [ <file> ... ]" );
+	cli_parser parser ( "psignifit-diagnostics [options] <file> [ <file> ... ]" );
 	parser.add_option ( "-c", "psignifit core object to be used", "mw0.1" );
 	parser.add_option ( "-s", "psignifit sigmoid object to be used", "logistic" );
 	parser.add_option ( "-nafc",   "number of response alternatives in forced choice designs (set this to 1 for yes-no tasks)", "2" );
@@ -50,19 +50,19 @@ int main ( int argc, char ** argv ) {
 	// Where do we want output to go
 	FILE * ofile;
 	if ( !(parser.getOptArg ( "-o" ).compare( "stdout" )) ) {
-		if ( verbose ) std::cout << "Writing results to stdout\n";
+		if ( verbose ) std::cerr << "Writing results to stdout\n";
 		ofile = stdout;
 	} else 
 		ofile = fopen ( parser.getOptArg ( "-o" ).c_str(), "w" );
 
 	if (verbose) {
-		std::cout << "core:    " << parser.getOptArg ( "-c" ) << "\n";
-		std::cout << "sigmoid: " << parser.getOptArg ( "-s" ) << "\n";
-		std::cout << "cuts:    ";
-		for (i=0; i<cuts.size(); i++) std::cout << cuts[i] << " ";
-		std::cout << "\nparams:  ";
-		for (i=0; i<theta.size(); i++) std::cout << theta[i] << " ";
-		std::cout << "\n";
+		std::cerr << "core:    " << parser.getOptArg ( "-c" ) << "\n";
+		std::cerr << "sigmoid: " << parser.getOptArg ( "-s" ) << "\n";
+		std::cerr << "cuts:    ";
+		for (i=0; i<cuts.size(); i++) std::cerr << cuts[i] << " ";
+		std::cerr << "\nparams:  ";
+		for (i=0; i<theta.size(); i++) std::cerr << theta[i] << " ";
+		std::cerr << "\n";
 	}
 
 	std::string fname;

@@ -15,6 +15,8 @@ EPYDOC_DCOOUT=api
 PSIPP_DOCOUT=psipp-api
 PSIPP_SRC=src
 PYTHON=python
+CLI_SRC=cli
+CLI_INSTALL=$(HOME)/bin
 .PHONY : swignifit psipy ipython psipp-doc
 
 #}}}
@@ -91,6 +93,22 @@ psipp-clean:
 psipp-test:
 	cd $(PSIPP_SRC) && $(MAKE) test
 
+# }}}
+
+################### CLI COMMANDS ###################### {{{
+cli-install: cli-build
+	cd $(CLI_SRC) && cp psignifit-mcmc psignifit-diagnostics psignifit-bootstrap psignifit-mapestimate $(CLI_INSTALL)
+cli-build:
+	cd $(CLI_SRC) && $(MAKE)
+cli-clean:
+	cd $(CLI_SRC) && $(MAKE) clean
+cli-test: cli-install
+	python tests/cli_test.py
+cli-uninstall:
+	rm $(CLI_INSTALL)/psignifit-mcmc
+	rm $(CLI_INSTALL)/psignifit-diagnostics
+	rm $(CLI_INSTALL)/psignifit-bootstrap
+	rm $(CLI_INSTALL)/psignifit-mapestimate
 # }}}
 
 #################### PSIPY COMMANDS ################### {{{

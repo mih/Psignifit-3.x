@@ -43,22 +43,22 @@ int main ( int argc, char ** argv ) {
 	// Where do we want output to go
 	FILE * ofile;
 	if ( !(parser.getOptArg ( "-o" ).compare( "stdout" )) ) {
-		if ( verbose ) std::cout << "Writing results to stdout\n";
+		if ( verbose ) std::cerr << "Writing results to stdout\n";
 		ofile = stdout;
 	} else 
 		ofile = fopen ( parser.getOptArg ( "-o" ).c_str(), "w" );
 
 	if (verbose) {
-		std::cout << "core:    " << parser.getOptArg ( "-c" ) << "\n";
-		std::cout << "sigmoid: " << parser.getOptArg ( "-s" ) << "\n";
-		std::cout << "cuts:    ";
-		for (i=0; i<cuts.size(); i++) std::cout << cuts[i] << " ";
-		std::cout << "\n";
-		std::cout << "priors:\n";
-		std::cout << "   prm1: " << parser.getOptArg ( "-prior1" ) << "\n";
-		std::cout << "   prm2: " << parser.getOptArg ( "-prior2" ) << "\n";
-		std::cout << "   prm3: " << parser.getOptArg ( "-prior3" ) << "\n";
-		if ( atoi (parser.getOptArg("-nafc").c_str()) < 2 ) std::cout << "   prm4: " << parser.getOptArg ( "-prior4" ) << "\n";
+		std::cerr << "core:    " << parser.getOptArg ( "-c" ) << "\n";
+		std::cerr << "sigmoid: " << parser.getOptArg ( "-s" ) << "\n";
+		std::cerr << "cuts:    ";
+		for (i=0; i<cuts.size(); i++) std::cerr << cuts[i] << " ";
+		std::cerr << "\n";
+		std::cerr << "priors:\n";
+		std::cerr << "   prm1: " << parser.getOptArg ( "-prior1" ) << "\n";
+		std::cerr << "   prm2: " << parser.getOptArg ( "-prior2" ) << "\n";
+		std::cerr << "   prm3: " << parser.getOptArg ( "-prior3" ) << "\n";
+		if ( atoi (parser.getOptArg("-nafc").c_str()) < 2 ) std::cerr << "   prm4: " << parser.getOptArg ( "-prior4" ) << "\n";
 	}
 
 	std::string fname;

@@ -9,10 +9,40 @@
 #include <cmath>
 #include "errors.h"
 
+#define NTAB 32
+
 class PsiRandom
 {
+	private:
+		const long IM1;
+		const long IM2;
+		const double AM;
+		const long IMM1;
+		const long IA1;
+		const long IA2;
+		const long IQ1;
+		const long IQ2;
+		const long IR1;
+		const long IR2;
+		const double NDIV;
+		const double EPS;
+		const double RNMX;
 	public:
-		double rngcall ( void ) { return drand48(); }
+		PsiRandom ( void ) :
+			IM1 ( 2147483563 ),
+			IM2 ( 2137483399 ),
+			AM ( 1.0/2147483563 ),
+			IMM1 ( 2147483562 ),
+			IA1 ( 40014 ),
+			IA2 ( 40692 ),
+			IQ1 ( 53668 ),
+			IQ2 ( 52774 ),
+			IR1 ( 12211 ),
+			IR2 ( 3791 ),
+			NDIV ( 1 + 2147483562./32 ),
+			EPS ( 1.2e-7 ),
+			RNMX ( 1.0-1.2e-7 ) {}
+		double rngcall ( void );
 		virtual double draw ( void ) { throw NotImplementedError(); }
 		virtual PsiRandom * clone ( void ) const {throw NotImplementedError(); }
 };
