@@ -104,6 +104,11 @@ cli-clean:
 	cd $(CLI_SRC) && $(MAKE) clean
 cli-test: cli-install
 	python tests/cli_test.py
+cli-uninstall:
+	rm $(CLI_INSTALL)/psignifit-mcmc
+	rm $(CLI_INSTALL)/psignifit-diagnostics
+	rm $(CLI_INSTALL)/psignifit-bootstrap
+	rm $(CLI_INSTALL)/psignifit-mapestimate
 # }}}
 
 #################### PSIPY COMMANDS ################### {{{
