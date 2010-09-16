@@ -314,11 +314,15 @@ def plotHistogram ( simdata, observed, xname, shortname=None, ax=None, hideobser
     yy[1] += 0.02*(yy[1]-yy[0])
 
     # Plot percentile bars
-    p25,p975 = p.prctile ( simdata, (2.5,97.5) )
     if not hideobserved:
         c = parameterdict ( {"color": rc.highlight['color']} )
         ax.plot ( [observed]*2, yy, **(c+rc.line+rc.allplots) )
-    ax.plot ( [p25]*2, yy, 'r:', [p975]*2, yy, ':', color=rc.highlight['color'] )
+    if shortname=="D":
+        p95 = p.prctile ( simdata, 95 )
+        ax.plot ( [p95]*2, yy, ':', color=rc.highlight["color"] )
+    else:
+        p25,p975 = p.prctile ( simdata, (2.5,97.5) )
+        ax.plot ( [p25]*2, yy, 'r:', [p975]*2, yy, ':', color=rc.highlight['color'] )
 
     # Draw the full plot
     ax.set_ylim ( yy )
