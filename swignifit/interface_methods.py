@@ -85,8 +85,16 @@ def mcmc( data, start=None, nsamples=10000, nafc=2, sigmoid='logistic',
     sampler.setTheta(start)
 
     if stepwidths != None:
-        if len(stepwidths) != nparams:
-            raise sfu.PsignifitException("You specified \'"+str(len(start))+\
+        stepwidths == np.array(stepwidths)
+        if len(stepwidths.shape)==2:
+            if isinstance ( sampler, sfr.GenericMetropolis ):
+                sampler.findOptimalStepwidth ( sfu.make_pilotsample ( stepwidths ) )
+            elif isinstance ( sampler, sfr.MetropolisHastings ):
+                sampler.setStepSize ( sfr.vector_double( stepwidths.std(0) ) )
+            else:
+                raise sfu.PsignifitException("You provided a pilot sample but the selected sampler does not support pilot samples")
+        elif len(stepwidths) != nparams:
+            raise sfu.PsignifitException("You specified \'"+str(len(stepwidths))+\
                     "\' stepwidth(s), but there are \'"+str(nparams)+ "\' parameters.")
         else:
             sampler.setStepSize(sfr.vector_double(stepwidths))

@@ -372,3 +372,23 @@ def get_cuts(cuts):
         raise TypeError("'cuts' must be either None, a number or a "+
                 "sequence of numbers.")
 
+def make_pilotsample ( mcsamples ):
+    """create an MCList from a set of pilot samples
+
+    Deviances of the pilot list will be meaningless!
+
+    Parameters
+    ----------
+    mcsamples : array of Nsamples x Nparams
+        pilot samples
+
+    Returns
+    -------
+    pilot : PsiMClist
+        MClist with the pilot samples
+    """
+    N,nprm = mcsamples.shape
+    pilot = sfr.PsiMClist ( N, nprm )
+    for i in xrange ( N ):
+        pilot.setEst ( i, mcsamples[i,:], -1 )
+    return pilot

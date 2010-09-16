@@ -528,7 +528,7 @@ class BootstrapInference ( PsiInference ):
 
 ##############################################################################################################################
 class BayesInference ( PsiInference ):
-    def __init__ ( self, data, sample=True, cuts=(.25,.5,.75), conf=(.025,.975), automatic=True, resample=False, plotprm=None, **kwargs ):
+    def __init__ ( self, data, sample=True, cuts=(.25,.5,.75), conf=(.025,.975), automatic=True, resample=False, plotprm=None, generic=False, **kwargs ):
         """Bayesian Inference for psychometric functions using MCMC
 
         :Parameters:
@@ -678,6 +678,11 @@ class BayesInference ( PsiInference ):
         self.burnin = 0
         self.thin   = 1
         self.nsamples = None
+
+        if generic:
+            self._sampler = "GenericMetropolis"
+        else:
+            self._sampler = "MetropolisHastings"
 
         # We assume that parameter variation is proportional to the
         # estimated parameters
@@ -1383,7 +1388,7 @@ class BayesInference ( PsiInference ):
         lpr = N.concatenate ( lpr, 0 )
         self._PsiInference__infl = -N.mean(lpr,0) + N.log(N.mean(N.exp(lpr),0))
 
-    def __determineoptimalsampling ( self, noptimizations=10, verbose=False ):
+    def __determineoptimalsampling ( self, noptimizations=10, verbose=False, newstyle=True ):
         """Determine optimal sampling parameters using the Raftery&Lewis (1995) procedure
 
         Automatically set burnin,thin,nsamples.
@@ -1398,6 +1403,11 @@ class BayesInference ( PsiInference ):
             *verbose* :
                 display status messages
         """
+
+        if newstyle:
+            self.__tunesampler ( noptimizations, True )
+            return
+
         if noptimizations==0:
             return
         mcmcpars = {}
@@ -1454,6 +1464,78 @@ class BayesInference ( PsiInference ):
         self._steps = a
         if verbose:
             print "Steps(final):",N.sqrt(N.diag(N.cov( samples[self.burnin::self.thin].T )))
+
+    def __tunesampler ( self, noptimizations=10, verbose=False ):
+        """Determine optimal sampling parameters using the Raftery&Lewis (1995) procedure
+
+        Automatically set burnin,thin,nsamples.
+
+        :Parameters:
+            *noptimizations* :
+                maximum number of optimization iterations. If the same
+                sampling parameters are obtained before, the method
+                terminates earlier
+            *verbose* :
+                display status messages
+        """
+        if noptimizations==0:
+            return
+        mcmcpars = {}
+
+        # Determine size of initial test run
+        if self.nsamples is None:
+            NN = 0
+            for q in self.conf:
+                Nmin = pygibbsit.gibbsit ( q=q )["Nmin"]
+                NN = max(NN,Nmin)
+            self.nsamples = NN
+
+        pilot = interface.bootstrap ( self.data, self.mapestimate, 200, cuts = self.cuts, **self.model )[1]
+
+        oldburnin   = 0
+        oldthin     = 1
+        oldnsamples = NN
+
+        for n in xrange ( noptimizations ):
+            pilot = interface.mcmc ( self.data, self.mapestimate, self.nsamples, stepwidths=pilot, sampler=self._sampler, **self.model )[0]
+
+            # Make sure the chains have converged
+            p1,p2 = pilot[0.3*self.nsamples:0.6*self.nsamples,:],pilot[0.6*self.nsamples:,:]
+            m1,m2 = p1.mean(0),p2.mean(0)
+            s1,s2 = p1.var(0),p2.var(0)
+            nstat = (m1-m2)/N.sqrt(s1+s2)
+            print "nstat:",nstat
+            if N.any(abs ( nstat ) > 1.96):
+                if verbose:
+                    print "Bad pilot sample",nstat
+                continue
+
+            # Check all desired thresholds
+            for q in self.conf:
+                for k in xrange ( len(self.mapestimate) ):
+                    try:
+                        mcmcpars = pygibbsit.gibbsit ( pilot[:,k], q=q )
+                    except IndexError:
+                        continue
+                    self.burnin   = max ( self.burnin,   mcmcpars.burnin )
+                    self.thin     = max ( self.thin,     mcmcpars.thin )
+                    self.nsamples = max ( self.nsamples, mcmcpars.Nsamples )
+
+            if verbose:
+                print "Burnin:",self.burnin,"Thinning:",self.thin,"Nsamples:",self.nsamples
+                print "oldnsamples",oldnsamples
+
+            if self.nsamples <= oldnsamples:
+                if verbose:
+                    print "Sampler ok"
+                break
+            else:
+                oldnsamples = self.nsamples
+        self.mcmcpars = mcmcpars
+        if self._sampler == "GenericMetropolis":
+            self._steps = pilot
+        else:
+            self._steps = pilot.std(0)
 
     def __roughvariance ( self ):
         # Determine an initial variance estimate using the Fisher Information Matrix
