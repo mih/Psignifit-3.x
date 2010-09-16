@@ -328,12 +328,19 @@ def plotHistogram ( simdata, observed, xname, shortname=None, ax=None, hideobser
     ax.set_ylim ( yy )
 
     # Write diagnostics
-    ax.set_title ( "%s=%.3f, c(2.5%%)=%.3f, c(97.5%%)=%.3f" % (shortname,observed,p25,p975), **(rc.text+rc.alltext) )
-
-    if reference>p25 and reference<p975:
-        return True
+    if shortname=="D":
+        ax.set_title ( "%s=%.3f, %s_crit=%.3f" % (shortname, observed, shortname, p95 ), **(rc.text+rc.alltext) )
+        if reference < p95:
+            return True
+        else:
+            return False
     else:
-        return False
+        ax.set_title ( "%s=%.3f, c(2.5%%)=%.3f, c(97.5%%)=%.3f" % (shortname,observed,p25,p975), **(rc.text+rc.alltext) )
+
+        if reference>p25 and reference<p975:
+            return True
+        else:
+            return False
 
 def plotPMF ( InferenceObject, xlabel_text="Stimulus intensity", ylabel_text=None,ax=None, showaxes=True, showdesc=False, **kwargs ):
     """Show the psychometric function and data in an axes system
