@@ -17,6 +17,8 @@ PSIPP_DOCOUT=psipp-api
 PSIPP_SRC=src
 PYTHON=python
 CLI_SRC=cli
+TODAY=`date +%d-%m-%G`
+LONGTODAY=`date +%G-%m-%d`
 .PHONY : swignifit psipy ipython psipp-doc
 
 #}}}
@@ -162,5 +164,54 @@ swignifit-test-utility: swignifit
 
 pypsignifit-test:
 	-PYTHONPATH=. $(PYTHON) pypsignifit/psignidata.py
+
+# }}}
+
+#################### DISTRIBUTION COMMANDS ################## {{{
+
+dist-changelog:
+	if [[ `git symbolic-ref HEAD` != refs/heads/master ]] ; then \
+		echo "FATAL: not on master branch!"; \
+		false; \
+	fi
+	echo $(LONGTODAY) > tmp
+	echo >> tmp
+	echo "* " >> tmp
+	echo >> tmp
+	cat changelog >> tmp
+	mv tmp changelog
+	$(EDITOR) changelog +3
+	git commit changelog -m "changelog entry for upload"
+	git push origin
+
+dist-tar: dist-changelog
+	git archive --format=tar --prefix=psignifit3.0_beta_$(TODAY)/ master | gzip > psignifit3.0_beta_$(TODAY).tar.gz
+
+dist-zip: dist-changelog
+	git archive --format=zip --prefix=psignifit3.0_beta_$(TODAY)/ master > psignifit3.0_beta_$(TODAY).zip
+
+dist-swigged: dist-zip dist-tar swig
+	tar xzf psignifit3.0_beta_$(TODAY).tar.gz
+	cp swignifit/swignifit_raw.cxx swignifit/swignifit_raw.py psignifit3.0_beta_$(TODAY)/swignifit/
+	mv psignifit3.0_beta_$(TODAY) psignifit3.0_beta_swigged_$(TODAY)
+	tar czf psignifit3.0_beta_swigged_$(TODAY).tar.gz psignifit3.0_beta_swigged_$(TODAY)
+	zip -r psignifit3.0_beta_swigged_$(TODAY).zip psignifit3.0_beta_swigged_$(TODAY)
+	rm -r psignifit3.0_beta_swigged_$(TODAY)
+
+dist-win:
+	test -f psignifit-cli_3_beta_installer_$(TODAY).exe
+
+dist-upload-doc: python-doc
+	scp -r doc-html/* igordertigor,psignifit@web.sourceforge.net:/home/groups/p/ps/psignifit/htdocs/
+	git tag doc-$(LONGTODAY)
+	git push origin doc-$(LONGTODAY)
+
+dist-upload-archives: dist-tar dist-zip dist-swigged dist-win
+	mkdir psignifit3.0_beta_$(TODAY)
+	cp psignifit3.0_beta_$(TODAY).tar.gz psignifit3.0_beta_swigged_$(TODAY).tar.gz psignifit3.0_beta_$(TODAY).zip psignifit3.0_beta_swigged_$(TODAY).zip psignifit-cli_3_beta_installer_$(TODAY).exe psignifit3.0_beta_$(TODAY)
+	scp -rv psignifit3.0_beta_$(TODAY) igordertigor,psignifit@frs.sourceforge.net:/home/frs/project/p/ps/psignifit/
+	rm -r psignifit3.0_beta_$(TODAY)
+	git tag snap-$(LONGTODAY)
+	git push origin snap-$(LONGTODAY)
 
 # }}}
