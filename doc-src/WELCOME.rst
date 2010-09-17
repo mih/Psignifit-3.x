@@ -36,6 +36,20 @@ running properly, there will also be an R version.
 We would be glad to find developers that are interested in supporting these non-python interfaces
 to the psignifit engine.
 
+.. raw :: html
+
+    <div class="admonition-see-also admonition seealso">
+    <p class="first admonition-title">Important</p>
+    <p class="last">
+    Psignifit3 is beta software. This means that it is still under heavy development. Occasionally
+    it might not work as expected. This might have two reasons:
+    either, the documentation was ambiguous, or you have discovered a programming error (bug).
+    In any case, you would help us a lot if you write an email to our mailing list (see below)
+    or <a href="mailto:igordertigor@users.sourceforge.net,valentin-haenel@users.sourceforge.net?subject=[psignifit]">personally to us</a>.
+    Typically we can solve your problem within hours.
+    </p>
+    </div>
+
 Getting in touch
 ================
 
