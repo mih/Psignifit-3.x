@@ -1,3 +1,8 @@
+2010-09-17
+
+* Fixed segmentation fault in random number generator
+* Enabled automatic upload to sourceforge
+
 2010-09-10
 
 * Adds Windows Installer and more installation stuff in Makefile
