@@ -90,6 +90,8 @@ class PsiInference ( object ):
         """Evaluate the psychometric function model at positions given by x"""
         if prm==None:
             prm = self.estimate
+        if not operator.isSequenceType ( x ):
+            x = [x]
 
         return N.array ( [self._pmf.evaluate ( xx, prm ) for xx in x] )
 
