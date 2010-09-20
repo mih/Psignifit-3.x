@@ -198,8 +198,11 @@ dist-swigged: dist-zip dist-tar swig
 	zip -r psignifit3.0_beta_swigged_$(TODAY).zip psignifit3.0_beta_swigged_$(TODAY)
 	rm -r psignifit3.0_beta_swigged_$(TODAY)
 
-dist-win:
-	test -f psignifit-cli_3_beta_installer_$(TODAY).exe
+dist-win: psignifit-cli.iss
+	rm -r WindowsInstaller
+	cd cli && rm -r build && make -f MakefileMinGW
+	wine $(HOME)/.wine/drive_c/Program\ Files/Inno\ Setup\ 5/ISCC.exe psignifit-cli.iss
+	mv WindowsInstaller/psignifit-cli_3_beta_installer.exe psignifit-cli_3_beta_installer_$(TODAY).exe
 
 dist-upload-doc: python-doc
 	scp -r doc-html/* igordertigor,psignifit@web.sourceforge.net:/home/groups/p/ps/psignifit/htdocs/

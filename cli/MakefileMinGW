@@ -1,4 +1,5 @@
-CC=g++
+# CC=g++
+CC=i586-mingw32msvc-g++
 CFLAGS=-Wall
 LFLAGS=-lm -static
 
@@ -10,16 +11,16 @@ OBJECTS= $(addprefix $(BUILD)/, core.o data.o optimizer.o psychometric.o sigmoid
 CLI_H= cli.h cli_utilities.h
 CLI_O= $(addprefix $(BUILD)/, cli.o cli_utilities.o)
 
-compile: psignifit-mapestimate psignifit-bootstrap psignifit-mcmc psignifit-diagnostics
+compile: psignifit-mapestimate.exe psignifit-bootstrap.exe psignifit-mcmc.exe psignifit-diagnostics.exe
 
-psignifit-mapestimate: $(OBJECTS) $(HEADERS) $(BUILD)/psignifit-mapestimate.o $(CLI_H) $(CLI_O)
-	$(CC) -o psignifit-mapestimate $(OBJECTS) $(BUILD)/psignifit-mapestimate.o $(CLI_O) $(LFLAGS)
-psignifit-bootstrap: $(OBJECTS) $(HEADERS) $(BUILD)/psignifit-bootstrap.o $(CLI_H) $(CLI_O)
-	$(CC) -o psignifit-bootstrap $(OBJECTS) $(BUILD)/psignifit-bootstrap.o $(CLI_O) $(LFLAGS)
-psignifit-mcmc: $(OBJECTS) $(HEADERS) $(BUILD)/psignifit-mcmc.o $(CLI_H) $(CLI_O)
-	$(CC) -o psignifit-mcmc $(OBJECTS) $(BUILD)/psignifit-mcmc.o $(CLI_O) $(LFLAGS)
-psignifit-diagnostics: $(OBJECTS) $(HEADERS) $(BUILD)/psignifit-diagnostics.o $(CLI_H) $(CLI_O)
-	$(CC) -o psignifit-diagnostics $(OBJECTS) $(BUILD)/psignifit-diagnostics.o $(CLI_O) $(LFLAGS)
+psignifit-mapestimate.exe: $(OBJECTS) $(HEADERS) $(BUILD)/psignifit-mapestimate.o $(CLI_H) $(CLI_O)
+	$(CC) -o psignifit-mapestimate.exe $(OBJECTS) $(BUILD)/psignifit-mapestimate.o $(CLI_O) $(LFLAGS)
+psignifit-bootstrap.exe: $(OBJECTS) $(HEADERS) $(BUILD)/psignifit-bootstrap.o $(CLI_H) $(CLI_O)
+	$(CC) -o psignifit-bootstrap.exe $(OBJECTS) $(BUILD)/psignifit-bootstrap.o $(CLI_O) $(LFLAGS)
+psignifit-mcmc.exe: $(OBJECTS) $(HEADERS) $(BUILD)/psignifit-mcmc.o $(CLI_H) $(CLI_O)
+	$(CC) -o psignifit-mcmc.exe $(OBJECTS) $(BUILD)/psignifit-mcmc.o $(CLI_O) $(LFLAGS)
+psignifit-diagnostics.exe: $(OBJECTS) $(HEADERS) $(BUILD)/psignifit-diagnostics.o $(CLI_H) $(CLI_O)
+	$(CC) -o psignifit-diagnostics.exe $(OBJECTS) $(BUILD)/psignifit-diagnostics.o $(CLI_O) $(LFLAGS)
 
 $(BUILD)/psignifit-mapestimate.o: psignifit-mapestimate.cc $(HEADERS) $(CLI_H)
 	$(CC) -c $(CFLAGS) psignifit-mapestimate.cc -o $(BUILD)/psignifit-mapestimate.o
