@@ -10,15 +10,15 @@
 ; Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId={{22600284-5AE4-44F6-BF95-7CD80B34E86E}
-AppName=psignifit-cli
+AppName=psignifit
 AppVersion=3.0 beta
 ;AppVerName=psignifit-cli 3.0 beta
 AppPublisher=psignifit development team
 AppPublisherURL=http://psignifit.sourceforge.net
 AppSupportURL=http://psignifit.sourceforge.net
 AppUpdatesURL=http://psignifit.sourceforge.net
-DefaultDirName={pf}\psignifit-cli
-DefaultGroupName=psignifit-cli
+DefaultDirName={pf}\psignifit3
+DefaultGroupName=psignifit
 LicenseFile=COPYING
 InfoBeforeFile=doc-src\WELCOME.rst
 OutputBaseFilename=psignifit-cli_3_beta_installer
@@ -31,11 +31,18 @@ ChangesEnvironment=true
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Files]
-Source: "cli\*.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "cli\*.exe"; DestDir: "{app}"; Flags: ignoreversion; Components: installcli;
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
-Name: "{group}\{cm:UninstallProgram,psignifit-cli}"; Filename: "{uninstallexe}"
+Name: "{group}\{cm:UninstallProgram,psignifit}"; Filename: "{uninstallexe}"
+
+[Types]
+Name: full; Description: "Full installation";
+Name: cli;  Description: "Only install the command line interface";
+
+[Components]
+Name: installcli; Description: "Command line interface (required for the matlab interface)"; Types: full cli;
 
 [Tasks]
 Name: modifypath; Description: Add psignifit-cli to your environment path (Highly recommended); Flags: checkedonce
