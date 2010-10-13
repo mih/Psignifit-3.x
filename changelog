@@ -1,3 +1,7 @@
+2010-10-13
+
+* Fixed bug with tmp-files to (mainly a windows issue)
+
 2010-09-17
 
 * Fixed segmentation fault in random number generator
