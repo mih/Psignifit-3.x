@@ -101,7 +101,7 @@ elif options.observer == "betabinomial":
     if options.observer_params=="":
         M = 10
     else:
-        M = int(options.observer_params)
+        M = float(options.observer_params)
     def create_new_observer ():
         return psigobservers.BetaBinomialObserver ( *(gen_prm+[M]), **gen_kwargs )
 
@@ -279,6 +279,7 @@ for simulation in xrange ( options.nsimulations ):
     random.shuffle ( x )
     data = O.DoAnExperiment ( x, ntrials=options.blocksize )
     print "\ndata =",data
+    print constraints
     Bnpr = pypsignifit.BootstrapInference ( data, sample=options.nbootstrap, priors=constraints, parametric=False, **ana_kwargs )
     print "Done npar"
     Bpar = pypsignifit.BootstrapInference ( data, sample=options.nbootstrap, priors=constraints, parametric=True,  **ana_kwargs )
