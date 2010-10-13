@@ -100,7 +100,8 @@ while size(varargin,2) > 0
 end
 
 % Store the data
-save ( '-ascii', '__data.txt', 'data' );
+dataf = tempname;
+save ( '-ascii', dataf, 'data' );
 
 sparams = sprintf ( '"%s', num2str ( parameters, '%f,') );
 sparams(end) = '"';
@@ -110,8 +111,8 @@ scuts = sprintf ( '"%s', num2str ( cuts, '%f,') );
 scuts(end) = '"';
 
 % Write the command
-cmd = sprintf ( 'psignifit-diagnostics __data.txt --matlab -c %s -s %s -params %s -cuts %s -nafc %d %s %s', ...
-    core, sigmoid,sparams,scuts,nafc,verbosity, gil );
+cmd = sprintf ( 'psignifit-diagnostics %s --matlab -c %s -s %s -params %s -cuts %s -nafc %d %s %s', ...
+    dataf, core, sigmoid,sparams,scuts,nafc,verbosity, gil );
 
 if verbose
     cmd
@@ -129,4 +130,4 @@ results.cuts = cuts;
 results.data = data;
 
 % Clean up
-delete ( '__data.txt' );
+delete ( dataf );

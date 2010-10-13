@@ -139,8 +139,9 @@ while size(varargin,2) > 0
         [stepwidths,varargin] = popoption(varargin);
     case 'pilot'
         pilot = true;
+        pilotf = tempname;
         [pilotsample,varargin] = popoption(varargin);
-        f = fopen ( '__pilot.txt', 'w' );
+        f = fopen ( pilotf, 'w' );
         fprintf ( f, '\n# mcestimates\n' );
         for k = 1:size(pilotsample,1)
             fprintf ( f, '%s\n', num2str(pilotsample(k,:)) );
@@ -154,14 +155,15 @@ while size(varargin,2) > 0
 end
 
 if pilot
-    stepwidths_or_pilot = '__pilot.txt';
+    stepwidths_or_pilot = pilotf;
 else
     stepwidths_or_pilot = sprintf('"%s',num2str(stepwidths(:)','%f,'));
     stepwidths_or_pilot(end) = '"';
 end
 
 % Store the data
-save ( '-ascii', '__data.txt', 'data' );
+dataf = tempname;
+save ( '-ascii', dataf, 'data' );
 
 % Fiddle around with the fourth prior. Do we need it?
 if nafc > 1
@@ -177,8 +179,8 @@ scuts = sprintf ( '"%s', num2str ( cuts, '%f,') );
 scuts(length(scuts)) = '"';
 
 % Write the command
-cmd = sprintf ( 'psignifit-mcmc %s __data.txt --matlab -prior1 "%s" -prior2 "%s" -prior3 "%s" %s -nsamples %d -s %s -c %s %s -cuts %s -proposal %s %s', ...
-    verbosity, ...
+cmd = sprintf ( 'psignifit-mcmc %s %s --matlab -prior1 "%s" -prior2 "%s" -prior3 "%s" %s -nsamples %d -s %s -c %s %s -cuts %s -proposal %s %s', ...
+    verbosity, dataf, ...
     getfield(priors,'m_or_a'), getfield(priors,'w_or_b'), getfield(priors,'lambda'), prior4, ...
     samples, sigmoid, core, gil, scuts, stepwidths_or_pilot, generic );
 
@@ -204,7 +206,7 @@ results.burnin = samples/2;
 results.nsamples = samples;
 
 % Clean up
-delete ( '__data.txt' );
-if exist ( '__pilot.txt', 'file' )
-    delete ( '__pilot.txt' );
+delete ( dataf );
+if exist ( stepwidths_or_pilot, 'file' )
+    delete ( stepwidths_or_pilot );
 end
