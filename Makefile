@@ -199,7 +199,7 @@ dist-swigged: dist-zip dist-tar swig
 	rm -r psignifit3.0_beta_swigged_$(TODAY)
 
 dist-win: psignifit-cli.iss
-	rm -r WindowsInstaller
+	if [ -d WindowsInstaller ]; then rm -r WindowsInstaller; fi
 	cd cli && rm -r build && make -f MakefileMinGW
 	wine $(HOME)/.wine/drive_c/Program\ Files/Inno\ Setup\ 5/ISCC.exe psignifit-cli.iss
 	mv WindowsInstaller/psignifit-cli_3_beta_installer.exe psignifit-cli_3_beta_installer_$(TODAY).exe
