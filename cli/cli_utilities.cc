@@ -179,13 +179,20 @@ void print ( std::vector<double> theta, bool matlabformat, std::string varname, 
 	if ( matlabformat ) {
 		fprintf ( ofile, "results.%s = [ %lf", varname.c_str(), theta[0] );
 		for ( i=1; i<theta.size(); i++ ) {
-			fprintf ( ofile, ", %lf", theta[i] );
+			if (theta[i]==theta[i]) {
+				fprintf ( ofile, ", %lf", theta[i] );
+			} else {
+				fprintf ( ofile, ", NaN" );
+			}
 		}
 		fprintf ( ofile, "];\n" );
 	} else {
 		fprintf ( ofile, "\n# %s\n", varname.c_str() );
 		for ( i=0; i<theta.size(); i++ ) {
-			fprintf ( ofile, " %lf ", theta[i] );
+			if (theta[i]==theta[i])
+				fprintf ( ofile, " %lf ", theta[i] );
+			else
+				fprintf ( ofile, " NaN " );
 		}
 		fprintf ( ofile, "\n" );
 	}
