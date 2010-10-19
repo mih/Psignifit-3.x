@@ -215,12 +215,21 @@ python interpreter using the ``os`` module.
 Execute without Installation
 ----------------------------
 
-If you wish to build and execute pypsignifit in place, simply type:
+If you wish to build and execute pypsignifit in place, simply type::
 
     make
 
 This will build everything into the current working directory, and allow you to
 import psignifit as long as you remain in the current working directory.
+
+Testing your installation
+-------------------------
+
+To run a number of tests on your installation, you can call::
+
+    make test
+
+This will call a rather large suite of tests for psignifit.
 
 Installing mpsignifit and the command line interface
 ----------------------------------------------------
