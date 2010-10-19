@@ -15,6 +15,7 @@ import numpy as N
 import re
 from scipy import stats
 import psignidata
+import swignifit.interface_methods as interface
 
 __all__ = ["GoodnessOfFit","ConvergenceMCMC","ParameterPlot","ThresholdPlot","plotSensitivity","plotInfluential","plotMultiplePMFs"]
 __warnred = [.7,0,0]
@@ -930,18 +931,27 @@ def plotInfluential ( InferenceObject ):
     maxinfl = N.argmax(InferenceObject.infl)
     ind = range ( InferenceObject.data.shape[0] )
     ind.pop(maxinfl)
-    influencedDataset = psignidata.BootstrapInference( InferenceObject.data[ind,:],
-            sample=False, **(InferenceObject.model))
+    # influencedDataset = psignidata.BootstrapInference( InferenceObject.data[ind,:],
+    #         sample=False, **(InferenceObject.model))
+    # influencedDataset = psignidata.BayesInference ( InferenceObject.data[ind,:], **(InferenceObject.model) )
+    est = interface.mapestimate ( InferenceObject.data[ind,:], start=InferenceObject.estimate, **(InferenceObject.model) )[0]
+    x = N.mgrid[InferenceObject.data[:,0].min():InferenceObject.data[:,0].max():100j]
+    influencedPMF = interface.diagnostics ( x, est,
+            nafc = InferenceObject.model["nafc"],
+            sigmoid = InferenceObject.model["sigmoid"],
+            core = InferenceObject.model["core"] )
 
     p.figure ( figsize=(6,8) )
     # ax = p.axes ( (0.0,.5,.9,.5) )
     ax = p.subplot ( 2,1,1 )
     if InferenceObject.__repr__().split()[1] == "BayesInference":
         InferenceObject.drawposteriorexamples ( ax=ax )
-    plotPMF ( InferenceObject, ax=ax, showaxes=False, showdesc=False, color="b", linewidth=2 )
+    plotPMF ( InferenceObject, ax=ax, showaxes=True, showdesc=False, color="b", linewidth=2 )
     ax.plot ( [InferenceObject.data[maxinfl,0]], [InferenceObject.data[maxinfl,1].astype("d")/InferenceObject.data[maxinfl,2]],
             'rx', markersize=20, markeredgewidth=5 )
-    ax = plotPMF ( influencedDataset, ax=ax, showdesc=False, showaxes=True, color="r", markertype=([(0,0)],0), linewidth=2 )[-1]
+    # ax = plotPMF ( influencedDataset, ax=ax, showdesc=False, showaxes=True, color="r", markertype=([(0,0)],0), linewidth=2 )[-1]
+    ax.plot ( x, influencedPMF, color="r", linewidth=2 )
+
     xl = ax.get_xlim ()
 
     # ax = p.axes ( (0.0, 0., .9, .5) )
