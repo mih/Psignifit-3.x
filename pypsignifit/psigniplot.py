@@ -503,7 +503,7 @@ def plotThres ( InferenceObject, ax=None, color="b" ):
             markers.append("|")
         ax.plot ( bar,[ylev]*len(bar), '-', color=color )
         for x,m in zip(bar,markers):
-            ax.plot ( x, ylev, marker=m, color=color )
+            ax.plot ( [x], ylev, marker=m, color=color )
     return ax
 
 def GoodnessOfFit ( InferenceObject, warn=True ):
