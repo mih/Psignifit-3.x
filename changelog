@@ -1,5 +1,9 @@
 2010-10-21
 
+* 
+
+2010-10-21
+
 * Allowing older versions of matplotlib (spines are not required)
 * added some examples for the python interface
 
