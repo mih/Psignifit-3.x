@@ -1,6 +1,6 @@
 2010-10-21
 
-* Fixed warnings for the dependency on matplotlib
+* Fixed warnings for the dependency on matplotlib to be suppressable
 
 2010-10-21
 
