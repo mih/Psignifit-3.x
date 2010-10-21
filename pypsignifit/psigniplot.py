@@ -20,6 +20,7 @@ import swignifit.interface_methods as interface
 __all__ = ["GoodnessOfFit","ConvergenceMCMC","ParameterPlot","ThresholdPlot","plotSensitivity","plotInfluential","plotMultiplePMFs"]
 __warnred = [.7,0,0]
 
+import warnings
 spineswarning = """your axes object does not support spines.
 The most probable reason for this is that you are using an old version of matplotlib.
 spines allow for more beautiful plots and are a new feature in matplotlib 1.0.0.
@@ -79,7 +80,7 @@ def drawaxes ( ax, xtics=None, xfmt=None, ytics=None, yfmt=None, xname=None, yna
             else:
                 raise ValueError ( 'unknown spine location: %s' % loc )
     else:
-        raise DeprecationWarning, spineswarning
+        warnings.warn ( spineswarning, DeprecationWarning )
     ax.xaxis.set_ticks_position('bottom')
     ax.yaxis.set_ticks_position('left')
 
@@ -105,7 +106,7 @@ def prepare_axes ( ax, haveon=("bottom","left" ) ):
             else:
                 spine.set_color ( "none" )
     else:
-        raise DeprecationWarning, spineswarning
+        warnings.warn ( spineswarning, DeprecationWarning )
 
     if "bottom" in haveon:
         ax.xaxis.set_ticks_position ( "bottom" )
