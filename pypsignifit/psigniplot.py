@@ -20,6 +20,11 @@ import swignifit.interface_methods as interface
 __all__ = ["GoodnessOfFit","ConvergenceMCMC","ParameterPlot","ThresholdPlot","plotSensitivity","plotInfluential","plotMultiplePMFs"]
 __warnred = [.7,0,0]
 
+spineswarning = """your axes object does not support spines.
+The most probable reason for this is that you are using an old version of matplotlib.
+spines allow for more beautiful plots and are a new feature in matplotlib 1.0.0.
+"""
+
 class parameterdict ( dict ):
     def __add__ ( self, other ):
         out = parameterdict ( self )
@@ -64,14 +69,17 @@ def drawaxes ( ax, xtics=None, xfmt=None, ytics=None, yfmt=None, xname=None, yna
             label for the y-axis
     """
 
-    # New Implementation using spines
-    for loc, spine in ax.spines.iteritems():
-        if loc in ['left','bottom']:
-            spine.set_position( ('outward', 10) )   # Outward by 10 points
-        elif loc in ['right','top']:
-            spine.set_color('none')                 # no 'spine'
-        else:
-            raise ValueError ( 'unknown spine location: %s' % loc )
+    if getattr ( ax, 'spines', False ):
+        # New Implementation using spines
+        for loc, spine in ax.spines.iteritems():
+            if loc in ['left','bottom']:
+                spine.set_position( ('outward', 10) )   # Outward by 10 points
+            elif loc in ['right','top']:
+                spine.set_color('none')                 # no 'spine'
+            else:
+                raise ValueError ( 'unknown spine location: %s' % loc )
+    else:
+        raise DeprecationWarning, spineswarning
     ax.xaxis.set_ticks_position('bottom')
     ax.yaxis.set_ticks_position('left')
 
@@ -90,11 +98,14 @@ def prepare_axes ( ax, haveon=("bottom","left" ) ):
     :Return:
         the prepared axes object
     """
-    for loc,spine in ax.spines.iteritems():
-        if loc in haveon:
-            spine.set_position ( ("outward",10) )
-        else:
-            spine.set_color ( "none" )
+    if getattr ( ax, 'spines', False ):
+        for loc,spine in ax.spines.iteritems():
+            if loc in haveon:
+                spine.set_position ( ("outward",10) )
+            else:
+                spine.set_color ( "none" )
+    else:
+        raise DeprecationWarning, spineswarning
 
     if "bottom" in haveon:
         ax.xaxis.set_ticks_position ( "bottom" )
