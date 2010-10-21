@@ -1,3 +1,8 @@
+2010-10-21
+
+* Allowing older versions of matplotlib (spines are not required)
+* added some examples for the python interface
+
 2010-10-18
 
 * Fixed bug with NaN in matlab interface (seems to be crucial only on windows)
