@@ -21,7 +21,7 @@ function results = MapEstimate ( data, priors, varargin )
 %    >> priors.m_or_a = 'None';
 %    >> priors.w_or_b = 'None';
 %    >> priors.lambda = 'Uniform(0,.1)';
-%    >> prior.gamma   = 'Uniform(0,.1)';
+%    >> prior.gammas  = 'Uniform(0,.1)';
 %
 %    For more information on the specification of priors for psychometric functions, see
 %
@@ -94,6 +94,14 @@ gammaislambda = false;
 verbosity = '';
 cuts = [0.25,0.5,0.75];
 verbose = false;
+
+% Set a default prior if none is present
+if exist ( 'priors' ) ~= 1;
+    priors.m_or_a = 'None';
+    priors.w_or_b = 'None';
+    priors.lambda = 'Uniform(0,.1)';
+    priors.gamma  = 'Uniform(0,.1)';
+end
 
 % Check input
 while size(varargin,2) > 0

@@ -16,7 +16,7 @@ function results = BayesInference ( data, priors, varargin )
 %    >> priors.m_or_a = 'None';
 %    >> priors.w_or_b = 'None';
 %    >> priors.lambda = 'Uniform(0,.1)';
-%    >> prior.gamma   = 'Uniform(0,.1)';
+%    >> priors.gamma  = 'Uniform(0,.1)';
 %
 %    For more information on the specification of priors for psychometric functions, see
 %
@@ -114,6 +114,14 @@ verbose = false;
 stepwidths = [0.1,0.1,0.01];
 pilot = false;
 generic = '';
+
+% Set a default prior if none is present
+if exist ( 'priors' ) ~= 1;
+    priors.m_or_a = 'None';
+    priors.w_or_b = 'None';
+    priors.lambda = 'Uniform(0,.1)';
+    priors.gamma  = 'Uniform(0,.1)';
+end
 
 % Check input
 while size(varargin,2) > 0
