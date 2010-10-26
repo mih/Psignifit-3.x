@@ -85,6 +85,9 @@ elif options.gen_nafc > 1:
 else:
     raise IOError, "gen_nafc should be > 0, but is %d" % ( options.gen_nafc, )
 
+if options.ana_nafc is None:
+    options.ana_nafc = options.gen_nafc
+
 # Observer variable parameters
 gen_kwargs = { "nafc": options.gen_nafc,
         "sigmoid": options.gen_sigmoid,
@@ -170,6 +173,7 @@ priors      = ["Gauss(0,100)", "Gamma(1.01,2000)","Beta(2,50)"]
 if options.ana_nafc < 2:
     constraints += ["Uniform(0,.1)"]
     priors += ["Beta(1,10)"]
+print priors
 
 # Organize output
 if len(options.outputfile) > 0:
