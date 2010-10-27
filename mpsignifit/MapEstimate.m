@@ -143,9 +143,9 @@ scuts = sprintf ( '"%s', num2str ( cuts, '%f,') );
 scuts(length(scuts)) = '"';
 
 % Write the command
-cmd = sprintf ( 'psignifit-mapestimate %s --matlab -prior1 "%s" -prior2 "%s" -prior3 "%s" %s -s %s -c %s -cuts %s', ...
+cmd = sprintf ( 'psignifit-mapestimate %s --matlab -prior1 "%s" -prior2 "%s" -prior3 "%s" %s -nafc %d -s %s -c %s -cuts %s %s', ...
     dataf, getfield(priors,'m_or_a'), getfield(priors,'w_or_b'), getfield(priors,'lambda'), prior4, ...
-    sigmoid, core, scuts);
+    nafc, sigmoid, core, scuts, verbosity);
 
 if verbose
     cmd
