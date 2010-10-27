@@ -16,7 +16,7 @@ function results = BayesInference ( data, priors, varargin )
 %    >> priors.m_or_a = 'None';
 %    >> priors.w_or_b = 'None';
 %    >> priors.lambda = 'Uniform(0,.1)';
-%    >> prior.gamma   = 'Uniform(0,.1)';
+%    >> priors.gamma  = 'Uniform(0,.1)';
 %
 %    For more information on the specification of priors for psychometric functions, see
 %
@@ -115,6 +115,14 @@ stepwidths = [0.1,0.1,0.01];
 pilot = false;
 generic = '';
 
+% Set a default prior if none is present
+if exist ( 'priors' ) ~= 1;
+    priors.m_or_a = 'None';
+    priors.w_or_b = 'None';
+    priors.lambda = 'Uniform(0,.1)';
+    priors.gamma  = 'Uniform(0,.1)';
+end
+
 % Check input
 while size(varargin,2) > 0
     [opt,varargin] = popoption ( varargin );
@@ -179,10 +187,10 @@ scuts = sprintf ( '"%s', num2str ( cuts, '%f,') );
 scuts(length(scuts)) = '"';
 
 % Write the command
-cmd = sprintf ( 'psignifit-mcmc %s %s --matlab -prior1 "%s" -prior2 "%s" -prior3 "%s" %s -nsamples %d -s %s -c %s %s -cuts %s -proposal %s %s', ...
+cmd = sprintf ( 'psignifit-mcmc %s %s --matlab -prior1 "%s" -prior2 "%s" -prior3 "%s" %s -nsamples %d -nafc %d -s %s -c %s %s -cuts %s -proposal %s %s', ...
     verbosity, dataf, ...
     getfield(priors,'m_or_a'), getfield(priors,'w_or_b'), getfield(priors,'lambda'), prior4, ...
-    samples, sigmoid, core, gil, scuts, stepwidths_or_pilot, generic );
+    samples, nafc, sigmoid, core, gil, scuts, stepwidths_or_pilot, generic );
 
 if verbose
     cmd

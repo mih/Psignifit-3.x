@@ -16,7 +16,7 @@ function results = BootstrapInference ( data, priors, varargin )
 %    >> priors.m_or_a = 'None';
 %    >> priors.w_or_b = 'None';
 %    >> priors.lambda = 'Uniform(0,.1)';
-%    >> prior.gamma   = 'Uniform(0,.1)';
+%    >> priors.gamma  = 'Uniform(0,.1)';
 %
 %    Internally, the constraints are used like bayesian priors. This means that constraints
 %    could in principle be any probability distribution. Psignifit implements a number of
@@ -93,6 +93,14 @@ cuts = [0.25,0.5,0.75];
 samples = 2000;
 verbose = false;
 
+% Set a default prior if none is present
+if exist ( 'priors' ) ~= 1;
+    priors.m_or_a = 'None';
+    priors.w_or_b = 'None';
+    priors.lambda = 'Uniform(0,.1)';
+    priors.gamma  = 'Uniform(0,.1)';
+end
+
 % Check input
 while size(varargin,2) > 0
     [opt,varargin] = popoption ( varargin );
@@ -145,10 +153,10 @@ scuts = sprintf ( '"%s', num2str ( cuts, '%f,') );
 scuts(length(scuts)) = '"';
 
 % Write the command
-cmd = sprintf ( 'psignifit-bootstrap %s %s --matlab -prior1 "%s" -prior2 "%s" -prior3 "%s" %s -nsamples %d -s %s -c %s %s %s -cuts %s', ...
+cmd = sprintf ( 'psignifit-bootstrap %s %s --matlab -prior1 "%s" -prior2 "%s" -prior3 "%s" %s -nsamples %d -nafc %d -s %s -c %s %s %s -cuts %s', ...
     verbosity, dataf, ...
     getfield(priors,'m_or_a'), getfield(priors,'w_or_b'), getfield(priors,'lambda'), prior4, ...
-    samples, sigmoid, core, gil, npr, scuts );
+    samples, nafc, sigmoid, core, gil, npr, scuts );
 
 if verbose
     cmd

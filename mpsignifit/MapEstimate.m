@@ -21,7 +21,7 @@ function results = MapEstimate ( data, priors, varargin )
 %    >> priors.m_or_a = 'None';
 %    >> priors.w_or_b = 'None';
 %    >> priors.lambda = 'Uniform(0,.1)';
-%    >> prior.gamma   = 'Uniform(0,.1)';
+%    >> prior.gammas  = 'Uniform(0,.1)';
 %
 %    For more information on the specification of priors for psychometric functions, see
 %
@@ -95,6 +95,14 @@ verbosity = '';
 cuts = [0.25,0.5,0.75];
 verbose = false;
 
+% Set a default prior if none is present
+if exist ( 'priors' ) ~= 1;
+    priors.m_or_a = 'None';
+    priors.w_or_b = 'None';
+    priors.lambda = 'Uniform(0,.1)';
+    priors.gamma  = 'Uniform(0,.1)';
+end
+
 % Check input
 while size(varargin,2) > 0
     [opt,varargin] = popoption ( varargin );
@@ -135,9 +143,9 @@ scuts = sprintf ( '"%s', num2str ( cuts, '%f,') );
 scuts(length(scuts)) = '"';
 
 % Write the command
-cmd = sprintf ( 'psignifit-mapestimate %s --matlab -prior1 "%s" -prior2 "%s" -prior3 "%s" %s -s %s -c %s -cuts %s', ...
+cmd = sprintf ( 'psignifit-mapestimate %s --matlab -prior1 "%s" -prior2 "%s" -prior3 "%s" %s -nafc %d -s %s -c %s -cuts %s %s', ...
     dataf, getfield(priors,'m_or_a'), getfield(priors,'w_or_b'), getfield(priors,'lambda'), prior4, ...
-    sigmoid, core, scuts);
+    nafc, sigmoid, core, scuts, verbosity);
 
 if verbose
     cmd

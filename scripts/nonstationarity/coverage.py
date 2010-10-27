@@ -57,6 +57,8 @@ parser.add_option ( "--nblocks",      dest="nblocks",      default=5,    type="i
 parser.add_option ( "--fixed-levels", dest="fixed_levels", default=None,
         type="string", help="list of stimulus levels, if desired, if None,"+\
                 "psychometric function will be sampled. Default: None")
+parser.add_option ( "--fixed-sequence", dest="fixed_sequence", action="store_true",
+        help="if this is set, the psychometric function will be sampled at fixed levels" )
 parser.add_option ( "--seed", dest="seed", default="fixed",
         type="string", help="seed for simulation, can be 'fixed, 'time', or an"+\
                 "integer value.")
@@ -66,6 +68,7 @@ parser.add_option ( "-o", "--output", dest="outputfile", default="test.log",
 
 parser.add_option ( "--datareduce", dest="datareduce", action="store_true",
         help="reduce data based on the estimated nu parameter" )
+
 
 options,arguments = parser.parse_args()
 
@@ -84,6 +87,9 @@ elif options.gen_nafc > 1:
     gen_prm = [ options.gen_prm1, options.gen_prm2, options.gen_prm3 ]
 else:
     raise IOError, "gen_nafc should be > 0, but is %d" % ( options.gen_nafc, )
+
+if options.ana_nafc is None:
+    options.ana_nafc = options.gen_nafc
 
 # Observer variable parameters
 gen_kwargs = { "nafc": options.gen_nafc,
@@ -170,6 +176,7 @@ priors      = ["Gauss(0,100)", "Gamma(1.01,2000)","Beta(2,50)"]
 if options.ana_nafc < 2:
     constraints += ["Uniform(0,.1)"]
     priors += ["Beta(1,10)"]
+print priors
 
 # Organize output
 if len(options.outputfile) > 0:
@@ -271,12 +278,15 @@ count_par = 0.
 count_bay = 0.
 not_converged = 0
 
+random.shuffle ( x )
+
 sys.stderr.write("\n")
 for simulation in xrange ( options.nsimulations ):
     sys.stderr.write ( "\nSimulation %d is running" % ( simulation, ) )
     O = create_new_observer ()
     # print "\nO=",O
-    random.shuffle ( x )
+    if not options.fixed_sequence:
+        random.shuffle ( x )
     data = O.DoAnExperiment ( x, ntrials=options.blocksize )
     print "\ndata =",data
     print constraints
