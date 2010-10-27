@@ -198,11 +198,11 @@ int main ( int argc, char ** argv ) {
 			for ( i=0; i<ncuts; i++ ) {
 				th = pmf->getThres ( theta, cuts[i] );
 				std::cerr << "Threshold(" << cuts[i] << ") = " << th << "\tCI_95 = ("
-					<< bs_list->getThres(.025,cuts[i]) << ","
-					<< bs_list->getThres(.975,cuts[i]) << ") ";
+					<< bs_list->getThres(.025,i) << ","
+					<< bs_list->getThres(.975,i) << ") ";
 				std::cerr << "Slope(" << cuts[i] << ") = " << pmf->getSlope ( theta, th ) << "\tCI_95 = ("
-					<< bs_list->getSlope(.025,cuts[i]) << ","
-					<< bs_list->getSlope(.975,cuts[i]) << ")\n";
+					<< bs_list->getSlope(.025,i) << ","
+					<< bs_list->getSlope(.975,i) << ")\n";
 			}
 		}
 
