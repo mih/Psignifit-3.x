@@ -57,6 +57,8 @@ parser.add_option ( "--nblocks",      dest="nblocks",      default=5,    type="i
 parser.add_option ( "--fixed-levels", dest="fixed_levels", default=None,
         type="string", help="list of stimulus levels, if desired, if None,"+\
                 "psychometric function will be sampled. Default: None")
+parser.add_option ( "--fixed-sequence", dest="fixed_sequence", action="store_true",
+        help="if this is set, the psychometric function will be sampled at fixed levels" )
 parser.add_option ( "--seed", dest="seed", default="fixed",
         type="string", help="seed for simulation, can be 'fixed, 'time', or an"+\
                 "integer value.")
@@ -66,6 +68,7 @@ parser.add_option ( "-o", "--output", dest="outputfile", default="test.log",
 
 parser.add_option ( "--datareduce", dest="datareduce", action="store_true",
         help="reduce data based on the estimated nu parameter" )
+
 
 options,arguments = parser.parse_args()
 
@@ -275,12 +278,15 @@ count_par = 0.
 count_bay = 0.
 not_converged = 0
 
+random.shuffle ( x )
+
 sys.stderr.write("\n")
 for simulation in xrange ( options.nsimulations ):
     sys.stderr.write ( "\nSimulation %d is running" % ( simulation, ) )
     O = create_new_observer ()
     # print "\nO=",O
-    random.shuffle ( x )
+    if not options.fixed_sequence:
+        random.shuffle ( x )
     data = O.DoAnExperiment ( x, ntrials=options.blocksize )
     print "\ndata =",data
     print constraints
