@@ -1,3 +1,9 @@
+2010-10-27
+
+* Bugfix in matlab interface: nafc is actually used
+* bugfix in coverage script: default values
+* matlab interface has default priors
+
 2010-10-21
 
 * Old matplotlib versions require fake iterables for plotting
