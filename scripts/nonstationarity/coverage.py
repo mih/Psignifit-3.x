@@ -255,15 +255,15 @@ def writelog ( f, Bnpr=None, Bpar=None, mcmc=None, mcmc_conv=1 ):
         outs += "%g %g %g " % (Bnpr.estimate[0],Bnpr.getCI(1,(.025,)),Bnpr.getCI(1,(.975))) # m.npr.e m.npr.l m.npr.h
         outs += "%g %g %g " % (Bnpr.estimate[1],ptile(Bnpr.mcestimates[:,1],2.5),ptile(Bnpr.mcestimates[:,1],97.5)) # w.npr.e w.npr.l w.npr.h
         outs += "%g %g %g " % (Bnpr.deviance, ptile(Bnpr.mcdeviance,95), psigcorrect.estimate_nu (Bnpr)[0]) # d.npr d.npr.crit nu.npr
-        outs += "%g %g %g " % (Bnpr.Rpd,ptile(Bnpr.mcRpd,2.5),ptile(Bnpr.mcRpd,97.5), getcpe ( Bnpr.Rpd, Bnpr.mcRpd ) ) # rpd.npr rpd.npr.l rpd.npr.h
-        outs += "%g %g %g " % (Bnpr.Rkd,ptile(Bnpr.mcRkd,2.5),ptile(Bnpr.mcRkd,97.5), getcpe ( Bnpr.Rkd, Bnpr.mcRkd ) ) # rkd.npr rkd.npr.l rkd.npr.h
+        outs += "%g %g %g %g " % (Bnpr.Rpd,ptile(Bnpr.mcRpd,2.5),ptile(Bnpr.mcRpd,97.5), getcpe ( Bnpr.Rpd, Bnpr.mcRpd ) ) # rpd.npr rpd.npr.l rpd.npr.h
+        outs += "%g %g %g %g " % (Bnpr.Rkd,ptile(Bnpr.mcRkd,2.5),ptile(Bnpr.mcRkd,97.5), getcpe ( Bnpr.Rkd, Bnpr.mcRkd ) ) # rkd.npr rkd.npr.l rkd.npr.h
         outs += ("%g "*options.nblocks) % tuple(Bnpr.infl)
         # Bpar
         outs += "%g %g %g " % (Bpar.estimate[0],Bpar.getCI(1,(.025,)),Bpar.getCI(1,(.975))) # m.par.e m.par.l m.par.h
         outs += "%g %g %g " % (Bpar.estimate[1],ptile(Bpar.mcestimates[:,1],2.5),ptile(Bpar.mcestimates[:,1],97.5)) # w.par.e w.par.l w.par.h
         outs += "%g %g %g " % (Bpar.deviance, ptile(Bpar.mcdeviance,95), psigcorrect.estimate_nu (Bpar)[0]) # d.par d.par.crit nu.par
-        outs += "%g %g %g " % (Bpar.Rpd,ptile(Bpar.mcRpd,2.5),ptile(Bpar.mcRpd,97.5), getcpe ( Bpar.Rpd, Bpar.mcRpd ) ) # rpd.par rpd.par.l rpd.par.h
-        outs += "%g %g %g " % (Bpar.Rkd,ptile(Bpar.mcRkd,2.5),ptile(Bpar.mcRkd,97.5), getcpe ( Bpar.Rkd, Bpar.mcRkd ) ) # rkd.par rkd.par.l rkd.par.h
+        outs += "%g %g %g %g " % (Bpar.Rpd,ptile(Bpar.mcRpd,2.5),ptile(Bpar.mcRpd,97.5), getcpe ( Bpar.Rpd, Bpar.mcRpd ) ) # rpd.par rpd.par.l rpd.par.h
+        outs += "%g %g %g %g " % (Bpar.Rkd,ptile(Bpar.mcRkd,2.5),ptile(Bpar.mcRkd,97.5), getcpe ( Bpar.Rkd, Bpar.mcRkd ) ) # rkd.par rkd.par.l rkd.par.h
         outs += ("%g "*options.nblocks) % tuple(Bpar.infl)
         # Bay
         outs += "%g %g %g " % (mcmc.estimate[0],mcmc.getCI(1,(.025,)),mcmc.getCI(1,(.975))) # m.bay.e m.bay.l m.bay.h
