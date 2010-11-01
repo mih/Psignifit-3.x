@@ -239,6 +239,8 @@ def writelog ( f, Bnpr=None, Bpar=None, mcmc=None, mcmc_conv=1 ):
                 + " infl.par.".join([str(x) for x in range(options.nblocks)]) + " "
         outs += "m.bay.e m.bay.l m.bay.h w.bay.e w.bay.l w.bay.h d.bay d.bay.p nu.bay rpd.bay rpd.bay.p rkd.bay rkd.bay.p conv.bay Rhat.0 Rhat.1 Rhat.2 infl.bay." \
                 + " infl.bay.".join([str(x) for x in range(options.nblocks)])
+        outs += " stim." + " stim.".join([str(x) for x in range(options.nblocks)])
+        outs += " resp." + " resp.".join([str(x) for x in range(options.nblocks)])
         outs += "\n"
     else:
         outs = "%d %g %g " % (simulation, gen_prm[0], gen_prm[1] )
@@ -264,6 +266,9 @@ def writelog ( f, Bnpr=None, Bpar=None, mcmc=None, mcmc_conv=1 ):
         outs += "%g %g " % (mcmc.Rkd,mcmc.bayesian_p('Rkd')) # d.rkd d.rkd.p
         outs += "%d %g %g %g " % (mcmc_conv,mcmc.Rhat(0),mcmc.Rhat(1),mcmc.Rhat(2))
         outs += ("%g "*options.nblocks) % tuple(mcmc.infl)
+
+        outs += ("%g "*options.nblocks) % tuple(mcmc.data[:,0])
+        outs += ("%d "*options.nblocks) % tuple(mcmc.data[:,1].astype("i"))
         outs += "\n"
     f.write ( outs )
     return
