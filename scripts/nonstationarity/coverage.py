@@ -4,7 +4,7 @@ from optparse import OptionParser
 from pypsignifit import psigobservers
 from pypsignifit import psigcorrect
 import pypsignifit
-from numpy import array,arange,mgrid,clip,zeros,sort, random
+from numpy import array,arange,mgrid,clip,zeros,sort, random,mean
 import os,sys
 import pylab
 import operator
@@ -223,6 +223,11 @@ else:
 #                                                          #
 ############################################################
 
+def getcpe ( est, mc ):
+    mc = mc.copy()
+    mc.sort()
+    return mean ( mc<est )
+
 def check_ci ( observer, inference ):
     true_thres = observer.thres
     ci = inference.getCI ( 1, (.025, .975) )
@@ -235,9 +240,9 @@ def writelog ( f, Bnpr=None, Bpar=None, mcmc=None, mcmc_conv=1 ):
     ptile = pylab.prctile
     if Bnpr is None:
         outs = "run m.gen w.gen "
-        outs += "m.npr.e m.npr.l m.npr.h w.npr.e w.npr.l w.npr.h d.npr d.npr.crit nu.npr rpd.npr rpd.npr.l rpd.npr.h rkd.npr rkd.npr.l rkd.npr.h infl.npr." \
+        outs += "m.npr.e m.npr.l m.npr.h w.npr.e w.npr.l w.npr.h d.npr d.npr.crit nu.npr rpd.npr rpd.npr.l rpd.npr.h rpd.npr.p rkd.npr rkd.npr.l rkd.npr.h rkd.npr.p infl.npr." \
                 + " infl.npr.".join([str(x) for x in range(options.nblocks)]) + " "
-        outs += "m.par.e m.par.l m.par.h w.par.e w.par.l w.par.h d.par d.par.crit nu.par rpd.par rpd.par.l rpd.par.h rkd.par rkd.par.l rkd.par.h infl.par." \
+        outs += "m.par.e m.par.l m.par.h w.par.e w.par.l w.par.h d.par d.par.crit nu.par rpd.par rpd.par.l rpd.par.h rpd.par.p rkd.par rkd.par.l rkd.par.h rkd.par.p infl.par." \
                 + " infl.par.".join([str(x) for x in range(options.nblocks)]) + " "
         outs += "m.bay.e m.bay.l m.bay.h w.bay.e w.bay.l w.bay.h d.bay d.bay.p nu.bay rpd.bay rpd.bay.p rkd.bay rkd.bay.p conv.bay Rhat.0 Rhat.1 Rhat.2 infl.bay." \
                 + " infl.bay.".join([str(x) for x in range(options.nblocks)])
@@ -250,15 +255,15 @@ def writelog ( f, Bnpr=None, Bpar=None, mcmc=None, mcmc_conv=1 ):
         outs += "%g %g %g " % (Bnpr.estimate[0],Bnpr.getCI(1,(.025,)),Bnpr.getCI(1,(.975))) # m.npr.e m.npr.l m.npr.h
         outs += "%g %g %g " % (Bnpr.estimate[1],ptile(Bnpr.mcestimates[:,1],2.5),ptile(Bnpr.mcestimates[:,1],97.5)) # w.npr.e w.npr.l w.npr.h
         outs += "%g %g %g " % (Bnpr.deviance, ptile(Bnpr.mcdeviance,95), psigcorrect.estimate_nu (Bnpr)[0]) # d.npr d.npr.crit nu.npr
-        outs += "%g %g %g " % (Bnpr.Rpd,ptile(Bnpr.mcRpd,2.5),ptile(Bnpr.mcRpd,97.5)) # rpd.npr rpd.npr.l rpd.npr.h
-        outs += "%g %g %g " % (Bnpr.Rkd,ptile(Bnpr.mcRkd,2.5),ptile(Bnpr.mcRkd,97.5)) # rkd.npr rkd.npr.l rkd.npr.h
+        outs += "%g %g %g " % (Bnpr.Rpd,ptile(Bnpr.mcRpd,2.5),ptile(Bnpr.mcRpd,97.5), getcpe ( Bnpr.Rpd, Bnpr.mcRpd ) ) # rpd.npr rpd.npr.l rpd.npr.h
+        outs += "%g %g %g " % (Bnpr.Rkd,ptile(Bnpr.mcRkd,2.5),ptile(Bnpr.mcRkd,97.5), getcpe ( Bnpr.Rkd, Bnpr.mcRkd ) ) # rkd.npr rkd.npr.l rkd.npr.h
         outs += ("%g "*options.nblocks) % tuple(Bnpr.infl)
         # Bpar
         outs += "%g %g %g " % (Bpar.estimate[0],Bpar.getCI(1,(.025,)),Bpar.getCI(1,(.975))) # m.par.e m.par.l m.par.h
         outs += "%g %g %g " % (Bpar.estimate[1],ptile(Bpar.mcestimates[:,1],2.5),ptile(Bpar.mcestimates[:,1],97.5)) # w.par.e w.par.l w.par.h
         outs += "%g %g %g " % (Bpar.deviance, ptile(Bpar.mcdeviance,95), psigcorrect.estimate_nu (Bpar)[0]) # d.par d.par.crit nu.par
-        outs += "%g %g %g " % (Bpar.Rpd,ptile(Bpar.mcRpd,2.5),ptile(Bpar.mcRpd,97.5)) # rpd.par rpd.par.l rpd.par.h
-        outs += "%g %g %g " % (Bpar.Rkd,ptile(Bpar.mcRkd,2.5),ptile(Bpar.mcRkd,97.5)) # rkd.par rkd.par.l rkd.par.h
+        outs += "%g %g %g " % (Bpar.Rpd,ptile(Bpar.mcRpd,2.5),ptile(Bpar.mcRpd,97.5), getcpe ( Bpar.Rpd, Bpar.mcRpd ) ) # rpd.par rpd.par.l rpd.par.h
+        outs += "%g %g %g " % (Bpar.Rkd,ptile(Bpar.mcRkd,2.5),ptile(Bpar.mcRkd,97.5), getcpe ( Bpar.Rkd, Bpar.mcRkd ) ) # rkd.par rkd.par.l rkd.par.h
         outs += ("%g "*options.nblocks) % tuple(Bpar.infl)
         # Bay
         outs += "%g %g %g " % (mcmc.estimate[0],mcmc.getCI(1,(.025,)),mcmc.getCI(1,(.975))) # m.bay.e m.bay.l m.bay.h
