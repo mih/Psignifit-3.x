@@ -59,6 +59,8 @@ parser.add_option ( "--fixed-levels", dest="fixed_levels", default=None,
                 "psychometric function will be sampled. Default: None")
 parser.add_option ( "--fixed-sequence", dest="fixed_sequence", action="store_true",
         help="if this is set, the psychometric function will be sampled at fixed levels" )
+parser.add_option ( "--fixed-pmf", dest="fixed_pmf", action="store_true",
+        help="if this is set, samples will be generated from the true pmf" )
 parser.add_option ( "--seed", dest="seed", default="fixed",
         type="string", help="seed for simulation, can be 'fixed, 'time', or an"+\
                 "integer value.")
@@ -295,9 +297,15 @@ for simulation in xrange ( options.nsimulations ):
     data = O.DoAnExperiment ( x, ntrials=options.blocksize )
     print "\ndata =",data
     print constraints
-    Bnpr = pypsignifit.BootstrapInference ( data, sample=options.nbootstrap, priors=constraints, parametric=False, **ana_kwargs )
+    Bnpr = pypsignifit.BootstrapInference ( data, priors=constraints, parametric=False, **ana_kwargs )
+    if options.fixed_pmf:
+        Bnpr.estimate = OO.params
+    Bnpr.sample ( options.nbootstrap )
     print "Done npar"
-    Bpar = pypsignifit.BootstrapInference ( data, sample=options.nbootstrap, priors=constraints, parametric=True,  **ana_kwargs )
+    Bpar = pypsignifit.BootstrapInference ( data, priors=constraints, parametric=True,  **ana_kwargs )
+    if options.fixed_pmf:
+        Bpar.estimate = OO.params
+    Bpar.sample ( options.nbootstrap )
     print "Done par"
 
     ####################
