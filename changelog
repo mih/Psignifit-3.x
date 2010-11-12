@@ -1,3 +1,7 @@
+2010-11-12
+
+* Bugfixes: In coverage.py script and in PsiPsychometric::getStart
+
 2010-10-27
 
 * Bugfix in matlab interface: nafc is actually used
