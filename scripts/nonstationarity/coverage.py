@@ -14,7 +14,7 @@ __helptext__ = """
 Determine coverage of confidence intervals for a given combination of analysis/generating parameters.
 """
 
-nobayes = True
+nobayes = False
 
 # Analyze command line options
 parser = OptionParser ( usage=__helptext__ )
