@@ -389,10 +389,20 @@ std::vector<double> PsiPsychometric::getStart ( const PsiData* data ) const
 	}
 	minpost = neglpost ( out, data );
 
-
 	// Now perform a little grid search to maybe improve the parameters (and thus avoid the worst local minima)
-	for ( beta=betamin; beta<=betamax; beta+= (betamax-betamin)/10. ) {
-		for ( alpha=alphamin; alpha<=alphamax; alpha+= (alphamax-alphamin)/10. ) {
+	if (alphamax==alphamin) {
+		alphamax += 0.1*(out[1]>0 ? out[1] : 1 );
+		alphamin -= 0.1*(out[1]>0 ? out[1] : 1 );
+	}
+	if (betamax==betamin) {
+		betamax += 0.1;
+		betamin -= 0.1;
+	}
+
+	double betastep = (betamax-betamin)/10.;
+	double alphastep = (alphamax-alphamin)/10.;
+	for ( beta=betamin; beta<=betamax; beta+= betastep ) {
+		for ( alpha=alphamin; alpha<=alphamax; alpha+= alphastep ) {
 			// a = alpha/beta - beta0;
 			a = -alpha/beta;
 			b = 1./beta;
