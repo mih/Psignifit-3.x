@@ -314,7 +314,7 @@ class BootstrapInference ( PsiInference ):
         self.__nsamples = Nsamples
         # print self.estimate
         self.__bdata,self.__bestimate,self.__bdeviance,self.__bthres,self.__th_bias,self.__th_acc,\
-                self.__bRkd,self.__bRpd,self.__outl,self.__infl = interface.bootstrap(self.data,self.estimate,Nsamples,
+                self.__bRpd,self.__bRkd,self.__outl,self.__infl = interface.bootstrap(self.data,self.estimate,Nsamples,
                         cuts=self.cuts,**self.model)
         if not self.parametric:
             self.sample_nonparametric ( Nsamples )
