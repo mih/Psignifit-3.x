@@ -14,6 +14,8 @@ __helptext__ = """
 Determine coverage of confidence intervals for a given combination of analysis/generating parameters.
 """
 
+nobayes = True
+
 # Analyze command line options
 parser = OptionParser ( usage=__helptext__ )
 
@@ -244,8 +246,9 @@ def writelog ( f, Bnpr=None, Bpar=None, mcmc=None, mcmc_conv=1 ):
                 + " infl.npr.".join([str(x) for x in range(options.nblocks)]) + " "
         outs += "m.par.e m.par.l m.par.h w.par.e w.par.l w.par.h d.par d.par.crit nu.par rpd.par rpd.par.l rpd.par.h rpd.par.p rkd.par rkd.par.l rkd.par.h rkd.par.p infl.par." \
                 + " infl.par.".join([str(x) for x in range(options.nblocks)]) + " "
-        outs += "m.bay.e m.bay.l m.bay.h w.bay.e w.bay.l w.bay.h d.bay d.bay.p nu.bay rpd.bay rpd.bay.p rkd.bay rkd.bay.p conv.bay Rhat.0 Rhat.1 Rhat.2 infl.bay." \
-                + " infl.bay.".join([str(x) for x in range(options.nblocks)])
+        if not nobayes:
+            outs += "m.bay.e m.bay.l m.bay.h w.bay.e w.bay.l w.bay.h d.bay d.bay.p nu.bay rpd.bay rpd.bay.p rkd.bay rkd.bay.p conv.bay Rhat.0 Rhat.1 Rhat.2 infl.bay." \
+                    + " infl.bay.".join([str(x) for x in range(options.nblocks)])
         outs += " stim." + " stim.".join([str(x) for x in range(options.nblocks)])
         outs += " resp." + " resp.".join([str(x) for x in range(options.nblocks)])
         outs += "\n"
@@ -266,16 +269,17 @@ def writelog ( f, Bnpr=None, Bpar=None, mcmc=None, mcmc_conv=1 ):
         outs += "%g %g %g %g " % (Bpar.Rkd,ptile(Bpar.mcRkd,2.5),ptile(Bpar.mcRkd,97.5), getcpe ( Bpar.Rkd, Bpar.mcRkd ) ) # rkd.par rkd.par.l rkd.par.h
         outs += ("%g "*options.nblocks) % tuple(Bpar.infl)
         # Bay
-        outs += "%g %g %g " % (mcmc.estimate[0],mcmc.getCI(1,(.025,)),mcmc.getCI(1,(.975))) # m.bay.e m.bay.l m.bay.h
-        outs += "%g %g %g " % (mcmc.estimate[1],ptile(mcmc.mcestimates[:,1],2.5),ptile(mcmc.mcestimates[:,1],97.5)) # m.bay.e m.bay.l m.bay.h
-        outs += "%g %g %g " % (mcmc.deviance,mcmc.bayesian_p('deviance'), psigcorrect.estimate_nu (mcmc)[0]) # d.bay d.bay.p
-        outs += "%g %g " % (mcmc.Rpd,mcmc.bayesian_p('Rpd')) # d.rpd d.rpd.p
-        outs += "%g %g " % (mcmc.Rkd,mcmc.bayesian_p('Rkd')) # d.rkd d.rkd.p
-        outs += "%d %g %g %g " % (mcmc_conv,mcmc.Rhat(0),mcmc.Rhat(1),mcmc.Rhat(2))
-        outs += ("%g "*options.nblocks) % tuple(mcmc.infl)
+        if not nobayes:
+            outs += "%g %g %g " % (mcmc.estimate[0],mcmc.getCI(1,(.025,)),mcmc.getCI(1,(.975))) # m.bay.e m.bay.l m.bay.h
+            outs += "%g %g %g " % (mcmc.estimate[1],ptile(mcmc.mcestimates[:,1],2.5),ptile(mcmc.mcestimates[:,1],97.5)) # m.bay.e m.bay.l m.bay.h
+            outs += "%g %g %g " % (mcmc.deviance,mcmc.bayesian_p('deviance'), psigcorrect.estimate_nu (mcmc)[0]) # d.bay d.bay.p
+            outs += "%g %g " % (mcmc.Rpd,mcmc.bayesian_p('Rpd')) # d.rpd d.rpd.p
+            outs += "%g %g " % (mcmc.Rkd,mcmc.bayesian_p('Rkd')) # d.rkd d.rkd.p
+            outs += "%d %g %g %g " % (mcmc_conv,mcmc.Rhat(0),mcmc.Rhat(1),mcmc.Rhat(2))
+            outs += ("%g "*options.nblocks) % tuple(mcmc.infl)
 
-        outs += ("%g "*options.nblocks) % tuple(mcmc.data[:,0])
-        outs += ("%d "*options.nblocks) % tuple(mcmc.data[:,1].astype("i"))
+        outs += ("%g "*options.nblocks) % tuple(Bnpr.data[:,0])
+        outs += ("%d "*options.nblocks) % tuple(Bnpr.data[:,1].astype("i"))
         outs += "\n"
     f.write ( outs )
     return
@@ -317,40 +321,45 @@ for simulation in xrange ( options.nsimulations ):
     # How to make sure that in the end ALL chains have converged?
     # We can give upper and lower limits for m and w from our sampling positions.
     # m cannot be outside the sampled range and w should not be wider than the sampled range (or twice that)
-    mcmc = pypsignifit.BayesInference ( data, sample=True, priors=priors, **ana_kwargs )
-    for prm in [0,1,2]:
-        if not mcmc.geweke(prm)[2] is None:
-            for j in mcmc.geweke(prm)[2]:
-                mcmc.resample(j)
-    N = mcmc.mcestimates.shape[0]
-    mcmc.sample( start = mcmc.farstart )
-    mcmc.sample( start = mcmc.farstart )
-    for prm in [0,1,2]:
-        if not mcmc.geweke(prm)[2] is None:
-            for j in mcmc.geweke(prm)[2]:
-                mcmc.resample(j)
-    print "Rhat:  ",mcmc.Rhat(0),mcmc.Rhat(1),mcmc.Rhat(2)
-    print "Geweke:",mcmc.geweke(0)[2],mcmc.geweke(1)[2],mcmc.geweke(2)[2]
-    mcmc_conv = 1
-    if mcmc.Rhat (0)>1.1 or mcmc.Rhat (1)>1.1 or mcmc.Rhat (2)>1.1:
-        not_converged += 1
-        mcmc_conv = 0
-        # pypsignifit.ConvergenceMCMC(mcmc,0)
+    if not nobayes:
+        mcmc = pypsignifit.BayesInference ( data, sample=True, priors=priors, **ana_kwargs )
+        for prm in [0,1,2]:
+            if not mcmc.geweke(prm)[2] is None:
+                for j in mcmc.geweke(prm)[2]:
+                    mcmc.resample(j)
+        N = mcmc.mcestimates.shape[0]
+        mcmc.sample( start = mcmc.farstart )
+        mcmc.sample( start = mcmc.farstart )
+        for prm in [0,1,2]:
+            if not mcmc.geweke(prm)[2] is None:
+                for j in mcmc.geweke(prm)[2]:
+                    mcmc.resample(j)
+        print "Rhat:  ",mcmc.Rhat(0),mcmc.Rhat(1),mcmc.Rhat(2)
+        print "Geweke:",mcmc.geweke(0)[2],mcmc.geweke(1)[2],mcmc.geweke(2)[2]
+        mcmc_conv = 1
+        if mcmc.Rhat (0)>1.1 or mcmc.Rhat (1)>1.1 or mcmc.Rhat (2)>1.1:
+            not_converged += 1
+            mcmc_conv = 0
+            # pypsignifit.ConvergenceMCMC(mcmc,0)
+            # pypsignifit.ConvergenceMCMC(mcmc,1)
+            # pypsignifit.ConvergenceMCMC(mcmc,2)
+            # pypsignifit.GoodnessOfFit(mcmc)
+            # pypsignifit.show()
+            # sys.exit()
         # pypsignifit.ConvergenceMCMC(mcmc,1)
-        # pypsignifit.ConvergenceMCMC(mcmc,2)
-        # pypsignifit.GoodnessOfFit(mcmc)
-        # pypsignifit.show()
-        # sys.exit()
-    # pypsignifit.ConvergenceMCMC(mcmc,1)
-    else:
-        count_bay += check_ci ( O, mcmc )
+        else:
+            count_bay += check_ci ( O, mcmc )
 
     count_npr += check_ci ( O, Bnpr )
     count_par += check_ci ( O, Bpar )
     # print count_bay, mcmc.estimate, pylab.prctile(mcmc.mcestimates[:,0], (2.5,97.5)), pylab.prctile(mcmc.mcestimates[:,1], (2.5,97.5))
-    print count_bay, mcmc.getCI(1,(.025,.975))
+    if not nobayes:
+        print count_bay, mcmc.getCI(1,(.025,.975))
 
-    writelog ( outfile, Bnpr, Bpar, mcmc, mcmc_conv )
+    if not nobayes:
+        writelog ( outfile, Bnpr, Bpar, mcmc, mcmc_conv )
+    else:
+        writelog ( outfile, Bnpr, Bpar )
 
     if options.datareduce:
         data = array ( data )
