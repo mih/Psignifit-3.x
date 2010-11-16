@@ -312,10 +312,10 @@ int BetaModelTest ( TestSuite * T ) {
 	PsiOptimizer optimizer ( pmf, data );
 	std::vector<double> mapestimate = optimizer.optimize ( pmf, data );
 
-	failures += T->isequal ( mapestimate[0], 3.31412,   "Beta model MAP estimate m"     , 1e-5 );
-	failures += T->isequal ( mapestimate[1], 4.60593,   "Beta model MAP estimate w"     , 1e-5 );
-	failures += T->isequal ( mapestimate[2], 0.0261324, "Beta model MAP estimate lambda", 1e-5 );
-	failures += T->isequal ( mapestimate[3], 0.967118,  "Beta model MAP estimate nu"    , 1e-5 );
+	failures += T->isequal ( mapestimate[0], 3.99318,   "Beta model MAP estimate m"     , 1e-5 );
+	failures += T->isequal ( mapestimate[1], 3.87268,   "Beta model MAP estimate w"     , 1e-5 );
+	failures += T->isequal ( mapestimate[2], 0.02,      "Beta model MAP estimate lambda", 1e-5 );
+	failures += T->isequal ( mapestimate[3], 0.99999,  "Beta model MAP estimate nu"    , 1e-5 );
 
 	setSeed(0);
 	GenericMetropolis * gmS = new GenericMetropolis ( pmf, data, new GaussRandom() );
@@ -325,10 +325,10 @@ int BetaModelTest ( TestSuite * T ) {
 	gmS->findOptimalStepwidth(pilot);
 	MCMCList post = gmS->sample(3000);
 
-	failures += T->isequal ( post.getMean ( 0 ), 3.17265,   "Beta model MEAN estimate m"     , 1e-5 );
-	failures += T->isequal ( post.getMean ( 1 ), 5.28704,   "Beta model MEAN estimate w"     , 1e-5 );
-	failures += T->isequal ( post.getMean ( 2 ), 0.0365552, "Beta model MEAN estimate lambda", 1e-5 );
-	failures += T->isequal ( post.getMean ( 3 ), 0.624741,  "Beta model MEAN estimate nu"    , 1e-5 );
+	failures += T->isequal ( post.getMean ( 0 ), 3.33222,   "Beta model MEAN estimate m"     , 1e-5 );
+	failures += T->isequal ( post.getMean ( 1 ), 4.31489,   "Beta model MEAN estimate w"     , 1e-5 );
+	failures += T->isequal ( post.getMean ( 2 ), 0.0395864, "Beta model MEAN estimate lambda", 1e-5 );
+	failures += T->isequal ( post.getMean ( 3 ), 0.622763,  "Beta model MEAN estimate nu"    , 1e-5 );
 
 	return failures;
 }
@@ -485,7 +485,7 @@ al,bt,lm,gm = fmin(model,prm0,args=(x,k,n))
 	failures += T->isequal(start[0],3.,"Model->getStart Y/N alpha",1e-4);
 	failures += T->isequal(start[1],1.208,"Model->getStart Y/N beta",1e-4);
 
-	failures += T->isequal(solution[0],3.39466,"OptimizerSolution Y/N alpha",5*1e-2);
+	failures += T->isequal(solution[0],3.44752,"OptimizerSolution Y/N alpha",5*1e-2);
 	failures += T->isequal(solution[1],1.01232,"OptimizerSolution Y/N beta",2*1e-2);
 	failures += T->isequal(solution[2],1.7001e-07,"OptimizerSolution Y/N lambda",2*1e-2);
 	failures += T->isequal(solution[3],0.0202447,"OptimizerSolution Y/N gamma",2*1e-2);
@@ -496,8 +496,8 @@ al,bt,lm,gm = fmin(model,prm0,args=(x,k,n))
 	failures += T->isequal(pmf->deviance(solution,data),2.08172,"OptimizerSolution Y/N deviance",2*1e-1);
 	failures += T->isequal(pmf->deviance(solution,data),deviance,"OptimizerSolution Y/N deviance sum", 1e-7);
 
-	failures += T->isequal(pmf->getRpd(devianceresiduals,solution,data),0.217146,"OptimizerSolution Y/N Rpd",1e-1);
-	failures += T->isequal(pmf->getRkd(devianceresiduals,data),-0.477967,"OptimizerSolution Y/N Rkd",1e-2);
+	failures += T->isequal(pmf->getRpd(devianceresiduals,solution,data),0.32046,"OptimizerSolution Y/N Rpd",1e-1);
+	failures += T->isequal(pmf->getRkd(devianceresiduals,data),-0.340322,"OptimizerSolution Y/N Rkd",1e-2);
 
 	delete pmf;
 	delete opt;
@@ -592,15 +592,15 @@ int BootstrapTest ( TestSuite * T ) {
 
 	// Check against psignifit results
 	// These values are subject to statistical variation. "equality" is defined relatively coarse
-	failures += T->isless(boots.getAcc_t(0),0.05,"Acceleration constant (threshold)");
-	failures += T->isequal(boots.getBias_t(0),-.08,"Bias (threshold)",.1);
-	failures += T->isequal(boots.getThres(.1,0),2.63745,"th(.1)",.1);
-	failures += T->isequal(boots.getThres(.9,0),3.84851,"th(.9)",.1);
+	failures += T->isless(boots.getAcc_t(0),     0.05,"Acceleration constant (threshold)");
+	failures += T->isequal(boots.getBias_t(0),   0.0401168,"Bias (threshold)",            .001);
+	failures += T->isequal(boots.getThres(.1,0), 2.66803,"th(.1)",                        .001);
+	failures += T->isequal(boots.getThres(.9,0), 3.96757,"th(.9)",                        .001);
 
-	failures += T->isequal(boots.getAcc_s(0),-0.00698907,"Acceleration constant (slope)",.01);
-	failures += T->isequal(boots.getBias_s(0),-.141595,  "Bias (slope)",.01);
-	failures += T->isequal(boots.getSlope(0.1,0), 0.16453, "sl(.1)",.01);
-	failures += T->isequal(boots.getSlope(0.9,0), 0.45464, "sl(.9)",.01);
+	failures += T->isequal(boots.getAcc_s(0),    -0.00698907, "Acceleration constant (slope)", .01);
+	failures += T->isequal(boots.getBias_s(0),    -.130716,   "Bias (slope)",                  .01);
+	failures += T->isequal(boots.getSlope(0.1,0), 0.16453,    "sl(.1)",                        .01);
+	failures += T->isequal(boots.getSlope(0.9,0), 0.48536,    "sl(.9)",                        .01);
 
 	failures += T->isequal(boots.getDeviancePercentile(0.975),9.2,"Deviance limits",.5);
 	failures += T->isequal(boots.percRpd(.025), -0.534564, "Rpd( 2.5%)", .1); // Testing mean and standard error
@@ -690,8 +690,8 @@ int MCMCTest ( TestSuite * T ) {
 	}
 	*/
 
-	failures += T->isequal ( post.getMean(0), 3.21657, "Hybrid MCMC alpha", .3 );
-	failures += T->isequal ( post.getMean(1), 1.20476, "Hybrid MCMC beta", .2 );
+	failures += T->isequal ( post.getMean(0), 3.58027, "Hybrid MCMC alpha", .3 );
+	failures += T->isequal ( post.getMean(1), 0.909616, "Hybrid MCMC beta", .2 );
 	failures += T->isequal ( post.getMean(2), 0.0217217, "Hybrid MCMC lambda", .02 );
 	failures += T->isequal ( mhpost.getMean(0), 3.22372, "Metropolis Hastings alpha", .2 );
 	failures += T->isequal ( mhpost.getMean(1), 1.12734, "Metropolis Hastings beta", .2 );
