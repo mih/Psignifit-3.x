@@ -15,6 +15,8 @@ Determine coverage of confidence intervals for a given combination of analysis/g
 """
 
 nobayes = False
+nonparametric = False
+parametric = False
 
 # Analyze command line options
 parser = OptionParser ( usage=__helptext__ )
@@ -242,32 +244,36 @@ def writelog ( f, Bnpr=None, Bpar=None, mcmc=None, mcmc_conv=1 ):
     ptile = pylab.prctile
     if Bnpr is None:
         outs = "run m.gen w.gen "
-        outs += "m.npr.e m.npr.l m.npr.h w.npr.e w.npr.l w.npr.h d.npr d.npr.crit nu.npr rpd.npr rpd.npr.l rpd.npr.h rpd.npr.p rkd.npr rkd.npr.l rkd.npr.h rkd.npr.p infl.npr." \
-                + " infl.npr.".join([str(x) for x in range(options.nblocks)]) + " "
-        outs += "m.par.e m.par.l m.par.h w.par.e w.par.l w.par.h d.par d.par.crit nu.par rpd.par rpd.par.l rpd.par.h rpd.par.p rkd.par rkd.par.l rkd.par.h rkd.par.p infl.par." \
-                + " infl.par.".join([str(x) for x in range(options.nblocks)]) + " "
+        if nonparametric:
+            outs += "m.npr.e m.npr.l m.npr.h w.npr.e w.npr.l w.npr.h d.npr d.npr.crit nu.npr rpd.npr rpd.npr.l rpd.npr.h rkd.npr rkd.npr.l rkd.npr.h infl.npr." \
+                    + " infl.npr.".join([str(x) for x in range(options.nblocks)]) + " "
+        if parametric:
+            outs += "m.par.e m.par.l m.par.h w.par.e w.par.l w.par.h d.par d.par.crit nu.par rpd.par rpd.par.l rpd.par.h rkd.par rkd.par.l rkd.par.h infl.par." \
+                    + " infl.par.".join([str(x) for x in range(options.nblocks)]) + " "
         if not nobayes:
             outs += "m.bay.e m.bay.l m.bay.h w.bay.e w.bay.l w.bay.h d.bay d.bay.p nu.bay rpd.bay rpd.bay.p rkd.bay rkd.bay.p conv.bay Rhat.0 Rhat.1 Rhat.2 infl.bay." \
-                    + " infl.bay.".join([str(x) for x in range(options.nblocks)])
+                + " infl.bay.".join([str(x) for x in range(options.nblocks)])
         outs += " stim." + " stim.".join([str(x) for x in range(options.nblocks)])
         outs += " resp." + " resp.".join([str(x) for x in range(options.nblocks)])
         outs += "\n"
     else:
         outs = "%d %g %g " % (simulation, gen_prm[0], gen_prm[1] )
-        # Bnpr
-        outs += "%g %g %g " % (Bnpr.estimate[0],Bnpr.getCI(1,(.025,)),Bnpr.getCI(1,(.975))) # m.npr.e m.npr.l m.npr.h
-        outs += "%g %g %g " % (Bnpr.estimate[1],ptile(Bnpr.mcestimates[:,1],2.5),ptile(Bnpr.mcestimates[:,1],97.5)) # w.npr.e w.npr.l w.npr.h
-        outs += "%g %g %g " % (Bnpr.deviance, ptile(Bnpr.mcdeviance,95), psigcorrect.estimate_nu (Bnpr)[0]) # d.npr d.npr.crit nu.npr
-        outs += "%g %g %g %g " % (Bnpr.Rpd,ptile(Bnpr.mcRpd,2.5),ptile(Bnpr.mcRpd,97.5), getcpe ( Bnpr.Rpd, Bnpr.mcRpd ) ) # rpd.npr rpd.npr.l rpd.npr.h
-        outs += "%g %g %g %g " % (Bnpr.Rkd,ptile(Bnpr.mcRkd,2.5),ptile(Bnpr.mcRkd,97.5), getcpe ( Bnpr.Rkd, Bnpr.mcRkd ) ) # rkd.npr rkd.npr.l rkd.npr.h
-        outs += ("%g "*options.nblocks) % tuple(Bnpr.infl)
-        # Bpar
-        outs += "%g %g %g " % (Bpar.estimate[0],Bpar.getCI(1,(.025,)),Bpar.getCI(1,(.975))) # m.par.e m.par.l m.par.h
-        outs += "%g %g %g " % (Bpar.estimate[1],ptile(Bpar.mcestimates[:,1],2.5),ptile(Bpar.mcestimates[:,1],97.5)) # w.par.e w.par.l w.par.h
-        outs += "%g %g %g " % (Bpar.deviance, ptile(Bpar.mcdeviance,95), psigcorrect.estimate_nu (Bpar)[0]) # d.par d.par.crit nu.par
-        outs += "%g %g %g %g " % (Bpar.Rpd,ptile(Bpar.mcRpd,2.5),ptile(Bpar.mcRpd,97.5), getcpe ( Bpar.Rpd, Bpar.mcRpd ) ) # rpd.par rpd.par.l rpd.par.h
-        outs += "%g %g %g %g " % (Bpar.Rkd,ptile(Bpar.mcRkd,2.5),ptile(Bpar.mcRkd,97.5), getcpe ( Bpar.Rkd, Bpar.mcRkd ) ) # rkd.par rkd.par.l rkd.par.h
-        outs += ("%g "*options.nblocks) % tuple(Bpar.infl)
+        if nonparametric and (Bnpr is not None):
+            # Bnpr
+            outs += "%g %g %g " % (Bnpr.estimate[0],Bnpr.getCI(1,(.025,)),Bnpr.getCI(1,(.975))) # m.npr.e m.npr.l m.npr.h
+            outs += "%g %g %g " % (Bnpr.estimate[1],ptile(Bnpr.mcestimates[:,1],2.5),ptile(Bnpr.mcestimates[:,1],97.5)) # w.npr.e w.npr.l w.npr.h
+            outs += "%g %g %g " % (Bnpr.deviance, ptile(Bnpr.mcdeviance,95), psigcorrect.estimate_nu (Bnpr)[0]) # d.npr d.npr.crit nu.npr
+            outs += "%g %g %g " % (Bnpr.Rpd,ptile(Bnpr.mcRpd,2.5),ptile(Bnpr.mcRpd,97.5)) # rpd.npr rpd.npr.l rpd.npr.h
+            outs += "%g %g %g " % (Bnpr.Rkd,ptile(Bnpr.mcRkd,2.5),ptile(Bnpr.mcRkd,97.5)) # rkd.npr rkd.npr.l rkd.npr.h
+            outs += ("%g "*options.nblocks) % tuple(Bnpr.infl)
+        if parametric and (Bpar is not None):
+            # Bpar
+            outs += "%g %g %g " % (Bpar.estimate[0],Bpar.getCI(1,(.025,)),Bpar.getCI(1,(.975))) # m.par.e m.par.l m.par.h
+            outs += "%g %g %g " % (Bpar.estimate[1],ptile(Bpar.mcestimates[:,1],2.5),ptile(Bpar.mcestimates[:,1],97.5)) # w.par.e w.par.l w.par.h
+            outs += "%g %g %g " % (Bpar.deviance, ptile(Bpar.mcdeviance,95), psigcorrect.estimate_nu (Bpar)[0]) # d.par d.par.crit nu.par
+            outs += "%g %g %g " % (Bpar.Rpd,ptile(Bpar.mcRpd,2.5),ptile(Bpar.mcRpd,97.5)) # rpd.par rpd.par.l rpd.par.h
+            outs += "%g %g %g " % (Bpar.Rkd,ptile(Bpar.mcRkd,2.5),ptile(Bpar.mcRkd,97.5)) # rkd.par rkd.par.l rkd.par.h
+            outs += ("%g "*options.nblocks) % tuple(Bpar.infl)
         # Bay
         if not nobayes:
             outs += "%g %g %g " % (mcmc.estimate[0],mcmc.getCI(1,(.025,)),mcmc.getCI(1,(.975))) # m.bay.e m.bay.l m.bay.h
@@ -306,16 +312,24 @@ for simulation in xrange ( options.nsimulations ):
     data = O.DoAnExperiment ( x, ntrials=options.blocksize )
     print "\ndata =",data
     print constraints
-    Bnpr = pypsignifit.BootstrapInference ( data, priors=constraints, parametric=False, **ana_kwargs )
-    if options.fixed_pmf:
-        Bnpr.estimate = OO.params
-    Bnpr.sample ( options.nbootstrap )
-    print "Done npar"
-    Bpar = pypsignifit.BootstrapInference ( data, priors=constraints, parametric=True,  **ana_kwargs )
-    if options.fixed_pmf:
-        Bpar.estimate = OO.params
-    Bpar.sample ( options.nbootstrap )
-    print "Done par"
+    if nonparametric:
+        Bnpr = pypsignifit.BootstrapInference ( data, priors=constraints, parametric=False, **ana_kwargs )
+        if options.fixed_pmf:
+            Bnpr.estimate = OO.params
+        Bnpr.sample ( options.nbootstrap )
+        count_npr += check_ci ( O, Bnpr )
+        print "Done npar"
+    else:
+        Bnpr = None
+    if parametric:
+        Bpar = pypsignifit.BootstrapInference ( data, priors=constraints, parametric=True,  **ana_kwargs )
+        if options.fixed_pmf:
+            Bpar.estimate = OO.params
+        Bpar.sample ( options.nbootstrap )
+        count_par += check_ci ( O, Bpar )
+        print "Done par"
+    else:
+        Bpar = None
 
     ####################
     # How to make sure that in the end ALL chains have converged?
@@ -350,8 +364,6 @@ for simulation in xrange ( options.nsimulations ):
         else:
             count_bay += check_ci ( O, mcmc )
 
-    count_npr += check_ci ( O, Bnpr )
-    count_par += check_ci ( O, Bpar )
     # print count_bay, mcmc.estimate, pylab.prctile(mcmc.mcestimates[:,0], (2.5,97.5)), pylab.prctile(mcmc.mcestimates[:,1], (2.5,97.5))
     if not nobayes:
         print count_bay, mcmc.getCI(1,(.025,.975))
@@ -418,8 +430,10 @@ sys.stderr.write ( "\r"+50*" "+"\n" )
 outfile.close()
 
 print "Coverages:"
-print "  nonparametric bootstrap:", count_npr/options.nsimulations
-print "  parametric bootstrap:   ", count_par/options.nsimulations
+if nonparametric:
+    print "  nonparametric bootstrap:", count_npr/options.nsimulations
+if nonparametric:
+    print "  parametric bootstrap:   ", count_par/options.nsimulations
 print "  MCMC (bayesian):        ", count_bay/(options.nsimulations-not_converged)
 print "  MCMC runs that did not converge:",not_converged
 
