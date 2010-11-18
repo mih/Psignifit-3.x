@@ -255,6 +255,7 @@ def write_header(f):
     outs += " resp." + " resp.".join([str(x) for x in range(options.nblocks)])
     outs += "\n"
     f.write(outs)
+    f.flush()
 
 def writelog ( f, Bnpr=None, Bpar=None, mcmc=None, mcmc_conv=1 ):
     ptile = pylab.prctile
@@ -289,7 +290,7 @@ def writelog ( f, Bnpr=None, Bpar=None, mcmc=None, mcmc_conv=1 ):
     outs += ("%d "*options.nblocks) % tuple(Bnpr.data[:,1].astype("i"))
     outs += "\n"
     f.write ( outs )
-    return
+    f.flush()
 
 # write header
 write_header(outfile)
