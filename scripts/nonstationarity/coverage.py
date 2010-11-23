@@ -249,8 +249,29 @@ def write_header(f):
         outs += "m.par.e m.par.l m.par.h w.par.e w.par.l w.par.h d.par d.par.crit nu.par rpd.par rpd.par.l rpd.par.h rkd.par rkd.par.l rkd.par.h infl.par." \
                 + " infl.par.".join([str(x) for x in range(options.nblocks)]) + " "
     if not nobayes:
-        outs += "m.bay.e m.bay.l m.bay.h w.bay.e w.bay.l w.bay.h d.bay d.bay.p nu.bay rpd.bay rpd.bay.p rkd.bay rkd.bay.p conv.bay Rhat.0 Rhat.1 Rhat.2 infl.bay." \
-                + " infl.bay.".join([str(x) for x in range(options.nblocks)])
+        outs += ("m.bay.e "+
+                "m.bay.map "+
+                "m.bay.median "+
+                "m.bay.l "+
+                "m.bay.h "+
+                "w.bay.e "+
+                "w.bay.map "+
+                "w.bay.median "+
+                "w.bay.l "+
+                "w.bay.h "+
+                "d.bay "+
+                "d.bay.p "+
+                "nu.bay "+
+                "rpd.bay "+
+                "rpd.bay.p "+
+                "rkd.bay "+
+                "rkd.bay.p "+
+                "conv.bay "+
+                "Rhat.0 "+
+                "Rhat.1 "+
+                "Rhat.2 "+
+                "infl.bay." \
+                + " infl.bay.".join([str(x) for x in range(options.nblocks)]))
     outs += " stim." + " stim.".join([str(x) for x in range(options.nblocks)])
     outs += " resp." + " resp.".join([str(x) for x in range(options.nblocks)])
     outs += "\n"
@@ -278,8 +299,19 @@ def writelog ( f, Bnpr=None, Bpar=None, mcmc=None, mcmc_conv=1 ):
         outs += ("%g "*options.nblocks) % tuple(Bpar.infl)
     # Bay
     if not nobayes:
-        outs += "%g %g %g " % (mcmc.estimate[0],mcmc.getCI(1,(.025,)),mcmc.getCI(1,(.975))) # m.bay.e m.bay.l m.bay.h
-        outs += "%g %g %g " % (mcmc.estimate[1],ptile(mcmc.mcestimates[:,1],2.5),ptile(mcmc.mcestimates[:,1],97.5)) # w.bay.e w.bay.l w.bay.h
+        outs += "%g %g %g %g %g " % (
+                mcmc.estimate[0],        # m.bay.m
+                mcmc.mapestimate[0],     # m.bay.map
+                mcmc.posterior_median[0],# m.bay.median
+                mcmc.getCI(1,(.025,)),   # m.bay.l
+                mcmc.getCI(1,(.975)))    # m.bay.h
+
+        outs += "%g %g %g %g %g " % (
+                mcmc.estimate[1],                  # w.bay.m
+                mcmc.mapestimate[1],               # w.bay.map
+                mcmc.posterior_median[1],          # w.bay.median
+                ptile(mcmc.mcestimates[:,1],2.5),  # w.bay.l
+                ptile(mcmc.mcestimates[:,1],97.5)) # w.bay.h
         outs += "%g %g %g " % (mcmc.deviance,mcmc.bayesian_p('deviance'), psigcorrect.estimate_nu (mcmc)[0]) # d.bay d.bay.p
         outs += "%g %g " % (mcmc.Rpd,mcmc.bayesian_p('Rpd')) # d.rpd d.rpd.p
         outs += "%g %g " % (mcmc.Rkd,mcmc.bayesian_p('Rkd')) # d.rkd d.rkd.p
