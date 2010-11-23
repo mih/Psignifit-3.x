@@ -1215,6 +1215,15 @@ class BayesInference ( PsiInference ):
         def fset (self,v):
             pass
 
+    @property
+    def posterior_median(self):
+        """ Median for the posterior, for all sampled chains. """
+        if len(self.__mcmc_chains) == 0:
+            raise Exception("MCMC must be run before posterior median can be "+
+                    "computed")
+        else:
+            return N.median(self.getsamples(), 0)
+
     @Property
     def deviance ():
         """Deviance of the estimate.
