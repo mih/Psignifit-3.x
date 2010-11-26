@@ -14,3 +14,6 @@
   f(g(x,m,w))
 
   for display style math.
+
+- Tutorial 1
+ - suggest using ipython, especially object? and %cpaste for examples
