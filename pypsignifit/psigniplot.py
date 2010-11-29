@@ -250,8 +250,8 @@ def plotppScatter ( simdata, observed, quantity, shortname=None, ax=None ):
         ax = p.gca()
 
     ax.plot ( simdata, observed, '.', color=rc.allplots['color'] )
-    xl = ax.get_xlim()
-    yl = ax.get_ylim()
+    xl = list(ax.get_xlim())
+    yl = list(ax.get_ylim())
     axmin = N.min ( list(xl)+list(yl) )
     axmax = N.max ( list(xl)+list(yl) )
     ax.plot ( [axmin,axmax],[axmin,axmax], 'k:' )
@@ -964,7 +964,7 @@ def plotInfluential ( InferenceObject ):
     # ax = plotPMF ( influencedDataset, ax=ax, showdesc=False, showaxes=True, color="r", markertype=([(0,0)],0), linewidth=2 )[-1]
     ax.plot ( x, influencedPMF, color="r", linewidth=2 )
 
-    xl = ax.get_xlim ()
+    xl = list(ax.get_xlim ())
 
     # ax = p.axes ( (0.0, 0., .9, .5) )
     ax = p.subplot ( 2,1,2, sharex=ax )
