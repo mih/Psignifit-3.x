@@ -684,7 +684,8 @@ def plotChains ( BayesInferenceObject, parameter=0, ax=None, raw=False, warn=Tru
     y0    = ytics.min()
     yr    = N.array(ytics.max()-ytics.min())
 
-    ax.text(x0+0.6*xr,y0+0.95*yr,r"$\hat{R} = %.4f$" % (BayesInferenceObject.Rhat ( parameter ) ) )
+    if BayesInferenceObject.nchains>2:
+        ax.text(x0+0.6*xr,y0+0.95*yr,r"$\hat{R} = %.4f$" % (BayesInferenceObject.Rhat ( parameter ) ) )
 
     if warn and BayesInferenceObject.Rhat(parameter)>1.1:
         ax.text(x0+0.5*xr,y0+0.5*yr,"Chains do not seem to sample\nfrom the same distribution!",
