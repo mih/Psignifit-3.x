@@ -263,7 +263,15 @@ class BootstrapInference ( PsiInference ):
         if self.model["nafc"]<2:
             self.parnames.append("guess")
 
-        self.cuts = cuts
+        if cuts is None:
+            self.cuts = (.25,.5,.75)
+        elif getattr ( cuts, "__iter__", False ):
+            self.cuts = cuts
+        elif isinstance ( cuts, float ):
+            self.cuts = (cuts,)
+        else:
+            raise ValueError, "'cuts' should be a sequence or a float"
+
         if conf=="v1.0":
             self.conf = (0.023, 0.159, 0.841, 0.977)
         else:
@@ -648,12 +656,14 @@ class BayesInference ( PsiInference ):
 
         if cuts is None:
             self.cuts = (.25,.5,.75)
-        else:
+        elif getattr ( cuts, "__iter__", False ):
             self.cuts = cuts
-        if isinstance(cuts,float):
-            self.Ncuts = 1
+        elif isinstance ( cuts, float ):
+            self.cuts = (cuts,)
         else:
-            self.Ncuts = len(self.cuts)
+            raise ValueError, "'cuts' should be a sequence or a float"
+
+        self.Ncuts = len(self.cuts)
 
         deviance_residuals = self._pmf.getDevianceResiduals ( self.mapestimate, self._data )
         self.Rpd = self._pmf.getRpd ( deviance_residuals, self.mapestimate, self._data )
