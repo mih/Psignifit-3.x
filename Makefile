@@ -179,15 +179,22 @@ dist-changelog:
 	echo "* " >> tmp
 	echo >> tmp
 	cat changelog >> tmp
-	mv tmp changelog
+	cp changelog changelog_old
+	cp tmp changelog
 	$(EDITOR) changelog +3
-	git commit changelog -m "changelog entry for upload"
-	git push origin
+	if diff tmp changelog; then \
+		mv changelog_old changelog; \
+		echo "FATAL: changelog not modified!"; \
+		false; \
+	else \
+		git commit changelog -m "changelog entry for upload"; \
+		git push origin; \
+	fi
 
-dist-tar: dist-changelog
+dist-tar:
 	git archive --format=tar --prefix=psignifit3.0_beta_$(TODAY)/ master | gzip > psignifit3.0_beta_$(TODAY).tar.gz
 
-dist-zip: dist-changelog
+dist-zip:
 	git archive --format=zip --prefix=psignifit3.0_beta_$(TODAY)/ master > psignifit3.0_beta_$(TODAY).zip
 
 dist-swigged: dist-zip dist-tar swig
@@ -209,7 +216,10 @@ dist-upload-doc: python-doc
 	git tag doc-$(LONGTODAY)
 	git push origin doc-$(LONGTODAY)
 
-dist-upload-archives: dist-tar dist-zip dist-swigged dist-win
+dist-upload-archives:
+	make dist-changelog
+	make dist-swigged
+	make dist-win
 	mkdir psignifit3.0_beta_$(TODAY)
 	cp psignifit3.0_beta_$(TODAY).tar.gz psignifit3.0_beta_swigged_$(TODAY).tar.gz psignifit3.0_beta_$(TODAY).zip psignifit3.0_beta_swigged_$(TODAY).zip psignifit-cli_3_beta_installer_$(TODAY).exe psignifit3.0_beta_$(TODAY)
 	scp -rv psignifit3.0_beta_$(TODAY) igordertigor,psignifit@frs.sourceforge.net:/home/frs/project/p/ps/psignifit/
