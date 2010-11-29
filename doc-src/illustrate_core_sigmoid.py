@@ -52,7 +52,7 @@ fontspecs = {"horizontalalignment": "center", "verticalalignment": "center"}
 
 fig.text ( .05, .47, r"logistic", rotation=90, **fontspecs)
 fig.text ( .1, .47, r"$f(x)=\frac{1}{1+\exp(-x)}$", rotation=90, **fontspecs )
-fig.text ( .05, .2, r"exp", rotation=90, **fontspecs)
+fig.text ( .05, .2, r"exponential", rotation=90, **fontspecs)
 fig.text ( .1, .2, r"$f(x)=1-\exp(-x)$", rotation=90, **fontspecs )
 
 fig.text ( .6, .95, r"ab", **fontspecs )

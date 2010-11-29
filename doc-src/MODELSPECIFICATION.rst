@@ -147,17 +147,17 @@ cauchy
     1 degree of freedom). this sigmoid is symmetric with respect to the point (0,0.5).
     Because the cauchy distribution is a heavy tailed distribution, this sigmoid is less
     sensitive to lapses an inaccuracies in at extreme x values. Here, :math:`f(x) = \mathrm{atan}(x)/\pi + 0.5`.
-gumbel_l or lgumbel
+gumbel_l
     the cumulative distribution function of the left gumbel. This function is not symmetric:
     it first increases slowly for negative values and then approaches 1 rather quickly. The
     left gumbel can be used to define a left weibull if combined with a proper (nonlinear)
     core. However, also with a linear core, the left gumbel may be a reasonable choice. Here,
     :math:`f(x) = 1-\exp(-\exp(x))`.
-gumbel_r or rgumbel
+gumbel_r
     the cumulative distribution function of the right gumbel. Actually, this is not the
     classical gumbel distribution but its reverse, that corresponds to replacing x by -x in
     the left gumbel, thus :math:`f(x) = exp(-exp(-x)`.
-exp
+exponential
     the sixth sigmoid is the cumulative distribution function of the exponential distribution.
     That is :math:`f(x) = 1-exp(-x)` if :math:`x > 0`, and :math:`f(x) = 0` else. This function is clearly not
     symmetric.
@@ -205,7 +205,7 @@ weibull
     core is :math:`g(x,m,s) = \frac{2}{\log(2)} m s (\log(x)-\log(m))+\log(\log(2))`.
 poly
     While the weibull and the log core perform at the heart a fit on a logarithmic axis, this
-    core performs something clearly different: :math:`g(x,a,b) = (x/a)^b`. In combination with a exp
+    core performs something clearly different: :math:`g(x,a,b) = (x/a)^b`. In combination with a exponential
     sigmoid, this gives the parameterization used in the classical psignifit version.
 
 Combining sigmoids and cores
@@ -282,7 +282,7 @@ Weibull
 
 There are a number of ways to parameterize the Weibull function. 
 
-exp + poly
+exponential + poly
     The classical way is probably
 
 .. math::
@@ -291,7 +291,7 @@ exp + poly
 
 ..
 
-    which is implemented using the combination of an exp-sigmoid and a poly-core.
+    which is implemented using the combination of an exponential-sigmoid and a poly-core.
 gumbel + weibull
     The Weibull function is equivalent to a Gumbel sigmoid on logarithmic coordinates. Thus,
     [Kuss_et_al_2005]_ suggested a parameterization in terms of the 75% threshold m and the slope

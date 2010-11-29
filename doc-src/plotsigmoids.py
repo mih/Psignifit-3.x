@@ -3,6 +3,7 @@
 from pylab import *
 from scipy import stats
 
+
 x = mgrid[-5:5:100j]
 
 sigmoids = [ lambda x: 1./(1+exp(-x)),
@@ -11,7 +12,7 @@ sigmoids = [ lambda x: 1./(1+exp(-x)),
         lambda x: 1-exp(-exp(x)),
         lambda x: exp(-exp(-x)),
         lambda x: where ( x>0, 1-exp(-x), 0 ) ]
-names = ["logistic","gauss","cauchy","gumbel_l | lgumbel", "gumbel_r | rgumbel", "exp"]
+names = ["logistic","gauss","cauchy","gumbel_l", "gumbel_r", "exponential"]
 
 for k,f in enumerate ( sigmoids ):
     subplot(231+k)
