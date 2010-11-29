@@ -1,3 +1,10 @@
+2010-11-29
+
+* Bugfix: cuts is checked to be iterable in constructor
+* Bugfix: if ConvergenceMCMC has less then three chains, Rhat is not printed
+* Bugfix: axes limits are set to lists to be mutable
+* Makefile flexibility increased
+
 2010-11-12
 
 * Bugfixes: In coverage.py script and in PsiPsychometric::getStart
