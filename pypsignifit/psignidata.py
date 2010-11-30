@@ -10,7 +10,7 @@
 
 __docformat__ = "restructuredtext"
 
-import sys,os
+import sys,os,re
 import operator
 import numpy as N
 import pylab as p
@@ -42,6 +42,20 @@ have been suggested to fit psychometric functions
 The module also defines a :PsiInference: base class.
 """
 warnred = [.7,0,0]
+
+# Checking keyword arguments
+def check_kwargs ( kwargs, docstring ):
+    """This function checks that a kwargs dictionary only contains keywords that are documented in the docstring
+    
+    It returns 0 if everything is ok otherwise, it returns the first nonmatching parameter"""
+    parametersection = re.search ( r":Parameters:(.*)(:\w+:|$)", docstring, re.DOTALL )
+    if parametersection is None:
+        raise ValueError, "Docstring does not contain a parameter section"
+    parameters = re.findall ( r"\*(\w+)\* :", parametersection.group(1) )
+    for k in kwargs.keys():
+        if not k in parameters:
+            return k
+    return 0
 
 # Helper function to create properties with one function
 def Property(function):
