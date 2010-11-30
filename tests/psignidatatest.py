@@ -7,7 +7,7 @@ import swignifit.swignifit_raw as sft
 import numpy as np
 import sys
 
-def approximatedly_equal ( x, y, eps=1e-7 ):
+def approximatedly_equal ( x, y, eps=1e-4 ):
     e = abs ( x-y ) > eps
     if not e==0:
         sys.stderr.write ( "%g != %g\n" % (x,y) )
@@ -55,7 +55,7 @@ class TestBootstrapInference ( ut.TestCase ):
     def test_map ( self ):
         map1 = self.parametric.estimate
         map2 = self.nonparametric.estimate
-        should_be = [ 2.7375488579273224, 1.4039342533896364, 0.020320093764199146 ]
+        should_be = [ 2.7373, 1.40406, 0.020320093764199146 ]
         for val1,val2,val3 in zip(map1,map2,should_be):
             self.assertEqual ( approximatedly_equal ( val1, val2 ), 0 )
             self.assertEqual ( approximatedly_equal ( val1, val3 ), 0 )
@@ -65,10 +65,10 @@ class TestBootstrapInference ( ut.TestCase ):
         self.nonparametric.sample ()
         parci = self.parametric.getCI(1)
         nprci = self.nonparametric.getCI(1)
-        self.assertEqual ( approximatedly_equal ( parci[0], 1.6100394 ), 0 )
-        self.assertEqual ( approximatedly_equal ( parci[1], 3.8797201 ), 0 )
-        self.assertEqual ( approximatedly_equal ( nprci[0], 1.01129861 ), 0 )
-        self.assertEqual ( approximatedly_equal ( nprci[1], 4.0417433 ), 0 )
+        self.assertEqual ( approximatedly_equal ( parci[0], 1.69 ), 0 )
+        self.assertEqual ( approximatedly_equal ( parci[1], 3.8539 ), 0 )
+        self.assertEqual ( approximatedly_equal ( nprci[0], 1.11463 ), 0 )
+        self.assertEqual ( approximatedly_equal ( nprci[1], 4.05597 ), 0 )
 
         self.assertEqual ( self.parametric.nsamples, 2000 )
         self.assertEqual ( self.nonparametric.nsamples, 2000 )
@@ -78,7 +78,7 @@ class TestBootstrapInference ( ut.TestCase ):
 
     def test_sensitivity ( self ):
         self.parametric.sensitivity_analysis (verbose=False)
-        parci = [ 1.52167887, 3.8797201 ]
+        parci = [ 1.5905, 3.87779 ]
         extci = self.parametric.getCI(1)
         for par,ext in zip(parci,extci):
             self.assertEqual ( approximatedly_equal ( par, ext ), 0 )
@@ -96,31 +96,31 @@ class TestBayesInference ( ut.TestCase ):
         mapest = self.mcmc.mapestimate
         meanest = self.mcmc.estimate
         map_target = [ 2.73973931, 6.15554732, 0.02034599]
-        mean_target =[ 2.58517722, 6.85365569, 0.02872328]
+        mean_target =[ 2.64938, 6.44707, 0.027297]
         steps_made = self.mcmc._steps
-        steps = [ 0.77238055, 2.56652649, 0.01368064]
-        burnin = 12
+        steps = [ 0.726551, 2.45564, 0.013264]
+        burnin = 0
         thinning = 1
-        nsamples = 1997
+        nsamples = 600
 
         for k in xrange ( 3 ):
-            self.assertEqual ( approximatedly_equal ( mapest[k], map_target[k] ), 0 )
-            self.assertEqual ( approximatedly_equal ( meanest[k], mean_target[k] ), 0 )
-            self.assertEqual ( approximatedly_equal ( steps_made[k], steps[k] ), 0 )
+            self.assertEqual ( approximatedly_equal ( mapest[k],     map_target[k] ),  0 )
+            self.assertEqual ( approximatedly_equal ( meanest[k],    mean_target[k] ), 0 )
+            self.assertEqual ( approximatedly_equal ( steps_made[k], steps[k] ),       0 )
 
-        self.assertEqual ( approximatedly_equal ( self.mcmc.bayesian_p(),0.119679519279 ), 0 )
+        self.assertEqual ( approximatedly_equal ( self.mcmc.bayesian_p(),0.126667 ), 0 )
         self.assertEqual ( burnin, self.mcmc.burnin )
         self.assertEqual ( thinning, self.mcmc.thin )
         self.assertEqual ( nsamples, self.mcmc.nsamples )
 
-        target_rpd = 0.0601711264595
-        target_rkd = -0.264457082124
+        target_rpd = -0.0244598
+        target_rkd = -0.362064
         self.assertEqual ( approximatedly_equal ( self.mcmc.Rpd, target_rpd ), 0 )
         self.assertEqual ( approximatedly_equal ( self.mcmc.Rkd, target_rkd ), 0 )
 
-        target_dr = (1.5183703415503955, -0.78436814516921538, -0.66410579831627181, 1.0540310119876923, 2.0944600285216746, -0.27867862106892283)
-        target_thres =  [ 0.87176329, 2.58517722, 4.29859114]
-        target_deviance = 8.93712435176
+        target_dr = (1.64122, -0.675137, -0.709666, 0.925372, 2.00248, -0.376286)
+        target_thres =  [ 1.03761, 2.64938, 4.26115]
+        target_deviance = 8.66087
         for dr,tdr in zip ( self.mcmc.devianceresiduals, target_dr ):
             self.assertEqual ( approximatedly_equal ( dr, tdr ), 0 )
         for th,tth in zip ( self.mcmc.thres, target_thres ):
@@ -128,9 +128,9 @@ class TestBayesInference ( ut.TestCase ):
         self.assertEqual ( approximatedly_equal ( self.mcmc.deviance, target_deviance ), 0 )
 
         # Randomly check single samples
-        target_mcRpd = [-0.233536130482, 0.010834690825, -0.0807779600755]
-        target_mcRkd = [-0.460112280298, -0.414597681561, -0.479957633098]
-        target_mcthres = [ [ 1.25277837, 2.4956197,  3.73846103], [ 1.75585739, 3.49021135, 5.22456531], [ 1.92499074, 3.16941686, 4.41384299]]
+        target_mcRpd = [ -0.162011225773 , -0.658780099748 , 0.142264200236 ]
+        target_mcRkd = [ -0.519220509587 , -0.969883465483 , -0.199933951214 ]
+        target_mcthres = [ [ 1.20085248224 , 2.73973931207 , 4.27862614189 ], [ 2.87682033438 , 3.73674348349 , 4.5966666326 ], [ 0.70405560915 , 2.68052230561 , 4.65698900207 ] ]
         indices = [10,50,100]
         for k in xrange ( 3 ):
             self.assertEqual ( approximatedly_equal ( self.mcmc.mcRpd[indices[k]], target_mcRpd[k] ), 0 )
