@@ -83,6 +83,9 @@ class TestBootstrapInference ( ut.TestCase ):
         for par,ext in zip(parci,extci):
             self.assertEqual ( approximatedly_equal ( par, ext ), 0 )
 
+    def test_keywordhandling ( self ):
+        self.assertRaises ( ValueError, pd.BootstrapInference, self.parametric.data, shape="logistic" )
+
 class TestBayesInference ( ut.TestCase ):
     def setUp ( self ):
         sft.setSeed(0)
@@ -137,7 +140,35 @@ class TestBayesInference ( ut.TestCase ):
             self.assertEqual ( approximatedly_equal ( self.mcmc.mcRkd[indices[k]], target_mcRkd[k] ), 0 )
             for l in xrange ( 3 ):
                 self.assertEqual ( approximatedly_equal ( self.mcmc.mcthres[indices[k]][l], target_mcthres[k][l] ), 0 )
+    def test_keywordhandling ( self ):
+        self.assertRaises ( ValueError, pd.BayesInference, self.mcmc.data, shape="logistic" )
 
+class Testcheck_kwargs ( ut.TestCase ):
+    def test_checking ( self ):
+        self.assertRaises ( ValueError, pd.check_kwargs, {"test": 1}, "Some text" )
+        docstr = """:Parameters:
+        *test* :
+            useless documentation
+        *anotherprm* :
+            dummy parameter
+        *prm0* :
+            should work with numbers, too
+        *prmCamelCase* :
+            should work with capitals, too
+        *prm_with_underscores* :
+            and should work with underscores
+        *prmtype* : float
+            and should work with type specifications
+        """
+        self.assertEqual ( 0,               pd.check_kwargs ( {"test": 1},                           docstr ) )
+        self.assertEqual ( "notavailable",  pd.check_kwargs ( {"notavailable": 1},                   docstr ) )
+        self.assertEqual ( 0,               pd.check_kwargs ( {"prm0": 1},                           docstr ) )
+        self.assertEqual ( 0,               pd.check_kwargs ( {"prmCamelCase": 1},                   docstr ) )
+        self.assertEqual ( 0,               pd.check_kwargs ( {"prm_with_underscores": 1},           docstr ) )
+        self.assertEqual ( 0,               pd.check_kwargs ( {"prmtype": 1},                        docstr ) )
+        self.assertEqual ( "notin1",        pd.check_kwargs ( {"notin1": 1, "test": 1},              docstr ) )
+        self.assertEqual ( "notin1",        pd.check_kwargs ( {"test": 1, "notin1": 1},              docstr ) )
+        self.assertEqual ( "notin1",        pd.check_kwargs ( {"test": 1, "notin1": 1, "notin2": 1}, docstr ) )
 
 if __name__ == "__main__":
     ut.main()

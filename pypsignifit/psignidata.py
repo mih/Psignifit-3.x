@@ -241,6 +241,9 @@ class BootstrapInference ( PsiInference ):
         >>> B.getCI(1)
         array([ 2.79484448,  4.73796576])
         """
+        if check_kwargs ( kwargs, BootstrapInference.__init__.__doc__ ):
+            msg = "Unknown parameter '%s'. See docstring for valid arguments" % ( check_kwargs ( kwargs, BootstrapInference.__init__.__doc__ ), )
+            raise ValueError, msg
         # Call the base constructor
         PsiInference.__init__(self,plotprm)
         self.__nsamples = 0
@@ -634,6 +637,9 @@ class BayesInference ( PsiInference ):
         >>> mcmc.getCI()[1]
         array([ 2.65917603,  3.68535429,  4.56688308])
         """
+        if check_kwargs ( kwargs, BayesInference.__init__.__doc__ ):
+            msg = "Unknown parameter '%s'. See docstring for valid arguments" % (check_kwargs(kwargs, BayesInference.__init__.__doc__ ),)
+            raise ValueError, msg
         PsiInference.__init__(self,plotprm)
 
         # Store basic data
