@@ -37,7 +37,7 @@ class TestBootstrap(ut.TestCase):
         d = [[xx,kk,nn] for xx,kk,nn in zip(x,k,n)]
         priors = ('flat','flat','Uniform(0,0.1)')
         sfr.setSeed(1)
-        samples,est,D,thres,bias,acc,Rkd,Rpd,out,influ = interface.bootstrap(d,nsamples=2000,priors=priors)
+        samples,est,D,thres,thbias,thacc,slope,slbias,slacc,Rkd,Rpd,out,influ = interface.bootstrap(d,nsamples=2000,priors=priors)
         self.assertAlmostEqual( np.mean(est[:,0]), 2.7273945991794095)
         self.assertAlmostEqual( np.mean(est[:,1]), 1.3939511033770027)
 
@@ -127,7 +127,7 @@ class TestMapestimate(ut.TestCase):
         n = [50]*6
         d = [[xx,kk,nn] for xx,kk,nn in zip(x,k,n)]
         priors = ('flat','flat','Uniform(0,0.1)')
-        estimate, fisher, thres, deviance = interface.mapestimate ( d, priors=priors )
+        estimate, fisher, thres, slope, deviance = interface.mapestimate ( d, priors=priors )
         for i,value in enumerate([ 2.75183178, 1.45728231, 0.01555514]):
             self.assertAlmostEqual(value, estimate[i])
         self.assertAlmostEqual(2.75183178, thres)
@@ -166,7 +166,7 @@ class TestDiagnostics(ut.TestCase):
         n = [50]*6
         d = [[xx,kk,nn] for xx,kk,nn in zip(x,k,n)]
         prm = [2.75, 1.45, 0.015]
-        pred,di,D,thres,Rpd,Rkd = interface.diagnostics(d,prm)
+        pred,di,D,thres,slope,Rpd,Rkd = interface.diagnostics(d,prm)
         self.assertAlmostEqual(8.07484858608, D)
         self.assertAlmostEqual(1.68932796526, di[0])
         self.assertAlmostEqual(-0.19344675783032761, Rpd)
