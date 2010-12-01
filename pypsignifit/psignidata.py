@@ -116,6 +116,13 @@ class PsiInference ( object ):
 
         return float(self._pmf.getThres ( self.estimate, cut ))
 
+    def getSlope ( self, cut=0.5 ):
+        """Get slope at cut"""
+        if self.data == None:
+            raise NotImplementedError
+
+        return float ( self._pmf.getSlope ( self.estimate, cut ))
+
     def __repr__ ( self ):
         return "< PsiInference object >"
 
