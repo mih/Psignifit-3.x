@@ -399,13 +399,16 @@ class BootstrapInference ( PsiInference ):
         elif isinstance ( conf, int ):
             conf = [self.conf[conf]]
 
-        if self.__expanded and thres_or_slope[0]=="t":
+        if self.__expanded:
             ci = []
             for c in conf:
                 k = self.__expandedConf.index(round(c,6))
                 w = max(1-2*c,1-(1-c)*2)
                 w = list(self.__expandedWidths).index(round(w,6))
-                ci.append(self.__expandedCI[cut,w,k])
+                if thres_or_slope[0]=="t":
+                    ci.append(self.__expandedCI_th[cut,w,k])
+                elif thres_or_slope[0]=="s":
+                    ci.append(self.__expandedCI_sl[cut,w,k])
             return N.array(ci)
 
         if thres_or_slope[0] == "t":
@@ -464,7 +467,7 @@ class BootstrapInference ( PsiInference ):
                 an array of coordinates of the points at which additional bootstrap samples were drawn
         """
         if self.__expanded:
-            return N.array(self.__expandedCI),N.array(self._expansionPoints)
+            return N.array(self.__expandedCI_th),N.array(self.__expandedCI_sl),N.array(self._expansionPoints)
 
         if self.mcestimates is None:
             # We need an initial run
@@ -480,16 +483,20 @@ class BootstrapInference ( PsiInference ):
         maxcont = contour.evaluate ( N.array( [al,bt] ) )
 
         # Determine unexpanded CI
-        self.__expandedCI = []
+        self.__expandedCI_th = []
+        self.__expandedCI_sl = []
         for l,cut in enumerate(self.cuts):
             self.__expandedConf = []
-            self.__expandedCI.append([])
+            self.__expandedCI_th.append([])
+            self.__expandedCI_sl.append([])
             for prob in conf:
                 pprob = 1.-prob
                 p1,p2 = 0.5*pprob,1-0.5*pprob
-                self.__expandedCI[-1].append( self.getCI ( l, (p1,p2) )-self.thres[l] )
+                self.__expandedCI_th[-1].append( self.getCI ( l, (p1,p2), thres_or_slope="thres" )-self.thres[l] )
+                self.__expandedCI_sl[-1].append( self.getCI ( l, (p1,p2), thres_or_slope="slope" )-self.slope[l] )
                 self.__expandedConf += [round(p1,6),round(p2,6)]
-        self.__expandedCI = N.array(self.__expandedCI)
+        self.__expandedCI_th = N.array(self.__expandedCI_th)
+        self.__expandedCI_sl = N.array(self.__expandedCI_sl)
         self.__expandedWidths = N.array(conf)
 
         # Expand
@@ -521,12 +528,14 @@ class BootstrapInference ( PsiInference ):
             fullprm[:2] = self._expansionPoints[-1]
             fullprm = sfu.get_start ( fullprm, len(fullprm) )
             fullthres = [self._pmf.getThres ( fullprm, cut ) for cut in self.cuts]
+            fullslope = [self._pmf.getSlope ( fullprm, cut ) for cut in self.cuts]
 
             # Perform bootstrap without full conversion of data
             cuts = sfu.get_cuts(self.cuts)
             bs_list = sft.bootstrap(self.nsamples, self._data, self._pmf, cuts, fullprm, True, self.parametric)
 
             thresholdCI = []
+            slopeCI = []
             for l,cut in enumerate(self.cuts):
                 for pp,prob in enumerate(conf):
                     # Transform confidence to upper and lower limits
@@ -535,14 +544,24 @@ class BootstrapInference ( PsiInference ):
 
                     # Determine BCa-confidence intervals
                     thresholdCI = N.array ( [bs_list.getThres ( p1, l ), bs_list.getThres ( p2, l )] ) - fullthres[l]
+                    slopeCI     = N.array ( [bs_list.getSlope ( p1, l ), bs_list.getSlope ( p2, l )] ) - fullslope[l]
 
                     # If this confidence interval is larger than the original one, we expand the CI
-                    if thresholdCI[0]<self.__expandedCI[l,pp,0]:
-                        self.__expandedCI[l,pp,0] = thresholdCI[0]
+                    if thresholdCI[0]<self.__expandedCI_th[l,pp,0]:
+                        self.__expandedCI_th[l,pp,0] = thresholdCI[0]
                         if verbose:
                             sys.stderr.write("l- ")
-                    if thresholdCI[1]>self.__expandedCI[l,pp,1]:
-                        self.__expandedCI[l,pp,1] = thresholdCI[1]
+                    if thresholdCI[1]>self.__expandedCI_th[l,pp,1]:
+                        self.__expandedCI_th[l,pp,1] = thresholdCI[1]
+                        if verbose:
+                            sys.stderr.write("u+ ")
+
+                    if slopeCI[0]<self.__expandedCI_sl[l,pp,0]:
+                        self.__expandedCI_th[l,pp,0] = slopeCI[0]
+                        if verbose:
+                            sys.stderr.write("l- ")
+                    if slopeCI[1]>self.__expandedCI_sl[l,pp,1]:
+                        self.__expandedCI_sl[l,pp,1] = slopeCI[1]
                         if verbose:
                             sys.stderr.write("u+ ")
 
@@ -554,12 +573,13 @@ class BootstrapInference ( PsiInference ):
         # Now we add the threshold back to the ci
         for l,cut in enumerate(self.cuts):
             for pp in xrange ( len(conf) ):
-                self.__expandedCI[l,pp,:] += self.thres[l]
+                self.__expandedCI_th[l,pp,:] += self.thres[l]
+                self.__expandedCI_sl[l,pp,:] += self.slope[l]
 
         # Store that we have expanded the CIs
         self.__expanded = True
 
-        return N.array(self.__expandedCI),N.array(self._expansionPoints)
+        return N.array(self.__expandedCI_th),N.array(self.__expandedCI_sl),N.array(self._expansionPoints)
 
 
     outl = property ( fget=lambda self: self.__outl, doc="A boolean vector indicating whether a block should be considered an outlier" )
