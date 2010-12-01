@@ -33,6 +33,7 @@ def bootstrap(data, start=None, nsamples=2000, nafc=2, sigmoid="logistic",
     estimates = np.zeros((nsamples, nparams))
     deviance = np.zeros((nsamples))
     thres = np.zeros((nsamples, ncuts))
+    slope = np.zeros((nsamples, ncuts))
     Rpd = np.zeros((nsamples))
     Rkd = np.zeros((nsamples))
     for row_index in xrange(nsamples):
@@ -40,14 +41,19 @@ def bootstrap(data, start=None, nsamples=2000, nafc=2, sigmoid="logistic",
         estimates[row_index] = bs_list.getEst(row_index)
         deviance[row_index] = bs_list.getdeviance(row_index)
         thres[row_index] = [bs_list.getThres_byPos(row_index, j) for j in xrange(ncuts)]
+        slope[row_index] = [bs_list.getSlope_byPos(row_index, j) for j in xrange(ncuts)]
         Rpd[row_index] = bs_list.getRpd(row_index)
         Rkd[row_index] = bs_list.getRkd(row_index)
 
-    acc = np.zeros((ncuts))
-    bias = np.zeros((ncuts))
+    thacc = np.zeros((ncuts))
+    thbias = np.zeros((ncuts))
+    slacc = np.zeros((ncuts))
+    slbias = np.zeros((ncuts))
     for cut in xrange(ncuts):
-        acc[cut] = bs_list.getAcc_t(cut)
-        bias[cut] = bs_list.getBias_t(cut)
+        thacc[cut] = bs_list.getAcc_t(cut)
+        thbias[cut] = bs_list.getBias_t(cut)
+        slacc[cut] = bs_list.getAcc_t(cut)
+        slbias[cut] = bs_list.getBias_t(cut)
 
     ci_lower = sfr.vector_double(nparams)
     ci_upper = sfr.vector_double(nparams)
@@ -63,7 +69,7 @@ def bootstrap(data, start=None, nsamples=2000, nafc=2, sigmoid="logistic",
         outliers[block] = jk_list.outlier(block)
         influential[block] = jk_list.influential(block, ci_lower, ci_upper)
 
-    return samples, estimates, deviance, thres, bias, acc, Rpd, Rkd, outliers, influential
+    return samples, estimates, deviance, thres, thbias, thacc, slope, slbias, slacc, Rpd, Rkd, outliers, influential
 
 def mcmc( data, start=None, nsamples=10000, nafc=2, sigmoid='logistic',
         core='mw0.1', priors=None, stepwidths=None, sampler="MetropolisHastings", gammaislambda=False):
