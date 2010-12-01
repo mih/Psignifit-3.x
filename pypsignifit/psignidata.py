@@ -399,7 +399,7 @@ class BootstrapInference ( PsiInference ):
         elif isinstance ( conf, int ):
             conf = [self.conf[conf]]
 
-        if self.__expanded and thres_or_slope[0]="t":
+        if self.__expanded and thres_or_slope[0]=="t":
             ci = []
             for c in conf:
                 k = self.__expandedConf.index(round(c,6))
@@ -408,7 +408,7 @@ class BootstrapInference ( PsiInference ):
                 ci.append(self.__expandedCI[cut,w,k])
             return N.array(ci)
 
-        if thres_or_slope[0] = "t":
+        if thres_or_slope[0] == "t":
             bias = self.__th_bias[cut]
             acc  = self.__th_acc[cut]
 
@@ -417,7 +417,7 @@ class BootstrapInference ( PsiInference ):
                 vals.append(stats.norm.cdf( bias + ( stats.norm.ppf(pp) + bias ) / (1-acc*(stats.norm.ppf(pp) + bias )) ))
 
             return p.prctile ( self.__bthres[:,cut], 100*N.array(vals) )
-        elif thres_or_slope[0] = "s":
+        elif thres_or_slope[0] == "s":
             bias = self.__sl_bias[cut]
             acc  = self.__sl_acc[cut]
 
