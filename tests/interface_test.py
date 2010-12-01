@@ -38,8 +38,8 @@ class TestBootstrap(ut.TestCase):
         priors = ('flat','flat','Uniform(0,0.1)')
         sfr.setSeed(1)
         samples,est,D,thres,thbias,thacc,slope,slbias,slacc,Rkd,Rpd,out,influ = interface.bootstrap(d,nsamples=2000,priors=priors)
-        self.assertAlmostEqual( np.mean(est[:,0]), 2.7273945991794095)
-        self.assertAlmostEqual( np.mean(est[:,1]), 1.3939511033770027)
+        self.assertAlmostEqual( np.mean(est[:,0]), 2.73478083464 )
+        self.assertAlmostEqual( np.mean(est[:,1]), 1.39777934668 )
 
 
     def test_start(self):
@@ -83,8 +83,8 @@ class TestMCMC(ut.TestCase):
         (estimates, deviance, posterior_predictive_data,
         posterior_predictive_deviances, posterior_predictive_Rpd,
         posterior_predictive_Rkd, logposterior_ratios) = interface.mcmc(d,nsamples=10000,priors=priors,stepwidths=stepwidths)
-        self.assertAlmostEqual( np.mean(estimates[:,0]), 2.5121884914652712)
-        self.assertAlmostEqual( np.mean(estimates[:,1]), 7.514527566576759)
+        self.assertAlmostEqual( np.mean(estimates[:,0]), 2.52579214385 )
+        self.assertAlmostEqual( np.mean(estimates[:,1]), 7.30680631915 )
 
     def test_start(self):
         interface.mcmc(data,nsamples=25, start=[0.1,0.2,0.3])
@@ -150,7 +150,7 @@ class TestMapestimate(ut.TestCase):
         interface.mapestimate(data, cuts=[0.5, 0.75, 0.85])
 
     def test_start(self):
-        estimate, fisher, thres, deviance = interface.mapestimate (data,
+        estimate, fisher, thres, slope, deviance = interface.mapestimate (data,
                 start=[0.1, 0.2, 0.3])
 
 class TestDiagnostics(ut.TestCase):
