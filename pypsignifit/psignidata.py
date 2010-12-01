@@ -701,7 +701,7 @@ class BayesInference ( PsiInference ):
 
         self.afac = kwargs.setdefault ( "afac", 0.4 )
 
-        self.mapestimate,self.fisher,thres,self.mapdeviance = interface.mapestimate(self.data,start=None,**self.model)
+        self.mapestimate,self.fisher,thres,slope,self.mapdeviance = interface.mapestimate(self.data,start=None,**self.model)
 
         if cuts is None:
             self.cuts = (.25,.5,.75)
@@ -733,6 +733,7 @@ class BayesInference ( PsiInference ):
         self.__pRpd   = None
         self.__pRkd   = None
         self.__pthres = None
+        self.__pslope = None
 
         self.conf = conf
 
@@ -1096,16 +1097,19 @@ class BayesInference ( PsiInference ):
                 parameter of interest. Currently, only thres/threshold
                 and Rkd,Rpd,deviance are defined.
         """
-        if param[:5]=="thres":
+        if param[:5]=="thres" or param[:5]=="slope":
             # We have to handle thresholds separately because there could be multiple cuts.
-            mcthres = self.mcthres
+            if param[0] == "t":
+                mcdata = self.mcthres
+            else:
+                mcdata = self.mcslope
             out = []
             if cut==None:
                 for k in xrange(self.Ncuts):
-                    out.append(p.prctile ( mcthres[:,k], 100*N.array(conf) ))
+                    out.append(p.prctile ( mcdata[:,k], 100*N.array(conf) ))
                 return N.array(out)
             else:
-                return p.prctile ( mcthres[:,cut], 100*N.array(conf) )
+                return p.prctile ( mcdata[:,cut], 100*N.array(conf) )
         else:
             if param=="Rkd":
                 vals = self.mcRkd
@@ -1218,6 +1222,7 @@ class BayesInference ( PsiInference ):
     # Properties
     inference = property ( fget=lambda self: "MCMC", doc="Type of inference performed by the object" )
     mcthres = property ( fget=lambda self: self.__pthres, doc="posterior samples of the threshold" )
+    mcslope = property ( fget=lambda self: self.__pslope, doc="posterior samples of the slopes" )
     nchains = property ( fget=lambda self: len(self.__mcmc_chains), doc="Number of chains that have been sampled" )
     @Property
     def estimate ():
@@ -1234,6 +1239,7 @@ class BayesInference ( PsiInference ):
                     self.devianceresiduals = self._pmf.getDevianceResiduals ( self.__meanestimate, self._data )
                     self.__meandeviance    = self._pmf.deviance ( self.__meanestimate, self._data )
                     self.thres             = [self._pmf.getThres ( self.__meanestimate, c ) for c in self.cuts]
+                    self.slope             = [self._pmf.getSlope ( self.__meanestimate, c ) for c in self.cuts]
                     self.Rpd               = self._pmf.getRpd ( self.devianceresiduals, self.__meanestimate, self._data )
                     self.Rkd               = self._pmf.getRkd ( self.devianceresiduals, self._data )
                 else:
@@ -1279,6 +1285,7 @@ class BayesInference ( PsiInference ):
             self.__pRpd = None
             self.__pRkd = None
             self.__pthres = None
+            self.__pslope = None
 
     @Property
     def thin ():
@@ -1294,6 +1301,7 @@ class BayesInference ( PsiInference ):
             self.__pRpd = None
             self.__pRkd = None
             self.__pthres = None
+            self.__pslope = None
 
     @Property
     def mcRpd ():
@@ -1347,6 +1355,22 @@ class BayesInference ( PsiInference ):
                 else:
                     raise NosamplesError, "Samples from the posterior have not yet been drawn"
             return self.__pthres
+        def fset (self, t):
+            pass
+
+    @Property
+    def mcslope ():
+        "Monte Carlo Samples from the posterior distribution of slopes"
+        def fget (self):
+            """Get samples of the posterior distribution of slopes"""
+            if self.__pslope is None:
+                # pthres is currently undefined
+                if len(self.__mcmc_chains) > 0:
+                    # We have samples ~> recompute the slope
+                    self.__recomputeCorrelationsAndThresholds()
+                else:
+                    raise NosamplesError, "Samples from the posterior have not yet been drawn"
+            return self.__pslope
         def fset (self, t):
             pass
 
@@ -1436,10 +1460,12 @@ class BayesInference ( PsiInference ):
         self.__pRpd = N.zeros(samples.shape[0],'d')
         self.__pRkd = N.zeros(samples.shape[0],'d')
         self.__pthres = N.zeros((samples.shape[0],self.Ncuts),'d')
+        self.__pslope = N.zeros((samples.shape[0],self.Ncuts),'d')
         self._PsiInference__infl   = N.zeros(self.data.shape[0], 'd' )
 
         for k,theta in enumerate(samples):
             self.__pthres[k,:] = [self._pmf.getThres ( theta, c ) for c in self.cuts]
+            self.__pslope[k,:] = [self._pmf.getSlope ( theta, c ) for c in self.cuts]
             dr                 = self._pmf.getDevianceResiduals ( theta, self._data )
             self.__pRpd[k]     = self._pmf.getRpd ( dr, theta, self._data )
             self.__pRkd[k]     = self._pmf.getRkd ( dr, self._data )
