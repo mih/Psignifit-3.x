@@ -904,7 +904,7 @@ def plotSensitivity ( BootstrapInferenceObject, ax=None ):
     ax.imshow( C.T,origin="lower",extent=(xmin,xmax,ymin,ymax), cmap=p.cm.gray_r )
 
     # Get the points and make sure, a sensitivity_analysis has indeed been run
-    dummy,points = BootstrapInferenceObject.sensitivity_analysis(verbose=False)
+    thres,slope,points = BootstrapInferenceObject.sensitivity_analysis(verbose=False)
 
     # plot the points
     ax.fill(points[:,0],points[:,1],fill=False,edgecolor="r",linewidth=2)
