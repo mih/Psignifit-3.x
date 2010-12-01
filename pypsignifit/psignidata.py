@@ -302,8 +302,8 @@ class BootstrapInference ( PsiInference ):
             self.conf = conf
 
         # Store point estimates
-        self.estimate,self.fisher,self.thres,self.deviance = interface.mapestimate(self.data,cuts=self.cuts,start=start,**self.model)
-        self.predicted,self.devianceresiduals,self.deviance,thres,self.Rpd,self.Rkd = interface.diagnostics(self.data,self.estimate, \
+        self.estimate,self.fisher,self.thres,self.slope,self.deviance = interface.mapestimate(self.data,cuts=self.cuts,start=start,**self.model)
+        self.predicted,self.devianceresiduals,self.deviance,thres,slope,self.Rpd,self.Rkd = interface.diagnostics(self.data,self.estimate, \
                 nafc=self.model["nafc"],sigmoid=self.model["sigmoid"],core=self.model["core"],cuts=self.cuts,gammaislambda=self.model["gammaislambda"])
 
         # The interface arrays are not numpy arrays
@@ -322,6 +322,9 @@ class BootstrapInference ( PsiInference ):
         self.__bthres    = None
         self.__th_bias   = None
         self.__th_acc    = None
+        self.__bslope    = None
+        self.__sl_bias   = None
+        self.__sl_acc    = None
         self.__expanded  = False
 
         # If we want direct sampling this is done here
@@ -345,7 +348,7 @@ class BootstrapInference ( PsiInference ):
         """
         self.__nsamples = Nsamples
         # print self.estimate
-        self.__bdata,self.__bestimate,self.__bdeviance,self.__bthres,self.__th_bias,self.__th_acc,\
+        self.__bdata,self.__bestimate,self.__bdeviance,self.__bthres,self.__th_bias,self.__th_acc,self.__bslope,self.__sl_bias,self.__sl_acc, \
                 self.__bRpd,self.__bRkd,self.__outl,self.__infl = interface.bootstrap(self.data,self.estimate,Nsamples,
                         cuts=self.cuts,**self.model)
         if not self.parametric:
@@ -358,6 +361,9 @@ class BootstrapInference ( PsiInference ):
         self.__bthres    = N.array(self.__bthres)
         self.__th_bias   = N.array(self.__th_bias)
         self.__th_acc    = N.array(self.__th_acc)
+        self.__bslope    = N.array(self.__bslope)
+        self.__sl_bias   = N.array(self.__sl_bias)
+        self.__sl_acc    = N.array(self.__sl_acc)
         self.__bRkd      = N.array(self.__bRkd)
         self.__bRpd      = N.array(self.__bRpd)
         self.__outl      = N.array(self.__outl,dtype=bool)
@@ -370,11 +376,11 @@ class BootstrapInference ( PsiInference ):
             *Nsamples* :
                 number of bootstrapsamples to be drawn
         """
-        self.__bdata,self.__bestimate,dev,self.__bthres,self.__th_bias,self.__th_acc,\
+        self.__bdata,self.__bestimate,dev,self.__bthres,self.__th_bias,self.__th_acc,self.__bslope,self.__sl_bias,self.__sl_acc,\
                 Rkd,Rpd,outl,infl = interface.bootstrap(self.data,self.estimate,Nsamples,
                         cuts=self.cuts,parametric=False,**self.model)
 
-    def getCI ( self, cut, conf=None ):
+    def getCI ( self, cut, conf=None, thres_or_slope="thres" ):
         """Determine the confidence interval of a cut
 
         :Parameters:
@@ -382,6 +388,8 @@ class BootstrapInference ( PsiInference ):
                 index(!) of the cut of interest
             *conf* :
                 levels of confidence (default, levels taken from the object)
+            *thres_or_slope* :
+                determine confidence intervals for threshold or for slope
         """
 
         if conf is None:
@@ -391,7 +399,7 @@ class BootstrapInference ( PsiInference ):
         elif isinstance ( conf, int ):
             conf = [self.conf[conf]]
 
-        if self.__expanded:
+        if self.__expanded and thres_or_slope[0]="t":
             ci = []
             for c in conf:
                 k = self.__expandedConf.index(round(c,6))
@@ -400,14 +408,27 @@ class BootstrapInference ( PsiInference ):
                 ci.append(self.__expandedCI[cut,w,k])
             return N.array(ci)
 
-        bias = self.__th_bias[cut]
-        acc  = self.__th_acc[cut]
+        if thres_or_slope[0] = "t":
+            bias = self.__th_bias[cut]
+            acc  = self.__th_acc[cut]
 
-        vals = []
-        for pp in conf:
-            vals.append(stats.norm.cdf( bias + ( stats.norm.ppf(pp) + bias ) / (1-acc*(stats.norm.ppf(pp) + bias )) ))
+            vals = []
+            for pp in conf:
+                vals.append(stats.norm.cdf( bias + ( stats.norm.ppf(pp) + bias ) / (1-acc*(stats.norm.ppf(pp) + bias )) ))
 
-        return p.prctile ( self.__bthres[:,cut], 100*N.array(vals) )
+            return p.prctile ( self.__bthres[:,cut], 100*N.array(vals) )
+        elif thres_or_slope[0] = "s":
+            bias = self.__sl_bias[cut]
+            acc  = self.__sl_acc[cut]
+
+            vals = []
+            for pp in conf:
+                vals.append(stats.norm.cdf( bias + ( stats.norm.ppf(pp) + bias ) / (1-acc*(stats.norm.ppf(pp) + bias )) ))
+
+            return p.prctile ( self.__bslope[:,cut], 100*N.array(vals) )
+        else:
+            raise ValueError, "Unknown value for thres_or_slope: %s" % (str(thres_or_slope),)
+
 
     def __repr__ ( self ):
         return "< BootstrapInference object with %d blocks and %d samples >" % ( self.data.shape[0], self.nsamples )
@@ -548,6 +569,7 @@ class BootstrapInference ( PsiInference ):
     mcRpd = property ( fget=lambda self: self.__bRpd, doc="A vector of correlations between model prections and deviance residuals in all bootstrap samples" )
     mcRkd = property ( fget=lambda self: self.__bRkd, doc="A vector of correlations between block index and deviance residuals in all bootstrap samples" )
     mcthres = property ( fget=lambda self: self.__bthres, doc="Thresholds of the bootstrap replications" )
+    mcslope = property ( fget=lambda self: self.__bslope, doc="Slopes of the bootstrap replications" )
     mcdensity = property ( fget=lambda self: stats.kde.gaussian_kde ( self.mcestimates[N.logical_and(self.mcestimates[:,0]<10000,self.mcestimates[:,1]<10000),:2].T ),
             doc="A gaussian kernel density estimate of the joint density of the first two parameters of the model" )
     inference = property ( fget=lambda self: "CML-MC", doc="Type of inference performed by the object" )
