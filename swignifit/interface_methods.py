@@ -144,6 +144,7 @@ def mapestimate ( data, nafc=2, sigmoid='logistic', core='ab', priors=None,
             None else None)
     H = pmf.ddnegllikeli(estimate, dataset)
     thres = [pmf.getThres(estimate, c) for c in cuts]
+    slope = [pmf.getSlope(estimate, c) for c in cuts]
     deviance = pmf.deviance(estimate, dataset)
 
     # convert to numpy stuff
@@ -152,9 +153,10 @@ def mapestimate ( data, nafc=2, sigmoid='logistic', core='ab', priors=None,
     for (i,j) in ((i,j) for i in xrange(nparams) for j in xrange(nparams)):
         fisher[i,j] = sfr.doublep_value(H(i,j))
     thres = np.array(thres)
+    slope = np.array(slope)
     deviance = np.array(deviance)
 
-    return estimate, fisher, thres, deviance
+    return estimate, fisher, thres, slope, deviance
 
 def diagnostics(data, params, nafc=2, sigmoid='logistic', core='ab', cuts=None, gammaislambda=False):
     # here we need to hack stuff, since data can be either 'real' data, or just
