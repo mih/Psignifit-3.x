@@ -91,7 +91,7 @@ def mcmc( data, start=None, nsamples=10000, nafc=2, sigmoid='logistic',
     sampler.setTheta(start)
 
     if stepwidths != None:
-        stepwidths == np.array(stepwidths)
+        stepwidths = np.array(stepwidths)
         if len(stepwidths.shape)==2:
             if isinstance ( sampler, sfr.GenericMetropolis ):
                 sampler.findOptimalStepwidth ( sfu.make_pilotsample ( stepwidths ) )
