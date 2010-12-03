@@ -14,8 +14,6 @@ __helptext__ = """
 Determine coverage of confidence intervals for a given combination of analysis/generating parameters.
 """
 
-nobayes = False
-
 # Analyze command line options
 parser = OptionParser ( usage=__helptext__ )
 
@@ -81,6 +79,9 @@ parser.add_option ( "--disable-parametric", dest="parametric",
         action="store_false", default=True,
         help="do not run the paramteric bootstrap")
 
+parser.add_option ( "--disable-bayes", dest="bayes",
+        action="store_false", default=True,
+        help="do not run the bayesian analysis")
 
 
 
@@ -230,8 +231,13 @@ else:
     print "Seeed is value given on command line: '%d'" % seed
     pypsignifit.set_seed(seed)
 
+# check that there is something to do
+bayes = options.bayes
 nonparametric = options.nonparametric
 parametric = options.parametric
+if not nonparametric and not parametric and not bayes:
+    raise ValueError("You must specify one of: 'nonparametric', 'parametric' "+\
+            "'bayes' in order for this script to do anything!")
 
 ############################################################
 #                                                          #
@@ -253,14 +259,13 @@ def check_ci ( observer, inference ):
         return 0
 
 def write_header(f):
-    outs = "run m.gen w.gen "
     if nonparametric:
         outs += "m.npr.e m.npr.l m.npr.h w.npr.e w.npr.l w.npr.h d.npr d.npr.crit nu.npr rpd.npr rpd.npr.l rpd.npr.h rkd.npr rkd.npr.l rkd.npr.h infl.npr." \
                 + " infl.npr.".join([str(x) for x in range(options.nblocks)]) + " "
     if parametric:
         outs += "m.par.e m.par.l m.par.h w.par.e w.par.l w.par.h d.par d.par.crit nu.par rpd.par rpd.par.l rpd.par.h rkd.par rkd.par.l rkd.par.h infl.par." \
                 + " infl.par.".join([str(x) for x in range(options.nblocks)]) + " "
-    if not nobayes:
+    if bayes:
         outs += ("m.bay.e "+
                 "m.bay.map "+
                 "m.bay.median "+
@@ -292,7 +297,6 @@ def write_header(f):
 
 def writelog ( f, Bnpr=None, Bpar=None, mcmc=None, mcmc_conv=1 ):
     ptile = pylab.prctile
-    outs = "%d %g %g " % (simulation, gen_prm[0], gen_prm[1] )
     if nonparametric and (Bnpr is not None):
         # Bnpr
         outs += "%g %g %g " % (Bnpr.estimate[0],Bnpr.getCI(1,(.025,)),Bnpr.getCI(1,(.975))) # m.npr.e m.npr.l m.npr.h
@@ -310,7 +314,7 @@ def writelog ( f, Bnpr=None, Bpar=None, mcmc=None, mcmc_conv=1 ):
         outs += "%g %g %g " % (Bpar.Rkd,ptile(Bpar.mcRkd,2.5),ptile(Bpar.mcRkd,97.5)) # rkd.par rkd.par.l rkd.par.h
         outs += ("%g "*options.nblocks) % tuple(Bpar.infl)
     # Bay
-    if not nobayes:
+    if bayes:
         outs += "%g %g %g %g %g " % (
                 mcmc.estimate[0],        # m.bay.m
                 mcmc.mapestimate[0],     # m.bay.map
@@ -383,7 +387,7 @@ for simulation in xrange ( options.nsimulations ):
     # How to make sure that in the end ALL chains have converged?
     # We can give upper and lower limits for m and w from our sampling positions.
     # m cannot be outside the sampled range and w should not be wider than the sampled range (or twice that)
-    if not nobayes:
+    if bayes:
         mcmc = pypsignifit.BayesInference ( data, sample=True, priors=priors, **ana_kwargs )
         for prm in [0,1,2]:
             if not mcmc.geweke(prm)[2] is None:
@@ -413,10 +417,10 @@ for simulation in xrange ( options.nsimulations ):
             count_bay += check_ci ( O, mcmc )
 
     # print count_bay, mcmc.estimate, pylab.prctile(mcmc.mcestimates[:,0], (2.5,97.5)), pylab.prctile(mcmc.mcestimates[:,1], (2.5,97.5))
-    if not nobayes:
+    if bayes:
         print count_bay, mcmc.getCI(1,(.025,.975))
 
-    if not nobayes:
+    if bayes:
         writelog ( outfile, Bnpr, Bpar, mcmc, mcmc_conv )
     else:
         writelog ( outfile, Bnpr, Bpar )
@@ -482,7 +486,8 @@ if nonparametric:
     print "  nonparametric bootstrap:", count_npr/options.nsimulations
 if nonparametric:
     print "  parametric bootstrap:   ", count_par/options.nsimulations
-print "  MCMC (bayesian):        ", count_bay/(options.nsimulations-not_converged)
-print "  MCMC runs that did not converge:",not_converged
+if bayes:
+    print "  MCMC (bayesian):        ", count_bay/(options.nsimulations-not_converged)
+    print "  MCMC runs that did not converge:",not_converged
 
 # pypsignifit.show()
