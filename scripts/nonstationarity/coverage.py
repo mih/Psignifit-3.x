@@ -15,8 +15,6 @@ Determine coverage of confidence intervals for a given combination of analysis/g
 """
 
 nobayes = False
-nonparametric = False
-parametric = False
 
 # Analyze command line options
 parser = OptionParser ( usage=__helptext__ )
@@ -74,6 +72,17 @@ parser.add_option ( "-o", "--output", dest="outputfile", default="test.log",
 
 parser.add_option ( "--datareduce", dest="datareduce", action="store_true",
         help="reduce data based on the estimated nu parameter" )
+
+parser.add_option ( "--disable-nonparametric", dest="nonparametric",
+        action="store_false", default=True,
+        help="do not run the non-paramteric bootstrap")
+
+parser.add_option ( "--disable-parametric", dest="parametric",
+        action="store_false", default=True,
+        help="do not run the paramteric bootstrap")
+
+
+
 
 
 options,arguments = parser.parse_args()
@@ -220,6 +229,9 @@ else:
     seed = int(options.seed)
     print "Seeed is value given on command line: '%d'" % seed
     pypsignifit.set_seed(seed)
+
+nonparametric = options.nonparametric
+parametric = options.parametric
 
 ############################################################
 #                                                          #
