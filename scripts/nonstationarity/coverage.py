@@ -278,7 +278,7 @@ def writelog ( f, Bnpr=None, Bpar=None, mcmc=None, mcmc_conv=1 ):
     # Bay
     if not nobayes:
         outs += "%g %g %g " % (mcmc.estimate[0],mcmc.getCI(1,(.025,)),mcmc.getCI(1,(.975))) # m.bay.e m.bay.l m.bay.h
-        outs += "%g %g %g " % (mcmc.estimate[1],ptile(mcmc.mcestimates[:,1],2.5),ptile(mcmc.mcestimates[:,1],97.5)) # m.bay.e m.bay.l m.bay.h
+        outs += "%g %g %g " % (mcmc.estimate[1],ptile(mcmc.mcestimates[:,1],2.5),ptile(mcmc.mcestimates[:,1],97.5)) # w.bay.e w.bay.l w.bay.h
         outs += "%g %g %g " % (mcmc.deviance,mcmc.bayesian_p('deviance'), psigcorrect.estimate_nu (mcmc)[0]) # d.bay d.bay.p
         outs += "%g %g " % (mcmc.Rpd,mcmc.bayesian_p('Rpd')) # d.rpd d.rpd.p
         outs += "%g %g " % (mcmc.Rkd,mcmc.bayesian_p('Rkd')) # d.rkd d.rkd.p
