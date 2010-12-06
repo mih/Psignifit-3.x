@@ -101,7 +101,7 @@ class PsiPsychometric {
 		double getSlope (
 			const std::vector<double>& prm,                                          ///< parameters of the psychometric function model
 			double x                                                                 ///< performance level at which the slope should be evaluated
-			) const { return Sigmoid->df ( Core->g ( x, prm ) ) * Core->dgx ( x, prm ); } ///< get the slope at a cut between 0 and 1
+			) const { return Sigmoid->df ( Core->g ( x, prm ) ) * Core->dgx ( x, prm ); } ///< get the slope at a stimulus intensity
 		std::vector<double> getDevianceResiduals (
 			const std::vector<double>& prm,                                          ///< parameters of the psychometric function model
 			const PsiData* data                                                      ///< data for which the deviance residuals should be determined
