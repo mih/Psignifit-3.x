@@ -1,3 +1,8 @@
+2010-12-06
+
+* Added BCa confidence intervals for slope to the high level interface
+* Checking command line arguments based on docstring
+
 2010-11-29
 
 * Bugfix: cuts is checked to be iterable in constructor
