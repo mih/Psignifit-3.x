@@ -121,7 +121,7 @@ class PsiInference ( object ):
         if self.data == None:
             raise NotImplementedError
 
-        return float ( self._pmf.getSlope ( self.estimate, cut ))
+        return float ( self._pmf.getSlope ( self.estimate, self.getThres(cut) ))
 
     def __repr__ ( self ):
         return "< PsiInference object >"
@@ -528,7 +528,7 @@ class BootstrapInference ( PsiInference ):
             fullprm[:2] = self._expansionPoints[-1]
             fullprm = sfu.get_start ( fullprm, len(fullprm) )
             fullthres = [self._pmf.getThres ( fullprm, cut ) for cut in self.cuts]
-            fullslope = [self._pmf.getSlope ( fullprm, cut ) for cut in self.cuts]
+            fullslope = [self._pmf.getSlope ( fullprm, th ) for th in fullthres]
 
             # Perform bootstrap without full conversion of data
             cuts = sfu.get_cuts(self.cuts)
@@ -1259,7 +1259,7 @@ class BayesInference ( PsiInference ):
                     self.devianceresiduals = self._pmf.getDevianceResiduals ( self.__meanestimate, self._data )
                     self.__meandeviance    = self._pmf.deviance ( self.__meanestimate, self._data )
                     self.thres             = [self._pmf.getThres ( self.__meanestimate, c ) for c in self.cuts]
-                    self.slope             = [self._pmf.getSlope ( self.__meanestimate, c ) for c in self.cuts]
+                    self.slope             = [self._pmf.getSlope ( self.__meanestimate, th ) for th in self.thres]
                     self.Rpd               = self._pmf.getRpd ( self.devianceresiduals, self.__meanestimate, self._data )
                     self.Rkd               = self._pmf.getRkd ( self.devianceresiduals, self._data )
                 else:
@@ -1485,7 +1485,7 @@ class BayesInference ( PsiInference ):
 
         for k,theta in enumerate(samples):
             self.__pthres[k,:] = [self._pmf.getThres ( theta, c ) for c in self.cuts]
-            self.__pslope[k,:] = [self._pmf.getSlope ( theta, c ) for c in self.cuts]
+            self.__pslope[k,:] = [self._pmf.getSlope ( theta, th ) for th in self.__pthres[k,:]]
             dr                 = self._pmf.getDevianceResiduals ( theta, self._data )
             self.__pRpd[k]     = self._pmf.getRpd ( dr, theta, self._data )
             self.__pRkd[k]     = self._pmf.getRkd ( dr, self._data )

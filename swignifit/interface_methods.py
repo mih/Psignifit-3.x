@@ -144,7 +144,7 @@ def mapestimate ( data, nafc=2, sigmoid='logistic', core='ab', priors=None,
             None else None)
     H = pmf.ddnegllikeli(estimate, dataset)
     thres = [pmf.getThres(estimate, c) for c in cuts]
-    slope = [pmf.getSlope(estimate, c) for c in cuts]
+    slope = [pmf.getSlope(estimate, th) for th in thres]
     deviance = pmf.deviance(estimate, dataset)
 
     # convert to numpy stuff
@@ -168,7 +168,7 @@ def diagnostics(data, params, nafc=2, sigmoid='logistic', core='ab', cuts=None, 
     if op.isSequenceType(data) and len(data) == 0:
         pmf, nparams =  sfu.make_pmf(sfr.PsiData([0],[0],[0],1), nafc, sigmoid, core, None, gammaislambda=gammaislambda )
         thres = np.array([pmf.getThres(params, cut) for cut in sfu.get_cuts(cuts)])
-        slope = np.array([pmf.getSlope(params, cut) for cut in sfu.get_cuts(cuts)])
+        slope = np.array([pmf.getSlope(params, th ) for th in thres])
         return np.array([]), np.array([]), 0.0, thres, np.nan, np.nan
 
     shape = np.shape(np.array(data))
@@ -194,7 +194,7 @@ def diagnostics(data, params, nafc=2, sigmoid='logistic', core='ab', cuts=None, 
         deviance_residuals = pmf.getDevianceResiduals(params, dataset)
         deviance = pmf.deviance(params, dataset)
         thres = np.array([pmf.getThres(params, cut) for cut in cuts])
-        slope = np.array([pmf.getSlope(params, cut) for cut in cuts])
+        slope = np.array([pmf.getSlope(params, th ) for th in thres])
         rpd = pmf.getRpd(deviance_residuals, params, dataset)
         rkd = pmf.getRkd(deviance_residuals, dataset)
         return predicted, deviance_residuals, deviance, thres, slope, rpd, rkd
