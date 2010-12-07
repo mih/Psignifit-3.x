@@ -870,6 +870,8 @@ class BayesInference ( PsiInference ):
                 if chain is None, samples are aggregated over all chains
                 sampled so far. If chain is an integer only data from the
                 chain indexed by this number are returned
+            *raw* :
+                if True return all samples, including burnin
 
         :Output:
             an array of nsamplesXnparams samples from the posterior
