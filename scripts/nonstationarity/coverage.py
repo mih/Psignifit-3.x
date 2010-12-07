@@ -4,9 +4,10 @@ from optparse import OptionParser
 from pypsignifit import psigobservers
 from pypsignifit import psigcorrect
 import pypsignifit
-from numpy import array,arange,mgrid,clip,zeros,sort, random,mean
+from numpy import array,arange,mgrid,clip,zeros,sort, random,mean, asarray
 import os,sys
 import pylab
+from pylab import prctile as ptile
 import operator
 import time
 
@@ -316,6 +317,7 @@ def check_ci ( observer, inference ):
         return 0
 
 def write_header(f):
+    outs = "run m.gen w.gen "
     if nonparametric:
         outs += "m.npr.e m.npr.l m.npr.h w.npr.e w.npr.l w.npr.h d.npr d.npr.crit nu.npr rpd.npr rpd.npr.l rpd.npr.h rkd.npr rkd.npr.l rkd.npr.h infl.npr." \
                 + " infl.npr.".join([str(x) for x in range(options.nblocks)]) + " "
@@ -352,53 +354,55 @@ def write_header(f):
     f.write(outs)
     f.flush()
 
-def writelog ( f, Bnpr=None, Bpar=None, mcmc=None, mcmc_conv=1 ):
-    ptile = pylab.prctile
-    if nonparametric and (Bnpr is not None):
-        # Bnpr
-        outs += "%g %g %g " % (Bnpr.estimate[0],Bnpr.getCI(1,(.025,)),Bnpr.getCI(1,(.975))) # m.npr.e m.npr.l m.npr.h
-        outs += "%g %g %g " % (Bnpr.estimate[1],ptile(Bnpr.mcestimates[:,1],2.5),ptile(Bnpr.mcestimates[:,1],97.5)) # w.npr.e w.npr.l w.npr.h
-        outs += "%g %g %g " % (Bnpr.deviance, ptile(Bnpr.mcdeviance,95), psigcorrect.estimate_nu (Bnpr)[0]) # d.npr d.npr.crit nu.npr
-        outs += "%g %g %g " % (Bnpr.Rpd,ptile(Bnpr.mcRpd,2.5),ptile(Bnpr.mcRpd,97.5)) # rpd.npr rpd.npr.l rpd.npr.h
-        outs += "%g %g %g " % (Bnpr.Rkd,ptile(Bnpr.mcRkd,2.5),ptile(Bnpr.mcRkd,97.5)) # rkd.npr rkd.npr.l rkd.npr.h
-        outs += ("%g "*options.nblocks) % tuple(Bnpr.infl)
-    if parametric and (Bpar is not None):
-        # Bpar
-        outs += "%g %g %g " % (Bpar.estimate[0],Bpar.getCI(1,(.025,)),Bpar.getCI(1,(.975))) # m.par.e m.par.l m.par.h
-        outs += "%g %g %g " % (Bpar.estimate[1],ptile(Bpar.mcestimates[:,1],2.5),ptile(Bpar.mcestimates[:,1],97.5)) # w.par.e w.par.l w.par.h
-        outs += "%g %g %g " % (Bpar.deviance, ptile(Bpar.mcdeviance,95), psigcorrect.estimate_nu (Bpar)[0]) # d.par d.par.crit nu.par
-        outs += "%g %g %g " % (Bpar.Rpd,ptile(Bpar.mcRpd,2.5),ptile(Bpar.mcRpd,97.5)) # rpd.par rpd.par.l rpd.par.h
-        outs += "%g %g %g " % (Bpar.Rkd,ptile(Bpar.mcRkd,2.5),ptile(Bpar.mcRkd,97.5)) # rkd.par rkd.par.l rkd.par.h
-        outs += ("%g "*options.nblocks) % tuple(Bpar.infl)
-    # Bay
-    if bayes:
-        outs += "%g %g %g %g %g " % (
-                mcmc.estimate[0],        # m.bay.m
-                mcmc.mapestimate[0],     # m.bay.map
-                mcmc.posterior_median[0],# m.bay.median
-                mcmc.getCI(1,(.025,)),   # m.bay.l
-                mcmc.getCI(1,(.975)))    # m.bay.h
-
-        outs += "%g %g %g %g %g " % (
-                mcmc.estimate[1],                  # w.bay.m
-                mcmc.mapestimate[1],               # w.bay.map
-                mcmc.posterior_median[1],          # w.bay.median
-                ptile(mcmc.mcestimates[:,1],2.5),  # w.bay.l
-                ptile(mcmc.mcestimates[:,1],97.5)) # w.bay.h
-        outs += "%g %g %g " % (mcmc.deviance,mcmc.bayesian_p('deviance'), psigcorrect.estimate_nu (mcmc)[0]) # d.bay d.bay.p
-        outs += "%g %g " % (mcmc.Rpd,mcmc.bayesian_p('Rpd')) # d.rpd d.rpd.p
-        outs += "%g %g " % (mcmc.Rkd,mcmc.bayesian_p('Rkd')) # d.rkd d.rkd.p
-        outs += "%d %g %g %g " % (mcmc_conv,mcmc.Rhat(0),mcmc.Rhat(1),mcmc.Rhat(2))
-        outs += ("%g "*options.nblocks) % tuple(mcmc.infl)
-
-    outs += ("%g "*options.nblocks) % tuple(Bnpr.data[:,0])
-    outs += ("%d "*options.nblocks) % tuple(Bnpr.data[:,1].astype("i"))
-    outs += "\n"
+def write_id_gen(f, simulation):
+    outs = "%d %g %g " % (simulation, gen_prm[0], gen_prm[1] )
     f.write ( outs )
-    f.flush()
 
-# write header
-write_header(outfile)
+def write_nonparametric(f, Bnpr):
+    outs  = "%g %g %g " % (Bnpr.estimate[0],Bnpr.getCI(1,(.025,)),Bnpr.getCI(1,(.975))) # m.npr.e m.npr.l m.npr.h
+    outs += "%g %g %g " % (Bnpr.estimate[1],ptile(Bnpr.mcestimates[:,1],2.5),ptile(Bnpr.mcestimates[:,1],97.5)) # w.npr.e w.npr.l w.npr.h
+    outs += "%g %g %g " % (Bnpr.deviance, ptile(Bnpr.mcdeviance,95), psigcorrect.estimate_nu (Bnpr)[0]) # d.npr d.npr.crit nu.npr
+    outs += "%g %g %g " % (Bnpr.Rpd,ptile(Bnpr.mcRpd,2.5),ptile(Bnpr.mcRpd,97.5)) # rpd.npr rpd.npr.l rpd.npr.h
+    outs += "%g %g %g " % (Bnpr.Rkd,ptile(Bnpr.mcRkd,2.5),ptile(Bnpr.mcRkd,97.5)) # rkd.npr rkd.npr.l rkd.npr.h
+    outs += ("%g "*options.nblocks) % tuple(Bnpr.infl)
+    f.write ( outs )
+
+def write_parametric(f, Bpar):
+    outs  = "%g %g %g " % (Bpar.estimate[0],Bpar.getCI(1,(.025,)),Bpar.getCI(1,(.975))) # m.par.e m.par.l m.par.h
+    outs += "%g %g %g " % (Bpar.estimate[1],ptile(Bpar.mcestimates[:,1],2.5),ptile(Bpar.mcestimates[:,1],97.5)) # w.par.e w.par.l w.par.h
+    outs += "%g %g %g " % (Bpar.deviance, ptile(Bpar.mcdeviance,95), psigcorrect.estimate_nu (Bpar)[0]) # d.par d.par.crit nu.par
+    outs += "%g %g %g " % (Bpar.Rpd,ptile(Bpar.mcRpd,2.5),ptile(Bpar.mcRpd,97.5)) # rpd.par rpd.par.l rpd.par.h
+    outs += "%g %g %g " % (Bpar.Rkd,ptile(Bpar.mcRkd,2.5),ptile(Bpar.mcRkd,97.5)) # rkd.par rkd.par.l rkd.par.h
+    outs += ("%g "*options.nblocks) % tuple(Bpar.infl)
+    f.write(outs)
+
+def write_bayes(f, mcmc, mcmc_conv)
+    outs  = "%g %g %g %g %g " % (
+            mcmc.estimate[0],        # m.bay.m
+            mcmc.mapestimate[0],     # m.bay.map
+            mcmc.posterior_median[0],# m.bay.median
+            mcmc.getCI(1,(.025,)),   # m.bay.l
+            mcmc.getCI(1,(.975)))    # m.bay.h
+
+    outs += "%g %g %g %g %g " % (
+            mcmc.estimate[1],                  # w.bay.m
+            mcmc.mapestimate[1],               # w.bay.map
+            mcmc.posterior_median[1],          # w.bay.median
+            ptile(mcmc.mcestimates[:,1],2.5),  # w.bay.l
+            ptile(mcmc.mcestimates[:,1],97.5)) # w.bay.h
+    outs += "%g %g %g " % (mcmc.deviance,mcmc.bayesian_p('deviance'), psigcorrect.estimate_nu (mcmc)[0]) # d.bay d.bay.p
+    outs += "%g %g " % (mcmc.Rpd,mcmc.bayesian_p('Rpd')) # d.rpd d.rpd.p
+    outs += "%g %g " % (mcmc.Rkd,mcmc.bayesian_p('Rkd')) # d.rkd d.rkd.p
+    outs += "%d %g %g %g " % (mcmc_conv,mcmc.Rhat(0),mcmc.Rhat(1),mcmc.Rhat(2))
+    outs += ("%g "*options.nblocks) % tuple(mcmc.infl)
+    f.write(outs)
+
+def write_data(f, data):
+    # this conversion is required since data[0,:] does not work on lists
+    data = asarray(data)
+    outs  = ("%g "*options.nblocks) % tuple(data[:,0])
+    outs += ("%d "*options.nblocks) % tuple(data[:,1].astype("i"))
+    f.write ( outs )
 
 #if options.datareduce:
 #    outfile_reduced = open ( options.outputfile + "reduce","w" )
@@ -411,6 +415,9 @@ not_converged = 0
 
 random.shuffle ( x )
 
+# write header
+write_header(outfile)
+
 sys.stderr.write("\n")
 for simulation in xrange ( options.nsimulations ):
     sys.stderr.write ( "\nSimulation %d is running" % ( simulation, ) )
@@ -421,24 +428,24 @@ for simulation in xrange ( options.nsimulations ):
     data = O.DoAnExperiment ( x, ntrials=options.blocksize )
     print "\ndata =",data
     print constraints
+
     if nonparametric:
         Bnpr = pypsignifit.BootstrapInference ( data, priors=constraints, parametric=False, **ana_kwargs )
         if options.fixed_pmf:
             Bnpr.estimate = OO.params
         Bnpr.sample ( options.nbootstrap )
         count_npr += check_ci ( O, Bnpr )
+        write_nonparametric(outfile, Bnpr)
         print "Done npar"
-    else:
-        Bnpr = None
+
     if parametric:
         Bpar = pypsignifit.BootstrapInference ( data, priors=constraints, parametric=True,  **ana_kwargs )
         if options.fixed_pmf:
             Bpar.estimate = OO.params
         Bpar.sample ( options.nbootstrap )
         count_par += check_ci ( O, Bpar )
+        write_parametric(outfile, Bpar)
         print "Done par"
-    else:
-        Bpar = None
 
     ####################
     # How to make sure that in the end ALL chains have converged?
@@ -473,14 +480,14 @@ for simulation in xrange ( options.nsimulations ):
         else:
             count_bay += check_ci ( O, mcmc )
 
-    # print count_bay, mcmc.estimate, pylab.prctile(mcmc.mcestimates[:,0], (2.5,97.5)), pylab.prctile(mcmc.mcestimates[:,1], (2.5,97.5))
-    if bayes:
+        # print count_bay, mcmc.estimate, pylab.prctile(mcmc.mcestimates[:,0], (2.5,97.5)), pylab.prctile(mcmc.mcestimates[:,1], (2.5,97.5))
         print count_bay, mcmc.getCI(1,(.025,.975))
+        write_bayes(outfile, mcmc, mcmc_conv)
+        print "Done Bayes"
 
-    if bayes:
-        writelog ( outfile, Bnpr, Bpar, mcmc, mcmc_conv )
-    else:
-        writelog ( outfile, Bnpr, Bpar )
+    write_data(outfile, data)
+    outfile.write ("\n")
+    outfile.flush()
 
 # datareduce section is not up-to-date
 # current state is that it doesn't seem to help much for improving the results
