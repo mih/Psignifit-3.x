@@ -319,10 +319,20 @@ def check_ci ( observer, inference ):
 def write_header(f):
     outs = "run m.gen w.gen "
     if nonparametric:
-        outs += "m.npr.e m.npr.l m.npr.h w.npr.e w.npr.l w.npr.h d.npr d.npr.crit nu.npr rpd.npr rpd.npr.l rpd.npr.h rkd.npr rkd.npr.l rkd.npr.h infl.npr." \
+        outs += ("m.npr.e m.npr.l m.npr.h "+
+                 "w.npr.e w.npr.l w.npr.h "+
+                 "d.npr d.npr.crit nu.npr "+
+                 "rpd.npr rpd.npr.l rpd.npr.h "+
+                 "rkd.npr rkd.npr.l rkd.npr.h "+
+                 "infl.npr." \
                 + " infl.npr.".join([str(x) for x in range(options.nblocks)]) + " "
     if parametric:
-        outs += "m.par.e m.par.l m.par.h w.par.e w.par.l w.par.h d.par d.par.crit nu.par rpd.par rpd.par.l rpd.par.h rkd.par rkd.par.l rkd.par.h infl.par." \
+        outs += ("m.par.e m.par.l m.par.h "+
+                 "w.par.e w.par.l w.par.h "+
+                 "d.par d.par.crit nu.par "+
+                 "rpd.par rpd.par.l rpd.par.h "+
+                 "rkd.par rkd.par.l rkd.par.h "+
+                 "infl.par." \
                 + " infl.par.".join([str(x) for x in range(options.nblocks)]) + " "
     if bayes:
         outs += ("m.bay.e "+
