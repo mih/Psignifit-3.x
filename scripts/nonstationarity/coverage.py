@@ -108,6 +108,8 @@ parser.add_option ( "--metadata", action="store_true", default=False,
         help="generate metadata file, filename will the name of the "+\
         "outputfile with the suffix '.meta'.")
 
+#parser.add_option ( "--datareduce", dest="datareduce", action="store_true",
+#        help="reduce data based on the estimated nu parameter" )
 
 parser.add_option ( "--disable-nonparametric", dest="nonparametric",
         action="store_false", default=True,
@@ -398,9 +400,9 @@ def writelog ( f, Bnpr=None, Bpar=None, mcmc=None, mcmc_conv=1 ):
 # write header
 write_header(outfile)
 
-if options.datareduce:
-    outfile_reduced = open ( options.outputfile + "reduce","w" )
-    write_header( outfile_reduced )
+#if options.datareduce:
+#    outfile_reduced = open ( options.outputfile + "reduce","w" )
+#    write_header( outfile_reduced )
 
 count_npr = 0.
 count_par = 0.
@@ -480,7 +482,10 @@ for simulation in xrange ( options.nsimulations ):
     else:
         writelog ( outfile, Bnpr, Bpar )
 
-    if options.datareduce:
+# datareduce section is not up-to-date
+# current state is that it doesn't seem to help much for improving the results
+# in case you want to use this you must first make it work again
+    if False:
         data = array ( data )
         dataml = data.copy ()
         nu = psigcorrect.estimate_nu (Bpar)[0]
