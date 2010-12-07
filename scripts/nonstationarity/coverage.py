@@ -47,6 +47,40 @@ parser.add_option ( "--ana-nafc",     dest="ana_nafc",    default=None,    type=
 parser.add_option ( "--nbootstrap",   dest="nbootstrap",  default=2000, type="int",
         help="number of bootstrap repetitions when determining confidence intervals or goodness of fit statistics. Default: 2000" )
 
+# constraints for bootstrap
+parser.add_option ( "--constraint-prm1", dest="constraint_prm1",
+        default="unconstrained",
+        help="Parameter constraint on first parameter: for bootstrap inference")
+
+parser.add_option ( "--constraint-prm2", dest="constraint_prm2",
+        default="unconstrained",
+        help="Parameter constraint on second parameter: for bootstrap inference")
+
+parser.add_option ( "--constraint-prm3", dest="constraint_prm3",
+        default="Uniform(0,0.1)",
+        help="Parameter constraint on third parameter: for bootstrap inference")
+
+parser.add_option ( "--constraint-prm4", dest="constraint_prm4",
+        default="Uniform(0,0.1)",
+        help="Parameter constraint on fourth parameter: for bootstrap inference")
+
+# priors for Bayes
+parser.add_option ( "--prior-prm1", dest="prior_prm1",
+        default="Gauss(0,100)",
+        help="Parameter prior on first parameter: for Bayesian inference")
+
+parser.add_option ( "--prior-prm2", dest="prior_prm2",
+        default="Gamma(1.01, 2000)",
+        help="Parameter prior on second parameter: for Bayesian inference")
+
+parser.add_option ( "--prior-prm3", dest="prior_prm3",
+        default="Beta(2,50)",
+        help="Parameter prior on third parameter: for Bayesian inference")
+
+parser.add_option ( "--prior-prm4", dest="prior_prm4",
+        default="Beta(2,50)",
+        help="Parameter prior on fourth parameter: for Bayesian inference")
+
 # Simulation options
 parser.add_option ( "--nsimulations", dest="nsimulations", default=1000, type="int",
         help="number of full simulation runs used to determine coverage information. Default: 1000" )
@@ -185,13 +219,17 @@ else:
     y = mgrid[0.001:0.999:100j]
     print x,Fx
 
-# Priors
-constraints = ["unconstrained","unconstrained","Uniform(0,.1)"]
+# Constraints and Priors
+constraints = [options.constraint_prm1,
+        options.constraint_prm2,
+        options.constraint_prm3]
 # priors      = ["Gauss(4,.1)", "Gamma(1,4)","Beta(2,50)"]   # Hilft auch nicht so viel
-priors      = ["Gauss(0,100)", "Gamma(1.01,2000)","Beta(2,50)"]
+# priors      = ["Gauss(0,100)", "Gamma(1.01,2000)","Beta(2,50)"]
+priors = [options.prior_prm1, options.prior_prm2, options.prior_prm3]
 if options.ana_nafc < 2:
-    constraints += ["Uniform(0,.1)"]
-    priors += ["Beta(1,10)"]
+    constraints.append(options.constraint_prm4)
+    priors.append(options.prior_prm4)
+    #priors += ["Beta(1,10)"]
 print priors
 
 # Organize output
