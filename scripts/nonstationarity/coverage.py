@@ -99,11 +99,15 @@ parser.add_option ( "--seed", dest="seed", default="fixed",
         type="string", help="seed for simulation, can be 'fixed, 'time', or an"+\
                 "integer value.")
 
-parser.add_option ( "-o", "--output", dest="outputfile", default="test.log",
-        help="name of the output file in which the data should be stored. By default, no output file is used" )
+# output options
+parser.add_option ( "-o", "--output", dest="outputfile", default="test",
+        help="name of the output file in which the data should be stored,"+\
+        "'.data' will be appended to the filename." )
 
-parser.add_option ( "--datareduce", dest="datareduce", action="store_true",
-        help="reduce data based on the estimated nu parameter" )
+parser.add_option ( "--metadata", action="store_true", default=False,
+        help="generate metadata file, filename will the name of the "+\
+        "outputfile with the suffix '.meta'.")
+
 
 parser.add_option ( "--disable-nonparametric", dest="nonparametric",
         action="store_false", default=True,
@@ -122,7 +126,6 @@ parser.add_option ( "--disable-bayes", dest="bayes",
 
 options,arguments = parser.parse_args()
 
-print "writing output to",options.outputfile
 
 ############################################################
 #                                                          #
@@ -232,20 +235,6 @@ if options.ana_nafc < 2:
     #priors += ["Beta(1,10)"]
 print priors
 
-# Organize output
-if len(options.outputfile) > 0:
-    if os.path.exists( options.outputfile ):
-        sys.stderr.write ( "Output file %s exists." %(options.outputfile,) )
-        while True:
-            decision = raw_input ( " Overwrite? [Y/N] " )
-            if decision.upper() == "Y":
-                break
-            elif decision.upper() == "N":
-                sys.stderr.write ("Terminating\n")
-                sys.exit()
-    outfile = open(options.outputfile,"w")
-else:
-    outfile = os.path.devnull
 
 # Parse and set seed
 
@@ -264,6 +253,7 @@ elif options.seed == 'time':
     seed = int(time.time())
     print "Seed is time since epoch in seconds: '%d'" % seed
     pypsignifit.set_seed(seed)
+    options.seed = seed
 else:
     seed = int(options.seed)
     print "Seeed is value given on command line: '%d'" % seed
@@ -276,6 +266,33 @@ parametric = options.parametric
 if not nonparametric and not parametric and not bayes:
     raise ValueError("You must specify one of: 'nonparametric', 'parametric' "+\
             "'bayes' in order for this script to do anything!")
+
+# Organize output
+def get_yes_no():
+    while True:
+        decision = raw_input ( " Overwrite? [Y/N] " )
+        if decision.upper() == "Y":
+            return True
+        elif decision.upper() == "N":
+            return False
+        else:
+            print "'%s' is not a valid option, please answer [Y/N]." % decision
+outputfile = options.outputfile + ".data"
+metadatafile = options.outputfile + ".meta" if options.metadata else None
+if os.path.exists( outputfile ):
+    sys.stderr.write ( "Output file %s exists.\n" %(outputfile,) )
+    if metadatafile and os.path.exists( metadatafile ):
+        sys.stderr.write ( "Metadata file %s exists.\n" %(metadatafile,) )
+    if get_yes_no():
+       pass
+    else:
+        sys.stderr.write ("Terminating\n")
+        sys.exit(0)
+print "writing output to", outputfile
+outfile = open(outputfile, "w")
+if metadatafile:
+    print "writing metadata to", metadatafile
+    open(metadatafile, "w").write("%s\n" % str(options))
 
 ############################################################
 #                                                          #
