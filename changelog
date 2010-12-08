@@ -1,3 +1,8 @@
+2010-12-08
+
+* Bugfixes: Slope handling was wrong due to an error in documentation
+* Bugfixes:  documentation is fixed and slope handling, too.
+
 2010-12-06
 
 * Added BCa confidence intervals for slope to the high level interface
