@@ -1198,6 +1198,203 @@ int ReturnTest ( TestSuite * T ) {
 	}
 }
 
+int GetstartTest ( TestSuite * T ) {
+	int failures (0);
+
+	/************************
+	 * 2AFC
+	 */
+	std::vector <double> x ( 6 );
+	std::vector <int>    n ( 6, 50 );
+	std::vector <int>    k ( 6 );
+	double xmin,xmax;
+	double ymin,ymax;
+
+	// Set up data
+	x[0] =  0.; x[1] =  2.; x[2] =  4.; x[3] =  6.; x[4] =  8.; x[5] = 10.;
+	k[0] = 3;  k[1] = 10;  k[2] = 34;  k[3] = 45;  k[4] = 50;  k[5] = 50;
+	PsiData *data = new PsiData (x,n,k,1);
+
+	// Set up psychometric function
+	PsiPrior *prior = new UniformPrior(0.,0.1);
+	abCore * core = new abCore();
+	PsiLogistic * sigmoid = new PsiLogistic();
+	PsiPsychometric *pmf = new PsiPsychometric ( 1, core, sigmoid );
+	std::vector<double> prm(4);
+	prm[0] = 4; prm[1] = 0.8; prm[2] = 0.02; prm[3] = 0.1;
+	pmf->setPrior( 2, prior);
+	pmf->setPrior( 3, prior);
+	std::vector<double> start;
+	start = getstart ( pmf, data, 7, 3, 3 );
+
+	failures += T->isequal ( start[0], 3.49558,    "yes-no: Starting value for alpha", 1e-5 );
+	failures += T->isequal ( start[1], 0.898865,   "yes-no: Starting value for beta", 1e-5 );
+	failures += T->isequal ( start[2], 0.00555556, "yes-no: Starting value for lambda", 1e-5 );
+	failures += T->isequal ( start[3], 0.04444444, "yes-no: Starting value for gamma", 1e-5 );
+
+	a_range ( data, &xmin, &xmax );
+	parameter_range ( data, 0, &ymin, &ymax );
+	failures += T->isequal ( xmin,  0, "yes-no: minimum of alpha range", 1e-5 );
+	failures += T->isequal ( xmax, 10, "yes-no: maximum of alpha range", 1e-5 );
+	failures += T->isequal ( ymin,  0, "yes-no: minimum of alpha range", 1e-5 );
+	failures += T->isequal ( ymax, 10, "yes-no: maximum of alpha range", 1e-5 );
+	b_range ( data, &xmin, &xmax );
+	parameter_range ( data, 1, &ymin, &ymax );
+	failures += T->isequal ( xmin, 0.45512, "yes-no: minimum of beta range", 1e-5 );
+	failures += T->isequal ( xmax, 2.2756, "yes-no: maximum of beta range", 1e-5 );
+	failures += T->isequal ( ymin, 0.45512, "yes-no: minimum of beta range", 1e-5 );
+	failures += T->isequal ( ymax, 2.2756, "yes-no: maximum of beta range", 1e-5 );
+	lm_range ( data, &xmin, &xmax );
+	parameter_range ( data, 2, &ymin, &ymax );
+	failures += T->isequal ( xmin,  0, "yes-no: minimum of lambda range", 1e-5 );
+	failures += T->isequal ( xmax, .1, "yes-no: maximum of lambda range", 1e-5 );
+	failures += T->isequal ( ymin,  0, "yes-no: minimum of lambda range", 1e-5 );
+	failures += T->isequal ( ymax, .1, "yes-no: maximum of lambda range", 1e-5 );
+	gm_range ( data, &xmin, &xmax );
+	parameter_range ( data, 3, &ymin, &ymax );
+	failures += T->isequal ( xmin,  0, "yes-no: minimum of gamma range", 1e-5 );
+	failures += T->isequal ( xmax, .1, "yes-no: maximum of gamma range", 1e-5 );
+	failures += T->isequal ( ymin,  0, "yes-no: minimum of gamma range", 1e-5 );
+	failures += T->isequal ( ymax, .1, "yes-no: maximum of gamma range", 1e-5 );
+
+	delete data;
+	delete pmf;
+
+	// Set up data
+	x[0] =  0.; x[1] =  2.; x[2] =  4.; x[3] =  6.; x[4] =  8.; x[5] = 10.;
+	k[0] = 24;  k[1] = 32;  k[2] = 40;  k[3] = 48;  k[4] = 50;  k[5] = 48;
+	data = new PsiData (x,n,k,2);
+
+	// Set up psychometric function
+	pmf = new PsiPsychometric ( 2, core, sigmoid );
+	prm[0] = 4; prm[1] = 0.8; prm[2] = 0.02;
+	pmf->setPrior( 2, prior );
+	start = getstart( pmf, data, 7, 3, 3);
+
+	failures += T->isequal ( start[0], 3.29584,  "2afc: Starting value for alpha", 1e-5 );
+	failures += T->isequal ( start[1], 0.988751, "2afc: Starting value for beta", 1e-5 );
+	failures += T->isequal ( start[2], 0.0185185, "2afc: Starting value for lambda", 1e-5 );
+
+	a_range ( data, &xmin, &xmax );
+	parameter_range ( data, 0, &ymin, &ymax );
+	failures += T->isequal ( xmin,  0, "2afc: minimum of alpha range", 1e-5 );
+	failures += T->isequal ( xmax, 10, "2afc: maximum of alpha range", 1e-5 );
+	failures += T->isequal ( ymin,  0, "2afc: minimum of alpha range", 1e-5 );
+	failures += T->isequal ( ymax, 10, "2afc: maximum of alpha range", 1e-5 );
+	b_range ( data, &xmin, &xmax );
+	parameter_range ( data, 1, &ymin, &ymax );
+	failures += T->isequal ( xmin, 0.45512, "2afc: minimum of beta range", 1e-5 );
+	failures += T->isequal ( xmax, 2.2756, "2afc: maximum of beta range", 1e-5 );
+	failures += T->isequal ( ymin, 0.45512, "2afc: minimum of beta range", 1e-5 );
+	failures += T->isequal ( ymax, 2.2756, "2afc: maximum of beta range", 1e-5 );
+	lm_range ( data, &xmin, &xmax );
+	parameter_range ( data, 2, &ymin, &ymax );
+	failures += T->isequal ( xmin,  0, "2afc: minimum of lambda range", 1e-5 );
+	failures += T->isequal ( xmax, .1, "2afc: maximum of lambda range", 1e-5 );
+	failures += T->isequal ( ymin,  0, "2afc: minimum of lambda range", 1e-5 );
+	failures += T->isequal ( ymax, .1, "2afc: maximum of lambda range", 1e-5 );
+
+	delete core;
+	delete sigmoid;
+	delete prior;
+
+	std::vector<double> pmin ( 3,  0 );
+	std::vector<double> pmax ( 3, .5 );
+	pmax[2] = .05;
+	std::vector<double> u;
+	char txt[200];
+	unsigned int i;
+	PsiGrid grid ( pmin, pmax, 5 );
+	for ( i=0; i<3; i++ ) {
+		sprintf ( txt, "grid parameter %d lower limit", i );
+		failures += T->isequal ( grid.get_lower(i), pmin[i], txt, 1e-5 );
+		sprintf ( txt, "grid parameter %d upper limit", i );
+		failures += T->isequal ( grid.get_upper(i), pmax[i], txt, 1e-5 );
+	}
+	failures += T->isequal ( grid.empty(), false, "grid.empty() on nonempty grid" );
+	failures += T->isequal ( PsiGrid().empty(), true, "grid.empty() on empty grid" );
+	failures += T->isequal ( grid.dimension(), 3, "grid.dimension() on 3d grid" );
+	failures += T->isequal ( grid.get_gridsize(), 5, "grid.get_gridsize() on small grid" );
+	u = grid.front();
+	failures += T->isequal ( u[0], 0.000, "grid.front()[0]" );
+	failures += T->isequal ( u[1], 0.125, "grid.front()[1]" );
+	failures += T->isequal ( u[2], 0.250, "grid.front()[2]" );
+	failures += T->isequal ( u[3], 0.375, "grid.front()[3]" );
+	failures += T->isequal ( u[4], 0.500, "grid.front()[4]" );
+
+	PsiGrid newgrid;
+	u = std::vector<double> ( 3, .125 );
+	newgrid = grid.shift ( u );
+	u = newgrid.front();
+	failures += T->isequal ( u[0], -0.125,  "shifted grid.front()[0]" );
+	failures += T->isequal ( u[1], 0.,      "shifted grid.front()[1]", 1e-5 );
+	failures += T->isequal ( u[2], 0.125,   "shifted grid.front()[2]", 1e-5 );
+	failures += T->isequal ( u[3], 0.25,    "shifted grid.front()[3]", 1e-5 );
+	failures += T->isequal ( u[4], 0.375,   "shifted grid.front()[4]", 1e-5 );
+
+	u = std::vector<double> ( 3, .125 );
+	newgrid = grid.shrink ( u );
+	u = newgrid.front ();
+	failures += T->isequal ( u[0], 0.,      "shrunken grid.front()[0]" );
+	failures += T->isequal ( u[1], 0.0625,  "shrunken grid.front()[1]", 1e-5 );
+	failures += T->isequal ( u[2], 0.125,   "shrunken grid.front()[2]", 1e-5 );
+	failures += T->isequal ( u[3], 0.1875,  "shrunken grid.front()[3]", 1e-5 );
+	failures += T->isequal ( u[4], 0.25,    "shrunken grid.front()[4]", 1e-5 );
+
+	newgrid = grid.subgrid ();
+	failures += T->isequal ( newgrid.dimension(), 2, "subgrid dimension" );
+
+	u = linspace ( 0,1,3 );
+	failures += T->isequal ( u[0], 0,   "linspace 0" );
+	failures += T->isequal ( u[1], 0.5, "linspace 1" );
+	failures += T->isequal ( u[2], 1,   "linspace 2" );
+
+	std::list< std::vector<double> > gridpoints;
+	std::list< std::vector<double> >::iterator i_gp;
+	grid = PsiGrid ( pmin, pmax, 2 );
+	makegridpoints ( grid, u, 0, &gridpoints );
+	failures += T->isequal ( gridpoints.size(), 8, "Number of generated gridpoints from 2x2x2 grid" );
+	for ( i=0, i_gp=gridpoints.begin(); i_gp!=gridpoints.end(); i_gp++, i++ ) {
+		sprintf ( txt, "gridpoint %d first param", i );
+		failures += T->isequal ( (*i_gp)[0], (i<4 ? 0 : 0.5), txt );
+		sprintf ( txt, "gridpoint %d second param", i );
+		failures += T->isequal ( (*i_gp)[1], ((i/2)%2 == 0 ? 0 : 0.5), txt );
+		sprintf ( txt, "gridpoint %d third param", i );
+		failures += T->isequal ( (*i_gp)[2], (i%2 == 0 ? 0 : 0.05), txt );
+	}
+
+	std::list< std::vector<double> > bestprm;
+	std::list< double > L;
+	evalgridpoints ( gridpoints, &bestprm, &L, data, pmf, 2 );
+
+	failures += T->isequal ( L.front(), 23.8999, "Best fit on grid", 1e-4 );
+	failures += T->isequal ( L.back(),  32.0023, "Second best fit on grid", 1e-4 );
+	failures += T->isequal ( bestprm.front()[0], .0,  "Best fitting alpha on grid" );
+	failures += T->isequal ( bestprm.front()[1], .5,  "Best fitting beta on grid" );
+	failures += T->isequal ( bestprm.front()[2], .05, "Best fitting lambda on grid" );
+	failures += T->isequal ( bestprm.back()[0], .5,   "Second best fitting alpha on grid" );
+	failures += T->isequal ( bestprm.back()[1], .5,   "Second best fitting beta on grid" );
+	failures += T->isequal ( bestprm.back()[2], .05,  "Second best fitting lambda on grid" );
+
+	gridpoints = std::list< std::vector<double> > (0);
+	std::list< PsiGrid > newgrids;
+	bestprm.pop_back();  // Delete the last element to keep number of points small
+	updategridpoints ( grid, bestprm, &gridpoints, &newgrids );
+	for ( i=0, i_gp=gridpoints.begin(); i_gp!=gridpoints.end(); i_gp++, i++ ) {
+		sprintf ( txt, "gridpoint %d first param", i );
+		failures += T->isequal ( (*i_gp)[0], (i<4 ? -.25 : 0.25), txt );
+		sprintf ( txt, "gridpoint %d second param", i );
+		failures += T->isequal ( (*i_gp)[1], ((i/2)%2 == 0 ? .25 : 0.75), txt );
+		sprintf ( txt, "gridpoint %d third param", i );
+		failures += T->isequal ( (*i_gp)[2], (i%2 == 0 ? .025 : 0.075), txt );
+	}
+
+	delete data;
+	delete pmf;
+
+	return failures;
+}
+
 int main ( int argc, char ** argv ) {
 	TestSuite Tests ( "tests_all.log" );
 	Tests.addTest(&PsychometricValues,    "Values of the psychometric function");
@@ -1211,7 +1408,9 @@ int main ( int argc, char ** argv ) {
 	Tests.addTest(&PriorTest,             "Priors");
 	Tests.addTest(&LinalgTests,           "Linear algebra routines");
 	Tests.addTest(&ReturnTest,            "Testing return bug in jackknifedata");
-	Tests.addTest(&InitialParametersTest, "Initial parameter heuristics");
+	Tests.addTest(&InitialParametersTest, "Initial parameter heuristics",
+	Tests.addTest(&GetstartTest,          "Finding good starting values"
+	);
 
 	Tests.runTests();
 }
