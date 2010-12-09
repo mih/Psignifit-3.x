@@ -30,7 +30,7 @@ class PsiOptimizer
 		std::vector<double> optimize (
 			const PsiPsychometric * model,           ///< model to be fitted
 			const PsiData * data,                    ///< data to be fitted
-			const std::vector<double>* startingvalue=NULL    ///< starting value for optimization
+			const std::vector<double>* startingvalue=NULL    ///< starting value for optimization --- if this is longer the the number of parameters in the model, the additional values are used to span the simplex
 			); ///< Start the optimization process
 };
 

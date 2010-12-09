@@ -3,6 +3,7 @@
  *   the copyright and license terms
  */
 #include "bootstrap.h"
+#include "getstart.h"
 #include "rng.h"
 
 #ifdef DEBUG_BOOTSTRAP
@@ -62,8 +63,14 @@ BootstrapList bootstrap ( unsigned int B, const PsiData * data, const PsiPsychom
 			data->getNalternatives() );
 
 	std::vector<double> initialfit ( model->getNparams() );       // generating parameters for the bootstrap samples
+	std::vector<double> incr       ( model->getNparams() );
 	if (param==NULL) {
+		initialfit = getstart ( model, data, 7, 3, 3, &incr );
 		initialfit = opt.optimize( model, data );
+		initialfit.resize ( initialfit.size()+incr.size() );
+		for ( k=0,b=model->getNparams(); b<initialfit.size(); k++,b++ ) {
+			initialfit[b] = incr[k];
+		}
 	} else
 		initialfit = *param;
 	std::vector<double> p          ( data->getNblocks() );       // predicted p-correct for parametric bootstrap

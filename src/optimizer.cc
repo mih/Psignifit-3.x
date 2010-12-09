@@ -3,6 +3,7 @@
  *   the copyright and license terms
  */
 #include "optimizer.h"
+#include "getstart.h"
 #include <limits>
 
 // #define DEBUG_OPTIMIZER
@@ -38,13 +39,24 @@ double testfunction(const std::vector<double>& x) {
 
 std::vector<double> PsiOptimizer::optimize ( const PsiPsychometric * model, const PsiData * data, const std::vector<double>* startingvalue )
 {
+	int k, l;
+	std::vector<double> incr ( model->getNparams() );
 	if (startingvalue==NULL) {
-		start = model->getStart(data);
+		// start = model->getStart(data);
+		start = getstart ( model, data, 7, 3, 3, &incr );
 	} else {
-		start = std::vector<double>(*startingvalue);
+		start = std::vector<double>(model->getNparams());
+		incr  = std::vector<double>(model->getNparams());
+		for ( k=0; k<model->getNparams(); k++ ) {
+			start[k] = startingvalue->at(k);
+			if ( (k+model->getNparams())<startingvalue->size() ) {
+				incr[k] = startingvalue->at(k+model->getNparams());
+			} else {
+				incr[k] = 0.1 * start[k];
+			}
+		}
 	}
 
-	int k, l;
 
 	for ( k=0; k<nparameters+1; k++ ) {
 		for ( l=0; l<nparameters; l++)
@@ -73,7 +85,7 @@ std::vector<double> PsiOptimizer::optimize ( const PsiPsychometric * model, cons
 
 	for (run=0; run<2; run++) {
 		for (k=1; k<nparameters+1; k++) {
-			d = simplex[k][k-1] * 0.5;
+			d = incr[k-1];
 			simplex[k][k-1] += d;
 			if ( model->evalPrior ( k-1, simplex[k][k-1] ) > 1000 ) {
 				simplex[k][k-1] -= 2*d;
