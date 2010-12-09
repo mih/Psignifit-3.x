@@ -3,8 +3,8 @@ CFLAGS=-pg -ggdb -Wall
 LFLAGS=-lm -pg
 
 BUILD=build
-HEADERS=core.h data.h errors.h optimizer.h prior.h psychometric.h sigmoid.h bootstrap.h mclist.h special.h mcmc.h rng.h linalg.h
-OBJECTS= $(addprefix $(BUILD)/, core.o data.o optimizer.o psychometric.o sigmoid.o bootstrap.o mclist.o special.o mcmc.o rng.o linalg.o prior.o)
+HEADERS=core.h data.h errors.h optimizer.h prior.h psychometric.h sigmoid.h bootstrap.h mclist.h special.h mcmc.h rng.h linalg.h getstart.h
+OBJECTS= $(addprefix $(BUILD)/, core.o data.o optimizer.o psychometric.o sigmoid.o bootstrap.o mclist.o special.o mcmc.o rng.o linalg.o prior.o getstart.o)
 TESTS=tests_all
 
 tests_all: tests_all.cc $(HEADERS) $(OBJECTS) testing.h
@@ -45,6 +45,8 @@ $(BUILD)/linalg.o: linalg.cc $(HEADERS)| $(BUILD)
 	$(CC) -c $(CFLAGS) linalg.cc -o $(BUILD)/linalg.o
 $(BUILD)/prior.o: prior.cc $(HEADERS)| $(BUILD)
 	$(CC) -c $(CFLAGS) prior.cc -o $(BUILD)/prior.o
+$(BUILD)/getstart.o: getstart.cc $(HEADERS)| $(BUILD)
+	$(CC) -c $(CFLAGS) getstart.cc -o $(BUILD)/getstart.o
 
 clean:
 	-rm -rf $(BUILD)
