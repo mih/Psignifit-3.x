@@ -29,6 +29,7 @@ class PsiGrid {
 		unsigned int dimension ( void ) const { return grid1d.size(); }              ///< get dimension of the grid i.e. how many parameters are varied
 		double get_lower ( unsigned int i ) const { return lower_bounds[i]; }        ///< get lower bound for parameter i
 		double get_upper ( unsigned int i ) const { return upper_bounds[i]; }        ///< get upper bound for parameter i
+		double get_incr ( unsigned int i ) const { return (get_upper(i)-get_lower(i))/(get_gridsize()-1); } ///< Get increment on dimension i
 };
 
 
@@ -73,7 +74,8 @@ std::vector<double> getstart (
 		const PsiData* data,           ///< data for which a starting value is desired
 		unsigned int gridsize,         ///< number of grid points to be used
 		unsigned int nneighborhoods,   ///< number of neighborhoods to be studied
-		unsigned int niterations       ///< number of iterated neighborhood searched to be performed
+		unsigned int niterations,      ///< number of iterated neighborhood searched to be performed
+		std::vector<double> *incr=NULL ///< increments to be used when constructing a simplex (output)
 		);    ///< Determine a good starting value using nested grid search
 
 #endif

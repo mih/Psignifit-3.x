@@ -336,7 +336,8 @@ std::vector<double> getstart (
 		const PsiData* data,
 		unsigned int gridsize,
 		unsigned int nneighborhoods,
-		unsigned int niterations )
+		unsigned int niterations,
+		std::vector<double> *incr )
 {
 	std::vector<double> xmin ( pmf->getNparams() );
 	std::vector<double> xmax ( pmf->getNparams() );
@@ -382,6 +383,14 @@ std::vector<double> getstart (
 	std::vector<double> out = core->transform ( pmf->getNparams(), a, b );
 	out[2] = bestprm.front()[2];
 	if ( pmf->getNparams() > 3 ) out[3] = bestprm.front()[3];
+
+	if ( incr!=NULL ) {
+		if ( incr->size() != pmf->getNparams() ) throw ( BadArgumentError ( "Wrong size for incr" ) );
+		currentgrid = newgrids.front();
+		for ( i=0; i<pmf->getNparams(); i++ ) {
+			(*incr)[i] = currentgrid.get_incr(i);
+		}
+	}
 
 	return out;
 }
