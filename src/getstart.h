@@ -16,13 +16,13 @@ class PsiGrid {
 	public:
 		PsiGrid ( void ) {} ///< an empty grid
 		PsiGrid (
-				std::vector<double> xmin,  ///< lowest values for the parameters --- this should have the same length as the parameters we want to feed into the model
-				std::vector<double> xmax,  ///< highest values for the parameres --- this should have the same length as the parameters we want to feed into the model
-				unsigned int gridsize      ///< size of the grid in every dimension
+				const std::vector<double>& xmin,  ///< lowest values for the parameters --- this should have the same length as the parameters we want to feed into the model
+				const std::vector<double>& xmax,  ///< highest values for the parameres --- this should have the same length as the parameters we want to feed into the model
+				unsigned int gridsize             ///< size of the grid in every dimension
 				); ///< Generate a proper grid
-		PsiGrid& shift ( std::vector<double> newposition ) const;  ///< shift the grid to be centered on newposition
-		PsiGrid& shrink ( std::vector<double> newposition ) const; ///< shrink the grid around newposition
-		PsiGrid& subgrid ( void ) const;                           ///< return a subgrid with the first dimension eliminated
+		PsiGrid shift ( const std::vector<double>& newposition ) const;  ///< shift the grid to be centered on newposition
+		PsiGrid shrink ( const std::vector<double>& newposition ) const; ///< shrink the grid around newposition
+		PsiGrid subgrid ( void ) const;                           ///< return a subgrid with the first dimension eliminated
 		unsigned int get_gridsize ( void ) const { return grid1d.front().size(); } ///< return the size of the grid in every dimension
 		bool empty ( void ) const { return grid1d.empty(); }   ///< check whether the grid is empty i.e. does not have any grid points
 		const std::vector<double>& front ( void ) const { return grid1d.front(); }   ///< return the values along the first dimension of the grid
@@ -46,12 +46,12 @@ void makegridpoints (
 		);    ///< generate new grid points based on a PsiGrid object
 
 void evalgridpoints (
-		std::list< std::vector<double> > *grid,       ///< gridpoints on which the negative log posterior should be evaluated
-		std::list< std::vector<double> > *bestprm,    ///< list to which the best parameters should be appended
-		std::list< double > *L,                       ///< list to which the best negative log posteriors should be appended
-		const PsiData* data,                          ///< data set on which the gridsearch should be performed
-		const PsiPsychometric* pmf,                   ///< psychometric function for which the gridsearch should be performed
-		unsigned int nbest,                           ///< how many "best" parameter constellations should be determined?
+		const std::list< std::vector<double> >& grid,       ///< gridpoints on which the negative log posterior should be evaluated
+		std::list< std::vector<double> > *bestprm,          ///< list to which the best parameters should be appended
+		std::list< double > *L,                             ///< list to which the best negative log posteriors should be appended
+		const PsiData* data,                                ///< data set on which the gridsearch should be performed
+		const PsiPsychometric* pmf,                         ///< psychometric function for which the gridsearch should be performed
+		unsigned int nbest                                  ///< how many "best" parameter constellations should be determined?
 		);              ///< evaluate negative log posterior on a gridpoints and update bestprm and L to refer to the nbest parameter settings encountered so far
 
 void updategridpoints (

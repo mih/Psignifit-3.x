@@ -7,9 +7,9 @@ std::vector<double> linspace ( double xmin, double xmax, unsigned int n ) {
 		xmin = xmax;
 		xmax = dummy;
 	}
-	unsigned int i, n(out->size());
+	unsigned int i;
 	double xstep ( (xmax-xmin)/(n-1) );
-	std::vector<double> out (n)
+	std::vector<double> out (n);
 
 	out[0] = xmin;
 	for (i=1; i<n; i++) {
@@ -26,7 +26,7 @@ PsiGrid::PsiGrid ( const std::vector<double>& xmin, const std::vector<double>& x
 	upper_bounds(xmax)
 {
 	if ( lower_bounds.size() != upper_bounds.size() )
-		throw Error ( "Upper and lower grid bounds are unequal" );
+		throw PsiError ( "Upper and lower grid bounds are unequal" );
 	unsigned int i;
 
 	for ( i=0; i<lower_bounds.size(); i++ ) {
@@ -34,7 +34,7 @@ PsiGrid::PsiGrid ( const std::vector<double>& xmin, const std::vector<double>& x
 	}
 }
 
-PsiGrid& PsiGrid::shift ( const std::vector<double>& newposition ) const
+PsiGrid PsiGrid::shift ( const std::vector<double>& newposition ) const
 {
 	std::vector<double> xmin ( lower_bounds );
 	std::vector<double> xmax ( upper_bounds );
@@ -50,15 +50,18 @@ PsiGrid& PsiGrid::shift ( const std::vector<double>& newposition ) const
 	return PsiGrid( xmin, xmax, get_gridsize() );
 }
 
-PsiGrid& PsiGrid::shrink ( const std::vector<double>& newposition ) const
+PsiGrid PsiGrid::shrink ( const std::vector<double>& newposition ) const
 {
 	std::vector<double> xmin ( lower_bounds );
 	std::vector<double> xmax ( upper_bounds );
-	std::list< std::vector<double> >::iterator i_grid1d;
+	std::list< std::vector<double> >::const_iterator i_grid1d;
 	unsigned int i;
 	double xstep;
 
-	for ( i=0, i_grid1d=grid1d.begin(); i<newposition.size(); i++,i_grid1d++() ) {
+	for ( i=0, i_grid1d=grid1d.begin();
+			i<newposition.size();
+			i++,i_grid1d++ )
+	{
 		xstep = i_grid1d->at(1)-i_grid1d->at(0);
 		xmin[i] = newposition[i]-xstep;
 		xmax[i] = newposition[i]+xstep;
@@ -67,7 +70,7 @@ PsiGrid& PsiGrid::shrink ( const std::vector<double>& newposition ) const
 	return PsiGrid ( xmin, xmax, get_gridsize() );
 }
 
-PsiGrid& PsiGrid::subgrid ( void ) const
+PsiGrid PsiGrid::subgrid ( void ) const
 {
 	std::vector<double> xmin ( lower_bounds.size()-1 );
 	std::vector<double> xmax ( upper_bounds.size()-1 );
@@ -90,8 +93,9 @@ void makegridpoints (
 		std::list< std::vector<double> > *gridpoints
 		)
 {
+	unsigned int i;
 	if ( grid.dimension() != prm.size()-pos ) {
-		throw Error ( "grid and parameter vector don't match" );
+		throw PsiError ( "grid and parameter vector don't match" );
 	}
 	std::vector<double> gridvector;
 
@@ -102,7 +106,7 @@ void makegridpoints (
 	} else {
 		// We have to loop over this level
 		gridvector = grid.front();
-		for ( i=0; i<gridvector->size(); i++ ) {
+		for ( i=0; i<gridvector.size(); i++ ) {
 			prm[pos] = gridvector[i];
 			makegridpoints ( grid.subgrid(), prm, pos+1, gridpoints );
 		}
@@ -110,26 +114,28 @@ void makegridpoints (
 }
 
 void evalgridpoints (
-		std::list< std::vector<double> > *grid,
+		const std::list< std::vector<double> >& gridpoints,
 		std::list< std::vector<double> > *bestprm,
 		std::list< double > *L,
 		const PsiData* data,
 		const PsiPsychometric* pmf,
-		unsigned int nbest,
+		unsigned int nbest
 		)
 {
-	std::list< std::vector<double> >::iterator griditer;
-	double l,p;
-	double a,b,lm,gm;
+	std::list< std::vector<double> >::const_iterator griditer;
+	std::list< std::vector<double> >::iterator iter_prm;
+	std::list< double >::iterator iter_L;
+	double l;
+	double a,b;
 	std::vector<double> prm;
-	PsiCore *core = pmf->getCore();
-	unsigned int i,j;
-	bool store;
+	const PsiCore *core = pmf->getCore();
+	bool store(true);
 
-	for ( griditer=grid->begin(); griditer!=grid->end(); griditer++ ) {
+	for ( griditer=gridpoints.begin(); griditer!=gridpoints.end(); griditer++ ) {
 		// Transform parameters and get negative log posterior
 		a = (*griditer)[0];
 		b = (*griditer)[1];
+		// prm = core->transform ( pmf->getNparams(), 1./b, -a/b );
 		prm = core->transform ( pmf->getNparams(), a, b );
 		prm[2] = (*griditer)[2];
 		if ( pmf->getNparams() > 3 ) prm[3] = (*griditer)[3];
@@ -174,16 +180,16 @@ void updategridpoints (
 	// modify grid size: If a point in bestprm is on the edge of the grid: make a new, larger grid
 	// if a point is an interior point of the grid, shring the grid to the area around that grid
 
-	std::list< std::vector<double> >::iterator iter_prm;
-	std::vector<double> prm ( bestprm->front().size() );
+	std::list< std::vector<double> >::const_iterator iter_prm;
+	std::vector<double> prm ( bestprm.front().size() );
 	bool isedge (false);
 	unsigned int i;
 	PsiGrid newgrid;
 
-	for ( iter_prm=bestprm->begin(); iter_prm!=bestprm->end(); iter_prm++ ) {
+	for ( iter_prm=bestprm.begin(); iter_prm!=bestprm.end(); iter_prm++ ) {
 		// Check whether the current point is on the edge of the grid
 		isedge = false;
-		for ( i=0); i<iter_prm->size(); i++ ) {
+		for ( i=0; i<iter_prm->size(); i++ ) {
 			isedge += (*iter_prm)[i]==grid.get_lower(i);
 			isedge += (*iter_prm)[i]==grid.get_upper(i);
 		}
@@ -191,7 +197,7 @@ void updategridpoints (
 		if (isedge) {
 			newgrid = grid.shift ( *iter_prm );
 		} else {
-			newgrid = grid.shrink ( *iter_prm)
+			newgrid = grid.shrink ( *iter_prm);
 		}
 		makegridpoints ( newgrid, prm, 0, newgridpoints );
 		newgrids->push_back ( newgrid );
@@ -208,7 +214,7 @@ void a_range ( const PsiData* data, double *xmin, double *xmax ) {
 
 	// Heuristic:
 	// a will be between lowest and highes stimulus level
-	for ( i=0; i<data->getNbocks(); i++ ) {
+	for ( i=0; i<data->getNblocks(); i++ ) {
 		x = data->getIntensity ( i );
 		if ( x<*xmin ) {
 			*xmin = x;
@@ -223,6 +229,7 @@ void b_range ( const PsiData* data, double *xmin, double *xmax ) {
 	double x,p(1),xx,pp(0),pc;
 	std::vector<double> intensities ( data->getIntensities() );
 	unsigned int i,j;
+	double d;
 	*xmin = 1e5;
 	*xmax = -1e5;
 
@@ -249,7 +256,6 @@ void b_range ( const PsiData* data, double *xmin, double *xmax ) {
 	// Is the psychometric function rising or falling overall
 	for ( i=0; i<intensities.size(); i++ ) {
 		pc = data->getPcorrect ( i );
-		w
 		if ( pc<p ) {
 			p = pc;
 			x = intensities[i];
@@ -286,6 +292,7 @@ void lm_range ( const PsiData* data, double *xmin, double *xmax ) {
 	*xmin = 0;
 	*xmax = 2*(1-pmax);
 	if (*xmax>1) *xmax=.99;
+	if (*xmax<.1) *xmax=0.1;
 }
 
 void gm_range ( const PsiData* data, double *xmin, double *xmax ) {
@@ -303,6 +310,7 @@ void gm_range ( const PsiData* data, double *xmin, double *xmax ) {
 	*xmin = 0;
 	*xmax = 2*pmin;
 	if (*xmax>1) *xmax=.99;
+	if (*xmax<0.1) *xmax=.1;
 }
 
 void parameter_range ( const PsiData* data, unsigned int prmindex, double *xmin, double *xmax ) {
@@ -334,6 +342,7 @@ std::vector<double> getstart (
 	std::vector<double> xmax ( pmf->getNparams() );
 	std::list< std::vector<double> > bestprm;
 	std::list< double > L;
+	unsigned int i,j, ngrids;
 
 	// Set up the initial grid
 	for ( i=0; i<pmf->getNparams(); i++ ) {
@@ -341,9 +350,8 @@ std::vector<double> getstart (
 	}
 
 	// Make an initial grid
-	PsiGrid grid ( xmin, xmax, gridsize );
+	PsiGrid grid ( xmin, xmax, gridsize ), currentgrid;
 	std::list< PsiGrid > newgrids;
-	std::list< PsiGrid >::iterator i_grid;
 	newgrids.push_back ( grid );
 
 	// Perform first evaluation on the grid
@@ -354,18 +362,24 @@ std::vector<double> getstart (
 	// potentially more evaluations
 	for ( i=0; i<niterations; i++ ) {
 		gridpoints = std::list< std::vector<double> > ();
-		while ( newgrids.size() > nneighborhoods ) newgrids.pop_front ();
+		while ( newgrids.size() > nneighborhoods ) {
+			newgrids.pop_front ();
+		}
 
-		for ( i_grid=newgrids.begin(); i_grid!=newgrids.end(); i_grid++ )
-			updategridpoints ( *i_grid, bestprm, &gridpoints, &newgrids );
+		ngrids = newgrids.size();
+		for ( j=0; j<ngrids; j++ ) {
+			currentgrid = newgrids.front ();
+			newgrids.pop_front ();
+			updategridpoints ( currentgrid, bestprm, &gridpoints, &newgrids );
+		}
 
 		evalgridpoints ( gridpoints, &bestprm, &L, data, pmf, nneighborhoods );
 	}
 
-
 	// Now transform the best parameter to the suitable format
-	PsiCore *core = pmf->getCore();
-	std::vector<double> out = core->transform ( pmf->getNparams(), bestprm.front()[0], bestprm.front()[1] );
+	const PsiCore *core = pmf->getCore();
+	double a ( bestprm.front()[0] ), b ( bestprm.front()[1] );
+	std::vector<double> out = core->transform ( pmf->getNparams(), a, b );
 	out[2] = bestprm.front()[2];
 	if ( pmf->getNparams() > 3 ) out[3] = bestprm.front()[3];
 
