@@ -9,6 +9,7 @@
 #include "bootstrap.h"
 #include "testing.h"
 #include "mcmc.h"
+#include "getstart.h"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -285,7 +286,6 @@ int DerivativeCheck ( TestSuite * T ) {
 
 int BetaModelTest ( TestSuite * T ) {
 	int failures ( 0 );
-	unsigned int i;
 
 	std::vector<double> x ( 6 );
 	std::vector<int>    n ( 6, 50 );
@@ -925,7 +925,7 @@ int CoreTests ( TestSuite * T ) {
 	PsiData * data;
 	std::vector<double> *x;
 	std::vector<int> *k,*n;
-	int i;
+	unsigned int i;
 	double th;
 	std::vector<double> prm(4,0);
 	std::vector<double> prm2(4,0);
