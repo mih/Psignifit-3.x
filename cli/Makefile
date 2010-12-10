@@ -5,8 +5,8 @@ LFLAGS=-lm -pg
 BUILD=build
 SRC=../src
 
-HEADERS= $(addprefix $(SRC)/, core.h data.h errors.h optimizer.h prior.h psychometric.h sigmoid.h bootstrap.h mclist.h special.h mcmc.h rng.h linalg.h )
-OBJECTS= $(addprefix $(BUILD)/, core.o data.o optimizer.o psychometric.o sigmoid.o bootstrap.o mclist.o special.o mcmc.o rng.o linalg.o prior.o)
+HEADERS= $(addprefix $(SRC)/, core.h data.h errors.h optimizer.h prior.h psychometric.h sigmoid.h bootstrap.h mclist.h special.h mcmc.h rng.h linalg.h getstart.h )
+OBJECTS= $(addprefix $(BUILD)/, core.o data.o optimizer.o psychometric.o sigmoid.o bootstrap.o mclist.o special.o mcmc.o rng.o linalg.o prior.o getstart.o)
 CLI_H= cli.h cli_utilities.h
 CLI_O= $(addprefix $(BUILD)/, cli.o cli_utilities.o)
 
@@ -65,4 +65,6 @@ $(BUILD)/linalg.o: $(SRC)/linalg.cc $(HEADERS)| $(BUILD)
 	$(CC) -c $(CFLAGS) $(SRC)/linalg.cc -o $(BUILD)/linalg.o
 $(BUILD)/prior.o: $(SRC)/prior.cc $(HEADERS)| $(BUILD)
 	$(CC) -c $(CFLAGS) $(SRC)/prior.cc -o $(BUILD)/prior.o
+$(BUILD)/getstart.o: $(SRC)/getstart.cc $(HEADERS)| $(BUILD)
+	$(CC) -c $(CFLAGS) $(SRC)/getstart.cc -o $(BUILD)/getstart.o
 
