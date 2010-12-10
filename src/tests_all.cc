@@ -358,66 +358,27 @@ int OptimizerSolution ( TestSuite * T ) {
 	prm[0] = 4; prm[1] = 0.8; prm[2] = 0.02;
 	PsiPrior *prior = new UniformPrior(0.,0.1);
 	pmf->setPrior( 2, prior );
-	std::vector<double> start (4);
-	start = pmf->getStart( data );
 
 	// Optimizer
 	PsiOptimizer *opt = new PsiOptimizer (pmf, data);
 
 	std::vector<double> solution (4);
 	solution = opt->optimize(pmf,data);
-	/* To check the solution, we can use the following python script:
-#!/usr/bin/env python
-
-from numpy import *
-from scipy import stats
-from scipy.optimize import fmin
-
-x = arange(6)*2
-k = array([24.,32,40,48,50,48])
-n = ones(k.shape)*50
-
-# Logistic regression for starting values
-p = k/n
-p -= 0.999*p.min()
-p /= 1.0001*p.max()
-lp = log(p/(1-p))
-b,a = stats.linregress(x,lp)[:2]
-bt = 1./b
-al = -a*bt
-prm0 = array([al,bt,0.02])
-
-def model(prm,x,k,n):
-    al,bt,lm = prm
-    gm = 0.5
-    psi = gm + (1-gm-lm)/(1.+exp(-(x-al)/bt))
-    penalty = 0.
-    if lm<0 or lm>.1:
-        penalty = 1e10
-    return -sum(log(stats.binom.pmf(k,n,psi))) + penalty
-
-al,bt,lm = fmin(model,prm0,args=(x,k,n))
-	*/
 	std::vector<double> devianceresiduals (pmf->getDevianceResiduals ( solution, data ));
 	for ( i=0; i<devianceresiduals.size(); i++ ) {
 		deviance += devianceresiduals[i]*devianceresiduals[i];
 	}
 
-	// Starting values need only show rough correspondence
-	failures += T->isequal(start[0],3.,"Model->getStart 2AFC alpha",3*1e-1);
-	failures += T->isequal(start[1],1.,"Model->getStart 2AFC beta",3*1e-1);
+	// Test against old psignifit:
+	// tests/testdata_from_psignifit$ psignifit testprefs test.dat
+	failures += T->isequal(solution[0],3.29515,"OptimizerSolution 2AFC alpha",1e-2);
+	failures += T->isequal(solution[1],0.960018,"OptimizerSolution 2AFC beta",1e-2);
+	failures += T->isequal(solution[2],0.0190379,"OptimizerSolution 2AFC lambda",1e-3);
 
-	failures += T->isequal(solution[0],3.2967,"OptimizerSolution 2AFC alpha",1e-3);
-	failures += T->isequal(solution[1],0.95916747050675411,"OptimizerSolution 2AFC beta",1e-4);
-	failures += T->isequal(solution[2],0.019132769792808153,"OptimizerSolution 2AFC lambda",1e-4);
-
-	failures += T->isequal(pmf->deviance(solution,data),3.98476,"OptimizerSolution 2AFC deviance",1e-4);
+	failures += T->isequal(pmf->deviance(solution,data),3.98476,"OptimizerSolution 2AFC deviance",1e-2);
 	failures += T->isequal(pmf->deviance(solution,data),deviance,"OptimizerSolution 2AFC deviance sum", 1e-7);
 
 	failures += T->isequal(pmf->getRpd(devianceresiduals,solution,data),0.155395,"OptimizerSolution 2AFC Rpd",1e-2);
-	// The following test fails for some reason.
-	// Why is that? Python gives the same correlation between index and deviance residuals.
-	// The number used here is from psignifit.
 	failures += T->isequal(pmf->getRkd(devianceresiduals,data),-0.320889,"OptimizerSolution 2AFC Rkd",1e-2);
 
 	delete pmf;
@@ -439,65 +400,30 @@ al,bt,lm = fmin(model,prm0,args=(x,k,n))
 	prm[0] = 4; prm[1] = 0.8; prm[2] = 0.02; prm[3] = 0.1;
 	pmf->setPrior( 2, prior);
 	pmf->setPrior( 3, prior);
-	start = pmf->getStart( data );
 
 	// Optimizer
 	opt = new PsiOptimizer (pmf, data);
 
 	solution = opt->optimize(pmf,data);
-	/* To check the solution, we can use the following python script:
-#!/usr/bin/env python
 
-from numpy import *
-from scipy import stats
-from scipy.optimize import fmin
-
-x = arange(6)*2
-k = array([ 3, 10, 34, 45, 50, 50])
-n = ones(k.shape)*50
-
-# Logistic regression for starting values
-p = k/n
-p -= 0.999*p.min()
-p /= 1.0001*p.max()
-lp = log(p/(1-p))
-b,a = stats.linregress(x,lp)[:2]
-bt = 1./b
-al = -a*bt
-prm0 = array([al,bt,0.02,0.5])
-
-def model(prm,x,k,n):
-    al,bt,lm,gm = prm
-    psi = gm + (1-gm-lm)/(1.+exp(-(x-al)/bt))
-    penalty = 0.
-    if lm<0 or lm>.1:
-        penalty = 1e10
-    return -sum(log(stats.binom.pmf(k,n,psi))) + penalty
-
-al,bt,lm,gm = fmin(model,prm0,args=(x,k,n))
-	*/
 	devianceresiduals = pmf->getDevianceResiduals ( solution, data );
 	deviance = 0;
 	for ( i=0; i<devianceresiduals.size(); i++ ) {
 		deviance += devianceresiduals[i]*devianceresiduals[i];
 	}
 
-	failures += T->isequal(start[0],3.,"Model->getStart Y/N alpha",1e-4);
-	failures += T->isequal(start[1],1.208,"Model->getStart Y/N beta",1e-4);
+	// Check against classical psignifit:
+	// tests/testdata_from_psignifit$ psignifit testprefs_yn test_yn.dat
+	failures += T->isequal(solution[0],3.43942,"OptimizerSolution Y/N alpha",5*1e-3);
+	failures += T->isequal(solution[1],0.988357,"OptimizerSolution Y/N beta", 5*1e-3);
+	failures += T->isequal(solution[2],3.61604e-8,"OptimizerSolution Y/N lambda",5*1e-3);
+	failures += T->isequal(solution[3],0.028935,"OptimizerSolution Y/N gamma",5*1e-3);
 
-	failures += T->isequal(solution[0],3.44752,"OptimizerSolution Y/N alpha",5*1e-2);
-	failures += T->isequal(solution[1],1.01232,"OptimizerSolution Y/N beta",2*1e-2);
-	failures += T->isequal(solution[2],1.7001e-07,"OptimizerSolution Y/N lambda",2*1e-2);
-	failures += T->isequal(solution[3],0.0202447,"OptimizerSolution Y/N gamma",2*1e-2);
-	// failures += T->isequal(solution[1],0.99142691236758229,"OptimizerSolution Y/N beta",2*1e-2);
-	// failures += T->isequal(solution[2],8.4692705817775732e-09,"OptimizerSolution Y/N lambda",1e-2);
-	// failures += T->isequal(solution[3],0.029071443401547103,"OptimizerSolution Y/N gamma",1e-2);
-
-	failures += T->isequal(pmf->deviance(solution,data),2.08172,"OptimizerSolution Y/N deviance",2*1e-1);
+	failures += T->isequal(pmf->deviance(solution,data),2.08172,"OptimizerSolution Y/N deviance",1e-3);
 	failures += T->isequal(pmf->deviance(solution,data),deviance,"OptimizerSolution Y/N deviance sum", 1e-7);
 
-	failures += T->isequal(pmf->getRpd(devianceresiduals,solution,data),0.32046,"OptimizerSolution Y/N Rpd",1e-1);
-	failures += T->isequal(pmf->getRkd(devianceresiduals,data),-0.340322,"OptimizerSolution Y/N Rkd",1e-2);
+	failures += T->isequal(pmf->getRpd(devianceresiduals,solution,data),0.217146,"OptimizerSolution Y/N Rpd",5*1e-3);
+	failures += T->isequal(pmf->getRkd(devianceresiduals,data),-0.477967,"OptimizerSolution Y/N Rkd",5*1e-3);
 
 	delete pmf;
 	delete opt;
@@ -510,9 +436,9 @@ al,bt,lm,gm = fmin(model,prm0,args=(x,k,n))
 	pmf->setPrior( 2, prior);
 	solution = opt->optimize(pmf,data);
 	
-	failures += T->isequal ( solution[0], 3.3052, "Optimizer Solution gamma=lambda, alpha", 1e-3 );
+	failures += T->isequal ( solution[0], 3.32581, "Optimizer Solution gamma=lambda, alpha", 1e-3 );
 	failures += T->isequal ( solution[1], 1.06676, "Optimizer Solution gamma=lambda, beta", 1e-3 );
-	failures += T->isequal ( solution[2], 0.000745436, "Optimizer Solution gamma=lambda, lambda", 1e-5 );
+	failures += T->isequal ( solution[2], 0.000506492, "Optimizer Solution gamma=lambda, lambda", 1e-5 );
 
 	delete pmf;
 	delete data;
@@ -564,7 +490,7 @@ int InitialParametersTest ( TestSuite * T ) {
 }
 
 int BootstrapTest ( TestSuite * T ) {
-	srand48( 0 );
+	setSeed ( 0 );
 	int failures(0);
 	unsigned int i;
 	std::vector<double> x ( 6 );
@@ -592,21 +518,21 @@ int BootstrapTest ( TestSuite * T ) {
 
 	// Check against psignifit results
 	// These values are subject to statistical variation. "equality" is defined relatively coarse
-	failures += T->isless(boots.getAcc_t(0),     0.05,"Acceleration constant (threshold)");
-	failures += T->isequal(boots.getBias_t(0),   0.0401168,"Bias (threshold)",            .001);
-	failures += T->isequal(boots.getThres(.1,0), 2.66803,"th(.1)",                        .001);
-	failures += T->isequal(boots.getThres(.9,0), 3.96757,"th(.9)",                        .001);
+	failures += T->isless(boots.getAcc_t(0),     0.018662,"Acceleration constant (threshold)");
+	failures += T->isequal(boots.getBias_t(0),  -0.118085,"Bias (threshold)",            .01);
+	failures += T->isequal(boots.getThres(.1,0), 2.58437,"th(.1)",                        .05);
+	failures += T->isequal(boots.getThres(.9,0), 3.83427,"th(.9)",                        .05);
 
-	failures += T->isequal(boots.getAcc_s(0),    -0.00698907, "Acceleration constant (slope)", .01);
-	failures += T->isequal(boots.getBias_s(0),    -.130716,   "Bias (slope)",                  .01);
-	failures += T->isequal(boots.getSlope(0.1,0), 0.16453,    "sl(.1)",                        .01);
-	failures += T->isequal(boots.getSlope(0.9,0), 0.48536,    "sl(.9)",                        .01);
+	failures += T->isequal(boots.getAcc_s(0),    -0.000155314, "Acceleration constant (slope)", .01);
+	failures += T->isequal(boots.getBias_s(0),    -0.0325919,   "Bias (slope)",                  .01);
+	failures += T->isequal(boots.getSlope(0.1,0), 0.181289,    "sl(.1)",                        .01);
+	failures += T->isequal(boots.getSlope(0.9,0), 0.545639,    "sl(.9)",                        .01);
 
-	failures += T->isequal(boots.getDeviancePercentile(0.975),9.2,"Deviance limits",.5);
-	failures += T->isequal(boots.percRpd(.025), -0.534564, "Rpd( 2.5%)", .1); // Testing mean and standard error
-	failures += T->isequal(boots.percRpd(.975), 0.587535, "Rpd(97.5%)",  .1);
-	failures += T->isequal(boots.percRkd(.025), -0.925168, "Rkd( 2.5%)", .1);
-	failures += T->isequal(boots.percRkd(.975), 0.612778, "Rkd(97.5%)",  .1);
+	failures += T->isequal(boots.getDeviancePercentile(0.975),8.95713,"Deviance limits",.5);
+	failures += T->isequal(boots.percRpd(.025), -0.451653, "Rpd( 2.5%)", .1); // Testing mean and standard error
+	failures += T->isequal(boots.percRpd(.975), 0.495472, "Rpd(97.5%)",  .1);
+	failures += T->isequal(boots.percRkd(.025), -0.932597, "Rkd( 2.5%)", .1);
+	failures += T->isequal(boots.percRkd(.975), 0.601175, "Rkd(97.5%)",  .1);
 
 	// Check for influential observations and outliers
 	JackKnifeList jackknife = jackknifedata (data, pmf);
