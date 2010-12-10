@@ -65,7 +65,7 @@ BootstrapList bootstrap ( unsigned int B, const PsiData * data, const PsiPsychom
 	std::vector<double> initialfit ( model->getNparams() );       // generating parameters for the bootstrap samples
 	std::vector<double> incr       ( model->getNparams() );
 	if (param==NULL) {
-		initialfit = getstart ( model, data, 7, 3, 3, &incr );
+		initialfit = getstart ( model, data, 8, 3, 3, &incr );
 		initialfit = opt.optimize( model, data );
 		initialfit.resize ( initialfit.size()+incr.size() );
 		for ( k=0,b=model->getNparams(); b<initialfit.size(); k++,b++ ) {

@@ -43,7 +43,7 @@ std::vector<double> PsiOptimizer::optimize ( const PsiPsychometric * model, cons
 	std::vector<double> incr ( model->getNparams() );
 	if (startingvalue==NULL) {
 		// start = model->getStart(data);
-		start = getstart ( model, data, 7, 3, 3, &incr );
+		start = getstart ( model, data, 8, 3, 3, &incr );
 	} else {
 		start = std::vector<double>(model->getNparams());
 		incr  = std::vector<double>(model->getNparams());
