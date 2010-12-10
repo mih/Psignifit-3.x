@@ -396,5 +396,10 @@ std::vector<double> getstart (
 		}
 	}
 
+	// std::cerr << "Starting values:";
+	// for (i=0; i<out.size(); i++)
+	// 	std::cerr << " " << out[i];
+	// std::cerr << "\n";
+
 	return out;
 }
