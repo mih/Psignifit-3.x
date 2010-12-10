@@ -135,6 +135,8 @@ void evalgridpoints (
 		// Transform parameters and get negative log posterior
 		a = (*griditer)[0];
 		b = (*griditer)[1];
+		b = 1./b;
+		a = -a*b;
 		// prm = core->transform ( pmf->getNparams(), 1./b, -a/b );
 		prm = core->transform ( pmf->getNparams(), a, b );
 		prm[2] = (*griditer)[2];
@@ -380,6 +382,8 @@ std::vector<double> getstart (
 	// Now transform the best parameter to the suitable format
 	const PsiCore *core = pmf->getCore();
 	double a ( bestprm.front()[0] ), b ( bestprm.front()[1] );
+	b = 1./b;
+	a = -a*b;
 	std::vector<double> out = core->transform ( pmf->getNparams(), a, b );
 	out[2] = bestprm.front()[2];
 	if ( pmf->getNparams() > 3 ) out[3] = bestprm.front()[3];
