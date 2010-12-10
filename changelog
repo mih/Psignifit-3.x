@@ -1,3 +1,7 @@
+2010-12-10
+
+* Zoom-in grid search for robust starting value determination
+
 2010-12-08
 
 * Bugfixes: Slope handling was wrong due to an error in documentation
