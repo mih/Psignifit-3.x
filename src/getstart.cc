@@ -22,6 +22,9 @@ std::vector<double> linspace ( double xmin, double xmax, unsigned int n ) {
 /************************************************** PsiGrid methods ********************************************/
 
 PsiGrid::PsiGrid ( const std::vector<double>& xmin, const std::vector<double>& xmax, unsigned int gridsize ) :
+	ndim ( xmin.size() ),
+	ngrid ( gridsize ),
+	grid1d ( xmin.size() ),
 	lower_bounds(xmin),
 	upper_bounds(xmax)
 {
@@ -29,8 +32,8 @@ PsiGrid::PsiGrid ( const std::vector<double>& xmin, const std::vector<double>& x
 		throw PsiError ( "Upper and lower grid bounds are unequal" );
 	unsigned int i;
 
-	for ( i=0; i<lower_bounds.size(); i++ ) {
-		grid1d.push_back ( linspace ( lower_bounds[i], upper_bounds[i], gridsize ) );
+	for ( i=0; i<ndim; i++ ) {
+		grid1d[i] = linspace ( lower_bounds[i], upper_bounds[i], gridsize );
 	}
 }
 
@@ -54,15 +57,12 @@ PsiGrid PsiGrid::shrink ( const std::vector<double>& newposition ) const
 {
 	std::vector<double> xmin ( lower_bounds );
 	std::vector<double> xmax ( upper_bounds );
-	std::list< std::vector<double> >::const_iterator i_grid1d;
 	unsigned int i;
 	double xstep;
 
-	for ( i=0, i_grid1d=grid1d.begin();
-			i<newposition.size();
-			i++,i_grid1d++ )
+	for ( i=0; i<newposition.size(); i++ )
 	{
-		xstep = i_grid1d->at(1)-i_grid1d->at(0);
+		xstep = grid1d[i][1]-grid1d[i][0];
 		xmin[i] = newposition[i]-xstep;
 		xmax[i] = newposition[i]+xstep;
 	}
@@ -94,21 +94,19 @@ void makegridpoints (
 		)
 {
 	unsigned int i;
-	if ( grid.dimension() != prm.size()-pos ) {
+	if ( grid.dimension() != prm.size() ) {
 		throw PsiError ( "grid and parameter vector don't match" );
 	}
-	std::vector<double> gridvector;
 
-	if ( grid.empty() ) {
+	if ( pos>=grid.dimension() ) {
 		// We are in the lowest level of iteration
 		gridpoints->push_back ( prm );
 		return;
 	} else {
 		// We have to loop over this level
-		gridvector = grid.front();
-		for ( i=0; i<gridvector.size(); i++ ) {
-			prm[pos] = gridvector[i];
-			makegridpoints ( grid.subgrid(), prm, pos+1, gridpoints );
+		for ( i=0; i<grid.get_gridsize(); i++ ) {
+			prm[pos] = grid(pos,i);
+			makegridpoints ( grid, prm, pos+1, gridpoints );
 		}
 	}
 }
@@ -387,7 +385,6 @@ std::vector<double> getstart (
 
 	// potentially more evaluations
 	for ( i=0; i<niterations; i++ ) {
-		gridpoints = std::list< std::vector<double> > ();
 		while ( newgrids.size() > nneighborhoods ) {
 			newgrids.pop_front ();
 		}
@@ -396,10 +393,12 @@ std::vector<double> getstart (
 		for ( j=0; j<ngrids; j++ ) {
 			currentgrid = newgrids.front ();
 			newgrids.pop_front ();
+			gridpoints = std::list< std::vector<double> > ();
 			updategridpoints ( currentgrid, bestprm, &gridpoints, &newgrids );
+			evalgridpoints ( gridpoints, &bestprm, &L, data, pmf, nneighborhoods );
 		}
 
-		evalgridpoints ( gridpoints, &bestprm, &L, data, pmf, nneighborhoods );
+		// evalgridpoints ( gridpoints, &bestprm, &L, data, pmf, nneighborhoods );
 	}
 
 	// Now transform the best parameter to the suitable format

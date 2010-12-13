@@ -10,7 +10,9 @@
 /** \brief scalable and shiftable grid object used for the gridsearch */
 class PsiGrid {
 	private:
-		std::list< std::vector<double> > grid1d;
+		unsigned int ndim;
+		unsigned int ngrid;
+		std::vector< std::vector<double> > grid1d;
 		std::vector<double> lower_bounds;
 		std::vector<double> upper_bounds;
 	public:
@@ -30,6 +32,7 @@ class PsiGrid {
 		double get_lower ( unsigned int i ) const { return lower_bounds[i]; }        ///< get lower bound for parameter i
 		double get_upper ( unsigned int i ) const { return upper_bounds[i]; }        ///< get upper bound for parameter i
 		double get_incr ( unsigned int i ) const { return (get_upper(i)-get_lower(i))/(get_gridsize()-1); } ///< Get increment on dimension i
+		double operator() ( unsigned int i, unsigned int j ) const { return grid1d[i][j]; }
 };
 
 
