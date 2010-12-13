@@ -23,7 +23,9 @@ class PsiPrior
 		virtual double pdf ( double x ) { return 1.;}    ///< evaluate the pdf of the prior at position x (in this default form, the parameter is completely unconstrained)
 		virtual double dpdf ( double x ) { return 0.; }  ///< evaluate the derivative of the pdf of the prior at position x (in this default form, the parameter is completely unconstrained)
 		virtual double rand ( void ) { return rng.draw(); } ///< draw a random number
-        virtual PsiPrior * clone ( void ) const { throw NotImplementedError(); }///< clone by value
+		virtual PsiPrior * clone ( void ) const { throw NotImplementedError(); }///< clone by value
+		virtual double mean ( void ) const { return 0; } ///< return the mean
+		virtual double std  ( void ) const { return 100; } ///< return the standard deviation
 };
 
 /** \brief Uniform prior on an interval
@@ -48,6 +50,8 @@ class UniformPrior : public PsiPrior
 		double dpdf ( double x ) { return ( x!=lower && x!=upper ? 0 : (x==lower ? 1e20 : -1e20 ));} ///< derivative of the pdf of the prior at position x (jumps at lower and upper are replaced by large numbers)
 		double rand ( void ) { return rng.draw(); }                                                 ///< draw a random number
         PsiPrior * clone ( void ) const { return new UniformPrior(*this); }
+		double mean ( void ) const { return 0.5*(lower+upper); }  ///< return the mean
+		double std  ( void ) const { return sqrt((upper-lower)*(upper-lower)/12); }
 };
 
 /** \brief gaussian (normal) prior
@@ -79,6 +83,8 @@ class GaussPrior : public PsiPrior
 		double dpdf ( double x ) { return - x * pdf ( x ) / var; }                                                                      ///< return derivative of the prior at position x
 		double rand ( void ) {return rng.draw(); }
         PsiPrior * clone ( void ) const { return new GaussPrior(*this); }
+		double mean ( void ) const { return mu; } ///< mean
+		double std  ( void ) const { return std; } ///< return standard deviation
 };
 
 /** \brief beta prior
@@ -112,6 +118,8 @@ class BetaPrior : public PsiPrior
 		double dpdf ( double x ) { return (x<0||x>1 ? 0 : ((alpha-1)*pow(x,alpha-2)*pow(1-x,beta-1) + (beta-1)*pow(1-x,beta-2)*pow(x,alpha-1))/normalization); }      ///< return derivative of beta pdf
 		double rand ( void );                                                                                         ///< draw a random number using rejection sampling
         PsiPrior * clone ( void ) const { return new BetaPrior(*this); }
+		double mean ( void ) const { return alpha/(alpha+beta); }
+		double std  ( void ) const { return sqrt ( alpha*beta/((alpha+beta)*(alpha+beta)*(alpha+beta+1)) ); }
 };
 
 /** \brief gamma prior
@@ -140,6 +148,8 @@ class GammaPrior : public PsiPrior
 		virtual double dpdf ( double x ) { return (x>0 ? ( (k-1)*pow(x,k-2)*exp(-x/theta)-pow(x,k-1)*exp(-x/theta)/theta)/normalization : 0 ); }                   ///< return derivative of pdf
 		virtual double rand ( void );
         PsiPrior * clone ( void ) const { return new GammaPrior(*this); }
+		virtual double mean ( void ) const { return k*theta; }
+		double std  ( void ) const { return sqrt ( k*theta*theta ); }
 };
 
 /** \brief negative gamma prior
@@ -160,6 +170,7 @@ class nGammaPrior : public GammaPrior
 		double dpdf ( double x ) { return GammaPrior::dpdf ( -x ); }
 		double rand ( void ) { return -GammaPrior::rand(); }
         PsiPrior * clone ( void ) const { return new nGammaPrior(*this); }
+		double mean ( void ) const { return -GammaPrior::mean(); }
 };
 
 #endif
