@@ -208,7 +208,7 @@ void updategridpoints (
 
 /*************************************** Range heuristics ****************************************/
 
-void a_range ( const PsiData* data, const PsiPsychometric *pmf, double *xmin, double *xmax ) {
+void a_range ( const PsiData* data, const PsiPrior *prior, double *xmin, double *xmax ) {
 	double x;
 	unsigned int i;
 	*xmin = 1e5;
@@ -227,7 +227,7 @@ void a_range ( const PsiData* data, const PsiPsychometric *pmf, double *xmin, do
 	}
 }
 
-void b_range ( const PsiData* data, const PsiPsychometric *pmf, double *xmin, double *xmax ) {
+void b_range ( const PsiData* data, const PsiPrior *prior, double *xmin, double *xmax ) {
 	double x,p(1),xx,pp(0),pc;
 	std::vector<double> intensities ( data->getIntensities() );
 	unsigned int i,j;
@@ -279,14 +279,14 @@ void b_range ( const PsiData* data, const PsiPsychometric *pmf, double *xmin, do
 	*xmax /= x;
 }
 
-void lm_range ( const PsiData* data, const PsiPsychometric *pmf, double *xmin, double *xmax ) {
+void lm_range ( const PsiData* data, const PsiPrior *prior, double *xmin, double *xmax ) {
 	double p,pmax(0);
 	unsigned int i;
 
 	// Get information from prior
-	double mps, mms, s ( pmf->getPrior()->std() );
+	double mps, mms, s ( prior->std() );
 
-	mps = mms = pmf->getPrior()->mean();
+	mps = mms = prior->mean();
 	mps += 2*s;
 	mms -= 2*s;
 
@@ -305,14 +305,14 @@ void lm_range ( const PsiData* data, const PsiPsychometric *pmf, double *xmin, d
 	if (*xmax<.1) *xmax=0.1;
 }
 
-void gm_range ( const PsiData* data, const PsiPsychometric *pmf, double *xmin, double *xmax ) {
+void gm_range ( const PsiData* data, const PsiPrior *prior, double *xmin, double *xmax ) {
 	double p, pmin(0);
 	unsigned int i;
 
 	// Get information form prior
-	double mps, mms, s ( pmf->getPrior()->std() );
+	double mps, mms, s ( prior->std() );
 
-	mps = mms = pmf->getPrior()->mean();
+	mps = mms = prior->mean();
 	mps += 2*s;
 	mms -= 2*s;
 
@@ -334,20 +334,26 @@ void gm_range ( const PsiData* data, const PsiPsychometric *pmf, double *xmin, d
 
 void parameter_range ( const PsiData* data, const PsiPsychometric * pmf, unsigned int prmindex, double *xmin, double *xmax ) {
 	// Call the correct initial range function for the parameter
+	std::cerr << "Getting range for parameter " << prmindex << "\n"; std::cerr.flush();
+	const PsiPrior* prior (pmf->getPrior(prmindex));
+	std::cerr << "Prior(" << prmindex << "):\n mean = "; std::cerr.flush();
+	std::cerr << prior->mean() << "\n sdt  = "; std::cerr.flush();
+	std::cerr << prior->std() << "\n";
 	switch ( prmindex ) {
 		case 0:
-			a_range ( data, pmf, xmin, xmax );
+			a_range ( data, pmf->getPrior(0), xmin, xmax );
 			break;
 		case 1:
-			b_range ( data, pmf, xmin, xmax );
+			b_range ( data, pmf->getPrior(1), xmin, xmax );
 			break;
 		case 2:
-			lm_range ( data, pmf, xmin, xmax );
+			lm_range ( data, pmf->getPrior(2), xmin, xmax );
 			break;
 		case 3:
-			gm_range ( data, pmf, xmin, xmax );
+			gm_range ( data, pmf->getPrior(3), xmin, xmax );
 			break;
 	}
+	std::cerr << "Done\n"; std::cerr.flush();
 }
 
 std::vector<double> getstart (

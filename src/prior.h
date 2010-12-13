@@ -84,7 +84,7 @@ class GaussPrior : public PsiPrior
 		double rand ( void ) {return rng.draw(); }
         PsiPrior * clone ( void ) const { return new GaussPrior(*this); }
 		double mean ( void ) const { return mu; } ///< mean
-		double std  ( void ) const { return std; } ///< return standard deviation
+		double std  ( void ) const { return sg; } ///< return standard deviation
 };
 
 /** \brief beta prior

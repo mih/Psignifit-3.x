@@ -91,6 +91,7 @@ class PsiPsychometric {
 		void setPrior ( unsigned int index, PsiPrior* prior ) throw(BadArgumentError);                   ///< set a Prior for the parameter indicated by index
 		double evalPrior ( unsigned int index, double x ) const {return priors[index]->pdf(x);}              ///< evaluate the respective prior at value x
 		virtual double randPrior ( unsigned int index ) const { return priors[index]->rand(); }                            ///< sample form a prior
+		const PsiPrior* getPrior ( unsigned int index ) const { return priors[index]; } ///< get a prior
 		int getNalternatives ( void ) const { return Nalternatives; }         ///< get the number of alternatives (1 means yes/no)
 		virtual unsigned int getNparams ( void ) const { return (Nalternatives==1 ? (gammaislambda ? 3 : 4 ) : 3 ); } ///< get the number of free parameters of the psychometric function
 		virtual std::vector<double> getStart ( const PsiData* data ) const ;                ///< determine a starting value using logistic regression on a dataset
