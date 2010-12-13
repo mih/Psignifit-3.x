@@ -208,7 +208,7 @@ void updategridpoints (
 
 /*************************************** Range heuristics ****************************************/
 
-void a_range ( const PsiData* data, double *xmin, double *xmax ) {
+void a_range ( const PsiData* data, const PsiPsychometric *pmf, double *xmin, double *xmax ) {
 	double x;
 	unsigned int i;
 	*xmin = 1e5;
@@ -227,7 +227,7 @@ void a_range ( const PsiData* data, double *xmin, double *xmax ) {
 	}
 }
 
-void b_range ( const PsiData* data, double *xmin, double *xmax ) {
+void b_range ( const PsiData* data, const PsiPsychometric *pmf, double *xmin, double *xmax ) {
 	double x,p(1),xx,pp(0),pc;
 	std::vector<double> intensities ( data->getIntensities() );
 	unsigned int i,j;
@@ -279,9 +279,16 @@ void b_range ( const PsiData* data, double *xmin, double *xmax ) {
 	*xmax /= x;
 }
 
-void lm_range ( const PsiData* data, double *xmin, double *xmax ) {
+void lm_range ( const PsiData* data, const PsiPsychometric *pmf, double *xmin, double *xmax ) {
 	double p,pmax(0);
 	unsigned int i;
+
+	// Get information from prior
+	double mps, mms, s ( pmf->getPrior()->std() );
+
+	mps = mms = pmf->getPrior()->mean();
+	mps += 2*s;
+	mms -= 2*s;
 
 	// Heuristic:
 	// lm goes from 0 to twice the distance between 1 and the highest response probability
@@ -291,15 +298,23 @@ void lm_range ( const PsiData* data, double *xmin, double *xmax ) {
 			pmax = p;
 		}
 	}
-	*xmin = 0;
+	if (mms>0) *xmin = mms; else *xmin = 0;
 	*xmax = 2*(1-pmax);
+	if (mps<*xmax) *xmax = mps;
 	if (*xmax>1) *xmax=.99;
 	if (*xmax<.1) *xmax=0.1;
 }
 
-void gm_range ( const PsiData* data, double *xmin, double *xmax ) {
+void gm_range ( const PsiData* data, const PsiPsychometric *pmf, double *xmin, double *xmax ) {
 	double p, pmin(0);
 	unsigned int i;
+
+	// Get information form prior
+	double mps, mms, s ( pmf->getPrior()->std() );
+
+	mps = mms = pmf->getPrior()->mean();
+	mps += 2*s;
+	mms -= 2*s;
 
 	// Heuristic:
 	// gm goes from 0 to twice the lowsest response probability
@@ -309,26 +324,28 @@ void gm_range ( const PsiData* data, double *xmin, double *xmax ) {
 			pmin = p;
 		}
 	}
-	*xmin = 0;
+
+	if (mms>0) *xmin = mms; else *xmin = 0;
 	*xmax = 2*pmin;
+	if (mps<*xmax) *xmax = mps;
 	if (*xmax>1) *xmax=.99;
 	if (*xmax<0.1) *xmax=.1;
 }
 
-void parameter_range ( const PsiData* data, unsigned int prmindex, double *xmin, double *xmax ) {
+void parameter_range ( const PsiData* data, const PsiPsychometric * pmf, unsigned int prmindex, double *xmin, double *xmax ) {
 	// Call the correct initial range function for the parameter
 	switch ( prmindex ) {
 		case 0:
-			a_range ( data, xmin, xmax );
+			a_range ( data, pmf, xmin, xmax );
 			break;
 		case 1:
-			b_range ( data, xmin, xmax );
+			b_range ( data, pmf, xmin, xmax );
 			break;
 		case 2:
-			lm_range ( data, xmin, xmax );
+			lm_range ( data, pmf, xmin, xmax );
 			break;
 		case 3:
-			gm_range ( data, xmin, xmax );
+			gm_range ( data, pmf, xmin, xmax );
 			break;
 	}
 }
@@ -349,7 +366,7 @@ std::vector<double> getstart (
 
 	// Set up the initial grid
 	for ( i=0; i<pmf->getNparams(); i++ ) {
-		parameter_range ( data, i, &(xmin[i]), &(xmax[i]) );
+		parameter_range ( data, pmf, i, &(xmin[i]), &(xmax[i]) );
 	}
 
 	// Make an initial grid
