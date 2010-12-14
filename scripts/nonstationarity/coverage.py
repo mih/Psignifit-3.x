@@ -10,6 +10,7 @@ import pylab
 from pylab import prctile as ptile
 import operator
 import time
+import subprocess
 
 __helptext__ = """
 Determine coverage of confidence intervals for a given combination of analysis/generating parameters.
@@ -269,6 +270,43 @@ parametric = options.parametric
 if not nonparametric and not parametric and not bayes:
     raise ValueError("You must specify one of: 'nonparametric', 'parametric' "+\
             "'bayes' in order for this script to do anything!")
+
+# add git hash to options, to automate the process of storing it
+# note that when not running this via PYTHONPATH from the git repo
+# this will fail, instead it should query pypsignifit for a proper version
+# number, however proper version numbers were not implemented at the time of
+# writing (see git blame for the exact date.)
+def get_command_output(command_string, env):
+    """ Execute arbitrary commands.
+
+    Parameters
+    ----------
+    command_list : strings
+        the command and its arguments
+    env: mapping
+        mapping ov environment variables to values
+
+    Returns
+    -------
+    output : string
+        the raw output of the command executed
+    """
+
+    command_list = command_string.split(' ')
+    p = subprocess.Popen(command_list, stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE, env=env)
+    p.wait()
+    return p.returncode, p.stdout.read()
+
+# yes yes yes, its an evil hack, if you know of a better way, refactor it!
+git_dir = sys.modules['pypsignifit'].__path__[0].replace('pypsignifit','')
+ret_code, HEAD_SHA, = get_command_output("git rev-parse HEAD",
+        {"GIT_DIR" : ("%s.git" % git_dir)})
+if ret_code == 128:
+    print "Unlikely to be running coverage script from a Git repository."
+    options.HEAD_SHA = None
+else:
+    options.HEAD_SHA = HEAD_SHA.strip()
 
 # Organize output
 def get_yes_no():
