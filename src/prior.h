@@ -25,7 +25,7 @@ class PsiPrior
 		virtual double rand ( void ) { return rng.draw(); } ///< draw a random number
 		virtual PsiPrior * clone ( void ) const { throw NotImplementedError(); }///< clone by value
 		virtual double mean ( void ) const { return 0; } ///< return the mean
-		virtual double std  ( void ) const { return 100; } ///< return the standard deviation
+		virtual double std  ( void ) const { return 1e5; } ///< return the standard deviation
 };
 
 /** \brief Uniform prior on an interval

@@ -65,10 +65,10 @@ void updategridpoints (
 		std::list< PsiGrid > *newgrids                    ///< grids corresponding to the new gridpoints
 		);             ///< generate new gridpoints by shifting and shrinking the previous grid and store the newly generated PsiGrid objects
 
-void a_range ( const PsiData* data, const PsiPrior* prior, double *xmin, double *xmax );     ///< Heuristic to generate a first idea of the threshold parameter a
-void b_range ( const PsiData* data, const PsiPrior* prior, double *xmin, double *xmax );     ///< Heuristic to generate a first idea of the width parameter b
-void lm_range ( const PsiData* data, const PsiPrior* prior, double *xmin, double *xmax );    ///< Heuristic to generate a first idea of the lapse rate parameter lm
-void gm_range ( const PsiData* data, const PsiPrior* prior, double *xmin, double *xmax );    ///< Heuristic to generate a first idea of the guessing rate parameter gm
+void a_range ( const PsiData* data,  double *xmin, double *xmax );    ///< Heuristic to generate a first idea of the threshold parameter a
+void b_range ( const PsiData* data,  double *xmin, double *xmax );    ///< Heuristic to generate a first idea of the width parameter b
+void lm_range ( const PsiData* data, double *xmin, double *xmax );    ///< Heuristic to generate a first idea of the lapse rate parameter lm
+void gm_range ( const PsiData* data, double *xmin, double *xmax );    ///< Heuristic to generate a first idea of the guessing rate parameter gm
 
 void parameter_range ( const PsiData* data, const PsiPsychometric* pmf, unsigned int prmindex, double *xmin, double *xmax );   ///< call the proper heuristic associated with the parameter at prmindex to generate a range for the respective parameter
 
