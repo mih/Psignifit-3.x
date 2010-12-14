@@ -401,7 +401,7 @@ std::vector<double> getstart (
 		if ( incr->size() != pmf->getNparams() ) throw ( BadArgumentError ( "Wrong size for incr" ) );
 		currentgrid = newgrids.front();
 		for ( i=0; i<pmf->getNparams(); i++ ) {
-			(*incr)[i] = currentgrid.get_incr(i);
+			(*incr)[i] = 10*currentgrid.get_incr(i);
 		}
 	}
 
