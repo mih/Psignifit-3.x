@@ -121,7 +121,7 @@ MCMCList MetropolisHastings::sample ( unsigned int N ) {
 	const PsiPsychometric * model ( getModel() );
 	MCMCList out ( N, model->getNparams(), data->getNblocks() );
 	PsiData *localdata = new PsiData ( data->getIntensities(), data->getNtrials(), data->getNcorrect(), data->getNalternatives() );
-	PsiData *reduceddata;
+	std::vector< PsiData* > reduceddata (data->getNblocks() );
 	std::vector<int> posterior_predictive ( data->getNblocks() );
 	std::vector<double> probs ( data->getNblocks() );
 	std::vector<double> est ( model->getNparams() );
@@ -130,6 +130,19 @@ MCMCList MetropolisHastings::sample ( unsigned int N ) {
 	std::vector<double> reducedx ( data->getNblocks()-1 );
 	std::vector<int> reducedk ( data->getNblocks()-1 );
 	std::vector<int> reducedn ( data->getNblocks()-1 );
+
+	for ( k=0; k<data->getNblocks(); k++ ) {
+		j = 0;
+		for ( l=0; l<data->getNblocks(); l++ ) {
+			if ( l!=k ) {
+				reducedx[j] = data->getIntensity(l);
+				reducedk[j] = data->getNcorrect(l);
+				reducedn[j] = data->getNtrials(l);
+				j++;
+			}
+		}
+		reduceddata[k] = new PsiData ( reducedx, reducedn, reducedk, data->getNalternatives() );
+	}
 
 	for (i=0; i<N; i++) {
 		// Draw the next sample
@@ -154,6 +167,7 @@ MCMCList MetropolisHastings::sample ( unsigned int N ) {
 
 		// Store log posterior ratios for reduced data sets
 		for ( k=0; k<data->getNblocks(); k++) {
+			/*
 			j=0;
 			for ( l=0; l<data->getNblocks(); l++ ) {
 				if ( l!=k ) {
@@ -164,8 +178,8 @@ MCMCList MetropolisHastings::sample ( unsigned int N ) {
 				}
 			}
 			reduceddata = new PsiData ( reducedx, reducedn, reducedk, data->getNalternatives() );
-			out.setlogratio ( i, k, model->neglpost(est,data)-model->neglpost(est,reduceddata) );
-			delete reduceddata;
+			*/
+			out.setlogratio ( i, k, model->neglpost(est,data)-model->neglpost(est,reduceddata[k]) );
 		}
 #ifdef DEBUG_MCMC
 		std::cerr << " accept: " << std::setiosflags ( std::ios::fixed ) << double(accept)/(i+1) << "\n";
@@ -177,6 +191,9 @@ MCMCList MetropolisHastings::sample ( unsigned int N ) {
 #endif
 
 	delete localdata;
+	for ( k=0; k<reduceddata.size(); k++ ) {
+		delete reduceddata[k];
+	}
 
 	return out;
 }
