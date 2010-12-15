@@ -36,7 +36,7 @@ int main ( int argc, char ** argv ) {
 	MH.setStepSize ( 2, .02 );
 
 	std::cout << "Getting samples ... "; std::cout.flush();
-	MCMCList mcmc = MH.sample( 100000 );
+	MCMCList mcmc = MH.sample( 1000000 );
 	std::cout << "Done\n";
 
 	delete data;
