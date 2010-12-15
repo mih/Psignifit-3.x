@@ -1,5 +1,5 @@
+- change transform method of cores to new getstart
 - noninformative Jeffreys Priors
-- seed the random number generator
 - Goodness of fit (Correlations?)                                          [OK] but correlations are wrong
 - Unit test with gamma as a free parameter                                 [OK] but only very rough correspondence to psignifit -- should be stricter
 - Bugs with different cores -> no convergence, exceptionally high deviance with ok looking fit, ... This is only due to the logCore-Kernel that returns -inf for contrasts of 0

@@ -213,7 +213,7 @@ void a_range ( const PsiData* data, double *xmin, double *xmax ) {
 	*xmax = -1e5;
 
 	// Heuristic:
-	// a will be between lowest and highes stimulus level
+	// a will be between lowest and highest stimulus level
 	for ( i=0; i<data->getNblocks(); i++ ) {
 		x = data->getIntensity ( i );
 		if ( x<*xmin ) {

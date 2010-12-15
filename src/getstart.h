@@ -10,11 +10,11 @@
 /** \brief scalable and shiftable grid object used for the gridsearch */
 class PsiGrid {
 	private:
-		unsigned int ndim;
-		unsigned int ngrid;
-		std::vector< std::vector<double> > grid1d;
-		std::vector<double> lower_bounds;
-		std::vector<double> upper_bounds;
+		unsigned int ndim;   // number of parameters over which the grid goes
+		unsigned int ngrid;  // number of points per grid dimension
+		std::vector< std::vector<double> > grid1d;  // data points along each single dimension
+		std::vector<double> lower_bounds;  // lower bounds for each single dimension
+		std::vector<double> upper_bounds;  // upper bounds for each single dimension
 	public:
 		PsiGrid ( void ) {} ///< an empty grid
 		PsiGrid (
@@ -44,7 +44,7 @@ std::vector<double> linspace (
 
 void makegridpoints (
 		const PsiGrid& grid,                           ///< PsiGrid object on from which the grid points should be generated
-		std::vector<double> prm,                       ///< current setting of the parameter vector (irrelvant for initial call)
+		std::vector<double> prm,                       ///< current setting of the parameter vector (irrelvant for initial call) should have length grid.dimension()
 		unsigned int pos,                              ///< position of the currently modified parameter (should be 0 for initial call)
 		std::list< std::vector<double> > *gridpoints   ///< gridpoints list to which new gridpoints are added
 		);    ///< generate new grid points based on a PsiGrid object
