@@ -18,6 +18,14 @@ play: $(OBJECTS) play.cc $(HEADERS)
 	$(CC) -c $(CFLAGS) play.cc -o $(BUILD)/play.o
 	$(CC) $(OBJECTS) $(BUILD)/play.o $(LFLAGS) -o play
 
+profile: profile_mcmc
+
+profile_mcmc: $(BUILD)/profile_mcmc.o $(OBJECTS)
+	$(CC) $(OBJECTS) $(BUILD)/profile_mcmc.o -o profile_mcmc $(LFLAGS)
+
+$(BUILD)/profile_mcmc.o: profile_mcmc.cc $(HEADERS) | $(BUILD)
+	$(CC) -c $(CFLAGS) profile_mcmc.cc  -o $(BUILD)/profile_mcmc.o
+
 $(BUILD):
 	mkdir $(BUILD)
 
