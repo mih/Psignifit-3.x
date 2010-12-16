@@ -8,6 +8,8 @@ int main ( int argc, char ** argv ) {
 	PsiSigmoid *sigmoid = new PsiLogistic();
 	PsiPsychometric * pmf = new PsiPsychometric ( 2, core, sigmoid );
 
+	setSeed(0);
+
 	std::vector< double > prm ( 3 );
 	prm[0] = 4; prm[1] = 1; prm[2] = .03;
 
