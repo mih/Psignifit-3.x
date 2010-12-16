@@ -1,3 +1,7 @@
+2010-12-16
+
+* Mersenne Twister is faster for MCMC
+
 2010-12-15
 
 * Improving grid search to also work with very narrow priors
