@@ -47,6 +47,7 @@ int main ( int argc, char ** argv ) {
 	unsigned int nsamples ( atoi ( parser.getOptArg("-nsamples").c_str() ) );
 	double th;
 	double m,s;
+	setSeed (0);
 
 	// Contents of the bootstrap lists
 	std::vector< std::vector<double> > mcthres ( nsamples, cuts );

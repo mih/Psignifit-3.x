@@ -61,6 +61,7 @@ int main ( int argc, char ** argv ) {
 	double                      meanestimate;
 	double                      bayesian_p;
 	GaussRandom                 proposal;
+	setSeed (0);
 
 	// We might either want to read the stepwidths or a pilot sample
 	std::vector<double>         stepwidths;
