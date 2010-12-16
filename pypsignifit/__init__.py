@@ -20,6 +20,8 @@ from psigniplot import *
 # This is to enable display of graphics
 from pylab import show
 
+interface.set_seed( 0 )
+
 def set_seed(value):
     interface.set_seed(value)
 
