@@ -920,6 +920,8 @@ class BayesInference ( PsiInference ):
                 if chain is None, samples are aggregated over all chains
                 sampled so far. If chain is an integer only data from the
                 chain indexed by this number are returned
+            *raw* :
+                if True return all samples, including burnin
 
         :Output:
             an array of nsamplesXnparams samples from the posterior
@@ -1269,6 +1271,15 @@ class BayesInference ( PsiInference ):
             return self.__meanestimate
         def fset (self,v):
             pass
+
+    @property
+    def posterior_median(self):
+        """ Median for the posterior, for all sampled chains. """
+        if len(self.__mcmc_chains) == 0:
+            raise Exception("MCMC must be run before posterior median can be "+
+                    "computed")
+        else:
+            return N.median(self.getsamples(), 0)
 
     @Property
     def deviance ():
