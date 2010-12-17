@@ -397,7 +397,7 @@ def write_header(f):
                 "Rhat.1 "+
                 "Rhat.2 "+
                 "infl.bay." \
-                + " infl.bay.".join([str(x) for x in range(options.nblocks)])+
+                + " infl.bay.".join([str(x) for x in range(options.nblocks)])+" " +
                 "bay.time ")
     outs += " stim." + " stim.".join([str(x) for x in range(options.nblocks)])
     outs += " resp." + " resp.".join([str(x) for x in range(options.nblocks)])
@@ -482,6 +482,8 @@ for simulation in xrange ( options.nsimulations ):
     data = O.DoAnExperiment ( x, ntrials=options.blocksize )
     print "\ndata =",data
     print constraints
+
+    write_id_gen(outfile, simulation)
 
     if nonparametric:
         Bnpr = pypsignifit.BootstrapInference ( data, priors=constraints, parametric=False, **ana_kwargs )
