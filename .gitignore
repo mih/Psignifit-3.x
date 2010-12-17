@@ -4,6 +4,7 @@ psipp-doc/
 swignifit/swignifit_raw.cxx
 swignifit/swignifit_raw.py
 src/tests_all
+src/profile_mcmc
 
 *.pyc
 *.tar.gz
