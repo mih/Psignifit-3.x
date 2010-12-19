@@ -56,7 +56,7 @@ test: psipy-test swignifit-test psipp-test
 python-install: swig
 	python setup.py install
 
-python-build: psipy swignifit
+python-build: swignifit
 
 clean-python: psipy-clean swignifit-clean
 	-rm -rv build
