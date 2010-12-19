@@ -1,5 +1,5 @@
 Profiling session Sun 19th December
------------------------------------
+===================================
 
 This is profiling session to rerun profile_mcmc on its initial and optimized
 commits, and to record the improvement, mainly to test if the profiling
@@ -16,6 +16,7 @@ Profile script:
   1e6 MCMC Samples to be drawn
 
 First Commit:
+-------------
   commit eb57407e3518c2a95b08f7428d76bf5996731fa9
   Author: Ingo Fründ <ingo.fruend@googlemail.com>
   Date:   Wed Dec 15 17:13:18 2010 +0100
@@ -38,3 +39,31 @@ Discussion:
   As can be seen from the text file, the PsiData constructor and the rngcall are
   the worst bottlenecks. Since this is a post mortem reconstruction we can say
   that these were both optimized and will be discussed next.
+
+Second Commit:
+--------------
+  commit 38ae7b283737ad6ae9b5f33d0ab9434d7ddfd665
+  Author: Ingo Fründ <ingo.fruend@googlemail.com>
+  Date:   Wed Dec 15 17:13:53 2010 +0100
+
+      C++[RF] moving datasets out of MCMC loop
+Times:
+  203.45s user 0.64s system 98% cpu 3:27.04 total
+  229.54s user 0.74s system 98% cpu 3:54.13 total
+  241.75s user 0.84s system 98% cpu 4:06.98 total
+
+  Average: 224.91 ~~ 3:45.00
+
+Files:
+  profile_mcmc2.gmon.out
+  profile_mcmc2.text
+  profile_mcmc2.png
+
+Discussion:
+  Already obvious from the overall execution time reduction by 1/3. Further
+  evidence is from text output which shows that only 1/3 time is spent in the
+  PsiData constructor. The graph indicates that the
+  pseudo-random-number-generator is now much more a bottleneck than before.
+  Again, since this is post-mortem, we know that optimizing this will yield
+  further improvement.
+
