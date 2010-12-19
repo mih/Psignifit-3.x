@@ -1,3 +1,12 @@
+######################################################################
+#
+#   See COPYING file distributed along with the psignifit package for
+#   the copyright and license terms
+#
+######################################################################
+
+# Makefile for targets in the src subdirectory
+
 CC=g++
 CFLAGS=-pg -ggdb -Wall
 LFLAGS=-lm -pg
