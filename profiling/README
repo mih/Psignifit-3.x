@@ -1,0 +1,41 @@
+######################################################################
+#
+#   See COPYING file distributed along with the psignifit package for
+#   the copyright and license terms
+#
+######################################################################
+
+Description
+-----------
+
+This is the description of the branch 'val/profiling' and the associated
+profiling subdirectory
+
+The val/profiling branch is a moving branch. It can be attached to any commit
+in the tree, i.e. any previous version of the software that is to be profiled.
+This means all profiling scripts/code can be kept at a constant version, but
+code to be profiled can change. Thus it becomes possible to clock old against
+new versions and asses the impact of any optimizations.
+
+Here are a couple of rules of thumb, subject to exceptions and upgrades.
+
+* Since the branch is moving it is subject to rebase/rewind.
+* Do not base any work on this branch unless you know what you are doing.
+* Do not merge this branch unless you know what you are doing.
+* Cherry-pick optimization related commits from this branch.
+* All permanent commits to this branch are to be made in the profiling
+  subdirectory of the source tree.
+* No other branch should contain commits that modify the content of the
+  profiling subdirectory.
+* Since the branch is moving all profiling results are to be documented in a LOG
+  file.
+
+To attach the branch to a commit you wish to profile:
+
+git rebase --onto $COMMIT $CURRENT_BASE val/profiling
+
+Profiling tools notes
+---------------------
+
+To visualise profiler output, use:
+http://code.google.com/p/jrfonseca/wiki/Gprof2Dot#gprof
