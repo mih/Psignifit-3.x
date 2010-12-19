@@ -1,0 +1,40 @@
+Profiling session Sun 19th December
+-----------------------------------
+
+This is profiling session to rerun profile_mcmc on its initial and optimized
+commits, and to record the improvement, mainly to test if the profiling
+branch/subdirectory strategy will work in practice:
+
+Testing Machine:
+  x61s ThinkPad
+  Intel(R) Core(TM)2 Duo CPU  L7500  @ 1.60GHz (Two core)
+  3 GB Memory
+  Gentoo Linux
+
+Profile script:
+  profile_mcmc.cc
+  1e6 MCMC Samples to be drawn
+
+First Commit:
+  commit eb57407e3518c2a95b08f7428d76bf5996731fa9
+  Author: Ingo Fründ <ingo.fruend@googlemail.com>
+  Date:   Wed Dec 15 17:13:18 2010 +0100
+
+      C++[OPT] added profile_mcmc
+
+Times:
+  540.75s user 0.68s system 99% cpu 9:06.23 total
+  609.68s user 1.53s system 98% cpu 10:21.38 total
+  613.86s user 1.47s system 98% cpu 10:25.02 total
+
+  Average: 588.09s ~~ 9:48
+
+Files:
+  profile_mcmc1.gmon.out
+  profile_mcmc1.text
+  profile_mcmc1.png
+
+Discussion:
+  As can be seen from the text file, the PsiData constructor and the rngcall are
+  the worst bottlenecks. Since this is a post mortem reconstruction we can say
+  that these were both optimized and will be discussed next.
