@@ -67,3 +67,34 @@ Discussion:
   Again, since this is post-mortem, we know that optimizing this will yield
   further improvement.
 
+Third Commit:
+-------------
+  commit 696a244abcd770bed588371492f64b128d976638
+  Author: Ingo Fründ <ingo.fruend@googlemail.com>
+  Date:   Thu Dec 16 15:01:25 2010 +0100
+
+      C++[RF-NF] using Mersenne Twister for random number generation
+
+Times:
+  177.51s user 0.39s system 99% cpu 2:59.36 total
+  222.59s user 0.33s system 99% cpu 3:44.62 total
+  217.76s user 0.30s system 99% cpu 3:39.88 total
+
+  Average : 205.95 ~~ 3:25
+
+Files:
+  profile_mcmc3.gmon.out
+  profile_mcmc3.text
+  profile_mcmc3.png
+
+Discussion:
+  Although the text files indicate differently, there is no significant (read:
+  order of magnitude) benefit from using the mersenne twister. The second run
+  lists 41.06% attributable to PsiRandom::rngcall(), and the third 13.74%
+  attributable to genrand_int32(). One might assume therefore that a 3 fold
+  increase has been achieved, but the overall execution time says otherwise. The
+  difference in profiler output is still to be understood. Looking at the
+  graphical output yielded no further insights. Although it may just be that it
+  is faster, just the speed up is within the fluctuation limits, e.g. 4 min -> 3
+  min. Perhaps another test with more samples should be conducted? Perhaps using
+  a machine that has less stuff, running on it?
