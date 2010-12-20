@@ -98,3 +98,54 @@ Discussion:
   is faster, just the speed up is within the fluctuation limits, e.g. 4 min -> 3
   min. Perhaps another test with more samples should be conducted? Perhaps using
   a machine that has less stuff, running on it?
+
+Profiling Session Mon 20 Dec
+============================
+
+When running a pilot simulation in December 2010 I saw certain jobs that took
+around 45 Minutes per single MCMC run. Since the software had not been this slow
+before, I decided to get to the bottom of this. The plan is to use the python
+cProfile and google perftools to look for bottlenecks and/or bugs.
+
+Testing Machine:
+  x61s ThinkPad
+  Intel(R) Core(TM)2 Duo CPU  L7500  @ 1.60GHz (Two core)
+  3 GB Memory
+  Gentoo Linux
+
+Profile script:
+  run_mcmc_single.py
+
+First Commit
+------------
+  commit 93d4f0c8a88f66d4c7e3e730c3995df6bb17e3a1
+  Author: Ingo Fründ <ingo.fruend@googlemail.com>
+  Date:   Thu Dec 16 15:33:10 2010 +0100
+
+      changelog entry for upload
+
+  Tag: snap-2010-12-16 (most recent snapshot at time of writing)
+
+Times:
+   2401.92s user 1.80s system 98% cpu 40:28.75 total
+   4220.52s user 2.95s system 99% cpu 1:11:04.25 total
+   1820.28s user 1.09s system 99% cpu 30:39.43 total
+
+   Average ~ 46 Minutes
+
+Files:
+  run_mcmc_single1.stats
+  run_mcmc_single1.png
+
+Discussion:
+  The timing roughly corresponds to what was observed on the cluster. However
+  since the mapestimate was different each time, even though the prng is
+  _supposed_ to be seeded the same each time, would suggest that there is a bug
+  there somewhere, either in the initialisation routine, or perhaps it is simply
+  not called. As for the profiling output the graph clearly shows that 75% of
+  the time is spent in __tunesampler, and half the time is spent doing a
+  jackknife, that would be somewhere around 20 minutes. This points in the right
+  direction to optimize the code. Note here that this is only profiling the
+  python level, a full profiling run of the entire code, including c-extension
+  will done at a later stage. Next I would like to check that the code was not
+  this slow when I ran the simulation from August to October.
