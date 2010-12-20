@@ -149,3 +149,47 @@ Discussion:
   python level, a full profiling run of the entire code, including c-extension
   will done at a later stage. Next I would like to check that the code was not
   this slow when I ran the simulation from August to October.
+
+Second Commit
+-------------
+  commit e20233e9a097649ca72c5ea0ac06ae8960af1d1f
+  Merge: cecdd2b 08b1c91
+  Author: Valentin Haenel <valentin.haenel@gmx.de>
+  Date:   Wed Aug 11 15:24:20 2010 +0200
+
+      Merge branch 'val/master'
+
+Times:
+  456.71s user 0.39s system 99% cpu 7:40.88 total
+  259.41s user 0.35s system 98% cpu 4:23.27 total
+  483.60s user 0.59s system 98% cpu 8:09.86 total
+
+  Average ~~ 6:40
+
+Files:
+  run_mcmc_single2.stats
+  run_mcmc_single2.png
+
+Discussion:
+  This is a much older version of the code, namely the one i used to run my
+  simulations from aug-oct 2010, and the many checks after that.
+
+  First, the seeding problem is already there, i get different mapestimates all
+  the time. Second, runs that just bailed out with 600 samples were discarded (in
+  this case about half) due to a known bug, where the chain does not move, and
+  hence we obtain bad coverage due to zero length condfidence intervals. Third,
+  even though i didn't check convergence CI size etc... i am pretty confident
+  that this version yielded some reasonable results (i have coverage plots
+  hanging in my office). Fourth, the time for this version of psignifit is much
+  reduced, it doesn't quite explain how 1000 of these should have taken 6
+  Days(!) on the cluster (well its at least on the order of 4-5). Its better
+  than the current proposed time of 20 Days for 1000 of these. Fifth, the
+  callgraph shows something slightly more sane, the bulk of the time is spent
+  sampling, in fact 20% are spent in __determine_optimum_sampling, and the rest
+  in the real sample method.
+
+Suggested Actions:
+  fix seeding problem, the run_mcmc_single.py should give the same results every
+  time it is run.
+  fix too much time spent in __tunesampler
+  then profile using gperf-tools and valgrind
