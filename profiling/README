@@ -39,3 +39,6 @@ Profiling tools notes
 
 To visualise profiler output, use:
 http://code.google.com/p/jrfonseca/wiki/Gprof2Dot#gprof
+
+Cython wrapper for google-perftools and usage:
+https://pygabriel.wordpress.com/2010/04/14/profiling-python-c-extensions/
