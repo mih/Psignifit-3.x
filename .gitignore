@@ -3,6 +3,7 @@ doc-html/
 psipp-doc/
 swignifit/swignifit_raw.cxx
 swignifit/swignifit_raw.py
+pypsignifit/__version__.py
 src/tests_all
 src/profile_mcmc
 
