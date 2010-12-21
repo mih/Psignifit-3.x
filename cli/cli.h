@@ -7,6 +7,7 @@
 #include <list>
 #include <string.h>
 #include <cstdlib>
+#include "cli_version.h"
 
 class cli_parser {
 	private:
@@ -27,6 +28,7 @@ class cli_parser {
 		bool        getOptSet ( std::string option ) { return optswitch[option]; }
 		std::string popArg ( void ) { if ( args.empty() ) return ""; std::string out ( args.front() ); args.pop_front(); return out; }
 		void print_help ( void );
+        void print_version ( void );
 };
 
 #endif

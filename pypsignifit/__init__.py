@@ -10,6 +10,9 @@
 
 __docformat__ = "restructuredtext"
 
+import sys
+import subprocess
+
 # This is the interface to psi++
 import swignifit as interface
 
@@ -19,6 +22,11 @@ from psigniplot import *
 
 # This is to enable display of graphics
 from pylab import show
+
+try:
+    from __version__ import version
+except ImportError:
+    __version__ = 'Fatal: no version found!'
 
 interface.set_seed( 0 )
 

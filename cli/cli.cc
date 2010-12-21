@@ -4,6 +4,13 @@ void cli_parser::parse_args ( int argc, char ** argv ) {
 	unsigned int arg;
 
 	for (arg=0; arg<argc; arg++) {
+		if ( !strcmp ( argv[arg], "--version" ) ) {
+			print_version ();
+            exit(0);
+		}
+	}
+
+	for (arg=0; arg<argc; arg++) {
 		if ( !strcmp ( argv[arg], "-h" ) ) {
 			print_help ();
 		}
@@ -21,6 +28,7 @@ void cli_parser::parse_args ( int argc, char ** argv ) {
 }
 
 void cli_parser::print_help ( void ) {
+    print_version();
 	std::map<std::string,std::string>::iterator optargs_i;
 	std::map<std::string,bool>::iterator        optswitch_i;
 
@@ -42,4 +50,8 @@ void cli_parser::print_help ( void ) {
 	}
 
 	exit ( 0 );
+}
+
+void cli_parser::print_version ( void ) {
+    std::cout << "Psignifit3 cli, version: " << VERSION << "\n";
 }

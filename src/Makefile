@@ -1,3 +1,12 @@
+######################################################################
+#
+#   See COPYING file distributed along with the psignifit package for
+#   the copyright and license terms
+#
+######################################################################
+
+# Makefile for targets in the src subdirectory
+
 CC=g++
 CFLAGS=-pg -ggdb -Wall
 LFLAGS=-lm -pg
@@ -17,14 +26,6 @@ test: tests_all
 play: $(OBJECTS) play.cc $(HEADERS)
 	$(CC) -c $(CFLAGS) play.cc -o $(BUILD)/play.o
 	$(CC) $(OBJECTS) $(BUILD)/play.o $(LFLAGS) -o play
-
-profile: profile_mcmc
-
-profile_mcmc: $(BUILD)/profile_mcmc.o $(OBJECTS)
-	$(CC) $(OBJECTS) $(BUILD)/profile_mcmc.o -o profile_mcmc $(LFLAGS)
-
-$(BUILD)/profile_mcmc.o: profile_mcmc.cc $(HEADERS) | $(BUILD)
-	$(CC) -c $(CFLAGS) profile_mcmc.cc  -o $(BUILD)/profile_mcmc.o
 
 $(BUILD):
 	mkdir $(BUILD)
