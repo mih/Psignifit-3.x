@@ -197,3 +197,50 @@ Suggested Actions:
 Further Notes:
   The problem with seeding is such that the data is generated with the scipy
   random number generator, this must be seeded sepeartely.
+
+Profiling Session Tue 21 Dec
+============================
+
+After working out that numpy needs to be seeded too, I can now make
+run_mcmc_single.py repeat results. I thus selected 3 seeds using
+val-sim-oct-2010, one that bails out after ~ one minute, one that takes about 5,
+and one that takes about 10. The plan is to run this on the old commit, get
+timings, and then try and see what happens when i run it against current master.
+Some fixes (well, more like backrolls) were done today in order to reduce the
+insane runtime of 45 minutes which we was showen in the last session. There are
+two goals: one: see if the new code runs faster, two: see if there are still
+zero length confidence intervals. The second check, may or may not be
+trustworthy, since the prng has changed to mersenne twister. This time i will
+run a best of three, without profiling information, and then run a 4th time to
+generate the callgraph. Also datetime has been leveraged in order to get timing
+information about each of the three mcmc runs seperately, so timing will be more
+of a matrix this time around.
+
+Profile Script
+  three_mcmc.py
+
+First Commit
+-------------
+  commit e20233e9a097649ca72c5ea0ac06ae8960af1d1f
+  Merge: cecdd2b 08b1c91
+  Author: Valentin Haenel <valentin.haenel@gmx.de>
+  Date:   Wed Aug 11 15:24:20 2010 +0200
+
+      Merge branch 'val/master'
+
+Times:
+  (seeds 3, 4 and 7)
+  run one
+    0:00:54.137857
+    0:05:26.563549
+    0:08:43.997391
+  run two
+    0:01:10.550657
+    0:05:35.199199
+    0:08:47.709018
+  run three
+    0:01:03.010207
+    0:05:31.978105
+    0:08:43.092953
+
+
