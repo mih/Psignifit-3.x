@@ -17,5 +17,6 @@
 #include "rng.h"
 #include "sigmoid.h"
 #include "special.h"
+#include "getstart.h"
 
 #endif

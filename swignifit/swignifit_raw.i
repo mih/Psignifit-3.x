@@ -70,3 +70,4 @@ namespace std {
 %include "mclist.h"
 %include "rng.h"
 %include "linalg.h"
+%include "getstart.h"
