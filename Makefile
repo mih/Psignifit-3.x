@@ -19,6 +19,7 @@ PYTHON=python
 CLI_SRC=cli
 TODAY=`date +%d-%m-%G`
 LONGTODAY=`date +%G-%m-%d`
+GIT_DESCRIPTION=`git describe --tags`
 .PHONY : swignifit psipy ipython psipp-doc
 
 #}}}
@@ -39,7 +40,7 @@ EPYDOC_TARGET=swignifit psipy pypsignifit
 
 #################### MAIN DEFINITIONS ################### {{{
 
-build: python-build
+build: python-build version
 
 install: python-install
 
@@ -51,9 +52,17 @@ test: psipy-test swignifit-test psipp-test
 
 # }}}
 
+
+#################### VERSIONING DEFINITIONS ################### {{{
+
+version:
+	echo "version = '"$(GIT_DESCRIPTION)"'" > pypsignifit/__version__.py
+
+# }}}
+
 #################### PYTHON DEFINITIONS ################### {{{
 
-python-install: swig
+python-install: swig version
 	python setup.py install
 
 python-build: swignifit
@@ -61,6 +70,7 @@ python-build: swignifit
 clean-python: psipy-clean swignifit-clean
 	-rm -rv build
 	-rm pypsignifit/*.pyc
+	-rm pypsignifit/__version__.py
 
 python-doc: $(DOCFILES) $(PYTHONFILES) python-build
 	mkdir -p $(SPHINX_DOCOUT)/$(EPYDOC_DCOOUT)

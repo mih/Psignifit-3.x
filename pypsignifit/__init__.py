@@ -23,49 +23,15 @@ from psigniplot import *
 # This is to enable display of graphics
 from pylab import show
 
+try:
+    from __version__ import version
+except ImportError:
+    __version__ = 'Fatal: no version found!'
+
 interface.set_seed( 0 )
 
 def set_seed(value):
     interface.set_seed(value)
-
-# add git hash to options, to automate the process of storing it
-# note that when not running this via PYTHONPATH from the git repo
-# this will fail, instead it should query pypsignifit for a proper version
-# number, however proper version numbers were not implemented at the time of
-# writing (see git blame for the exact date.)
-def __get_command_output(command_string, env):
-    """ Execute arbitrary commands.
-
-    Parameters
-    ----------
-    command_list : strings
-        the command and its arguments
-    env: mapping
-        mapping ov environment variables to values
-
-    Returns
-    -------
-    output : string
-        the raw output of the command executed
-    """
-
-    command_list = command_string.split(' ')
-    p = subprocess.Popen(command_list, stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE, env=env)
-    p.wait()
-    return p.returncode, p.stdout.read()
-
-
-def version():
-    # yes yes yes, its an evil hack, if you know of a better way, refactor it!
-    git_dir = sys.modules['pypsignifit'].__path__[0].replace('pypsignifit','')
-    ret_code, HEAD_SHA, = __get_command_output("git rev-parse HEAD",
-            {"GIT_DIR" : ("%s.git" % git_dir)})
-    if ret_code == 128:
-        print "Unlikely to be running coverage script from a Git repository."
-        return None
-    else:
-        return HEAD_SHA.strip()
 
 def __test__ ( ):
     "If we call the file directly, we perform a test run"
