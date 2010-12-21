@@ -22,6 +22,7 @@ LONGTODAY=`date +%G-%m-%d`
 GIT_DESCRIPTION=`git describe --tags`
 CLI_VERSION_HEADER=cli/cli_version.h
 MPSIGNIFIT_VERSION=mpsignifit/psignifit_version.m
+PYPSIGNIFIT_VERSION=pypsignifit/__version__.py
 .PHONY : swignifit psipy ipython psipp-doc
 
 #}}}
@@ -64,7 +65,7 @@ python-build: swignifit python-version
 clean-python: psipy-clean swignifit-clean
 	-rm -rv build
 	-rm pypsignifit/*.pyc
-	-rm pypsignifit/__version__.py
+	-rm $(PYPSIGNIFIT_VERSION)
 
 python-doc: $(DOCFILES) $(PYTHONFILES) python-build
 	mkdir -p $(SPHINX_DOCOUT)/$(EPYDOC_DCOOUT)
@@ -84,7 +85,7 @@ psipy_vs_swignifit_time: psipy swignifit
 	PYTHONPATH=. $(PYTHON) tests/psipy_vs_swignifit_time.py
 
 python-version:
-	echo "version = '"$(GIT_DESCRIPTION)"'" > pypsignifit/__version__.py
+	echo "version = '"$(GIT_DESCRIPTION)"'" > $(PYPSIGNIFIT_VERSION)
 
 # }}}
 
