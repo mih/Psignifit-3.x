@@ -1,3 +1,11 @@
+2010-12-21
+
+* New: version numbers in psignifit can be displayed in scripts
+  e.g. pypsignifit.version
+* Bugfix: stimulus intensities for bootstrap are always double
+* Bugfix: switched off tunesampler in MCMC -> used to give weired behavior
+  we now got back to Laplace approximations
+
 2010-12-16
 
 * Mersenne Twister is faster for MCMC
