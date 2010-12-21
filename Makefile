@@ -48,7 +48,7 @@ install: python-install
 
 doc: python-doc psipp-doc
 
-clean: clean-python-doc clean-python psipp-clean
+clean: clean-python-doc clean-python psipp-clean cli-clean mpsignifit-clean
 
 test: psipy-test swignifit-test psipp-test
 
