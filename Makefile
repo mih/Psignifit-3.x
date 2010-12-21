@@ -54,7 +54,7 @@ test: psipy-test swignifit-test psipp-test
 #################### PYTHON DEFINITIONS ################### {{{
 
 python-install: swig
-	python setup.py install
+	$(PYTHON) setup.py install
 
 python-build: swignifit
 
@@ -107,7 +107,7 @@ cli-build:
 cli-clean:
 	cd $(CLI_SRC) && $(MAKE) clean
 cli-test: cli-install
-	python tests/cli_test.py
+	$(PYTHON) tests/cli_test.py
 cli-uninstall:
 	rm $(CLI_INSTALL)/psignifit-mcmc
 	rm $(CLI_INSTALL)/psignifit-diagnostics
@@ -124,7 +124,7 @@ psipy-install:
 	INTERFACE=psipy $(PYTHON) setup.py install
 
 psipy-test: psipy swignifit
-	-PYTHONPATH=. INTERFACE="psipy" python tests/interface_test.py
+	-PYTHONPATH=. INTERFACE="psipy" $(PYTHON) tests/interface_test.py
 
 psipy-clean:
 	-rm -rv _psipy.so
