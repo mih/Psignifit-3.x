@@ -193,3 +193,7 @@ Suggested Actions:
   time it is run.
   fix too much time spent in __tunesampler
   then profile using gperf-tools and valgrind
+  
+Further Notes:
+  The problem with seeding is such that the data is generated with the scipy
+  random number generator, this must be seeded sepeartely.
