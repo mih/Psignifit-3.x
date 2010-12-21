@@ -271,6 +271,8 @@ if not nonparametric and not parametric and not bayes:
     raise ValueError("You must specify one of: 'nonparametric', 'parametric' "+\
             "'bayes' in order for this script to do anything!")
 
+# set the version
+options.version = pypsignifit.version()
 
 # Organize output
 def get_yes_no():
