@@ -32,3 +32,4 @@ cli/psignifit-diagnostics
 cli/psignifit-mcmc
 cli/psignifit-mapestimate
 cli/cli_version.h
+mpsignifit/psignifit_version.m

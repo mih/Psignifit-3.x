@@ -21,6 +21,7 @@ TODAY=`date +%d-%m-%G`
 LONGTODAY=`date +%G-%m-%d`
 GIT_DESCRIPTION=`git describe --tags`
 CLI_VERSION_HEADER=cli/cli_version.h
+MPSIGNIFIT_VERSION=mpsignifit/psignifit_version.m
 .PHONY : swignifit psipy ipython psipp-doc
 
 #}}}
@@ -179,6 +180,18 @@ swignifit-test-utility: swignifit
 
 pypsignifit-test:
 	-PYTHONPATH=. $(PYTHON) pypsignifit/psignidata.py
+
+# }}}
+
+
+#################### MPSIGNIFIT COMMANDS ################### {{{
+
+mpsignifit-version:
+	echo "function psignifit_version()" > $(MPSIGNIFIT_VERSION)
+	echo "disp('"$(GIT_DESCRIPTION)"')" >> $(MPSIGNIFIT_VERSION)
+
+mpsignifit-clean:
+	rm $(MPSIGNIFIT_VERSION)
 
 # }}}
 
