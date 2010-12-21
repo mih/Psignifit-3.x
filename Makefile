@@ -19,6 +19,10 @@ PYTHON=python
 CLI_SRC=cli
 TODAY=`date +%d-%m-%G`
 LONGTODAY=`date +%G-%m-%d`
+GIT_DESCRIPTION=`git describe --tags`
+CLI_VERSION_HEADER=cli/cli_version.h
+MPSIGNIFIT_VERSION=mpsignifit/psignifit_version.m
+PYPSIGNIFIT_VERSION=pypsignifit/__version__.py
 .PHONY : swignifit psipy ipython psipp-doc
 
 #}}}
@@ -45,7 +49,7 @@ install: python-install
 
 doc: python-doc psipp-doc
 
-clean: clean-python-doc clean-python psipp-clean
+clean: clean-python-doc clean-python psipp-clean cli-clean mpsignifit-clean
 
 test: psipy-test swignifit-test psipp-test
 
@@ -53,14 +57,15 @@ test: psipy-test swignifit-test psipp-test
 
 #################### PYTHON DEFINITIONS ################### {{{
 
-python-install: swig
+python-install: swig python-version
 	$(PYTHON) setup.py install
 
-python-build: swignifit
+python-build: swignifit python-version
 
 clean-python: psipy-clean swignifit-clean
 	-rm -rv build
 	-rm pypsignifit/*.pyc
+	-rm $(PYPSIGNIFIT_VERSION)
 
 python-doc: $(DOCFILES) $(PYTHONFILES) python-build
 	mkdir -p $(SPHINX_DOCOUT)/$(EPYDOC_DCOOUT)
@@ -78,6 +83,9 @@ psipy_vs_swignifit: psipy swignifit
 
 psipy_vs_swignifit_time: psipy swignifit
 	PYTHONPATH=. $(PYTHON) tests/psipy_vs_swignifit_time.py
+
+python-version:
+	echo "version = '"$(GIT_DESCRIPTION)"'" > $(PYPSIGNIFIT_VERSION)
 
 # }}}
 
@@ -99,13 +107,14 @@ psipp-test:
 # }}}
 
 ################### CLI COMMANDS ###################### {{{
-cli-install: cli-build
+cli-install:  cli-version
 	if [ -d $(CLI_INSTALL) ]; then echo $(CLI_INSTALL) " exists adding files"; else	mkdir $(CLI_INSTALL); echo ""; echo ""; echo ""; echo "WARNING: I had to create " $(CLI_INSTALL) "you will most probably have to add it to your PATH"; echo ""; echo ""; echo ""; fi
 	cd $(CLI_SRC) && cp psignifit-mcmc psignifit-diagnostics psignifit-bootstrap psignifit-mapestimate $(CLI_INSTALL)
-cli-build:
+cli-build: cli-version
 	cd $(CLI_SRC) && $(MAKE)
 cli-clean:
 	cd $(CLI_SRC) && $(MAKE) clean
+	-rm $(CLI_VERSION_HEADER)
 cli-test: cli-install
 	$(PYTHON) tests/cli_test.py
 cli-uninstall:
@@ -113,6 +122,12 @@ cli-uninstall:
 	rm $(CLI_INSTALL)/psignifit-diagnostics
 	rm $(CLI_INSTALL)/psignifit-bootstrap
 	rm $(CLI_INSTALL)/psignifit-mapestimate
+
+cli-version:
+	echo "#ifndef CLI_VERSION_H" > $(CLI_VERSION_HEADER)
+	echo "#define CLI_VERSION_H" >> $(CLI_VERSION_HEADER)
+	echo "#define VERSION \""$(GIT_DESCRIPTION)"\"" >> $(CLI_VERSION_HEADER)
+	echo "#endif" >> $(CLI_VERSION_HEADER)
 # }}}
 
 #################### PSIPY COMMANDS ################### {{{
@@ -169,6 +184,18 @@ pypsignifit-test:
 
 # }}}
 
+
+#################### MPSIGNIFIT COMMANDS ################### {{{
+
+mpsignifit-version:
+	echo "function psignifit_version()" > $(MPSIGNIFIT_VERSION)
+	echo "disp('"$(GIT_DESCRIPTION)"')" >> $(MPSIGNIFIT_VERSION)
+
+mpsignifit-clean:
+	rm $(MPSIGNIFIT_VERSION)
+
+# }}}
+
 #################### DISTRIBUTION COMMANDS ################## {{{
 
 dist-changelog:
@@ -193,13 +220,17 @@ dist-changelog:
 		git push origin; \
 	fi
 
-dist-tar:
-	git archive --format=tar --prefix=psignifit3.0_beta_$(TODAY)/ master | gzip > psignifit3.0_beta_$(TODAY).tar.gz
+dist-tar: python-version cli-version mpsignifit-version
+	git archive --format=tar --prefix=psignifit3.0_beta_$(TODAY)/ master > psignifit3.0_beta_$(TODAY).tar
+	tar --transform "s,^,psignifit3.0_beta_$(TODAY)/," -rf psignifit3.0_beta_$(TODAY).tar $(PYPSIGNIFIT_VERSION) $(CLI_VERSION_HEADER) $(MPSIGNIFIT_VERSION)
+	gzip psignifit3.0_beta_$(TODAY).tar
 
-dist-zip:
-	git archive --format=zip --prefix=psignifit3.0_beta_$(TODAY)/ master > psignifit3.0_beta_$(TODAY).zip
+dist-zip: dist-tar
+	tar -xvzf psignifit3.0_beta_$(TODAY).tar.gz
+	zip -r psignifit3.0_beta_$(TODAY).zip psignifit3.0_beta_$(TODAY)
+	rm -r psignifit3.0_beta_$(TODAY)
 
-dist-swigged: dist-zip dist-tar swig
+dist-swigged: dist-zip swig
 	tar xzf psignifit3.0_beta_$(TODAY).tar.gz
 	cp swignifit/swignifit_raw.cxx swignifit/swignifit_raw.py psignifit3.0_beta_$(TODAY)/swignifit/
 	mv psignifit3.0_beta_$(TODAY) psignifit3.0_beta_swigged_$(TODAY)
@@ -207,7 +238,7 @@ dist-swigged: dist-zip dist-tar swig
 	zip -r psignifit3.0_beta_swigged_$(TODAY).zip psignifit3.0_beta_swigged_$(TODAY)
 	rm -r psignifit3.0_beta_swigged_$(TODAY)
 
-dist-win: psignifit-cli.iss
+dist-win: psignifit-cli.iss cli-version
 	if [ -d WindowsInstaller ]; then rm -r WindowsInstaller; fi
 	cd cli && rm -r build && make -f MakefileMinGW
 	wine $(HOME)/.wine/drive_c/Program\ Files/Inno\ Setup\ 5/ISCC.exe psignifit-cli.iss
@@ -220,13 +251,13 @@ dist-upload-doc: python-doc
 
 dist-upload-archives:
 	make dist-changelog
+	git tag snap-$(LONGTODAY)
 	make dist-swigged
 	make dist-win
 	mkdir psignifit3.0_beta_$(TODAY)
 	cp psignifit3.0_beta_$(TODAY).tar.gz psignifit3.0_beta_swigged_$(TODAY).tar.gz psignifit3.0_beta_$(TODAY).zip psignifit3.0_beta_swigged_$(TODAY).zip psignifit-cli_3_beta_installer_$(TODAY).exe psignifit3.0_beta_$(TODAY)
 	scp -rv psignifit3.0_beta_$(TODAY) igordertigor,psignifit@frs.sourceforge.net:/home/frs/project/p/ps/psignifit/
 	rm -r psignifit3.0_beta_$(TODAY)
-	git tag snap-$(LONGTODAY)
 	git push origin snap-$(LONGTODAY)
 
 # }}}

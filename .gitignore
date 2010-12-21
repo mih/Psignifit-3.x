@@ -3,6 +3,7 @@ doc-html/
 psipp-doc/
 swignifit/swignifit_raw.cxx
 swignifit/swignifit_raw.py
+pypsignifit/__version__.py
 src/tests_all
 src/profile_mcmc
 
@@ -30,3 +31,5 @@ cli/psignifit-bootstrap
 cli/psignifit-diagnostics
 cli/psignifit-mcmc
 cli/psignifit-mapestimate
+cli/cli_version.h
+mpsignifit/psignifit_version.m
