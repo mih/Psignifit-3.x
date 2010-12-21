@@ -259,7 +259,7 @@ class BootstrapInference ( PsiInference ):
         kwargs.pop("start")
 
         # Store basic data
-        self.data = N.array(data)
+        self.data = N.array(data,'d')
         if self.data[:,1].max() <= 1:
             # We have relative frequencies
             self.data[:,1] *= self.data[:,2]
@@ -692,7 +692,7 @@ class BayesInference ( PsiInference ):
         PsiInference.__init__(self,plotprm)
 
         # Store basic data
-        self.data = N.array(data)
+        self.data = N.array(data,'d')
         if self.data[:,1].max() <= 1:
             # We have relative frequencies
             self.data[:,1] *= self.data[:,2]
