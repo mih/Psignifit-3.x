@@ -105,10 +105,10 @@ psipp-test:
 # }}}
 
 ################### CLI COMMANDS ###################### {{{
-cli-install: $(CLI_VERSION_HEADER)
+cli-install:  cli-version
 	if [ -d $(CLI_INSTALL) ]; then echo $(CLI_INSTALL) " exists adding files"; else	mkdir $(CLI_INSTALL); echo ""; echo ""; echo ""; echo "WARNING: I had to create " $(CLI_INSTALL) "you will most probably have to add it to your PATH"; echo ""; echo ""; echo ""; fi
 	cd $(CLI_SRC) && cp psignifit-mcmc psignifit-diagnostics psignifit-bootstrap psignifit-mapestimate $(CLI_INSTALL)
-cli-build: $(CLI_VERSION_HEADER)
+cli-build: cli-version
 	cd $(CLI_SRC) && $(MAKE)
 cli-clean:
 	cd $(CLI_SRC) && $(MAKE) clean
@@ -121,8 +121,8 @@ cli-uninstall:
 	rm $(CLI_INSTALL)/psignifit-bootstrap
 	rm $(CLI_INSTALL)/psignifit-mapestimate
 
-$(CLI_VERSION_HEADER):
-	echo "#ifndef CLI_VERSION_H" >> $(CLI_VERSION_HEADER)
+cli-version:
+	echo "#ifndef CLI_VERSION_H" > $(CLI_VERSION_HEADER)
 	echo "#define CLI_VERSION_H" >> $(CLI_VERSION_HEADER)
 	echo "#define VERSION \""$(GIT_DESCRIPTION)"\"" >> $(CLI_VERSION_HEADER)
 	echo "#endif" >> $(CLI_VERSION_HEADER)
