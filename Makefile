@@ -220,13 +220,17 @@ dist-changelog:
 		git push origin; \
 	fi
 
-dist-tar:
-	git archive --format=tar --prefix=psignifit3.0_beta_$(TODAY)/ master | gzip > psignifit3.0_beta_$(TODAY).tar.gz
+dist-tar: python-version cli-version mpsignifit-version
+	git archive --format=tar --prefix=psignifit3.0_beta_$(TODAY)/ master > psignifit3.0_beta_$(TODAY).tar
+	tar --transform "s,^,psignifit3.0_beta_$(TODAY)/," -rf psignifit3.0_beta_$(TODAY).tar $(PYPSIGNIFIT_VERSION) $(CLI_VERSION_HEADER) $(MPSIGNIFIT_VERSION)
+	gzip psignifit3.0_beta_$(TODAY).tar
 
-dist-zip:
-	git archive --format=zip --prefix=psignifit3.0_beta_$(TODAY)/ master > psignifit3.0_beta_$(TODAY).zip
+dist-zip: dist-tar
+	tar -xvzf psignifit3.0_beta_$(TODAY).tar.gz
+	zip -r psignifit3.0_beta_$(TODAY).zip psignifit3.0_beta_$(TODAY)
+	rm -r psignifit3.0_beta_$(TODAY)
 
-dist-swigged: dist-zip dist-tar swig
+dist-swigged: dist-zip swig
 	tar xzf psignifit3.0_beta_$(TODAY).tar.gz
 	cp swignifit/swignifit_raw.cxx swignifit/swignifit_raw.py psignifit3.0_beta_$(TODAY)/swignifit/
 	mv psignifit3.0_beta_$(TODAY) psignifit3.0_beta_swigged_$(TODAY)
@@ -234,7 +238,7 @@ dist-swigged: dist-zip dist-tar swig
 	zip -r psignifit3.0_beta_swigged_$(TODAY).zip psignifit3.0_beta_swigged_$(TODAY)
 	rm -r psignifit3.0_beta_swigged_$(TODAY)
 
-dist-win: psignifit-cli.iss
+dist-win: psignifit-cli.iss cli-version
 	if [ -d WindowsInstaller ]; then rm -r WindowsInstaller; fi
 	cd cli && rm -r build && make -f MakefileMinGW
 	wine $(HOME)/.wine/drive_c/Program\ Files/Inno\ Setup\ 5/ISCC.exe psignifit-cli.iss
@@ -247,13 +251,13 @@ dist-upload-doc: python-doc
 
 dist-upload-archives:
 	make dist-changelog
+	git tag snap-$(LONGTODAY)
 	make dist-swigged
 	make dist-win
 	mkdir psignifit3.0_beta_$(TODAY)
 	cp psignifit3.0_beta_$(TODAY).tar.gz psignifit3.0_beta_swigged_$(TODAY).tar.gz psignifit3.0_beta_$(TODAY).zip psignifit3.0_beta_swigged_$(TODAY).zip psignifit-cli_3_beta_installer_$(TODAY).exe psignifit3.0_beta_$(TODAY)
 	scp -rv psignifit3.0_beta_$(TODAY) igordertigor,psignifit@frs.sourceforge.net:/home/frs/project/p/ps/psignifit/
 	rm -r psignifit3.0_beta_$(TODAY)
-	git tag snap-$(LONGTODAY)
 	git push origin snap-$(LONGTODAY)
 
 # }}}
