@@ -40,7 +40,7 @@ EPYDOC_TARGET=swignifit psipy pypsignifit
 
 #################### MAIN DEFINITIONS ################### {{{
 
-build: python-build version
+build: python-build
 
 install: python-install
 
@@ -52,20 +52,12 @@ test: psipy-test swignifit-test psipp-test
 
 # }}}
 
-
-#################### VERSIONING DEFINITIONS ################### {{{
-
-version:
-	echo "version = '"$(GIT_DESCRIPTION)"'" > pypsignifit/__version__.py
-
-# }}}
-
 #################### PYTHON DEFINITIONS ################### {{{
 
-python-install: swig version
+python-install: swig python-version
 	python setup.py install
 
-python-build: swignifit
+python-build: swignifit python-version
 
 clean-python: psipy-clean swignifit-clean
 	-rm -rv build
@@ -88,6 +80,9 @@ psipy_vs_swignifit: psipy swignifit
 
 psipy_vs_swignifit_time: psipy swignifit
 	PYTHONPATH=. $(PYTHON) tests/psipy_vs_swignifit_time.py
+
+python-version:
+	echo "version = '"$(GIT_DESCRIPTION)"'" > pypsignifit/__version__.py
 
 # }}}
 
