@@ -382,7 +382,7 @@ def write_nonparametric(f, Bnpr, runtime):
     outs += "%g %g %g " % (Bnpr.Rpd,ptile(Bnpr.mcRpd,2.5),ptile(Bnpr.mcRpd,97.5)) # rpd.npr rpd.npr.l rpd.npr.h
     outs += "%g %g %g " % (Bnpr.Rkd,ptile(Bnpr.mcRkd,2.5),ptile(Bnpr.mcRkd,97.5)) # rkd.npr rkd.npr.l rkd.npr.h
     outs += ("%g "*options.nblocks) % tuple(Bnpr.infl)
-    outs += "%i" % runtime
+    outs += "%g " % runtime
     f.write ( outs )
 
 def write_parametric(f, Bpar, runtime):
@@ -392,7 +392,7 @@ def write_parametric(f, Bpar, runtime):
     outs += "%g %g %g " % (Bpar.Rpd,ptile(Bpar.mcRpd,2.5),ptile(Bpar.mcRpd,97.5)) # rpd.par rpd.par.l rpd.par.h
     outs += "%g %g %g " % (Bpar.Rkd,ptile(Bpar.mcRkd,2.5),ptile(Bpar.mcRkd,97.5)) # rkd.par rkd.par.l rkd.par.h
     outs += ("%g "*options.nblocks) % tuple(Bpar.infl)
-    outs += "%i" % runtime
+    outs += "%g " % runtime
     f.write(outs)
 
 def write_bayes(f, mcmc, mcmc_conv, runtime):
@@ -414,7 +414,7 @@ def write_bayes(f, mcmc, mcmc_conv, runtime):
     outs += "%g %g " % (mcmc.Rkd,mcmc.bayesian_p('Rkd')) # d.rkd d.rkd.p
     outs += "%d %g %g %g " % (mcmc_conv,mcmc.Rhat(0),mcmc.Rhat(1),mcmc.Rhat(2))
     outs += ("%g "*options.nblocks) % tuple(mcmc.infl)
-    outs += "%i" % runtime
+    outs += "%g " % runtime
     f.write(outs)
 
 def write_data(f, data):
