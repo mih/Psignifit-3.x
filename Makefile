@@ -10,6 +10,7 @@
 
 #################### VARIABLE DEFINITIONS ################### {{{
 
+SHELL=/bin/bash
 CLI_INSTALL=$(HOME)/bin
 SPHINX_DOCOUT=doc-html
 EPYDOC_DCOOUT=api
@@ -85,7 +86,9 @@ psipy_vs_swignifit_time: psipy swignifit
 	PYTHONPATH=. $(PYTHON) tests/psipy_vs_swignifit_time.py
 
 python-version:
-	echo "version = '"$(GIT_DESCRIPTION)"'" > $(PYPSIGNIFIT_VERSION)
+	if git rev-parse &> /dev/null ; then \
+		echo "version = '"$(GIT_DESCRIPTION)"'" > $(PYPSIGNIFIT_VERSION); \
+	fi
 
 # }}}
 
@@ -124,10 +127,12 @@ cli-uninstall:
 	rm $(CLI_INSTALL)/psignifit-mapestimate
 
 cli-version:
-	echo "#ifndef CLI_VERSION_H" > $(CLI_VERSION_HEADER)
-	echo "#define CLI_VERSION_H" >> $(CLI_VERSION_HEADER)
-	echo "#define VERSION \""$(GIT_DESCRIPTION)"\"" >> $(CLI_VERSION_HEADER)
-	echo "#endif" >> $(CLI_VERSION_HEADER)
+	if git rev-parse &> /dev/null ; then \
+		echo "#ifndef CLI_VERSION_H" > $(CLI_VERSION_HEADER) ; \
+		echo "#define CLI_VERSION_H" >> $(CLI_VERSION_HEADER) ; \
+		echo "#define VERSION \""$(GIT_DESCRIPTION)"\"" >> $(CLI_VERSION_HEADER) ; \
+		echo "#endif" >> $(CLI_VERSION_HEADER) ; \
+	fi
 # }}}
 
 #################### PSIPY COMMANDS ################### {{{
@@ -188,8 +193,10 @@ pypsignifit-test:
 #################### MPSIGNIFIT COMMANDS ################### {{{
 
 mpsignifit-version:
-	echo "function psignifit_version()" > $(MPSIGNIFIT_VERSION)
-	echo "disp('"$(GIT_DESCRIPTION)"')" >> $(MPSIGNIFIT_VERSION)
+	if git rev-parse &> /dev/null ; then \
+		echo "function psignifit_version()" > $(MPSIGNIFIT_VERSION) ; \
+		echo "disp('"$(GIT_DESCRIPTION)"')" >> $(MPSIGNIFIT_VERSION) ; \
+	fi
 
 mpsignifit-clean:
 	rm $(MPSIGNIFIT_VERSION)
