@@ -243,4 +243,32 @@ Times:
     0:05:31.978105
     0:08:43.092953
 
+Second Commit
+-------------
+  commit 77b9ff56af21c435e1e152b11d26554ce29c658d
+  Author: Ingo Fründ <ingo.fruend@googlemail.com>
+  Date:   Tue Dec 21 19:15:55 2010 +0100
+
+      changelog entry for upload
+
+Times:
+    0:00:32.787996
+    0:13:51.024845
+    0:03:42.855861
+
+    0:00:49.850348
+    0:14:23.284992
+    0:03:47.069281
+
+    0:00:44.672713
+    0:14:28.018174
+    0:03:47.978921
+
+Discussion:
+  Well, as we can clearly see clocking MCMC samplers is difficult if the prng
+  changes, since they are so wildely variable, even if the input data is the
+  same. The zero length confidence interval may not have been detected, which is
+  bad, but a seperate check should be done to ensure this. Apart from that its
+  not really clear from the run-time if an acceleration was really achieved,
+  since its difficult to run the same chain.
 
