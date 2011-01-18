@@ -270,5 +270,12 @@ Discussion:
   same. The zero length confidence interval may not have been detected, which is
   bad, but a seperate check should be done to ensure this. Apart from that its
   not really clear from the run-time if an acceleration was really achieved,
-  since its difficult to run the same chain.
+  since its difficult to run the same chain. The call graphs don't really show
+  anything useful also. Instead if we are interested in further optimization, we
+  should look into profiling below the python level. Incidently, a larger scale
+  run on the cluster, showed that the 'latest' version aka.
+  77b9ff56af21c435e1e152b11d26554ce29c658d still suffered from the same
+  zero-length confidence intervals, just that these seem to be at different
+  job IDs, which makes sense, since we simply use different seqeuences of random
+  numbers, so we get the same effect as before, just at different positions.
 
