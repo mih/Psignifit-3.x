@@ -811,7 +811,8 @@ class BayesInference ( PsiInference ):
 
         self.__recomputeCorrelationsAndThresholds()
 
-        # Resample if bad
+        # Resample if bad (i.e. chains did not converge properly according to geweke criterion)
+        # This is currently off by default
         if self.retry:
             nprm = self.mapestimate.shape[0]
             resampled = 0
@@ -1564,7 +1565,9 @@ class BayesInference ( PsiInference ):
                     self.burnin = max ( self.burnin, mcmcpars.burnin )
                     self.thin   = max ( self.thin,   mcmcpars.thin )
                     self.nsamples = max ( self.nsamples, mcmcpars.Nsamples )
+            # Determine standard deviations of samples but don't store them in a
             b = N.sqrt(N.diag(N.cov ( samples[self.burnin::self.thin].T )))
+            # Check whether b is good, otherwise use roughvariance again
             if b.max() < 1e-10:
                 a = self.__roughvariance ()
             else:
