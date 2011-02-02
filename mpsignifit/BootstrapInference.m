@@ -130,9 +130,9 @@ end
 
 % Get the point estimate
 if gammaislambda
-    mapest = MapEstimate ( data, priors, 'nafc', nafc, 'sigmoid', sigmoid, 'core', core, 'gammaislambda' );
+    mapest = MapEstimate ( data, priors, 'nafc', nafc, 'sigmoid', sigmoid, 'core', core, 'cuts', cuts, 'gammaislambda' );
 else
-    mapest = MapEstimate ( data, priors, 'nafc', nafc, 'sigmoid', sigmoid, 'core', core );
+    mapest = MapEstimate ( data, priors, 'nafc', nafc, 'sigmoid', sigmoid, 'core', core, 'cuts', cuts  );
 end
 
 % Store the data
