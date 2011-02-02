@@ -117,7 +117,7 @@ while size(varargin,2) > 0
     case 'nonparametric'
         npr = '-nonparametric';
     case 'verbose'
-        verbosity = '-v';
+        % verbosity = '-v';   % Matlab system call merges stdout and stderr --- so this does not well
         verbose = true;
     case 'cuts'
         [cuts,varargin] = popoption(varargin);
