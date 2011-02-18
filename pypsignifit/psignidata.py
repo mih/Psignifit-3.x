@@ -401,6 +401,13 @@ class BootstrapInference ( PsiInference ):
         elif isinstance ( conf, int ):
             conf = [self.conf[conf]]
 
+        # if cut is a float, determine the index of the cut
+        if isinstance ( cut, float ):
+            try:
+                cut = list(self.cuts).index(cut)
+            except ValueErro:
+                raise ValueError, "cut is not in internal list of cuts which would be required for evaluation of BCa confidence intervals"
+
         if self.__expanded:
             ci = []
             for c in conf:
@@ -1136,6 +1143,11 @@ class BayesInference ( PsiInference ):
                     out.append(p.prctile ( mcdata[:,k], 100*N.array(conf) ))
                 return N.array(out)
             else:
+                if isinstance ( cut, float ):
+                    try:
+                        cut = list(self.cuts).index(cut)
+                    except ValueError:
+                        raise ValueError, "cut is not in the list of requested cuts which would be necessary to determine cuts for slopes or thresholds"
                 return p.prctile ( mcdata[:,cut], 100*N.array(conf) )
         else:
             if param=="Rkd":
