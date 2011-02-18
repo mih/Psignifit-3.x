@@ -229,6 +229,8 @@ class BootstrapInference ( PsiInference ):
                 a dictionary to take parameters for plotting data. Currently supported are the arguments
                 'label', 'color', 'linestyle', 'linewidth' and 'marker'. These can all be set after creating
                 an Inference instance, too. By using the respective properties.
+            *gammaislambda* :
+                constrain guessing and lapsing rate to have the same values
 
 
         :Example:
@@ -398,6 +400,13 @@ class BootstrapInference ( PsiInference ):
             conf = [conf]
         elif isinstance ( conf, int ):
             conf = [self.conf[conf]]
+
+        # if cut is a float, determine the index of the cut
+        if isinstance ( cut, float ):
+            try:
+                cut = list(self.cuts).index(cut)
+            except ValueErro:
+                raise ValueError, "cut is not in internal list of cuts which would be required for evaluation of BCa confidence intervals"
 
         if self.__expanded:
             ci = []
@@ -666,6 +675,8 @@ class BayesInference ( PsiInference ):
                 a dictionary to take parameters for plotting data. Currently supported are the arguments
                 'label', 'color', 'linestyle', 'linewidth' and 'marker'. These can all be set after creating
                 an Inference instance, too. By using the respective properties.
+            *gammaislambda* :
+                constrain guessing and lapsing rate to have the same values
 
         :Example:
         Use MCMC to estimate a psychometric function from some example data and derive posterior
@@ -1132,6 +1143,11 @@ class BayesInference ( PsiInference ):
                     out.append(p.prctile ( mcdata[:,k], 100*N.array(conf) ))
                 return N.array(out)
             else:
+                if isinstance ( cut, float ):
+                    try:
+                        cut = list(self.cuts).index(cut)
+                    except ValueError:
+                        raise ValueError, "cut is not in the list of requested cuts which would be necessary to determine cuts for slopes or thresholds"
                 return p.prctile ( mcdata[:,cut], 100*N.array(conf) )
         else:
             if param=="Rkd":
