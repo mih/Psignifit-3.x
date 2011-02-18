@@ -81,4 +81,10 @@ std::vector<double> getstart (
 		std::vector<double> *incr=NULL ///< increments to be used when constructing a simplex (output)
 		);    ///< Determine a good starting value using nested grid search
 
+std::vector<double> pymakegridpoints (
+		const PsiGrid& grid,                           ///< PsiGrid object on from which the grid points should be generated
+		std::vector<double> prm,                       ///< current setting of the parameter vector (irrelvant for initial call) should have length grid.dimension()
+		unsigned int pos                               ///< position of the currently modified parameter (should be 0 for initial call)
+		);    ///< generate new grid points based on a PsiGrid object and return them as a std::vector to be accessed from python
+
 #endif

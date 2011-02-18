@@ -111,6 +111,31 @@ void makegridpoints (
 	}
 }
 
+std::vector<double> pymakegridpoints (
+		const PsiGrid& grid,
+		std::vector<double> prm,
+		unsigned int pos
+		)
+{
+	std::list < std::vector<double> >gridpoints;
+	std::list < std::vector<double> >::const_iterator griditer;
+	makegridpoints ( grid, prm, pos, &gridpoints );
+	griditer = gridpoints.begin();
+	unsigned int nparams = griditer->size();
+	unsigned int npoints = gridpoints.size();
+	std::cerr << "Gridpoints:" << npoints << "\nParams:" << nparams << "\n";
+
+	std::vector<double> out ( nparams*npoints );
+	unsigned int i,j;
+
+	for (griditer=gridpoints.begin(),i=0; griditer!=gridpoints.end(); i+= nparams, griditer++) {
+		for (j=0; j<nparams; j++)
+			out[i+j] = griditer->at(j);
+	}
+	return out;
+}
+
+
 void evalgridpoints (
 		const std::list< std::vector<double> >& gridpoints,
 		std::list< std::vector<double> > *bestprm,
@@ -391,6 +416,11 @@ std::vector<double> getstart (
 	// Now transform the best parameter to the suitable format
 	const PsiCore *core = pmf->getCore();
 	double a ( bestprm.front()[0] ), b ( bestprm.front()[1] );
+	// std::cerr << "Raw starting values:";
+	// for (i=0; i<bestprm.front().size(); i++) {
+	// 	std::cerr << " " << bestprm.front()[i];
+	// }
+	// std::cerr << "\n";
 	b = 1./b;
 	a = -a*b;
 	std::vector<double> out = core->transform ( pmf->getNparams(), a, b );
