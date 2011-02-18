@@ -229,6 +229,8 @@ class BootstrapInference ( PsiInference ):
                 a dictionary to take parameters for plotting data. Currently supported are the arguments
                 'label', 'color', 'linestyle', 'linewidth' and 'marker'. These can all be set after creating
                 an Inference instance, too. By using the respective properties.
+            *gammaislambda* :
+                constrain guessing and lapsing rate to have the same values
 
 
         :Example:
@@ -666,6 +668,8 @@ class BayesInference ( PsiInference ):
                 a dictionary to take parameters for plotting data. Currently supported are the arguments
                 'label', 'color', 'linestyle', 'linewidth' and 'marker'. These can all be set after creating
                 an Inference instance, too. By using the respective properties.
+            *gammaislambda* :
+                constrain guessing and lapsing rate to have the same values
 
         :Example:
         Use MCMC to estimate a psychometric function from some example data and derive posterior
