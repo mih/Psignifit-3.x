@@ -50,4 +50,6 @@ setp ( ax, xlim=(x0-.5,10+.5), ylim=(.4,1.1) )
 
 # savefig ( "psignifit_logo.svg" )
 savefig ( "psignifit_logo.png" )
+savefig ( "psignifit_logo.eps" )
+savefig ( "psignifit_logo.pdf" )
 show()
