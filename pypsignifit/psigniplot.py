@@ -983,7 +983,7 @@ def plotMultiplePMFs ( *InferenceObjects, **kwargs ):
     Plot multiple psychometric functions
 
     :Parameters:
-        *InferenceObjectsJ* :
+        *InferenceObjects* :
             The Inference Objects that should be plotted. If the inference objects contain
             information about themselves, this information is used.
         *ax* :
