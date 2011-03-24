@@ -1,3 +1,8 @@
+2011-03-24
+
+* Bugfix: command line interface checks ALL output for NaN
+* A couple of typos and documentations updates
+
 2011-03-11
 
 * Bugfix: cut can be a float
