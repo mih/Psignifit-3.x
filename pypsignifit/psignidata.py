@@ -1683,6 +1683,7 @@ class BayesInference ( PsiInference ):
             # Solve regularized problem
             # (A.T*A+lambda*I) * X = A.T
             fisherIinv = N.linalg.solve ( fisherI.T*fisherI+0.01*N.eye(fisherI.shape[0]), fisherI.T )
+            self.approx = "laplace"
         except N.linalg.LinAlgError:
             # It seems as if the regularized fisher matrix can not be inverted
             # We directly get an estimate form bootstrap
@@ -1691,6 +1692,7 @@ class BayesInference ( PsiInference ):
             # Perform bootstrap without full conversion of data
             cuts = sfu.get_cuts(self.cuts)
             bs_list = sft.bootstrap(self.nsamples, self._data, self._pmf, cuts, start, True, True)
+            self.approx = "bootstrap"
             return N.array ( [ bs_list.getStd(i) for i in xrange ( self.nparams )] )
         cond = abs(fisherI.A).sum(1).max() * abs(fisherIinv.A).sum(1).max()
         # print "Condition of Fisher Information Matrix:",cond
@@ -1705,6 +1707,7 @@ class BayesInference ( PsiInference ):
                 fisherII = N.matrix(interface.mapestimate(localdata,start=None,**self.model)[1])
                 try:
                     fisherIIinv = N.linalg.solve ( fisherII.T*fisherII+0.01*N.eye(fisherII.shape[0]), fisherII.T )
+                    self.approx = "laplace"
                 except N.linalg.LinAlgError:
                     continue
                 cond = abs(fisherII.A).sum(1).max() * abs(fisherIIinv.A).sum(1).max()
@@ -1733,6 +1736,7 @@ class BayesInference ( PsiInference ):
             # Perform bootstrap without full conversion of data
             cuts = sfu.get_cuts(self.cuts)
             bs_list = sft.bootstrap(self.nsamples, self._data, self._pmf, cuts, start, True, True)
+            self.approx = "bootstrap"
             a = N.array ( [ bs_list.getStd(i) for i in xrange ( self.nparams )] )
             # print "a_boots =",a
 
