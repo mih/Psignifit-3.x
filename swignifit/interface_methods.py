@@ -128,9 +128,11 @@ def mcmc( data, start=None, nsamples=10000, nafc=2, sigmoid='logistic',
         posterior_predictive_Rpd[i] = post.getppRpd(i)
         posterior_predictive_Rkd[i] = post.getppRkd(i)
 
+    accept_rate = post.get_accept()
+
     return (estimates, deviance, posterior_predictive_data,
         posterior_predictive_deviances, posterior_predictive_Rpd,
-        posterior_predictive_Rkd, logposterior_ratios)
+        posterior_predictive_Rkd, logposterior_ratios, accept_rate)
 
 def mapestimate ( data, nafc=2, sigmoid='logistic', core='ab', priors=None,
         cuts = None, start=None, gammaislambda=False):

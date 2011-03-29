@@ -119,6 +119,7 @@ void MetropolisHastings::setStepSize ( const std::vector<double>& sizes ) {
 MCMCList MetropolisHastings::sample ( unsigned int N ) {
 	const PsiData * data ( getData() );
 	const PsiPsychometric * model ( getModel() );
+	accept = 0;
 	MCMCList out ( N, model->getNparams(), data->getNblocks() );
 	PsiData *localdata = new PsiData ( data->getIntensities(), data->getNtrials(), data->getNcorrect(), data->getNalternatives() );
 	std::vector< PsiData* > reduceddata (data->getNblocks() );
@@ -189,6 +190,7 @@ MCMCList MetropolisHastings::sample ( unsigned int N ) {
 #ifdef DEBUG_MCMC
 	std::cerr << "Acceptance rate: " << double(accept)/N << "\n";
 #endif
+	out.set_accept_rate(double(accept)/N);
 
 	delete localdata;
 	for ( k=0; k<reduceddata.size(); k++ ) {
