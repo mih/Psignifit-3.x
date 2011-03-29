@@ -128,7 +128,7 @@ def mcmc( data, start=None, nsamples=10000, nafc=2, sigmoid='logistic',
         posterior_predictive_Rpd[i] = post.getppRpd(i)
         posterior_predictive_Rkd[i] = post.getppRkd(i)
 
-    accept_rate = post.get_accept()
+    accept_rate = post.get_accept_rate()
 
     return (estimates, deviance, posterior_predictive_data,
         posterior_predictive_deviances, posterior_predictive_Rpd,
