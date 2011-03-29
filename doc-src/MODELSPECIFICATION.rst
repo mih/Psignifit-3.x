@@ -6,12 +6,12 @@ Typically, we want to use psignifit to fit data from a psychophysical experiment
 can come from different experimental designs and can display different shapes. These points are
 not directly dependent on the actual fitting process.
 
-Specifiing the experimental design
+Specifying the experimental design
 ==================================
 
-If nothing else is requested, psignifit will assume that the data come from a 2 alternatives
-forced choice experiment. That means, that on each trial two stimuli were presented and the
-observer knows that one and only one of these stimuli was the target stimulus.
+If nothing else is requested, psignifit will assume that the data come from a 2 alternative
+forced choice experiment (AFC). That means, that on each trial two stimuli were presented and the
+observer knows that one and only one of these stimuli was the target stimulus. So, in a contrast detection task  for luminances only the target stimulus would have contained a different luminance.
 
 For all other situations you should create your Inference object with the keyword 'nafc' set to the number of stimulus alternatives that were presented.
 
@@ -22,12 +22,12 @@ If you are running an experiment that doesn't quite fit the classical AFC design
 
 Two aspects that you will want to think about are:
 	- How many alternatives are you presenting?
-	- Is the standard stimulus the smallests of the comparisons?
+	- Is the standard stimulus the smallest of the comparisons?
  
 
 One modification of the standard acquisition procedure could be to present only one
 stimulus per trial. The observers might then have to indicate whether the target stimulus
-was presented or not (typically called yes-no task).If your standard is in the middle of the stimulus intensities you will have to change your approach. For example, in the example (ADD LINK) the stimulus intensities of the test stimulus vary symmetrically around the standard intensity. In this case you have to adjust 'nafc'. 
+was presented or not (typically called yes-no task).If your standard is in the middle of the stimulus intensities you will have to change your approach. For example, in the discrimination example (ADD LINK) the stimulus intensities of the test stimulus vary symmetrically around the standard intensity. In this case you have to adjust 'nafc'. 
 In all these experiments we will record which response an observer chose and we will then
 fit the number of "stimulus present", "stimulus left", "stimulus longer" responses (or
 whatever is suitable in the present context). We will summarize these designs as "yes-no
@@ -45,19 +45,30 @@ keyword 'nafc' to 1. Note that in this case you also need to specify priors for 
 instead of the three parameters in an nAFC experiment. 
 
 The easiest way of deciding which 'nafc' you want to set is using the following approach:
-Psychometric function goes from		'nafc'
-	- PF from 0 to 1 -> NAFC = 1
-	- PF from 0.5 to 1 -> NAFC = 2
-	- PF from 0.33 to 1 -> NAFC = 3
-	- PF from 0.25 to 1 -> NAFC = 4
+	- PF from 0 to 1 -> nafc = 1
+	- PF from 0.5 to 1 -> nafc = 2
+	- PF from 0.33 to 1 -> nafc = 3
+	- PF from 0.25 to 1 -> nafc = 4
 	- etc.
 
 Setting the keyword 'nafc' to a value of 2 or larger results in a fixed guessing rate of 1/nafc.
 
 
 
-A note on yes-no experiments on detection
------------------------------------------
+A note on non-Forced Choice designs
+-------------------------------------
+
+Depending on your experimental design you are making/can make certain assumptions about your data. For a classical(in a signal detection sense) Forced Choice design you are making the following assumptions:
+ADD ASSUMPTIONS
+	- 
+	- 
+
+
+Whereas with a non-Forced Choice design you are violating some of these assumptions, namely:
+	- 
+	- 
+
+So while you are able to use psignifit with both Forced Choice and non-Forced Choice designs, keep in mind that you will have to approach your results differently (this is especially important for the interpretation of non-stationarities which we talk about in the ADD LINK & SECTION!) 
 
 In a detection experiment, we typically have two types of trials. In one case a target
 stimulus is presented, in the other case, no target stimulus is presented. In terms of signal
@@ -84,12 +95,12 @@ follow in a yes-no task.
    really uses this strategy, we should check that the false alarm rate decreases with
    the hit rate.
 
-Signal detection theory also offers a number of criterion free discriminability parameters,
+Furthermore, Signal Detection Theory also offers a number of criterion free discriminability parameters,
 like area under the ROC curve and the famous d' index. However, these indices can not generally
 be assumed to have binomial variance (or anything similar to that). Therefore, psignifit
 does not attempt to fit such data.
 
-Specifiing the shape of the psychometric function
+Specifying the shape of the psychometric function
 =================================================
 
 A variety of different parametric shapes for psychometric functions have been used. In probit
@@ -135,7 +146,7 @@ psychometric function shapes. For instance, the lower right plot is a combinatio
 function is the cumulative distribution function of the weibull distribution. The combination of logistic sigmoid and ab core corresponds to
 the logistic function that was the default setting in earlier versions of psignifit. The advantage of separating sigmoid and core is that
 we can now use a different core object, to specify that a function should be fitted on different axes (e.g. logarithmic instead of linear) or
-in a different parameterization. Also note, that the figure only presents two sigmoids and two cores. This results in two different function families
+in a different parametrization. Also note, that the figure only presents two sigmoids and two cores. This results in two different function families
 for the psychometric function. Psignifit includes 6 different sigmoids and 5 different cores, resulting in 30 different function families.
 
 The following two sections describe the sigmoids and cores in more detail. Then finally, there is a section about
@@ -189,7 +200,7 @@ transformations. Typically, these will be needed to define a weibull function.
 ab
     the ab-core corresponds to the transformation that transforms an arbitrary normal
     distribution to the standard normal distribution. It is given by :math:`g(x,a,b) = \frac{x-a}{b}`.
-    For all symmetric sigmoids, this corresponds to the classical psignifit parameterization.
+    For all symmetric sigmoids, this corresponds to the classical psignifit parametrization.
 mw
     the mw-core is similar to the ab-core in that it is a linear transformation, too.
     However, the parameters now have a useful meaning. The first parameter is the "midpoint"
@@ -205,7 +216,7 @@ mw
 linear
     another linear transformation of the input intensity: here, we simply have :math:`g(x,a,b) = a*x+b`.
     Although this is the most direct way to implement an (affine) linear transform of the
-    input it is at the same time the least intepretable. Therefore, we recommend to avoid
+    input it is at the same time the least interpretable. Therefore, we recommend to avoid
     this core.
 log
     similar to the linear core but on logarithmic coordinates. This is particularly useful
@@ -221,7 +232,7 @@ weibull
 poly
     While the weibull and the log core perform at the heart a fit on a logarithmic axis, this
     core performs something clearly different: :math:`g(x,a,b) = (x/a)^b`. In combination with a exponential
-    sigmoid, this gives the parameterization used in the classical psignifit version.
+    sigmoid, this gives the parametrization used in the classical psignifit version.
 
 Combining sigmoids and cores
 ----------------------------
@@ -234,10 +245,10 @@ Logistic function
 .................
 
 In this case, we combine the 'logistic' sigmoid with one of the linear cores (ab,mw,linear). Depending
-on the core used, this results in different parameterizations.
+on the core used, this results in different parametrizations.
 
 logistic + ab
-    This is the standard parameterization of the old psignifit version that was based on bootstrapping.
+    This is the standard parametrization of the old psignifit version that was based on bootstrapping.
     :math:`\alpha` can be interpreted as the 75% threshold and :math:`\beta` as a scaling factor that is inversely
     related to the slope of the psychometric function.
     Here we obtain:
@@ -247,7 +258,7 @@ logistic + ab
     F ( x; \alpha, \beta ) = \frac{1}{1+\exp( -\frac{x-\alpha}{\beta} ) }.
 
 logistic + mw
-    This parameterization was used in [Kuss_et_al_2005]_ for bayesian inference on psychometric functions.
+    This parametrization was used in [Kuss_et_al_2005]_ for bayesian inference on psychometric functions.
     It reads:
 
 .. math::
@@ -259,8 +270,8 @@ logistic + mw
     where :math:`z(\alpha) = 2\log(1/\alpha -1)`. This allows :math:`m` to be interpreted as the 75% threshold and :math:`w` as the
     width of the interval in which :math:`F(x;m,w)` rises from :math:`alpha` to :math:`1-alpha`. A typical choice for :math:`alpha` is 0.1.
 logistic + linear
-    This parameterization corresponds to the classical parameterization used in the literature about
-    generalized linear models. Here, the psychometric function is modeled as
+    This parametrization corresponds to the classical parametrization used in the literature about
+    generalized linear models. Here, the psychometric function is modelled as
 
 .. math::
 
@@ -268,23 +279,23 @@ logistic + linear
 
 ..
 
-    This parameterization does not allow a psychophysically meaningful interpretation of the parameters.
+    This parametrization does not allow a psychophysically meaningful interpretation of the parameters.
 
 Cumulative Gaussian
 ...................
 
 The cumulative gaussian is obtained by combining the gauss sigmoid with one of the linear cores (ab,mw,linear).
-The parameterizations are precisely the same as for the logistic function with one exception:
-The scaling factor z(alpha) for the mw parameterization is :math:`z(\alpha) = \Phi^{-1}(1-\alpha)-\Phi^{-1}(\alpha)`, where :math:`\Phi`
+The parametrizations are precisely the same as for the logistic function with one exception:
+The scaling factor z(alpha) for the mw parametrization is :math:`z(\alpha) = \Phi^{-1}(1-\alpha)-\Phi^{-1}(\alpha)`, where :math:`\Phi`
 is the inverse of the the cumulative gaussian.
 
 Cumulative Gumbel
 .................
 
-Also for the cumulative Gumbel sigmoids, the parameterizations are similar to the logistic function. However,
-the Gumbel distribution is skewed. This implies that the alpha parameter of the ab parameterization can
-*not* be interpreted as a 75% threshold. For the mw parameterization this is solved in a different way.
-The lgumbel + mw function is parameterized as follows:
+Also for the cumulative Gumbel sigmoids, the parametrizations are similar to the logistic function. However,
+the Gumbel distribution is skewed. This implies that the alpha parameter of the ab parametrization can
+*not* be interpreted as a 75% threshold. For the mw parametrization this is solved in a different way.
+The lgumbel + mw function is parametrized as follows:
 
 .. math::
 
@@ -295,7 +306,7 @@ where :math:`z(\alpha) = \log(-\log(\alpha))`.
 Weibull
 .......
 
-There are a number of ways to parameterize the Weibull function. 
+There are a number of ways to parametrize the Weibull function. 
 
 exponential + poly
     The classical way is probably
@@ -309,7 +320,7 @@ exponential + poly
     which is implemented using the combination of an exponential-sigmoid and a poly-core.
 gumbel + weibull
     The Weibull function is equivalent to a Gumbel sigmoid on logarithmic coordinates. Thus,
-    [Kuss_et_al_2005]_ suggested a parameterization in terms of the 75% threshold m and the slope
+    [Kuss_et_al_2005]_ suggested a parametrization in terms of the 75% threshold m and the slope
     at the threshold s. This results in the following equivalent form
 
 .. math::
@@ -318,7 +329,7 @@ gumbel + weibull
 
 gumbel + log
     As the Weibull is a Gumbel fitted on log coordinates, a Weibull can also be obtained
-    using a gumbel sigmoid and the log-core, which results in the following parameterization
+    using a gumbel sigmoid and the log-core, which results in the following parametrization
 
 .. math::
 
