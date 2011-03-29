@@ -86,7 +86,7 @@ psipy_vs_swignifit_time: psipy swignifit
 	PYTHONPATH=. $(PYTHON) tests/psipy_vs_swignifit_time.py
 
 python-version:
-	if git rev-parse &> /dev/null ; then \
+	if git rev-parse > /dev/null 2>&1 ; then \
 		echo "version = '"$(GIT_DESCRIPTION)"'" > $(PYPSIGNIFIT_VERSION); \
 	fi
 
@@ -127,7 +127,7 @@ cli-uninstall:
 	rm $(CLI_INSTALL)/psignifit-mapestimate
 
 cli-version:
-	if git rev-parse &> /dev/null ; then \
+	if git rev-parse > /dev/null 2>&1 ; then \
 		echo "#ifndef CLI_VERSION_H" > $(CLI_VERSION_HEADER) ; \
 		echo "#define CLI_VERSION_H" >> $(CLI_VERSION_HEADER) ; \
 		echo "#define VERSION \""$(GIT_DESCRIPTION)"\"" >> $(CLI_VERSION_HEADER) ; \
@@ -193,7 +193,7 @@ pypsignifit-test:
 #################### MPSIGNIFIT COMMANDS ################### {{{
 
 mpsignifit-version:
-	if git rev-parse &> /dev/null ; then \
+	if git rev-parse > /dev/null 2>&1 ; then \
 		echo "function psignifit_version()" > $(MPSIGNIFIT_VERSION) ; \
 		echo "disp('"$(GIT_DESCRIPTION)"')" >> $(MPSIGNIFIT_VERSION) ; \
 	fi
