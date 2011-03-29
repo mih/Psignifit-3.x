@@ -110,7 +110,7 @@ psipp-test:
 # }}}
 
 ################### CLI COMMANDS ###################### {{{
-cli-install:  cli-version
+cli-install:  cli-version cli-build
 	if [ -d $(CLI_INSTALL) ]; then echo $(CLI_INSTALL) " exists adding files"; else	mkdir $(CLI_INSTALL); echo ""; echo ""; echo ""; echo "WARNING: I had to create " $(CLI_INSTALL) "you will most probably have to add it to your PATH"; echo ""; echo ""; echo ""; fi
 	cd $(CLI_SRC) && cp psignifit-mcmc psignifit-diagnostics psignifit-bootstrap psignifit-mapestimate $(CLI_INSTALL)
 cli-build: cli-version
