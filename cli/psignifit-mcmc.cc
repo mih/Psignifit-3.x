@@ -79,7 +79,7 @@ int main ( int argc, char ** argv ) {
 		pilotfile.getline ( sline, 80 );
 		nparams = 0;
 		i = std::string ( sline ).find('.');
-		while ( i!=std::string::npos ) {
+		while ( i!=int(std::string::npos) ) {
 			nparams ++;
 			i = std::string ( sline ).find ('.',i+1);
 		}
