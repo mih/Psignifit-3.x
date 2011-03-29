@@ -813,7 +813,7 @@ class BayesInference ( PsiInference ):
 
         if start is None:
             start = self.mapestimate
-        chain,deviance,ppdata,ppdeviances,ppRpd,ppRkd,logpostratios = interface.mcmc ( self.data, start, Nsamples, stepwidths=self._steps, **self.model )
+        chain,deviance,ppdata,ppdeviances,ppRpd,ppRkd,logpostratios,accept_rate = interface.mcmc ( self.data, start, Nsamples, stepwidths=self._steps, **self.model )
         self.__mcmc_chains.append(N.array(chain))
         self.__mcmc_deviances.append(N.array(deviance))
         self.__mcmc_posterior_predictives.append(N.array(ppdata))
@@ -871,7 +871,7 @@ class BayesInference ( PsiInference ):
         elif isinstance (Nsamples,int):
             start = self.__mcmc_chains[chain][start,:]
 
-        mcchain,deviance,ppdata,ppdeviances,ppRpd,ppRkd,logpostratios = interface.mcmc ( self.data, start, Nsamples, stepwidths=self._steps, **self.model )
+        mcchain,deviance,ppdata,ppdeviances,ppRpd,ppRkd,logpostratios,accept_rate = interface.mcmc ( self.data, start, Nsamples, stepwidths=self._steps, **self.model )
         self.__mcmc_chains[chain] = N.array(mcchain)
         self.__mcmc_deviances[chain] = N.array(deviance)
         self.__mcmc_posterior_predictives[chain] = N.array(ppdata)
@@ -1570,8 +1570,11 @@ class BayesInference ( PsiInference ):
         oldburnin = 0
         oldthin   = 1
         oldnsamples = NN
+        self.debug_samples = []
         for n in xrange ( noptimizations ):
-            samples,deviances,ppdata,ppdeviances,ppRpd,ppRkd,logpostratios = interface.mcmc ( self.data, self.mapestimate, NN, stepwidths=a, **self.model )
+            samples,deviances,ppdata,ppdeviances,ppRpd,ppRkd,logpostratios,accept_rate = interface.mcmc ( self.data, self.mapestimate, NN, stepwidths=a, **self.model )
+            print accept_rate
+            self.debug_samples.append ( samples )
 
             # Check all desired thresholds
             for q in self.conf:
