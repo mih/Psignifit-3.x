@@ -677,6 +677,8 @@ class BayesInference ( PsiInference ):
                 an Inference instance, too. By using the respective properties.
             *gammaislambda* :
                 constrain guessing and lapsing rate to have the same values
+            *verbose* :
+                print status messages
 
         :Example:
         Use MCMC to estimate a psychometric function from some example data and derive posterior
