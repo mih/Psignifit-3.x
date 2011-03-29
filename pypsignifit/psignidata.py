@@ -814,6 +814,7 @@ class BayesInference ( PsiInference ):
         if start is None:
             start = self.mapestimate
         chain,deviance,ppdata,ppdeviances,ppRpd,ppRkd,logpostratios,accept_rate = interface.mcmc ( self.data, start, Nsamples, stepwidths=self._steps, **self.model )
+        print "Acceptance:",accept_rate
         self.__mcmc_chains.append(N.array(chain))
         self.__mcmc_deviances.append(N.array(deviance))
         self.__mcmc_posterior_predictives.append(N.array(ppdata))
@@ -872,6 +873,7 @@ class BayesInference ( PsiInference ):
             start = self.__mcmc_chains[chain][start,:]
 
         mcchain,deviance,ppdata,ppdeviances,ppRpd,ppRkd,logpostratios,accept_rate = interface.mcmc ( self.data, start, Nsamples, stepwidths=self._steps, **self.model )
+        print "Acceptance:",accept_rate
         self.__mcmc_chains[chain] = N.array(mcchain)
         self.__mcmc_deviances[chain] = N.array(deviance)
         self.__mcmc_posterior_predictives[chain] = N.array(ppdata)
@@ -1573,7 +1575,7 @@ class BayesInference ( PsiInference ):
         self.debug_samples = []
         for n in xrange ( noptimizations ):
             samples,deviances,ppdata,ppdeviances,ppRpd,ppRkd,logpostratios,accept_rate = interface.mcmc ( self.data, self.mapestimate, NN, stepwidths=a, **self.model )
-            print accept_rate
+            print "Acceptance:",accept_rate
             self.debug_samples.append ( samples )
 
             # Check all desired thresholds
@@ -1639,7 +1641,9 @@ class BayesInference ( PsiInference ):
         oldnsamples = NN
 
         for n in xrange ( noptimizations ):
-            pilot = interface.mcmc ( self.data, self.mapestimate, self.nsamples, stepwidths=pilot, sampler=self._sampler, **self.model )[0]
+            results = interface.mcmc ( self.data, self.mapestimate, self.nsamples, stepwidths=pilot, sampler=self._sampler, **self.model )
+            pilot,accept_rate = results[0:len(results)-1]
+            print n,"Acceptance:",accept_rate
 
             # Make sure the chains have converged
             p1,p2 = pilot[0.3*self.nsamples:0.6*self.nsamples,:],pilot[0.6*self.nsamples:,:]
