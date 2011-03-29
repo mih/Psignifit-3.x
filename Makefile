@@ -70,7 +70,7 @@ clean-python: psipy-clean swignifit-clean
 
 python-doc: $(DOCFILES) $(PYTHONFILES) python-build
 	mkdir -p $(SPHINX_DOCOUT)/$(EPYDOC_DCOOUT)
-	epydoc -o $(SPHINX_DOCOUT)/$(EPYDOC_DCOOUT) $(EPYDOC_TARGET)
+	# epydoc -o $(SPHINX_DOCOUT)/$(EPYDOC_DCOOUT) $(EPYDOC_TARGET)
 	PYTHONPATH=.:doc-src sphinx-build doc-src $(SPHINX_DOCOUT)
 
 clean-python-doc:
