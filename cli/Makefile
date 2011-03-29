@@ -1,6 +1,10 @@
 CC=g++
 CFLAGS=-pg -ggdb -Wall
 LFLAGS=-lm -pg
+TODAY=`date +%d-%m-%G`
+LONGTODAY=`date +%G-%m-%d`
+GIT_DESCRIPTION=`git describe --tags`
+CLI_VERSION_HEADER=cli_version.h
 
 BUILD=build
 SRC=../src
@@ -10,10 +14,18 @@ OBJECTS= $(addprefix $(BUILD)/, core.o data.o optimizer.o psychometric.o sigmoid
 CLI_H= cli.h cli_utilities.h
 CLI_O= $(addprefix $(BUILD)/, cli.o cli_utilities.o)
 
-compile: psignifit-mapestimate psignifit-bootstrap psignifit-mcmc psignifit-diagnostics
+compile: cli-version psignifit-mapestimate psignifit-bootstrap psignifit-mcmc psignifit-diagnostics
 
 clean:
 	rm -r $(BUILD)
+
+cli-version:
+	if git rev-parse &> /dev/null ; then \
+		echo "#ifndef CLI_VERSION_H" > $(CLI_VERSION_HEADER) ; \
+		echo "#define CLI_VERSION_H" >> $(CLI_VERSION_HEADER) ; \
+		echo "#define VERSION \""$(GIT_DESCRIPTION)"\"" >> $(CLI_VERSION_HEADER) ; \
+		echo "#endif" >> $(CLI_VERSION_HEADER) ; \
+	fi
 
 psignifit-mapestimate: $(OBJECTS) $(HEADERS) $(BUILD)/psignifit-mapestimate.o $(CLI_H) $(CLI_O)
 	$(CC) -o psignifit-mapestimate $(OBJECTS) $(BUILD)/psignifit-mapestimate.o $(CLI_O) $(LFLAGS)
