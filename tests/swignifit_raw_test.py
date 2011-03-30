@@ -136,6 +136,7 @@ class TestPriors(ut.TestCase):
         p.rand()
         p.clone()
         p2 = prior(p)
+        p.get_code()
 
     def test_beta_prior(self):
         self.all_methods(sfr.BetaPrior)

@@ -27,6 +27,7 @@ class PsiPrior
 		virtual double mean ( void ) const { return 0; } ///< return the mean
 		virtual double std  ( void ) const { return 1e5; } ///< return the standard deviation
 		virtual void shrink ( double xmin, double xmax ) { throw NotImplementedError(); } ///< shrink the prior if it is broader than the range between xmin and xmax
+		virtual int get_code(void) const { throw NotImplementedError(); } /// return the typcode of this prior
 };
 
 /** \brief Uniform prior on an interval
@@ -54,6 +55,7 @@ class UniformPrior : public PsiPrior
 		double mean ( void ) const { return 0.5*(lower+upper); }  ///< return the mean
 		double std  ( void ) const { return sqrt((upper-lower)*(upper-lower)/12); }
 		void shrink ( double xmin, double xmax ) {}         ////< shrinking is not really defined in this case ~> do not shrink
+		int get_code(void) const { return 0; } /// return the typcode of this prior
 };
 
 /** \brief gaussian (normal) prior
@@ -88,6 +90,7 @@ class GaussPrior : public PsiPrior
 		double mean ( void ) const { return mu; } ///< mean
 		double std  ( void ) const { return sg; } ///< return standard deviation
 		void shrink ( double xmin, double xmax );
+		int get_code(void) const { return 1; } /// return the typcode of this prior
 };
 
 /** \brief beta prior
@@ -124,6 +127,7 @@ class BetaPrior : public PsiPrior
 		double mean ( void ) const { return alpha/(alpha+beta); }
 		double std  ( void ) const { return sqrt ( alpha*beta/((alpha+beta)*(alpha+beta)*(alpha+beta+1)) ); }
 		void shrink ( double xmin, double xmax );
+		int get_code(void) const { return 2; } /// return the typcode of this prior
 };
 
 /** \brief gamma prior
@@ -155,6 +159,7 @@ class GammaPrior : public PsiPrior
 		virtual double mean ( void ) const { return k*theta; }
 		double std  ( void ) const { return sqrt ( k*theta*theta ); }
 		void shrink ( double xmin, double xmax );
+		int get_code(void) const { return 3; } /// return the typcode of this prior
 };
 
 /** \brief negative gamma prior
@@ -177,6 +182,7 @@ class nGammaPrior : public GammaPrior
         PsiPrior * clone ( void ) const { return new nGammaPrior(*this); }
 		double mean ( void ) const { return -GammaPrior::mean(); }
 		void shrink ( double xmin, double xmax );
+		int get_code(void) const { return 4; } /// return the typcode of this prior
 };
 
 #endif
