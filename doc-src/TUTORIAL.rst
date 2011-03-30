@@ -3,17 +3,17 @@ A quick start to pypsignifit
 ============================
 
 This document presents two example analyses of psychometric function data using pypsignifit.
-The first example explains how to fit a psychometric function using constrained maximum
-likelihood as described in the papers by [Wichmann_and_Hill_2001a]_, [Wichmann_and_Hill_2001b]_.
-The second example deals with a bayesian approach to fitting a psychometric function. Parts of
+:ref:`Example 1 <Example 1>` explains how to fit a psychometric function using constrained maximum
+likelihood as described in the papers by [Wichmann_and_Hill_2001a]_, [Wichmann_and_Hill_2001b]_. In its two parts we show standard workflows for data acquired (1A) in single sessions and data averaged across sessions (1B). For more information about these prerequisites, see the section about 
+`specifying your experimental design <http://psignifit.sourceforge.net/MODELSPECIFICATION.html#specifiing-the-experimental-design>`_.
+:ref:`Example 2 <Example 2>` deals with a bayesian approach to fitting a psychometric function. Parts of
 the ideas for this can be found in the paper by [Kuss_et_al_2005]_, however most of this example is new
 at the time of this writing.
 
 To get you starting with pypsignifit, open a python interpreter and type the following:
-
->>> from pypsignifit import *
->>> dir()
-['BayesInference', 'BootstrapInference', 'ConvergenceMCMC', 'GInitiallyUnowned', 'GoodnessOfFit', 'ParameterPlot', 'ThresholdPlot', '__builtins__', '__doc__', '__name__', 'show']
+>>> import numpy as np>>> import pypsignifit as psi
+>>> dir(psi)
+['BayesInference', 'BootstrapInference', 'ConvergenceMCMC', 'GoodnessOfFit', 'ParameterPlot', 'ThresholdPlot', '__builtins__', '__doc__', '__docformat__', '__file__', '__name__', '__package__', '__path__', '__test__', '__version__', 'interface', 'plotInfluential', 'plotMultiplePMFs', 'plotSensitivity', 'psignidata', 'psignierrors', 'psigniplot', 'pygibbsit', 'set_seed', 'show', 'subprocess', 'sys', 'version']
 
 As you see, there is a number of functions and data types imported in the current workspace.
 To view documentation about one of these functions, you can use the online python help by typing
@@ -23,145 +23,154 @@ help ( function name ). For instance,
 
 will show the documentation of the BayesInference object class.
 
-We will now create an example data set for which we want to estimate a psychometric function.
-We assume that the data are from a 2AFC task
 
->>> nafc = 2
->>> stimulus_intensities = [0.0,2.0,4.0,6.0,8.0,10.0]
->>> number_of_correct = [34,32,40,48,50,48]
->>> number_of_trials  = [50]*len(stimulus_intensities)
->>> data = zip(stimulus_intensities,number_of_correct,number_of_trials)
+In our examples we will guide you through a standard workflow, including
+* Parameter Estimation with BootstrapInference
+* Bootstrap Sampling to assess Goodness of Fit Statistics
+* Sensitivity Analysis for adaption of confidence intervals (especially required for smaller datasets)
 
-The last line creates a list of tuples of the form (stimulus intensity, number of correct responses,
-number of trials). Each tuple summarizes data from a single experimental block. We will assume that
-the data have been acquired in the same sequence in which they are entered, i.e. in the sequence
-of ascending stimulus intensity.
 
-Example 1: Constrained Maximum Likelihood and Bootstrap Inference
-=================================================================
+.. _Example 1:
+
+Example 1A: Constrained Maximum Likelihood and Bootstrap Inference for Data from single sessions
+================================================================================================
+
 
 Constrained maximum likelihood provides a way to estimate parameters from a psychometric function
 using maximum likelihood estimation while imposing constraints on some of the parameters.
-Typically, the psychometric function is parameterized as
 
-.. math::
+Parameters:
 
-    \Psi (x) = \gamma + (1-\gamma-\lambda) F ( x | a,b ),
+* :math:`\gamma` is the guessing rate, or the lower asymptote
+* :math:`\lambda` is the lapsing rate, or the upper asymptote
+* :math:`a` and :math:`b` are parameters governing the shape of the sigmoid function and can be transformed into threshold and slope
+* :math:`F` is a sigmoid function. Here we try to fit the data to a logistic function which is the default setting. 
 
-where :math:`\gamma` is the guessing rate, :math:`\lambda` is the lapsing rate, :math:`F` is a sigmoid function and :math:`a` and
-:math:`b` are parameters governing the shape of the sigmoid function. In this example, we will try to fit
-the above data with a logistic function, using the same parameterization as in the original
-psignifit software [Hill_2001]_:
-
-.. math::
-
-    F ( x | a,b ) = \frac{1}{1 + \exp ( - (x-a)/b ) }.
-
-This is the default setting.
+For more information on different psychometric functions see `specifying the shape of the psychometric function <http://psignifit.sourceforge.net/MODELSPECIFICATION.html#specifiing-the-shape-of-the-psychometric-function>`_. 
 
 For a 2AFC task, the guessing rate is fixed at :math:`\gamma=0.5`. Thus, our model has three free parameters:
 :math:`a`, :math:`b`, and :math:`\lambda`. We want to keep :math:`a` and :math:`b` unconstrained and restrict :math:`\lambda` to values between
 0 and 0.1:
 
->>> constraints = ( 'unconstrained', 'unconstrained', 'Uniform(0,0.1)' )
+>>> nafc = 2
+>>> constraints = ( 'unconstrained', 'unconstrained', 'Beta(2,20)' )
+
+We will now create an example data set for which we want to estimate a psychometric function.
+We assume that the data are from a 2AFC task acquired in three sessions which include five blocks each. 
+
+>>> num_of_sess = 3>>> num_of_block= 5>>> stimulus_intensities = [0.02058733,  0.07901082,  0.15381762,  0.25508501,  0.29625966]>>> num_of_trials = [50.] * num_of_block>>> percent_correct_1 = [0.5 ,  0.84,  0.96,  1.,   1.]>>> percent_correct_2 = [0.64,  0.92,  1.  ,  0.96, 1.]>>> percent_correct_3 = [0.58,  0.76,  0.98,  1.,   1.]
+>>> data_single_sessions = np.c_[ stimulus_intensities * num_of_sess, percent_corect_1 + percent_corect_2 + percent_corect_3, n * num_of_sess ]
+
+The last line concatenates the data into numpy arrays of the form (stimulus intensity, number of correct responses,
+number of trials). Each array summarizes data from a single experimental block. We will assume that 
+the data have been acquired in the same sequence in which they are entered, i.e. in the sequence
+of ascending stimulus intensity comparable to classical signal detection tasks [Blackwell_1952]_.
 
 Now we can fit the psychometric function
 
->>> B = BootstrapInference ( data, priors=constraints, nafc=nafc )
->>> print B
-< BootstrapInference object with 6 blocks and 0 samples >
->>> B.estimate
-array([ 2.7517686 ,  1.45723724,  0.01555636])
->>> B.deviance
-8.071331367479198
+>>> B_single_sessions = psi.BootstrapInference ( data_single_sessions, priors=constraints, nafc=nafc )
 
-Here, we could have omitted the argument nafc=nafc in the call to BootstrapInference(). All inference
+We could have omitted the argument nafc=nafc in the call to BootstrapInference(). All inference
 functions assume a 2AFC task by default.
 
-The code snippet shows, that :math:`a` is approximately 2.75, :math:`b` is approximately 1.46, and :math:`\lambda` is approximately 0.016.
-How well do these parameters describe the data? The deviance is a measure that describes the goodness of fit for a model. The deviance is approximately 8.07. Is this a
-high or a low value? To know this, we have to draw a number of bootstrap samples:
+B_single_sessions is now a Bootstrap Inference Object, but we haven't drawn any samples, yet.
 
->>> B.sample()
->>> print B
-< BootstrapInference object with 6 blocks and 2000 samples >
+>>> print B_single_sessions
+< BootstrapInference object with 15 blocks and 0 samples >
 
-We see that B has changed: instead of 0 samples, we now have 2000 parametric bootstrap samples
-in the object. We can use these samples to assess the goodness of fit
+>>> B_single_sessions.estimate
+array([ 0.06093954,  0.02290658,  0.00974794])
 
->>> GoodnessOfFit(B)
+The code snippet shows, that:
 
-in an interactive session, this should open a window that looks like the following. (In some
+*  :math:`a` is approximately 0.0609
+*  :math:`b` is approximately 0.0229
+*  :math:`\lambda` is approximately 0.0097
+
+We can also get the threshold and slope:
+
+>>> B_single_sessions.getThres()
+0.060939542976445368
+
+>>> B_single_sessions.getSlope()
+10.913894618457103
+
+How well do these parameters describe the data? 
+The deviance is a measure that describes the goodness of fit for a model, based on the sum of the
+squares error metric. In our example, the deviance is approximately 8.07. 
+
+>>> B_single_sessions.deviance
+17.3983
+
+Is this a high or a low value? To know this, we have to draw a number of bootstrap samples and have a look at the Goodness of Fit Statistics:
+
+>>> B_single_sessions.sample()
+
+>>> print B_single_sessions
+< BootstrapInference object with 15 blocks and 2000 samples >
+
+We see that B_single_sessions has changed: instead of 0 samples, we now have 2000 parametric bootstrap samples
+in the object. We can use these samples to assess the goodness of fit:
+
+>>> psi.GoodnessOfFit(B_single_sessions)
+
+In an interactive session, this should open a window that looks like the following. (In some
 cases, you may have to type show() before you see the window).
 
-.. image:: BootstrapGoodnessOfFit.png
+.. image:: gof_single_sessions.png
 
-The panel in the upper left displays the fitted psychometric function and the data points.
-In addition, some information about the fitted model is displayed and confidence intervals for
-thresholds at three levels are shown. The panel in the lower left displays a histogram of
-the deviances that were to be expected if the fitted model was perfectly correct. In addition,
-there are 95% confidence limits (dotted lines) and the observed deviance. If the observed
-deviance is outside th 95% confidence limits, this is an indication of a bad fit. The plot
-in the middle on top plot deviance residuals against the predicted correct response rate of
-the model. This plot helps to detect systematic deviations between model and data. Trends in
-this graph indicate systematic differences between model and data. The dotted line is the
-best linear fit that relates deviance residuals to the predicted correct response rate.
-The correlation between model prediction and deviance residuals is shown in the plot. The
-plot in the middle at the bottom shows a histogram of these correlations under the assumption
-that the fitted model is perfectly correct. Again the dotted lines denote 95% intervals
-of the correlations and the solid line marks the observed correlation between model prediction
-and deviance residuals. If the obsered correlation is outside the 95% interval, this indicates
-a systematic deviation of the model from the data. The two plots on the right follow the same
-logic as the plots in the middle. The difference is that in this case deviance residuals are
-plotted agains block index, i.e. the sequence in which the data were acquired. If the observer
-was still learning the task, this should be visible in this plot.
+1. The panel in the upper left displays the fitted psychometric function and the given data points.
+   In addition, some information about the fitted model is displayed and confidence intervals for
+   thresholds at three levels (default: 25%, 50% and 75% ) are shown. Mind that the Y-Axes starts at 0.5, which is 
+   the guess rate in a 2AFC task. 
 
-We can also get a graphical representation of the fitted parameters:
+2. The panel in the lower left displays a histogram of the deviances that were to be expected 
+   if the fitted model was perfectly correct. In addition,  there are 95% confidence limits (dotted lines) 
+   and the observed deviance. If the observed deviance is outside the 95% confidence limits, 
+   this is an indication of a bad fit. 
 
->>> ParameterPlot(B)
+3. The plot in the middle on top plots deviance residuals against the predicted correct response rate of 
+   the model. This plot helps to detect systematic deviations between model and data. Trends in
+   this graph indicate systematic differences between model and data. The dotted line is the
+   best linear fit that relates deviance residuals to the predicted correct response rate.
+   The correlation between model prediction and deviance residuals is shown in the plot. 
 
-in an interactive session, this should again open a window showing estimated densities of
-the model parameters as shown below. (Again, you might have to type show() to see the window).
+4. The plot in the middle at the bottom shows a histogram of these correlations under the assumption
+   that the fitted model is perfectly correct. Again the dotted lines denote 95% intervals
+   of the correlations and the solid line marks the observed correlation between model prediction
+   and deviance residuals. If the observed correlation is outside the 95% interval, this indicates
+   a systematic deviation of the model from the data. 
 
-.. image:: BootstrapParameters.png
+5. The top right plot follows the same logic as the plot in the middle. 
+   The difference is that in this case deviance residuals are plotted agains block index, 
+   i.e. the sequence in which the data were acquired. If the observer
+   was still learning the task, this should be visible in this plot. This plot only makes sense if you
+   entered your data in different blocks. 
 
-Each of these plots shows the estimated density of one of the model parameters. In addition,
-the estimated parameter is marked by a solid vertical line and the 95% confidence interval is
-marked by dotted vertical lines. The confidence interval limits and the estimates are written
-on top of the graph.
+6. The bottom right block plots the results from plot 4 against block index, comparable to plot 5. 
 
-In some cases, we may not directly be interested in the parameters of the model. Instead, we
-ask for "thresholds", that is predifined performance levels of the sigmoid :math:`F`. We can get a plot
-of such thresholds and the associated confidence intervals using the function
-
->> ThresholdPlot(B)
-
-the image looks essentially the same as for the ParameterPlot only that this time, the threshold(s)
-of the model are displayed.
-
-.. image:: BootstrapThresholds.png
 
 Sensitivity Analysis
 --------------------
 
 As noted by [Wichmann_and_Hill_2001b]_, bootstrap based confidence intervals are in many cases too small.
 That is, a 95% confidence interval contains the true parameter in less than 95% of the cases.
-[Wichmann_and_Hill_2001b]_ propose a sensitivity analysis to determine the misestimation of confidence
-intervals and correct for this error. The BootstrapInference object can perform a sensitivity analysis.
-Afterwards, the confidence intervals will be expanded to compensate for the underestimation of the
-confidence intervals.
 
->>> B.getCI(1)
+We suggest to perform a Sensitivity Analysis on the BootstrapInference Object by default. 
+Afterwards, the confidence intervals will be expanded to compensate for the underestimation. 
+
+>>> B_single_sessions.getCI(0.5)
 array([ 1.64202158,  3.92605858])
 >>> plotSensitivity(B)
->>> B.getCI(1)
+>>> B_single_sessions.getCI(0.5)
 array([ 1.29922527,  4.17696559])
 
-As you see the second call to the getCI() method returns slightly wider confidence intervals. These
-confidence intervals have been extended to provide more realistic coverage. In addition, the plotSensitivity()
+As you see the second call to the getCI() method returns slightly wider confidence intervals. 
+Here we refers to the 50% threshold by calling B.getCI(0.5). 
+These confidence intervals have been extended to provide more realistic coverage. In addition, the plotSensitivity()
 function should open a plot window showing something like this:
 
-.. image:: BootstrapSensitivity.png
+.. image:: sens_single_sessions.png
 
 This shows the joint probability distribution of the parameters :math:`a` and :math:`b` of the model. The dark shading
 indicates the density of this joint distribution as estimated from the bootstrap parameters. The red dot
@@ -171,35 +180,19 @@ has been drawn. The expanded bootstrap confidence intervals correspond to the wi
 from all points that are marked in red (i.e. the maximum likelihood estimate and the points marked by
 the red diamonds).
 
-Reparameterizing the model
---------------------------
+We can also get a graphical representation of the `fitted parameters <http://psignifit.sourceforge.net/PARAMETERPLOTS.html>`_.
 
-pypsignifit reformulates the function :math:`F ( x | a,b )` by means of two separate functions :math:`f: \mathbb{R}\to\mathbb{R}`
-and :math:`g: \mathbb{R}^3\to\mathbb{R}`. We can think of :math:`f` as the nonlinear part of the psychometric function, while
-:math:`g` is in most cases linear in x. Often g can be changed without seriously altering the possible
-model shapes. In pypsignifit :math:`f` is called the 'sigmoid' and :math:`g` is called the 'core'. Using different
-combinations of sigmoid and core allows a high flexibility of model fitting. For instance
-Kuss, et al (2005) used a parameterization in terms of the 'midpoint' :math:`m` of the sigmoid and the
-'width' :math:`w`. Here width is defined as the distance :math:`F^{-1} ( 1-\alpha ) - F^{-1} ( \alpha )`. To
-perform BootstrapInference for this model we can proceed as follows
+Instead of using  :math:`a` and :math:`b`, we can `reparameterize the model <http://psignifit.sourceforge.net/REPARAMETERIZE.html>`_.
+E.g. Kuss, et al (2005) used a parameterization in terms of the 'midpoint' :math:`m` of the sigmoid and the
+'width' :math:`w` as described by. 
 
->>> Bmw = BootstrapInference ( data, sample=2000, priors=constraints, core="mw0.1", nafc=nafc )
->>> Bmw.estimate
-array([ 2.75176858,  6.40375494,  0.01555636])
->>> Bmw.deviance
-8.0713313674704921
->>> Bmw.getThres()
-2.7517685843037913
->>> Bmw.cuts
-(0.25, 0.5, 0.75)
->>> Bmw.getCI(1)
-array([ 1.4842732 ,  4.06407509])
+Example 1: Constrained Maximum Likelihood and Bootstrap Inference for Data averaged across sessions
+===================================================================================================
 
-Note that this model has the same deviance as the model fitted above. Also the obtained thresholds are the same.
-However, as the parameterization is different, the actual fitted parameter values are different.
-More details on sigmoids and cores and how they can be used to specify models can be found in the section
-about _`Specification of Models for Psychometric functions`
+We can do the same steps as described above for data that has been averaged across sessions before the fitting is done. 
 
+
+.. _Example 2:
 
 Example 2: Bayesian inference
 =============================
@@ -298,7 +291,7 @@ We draw two more chains from starting values that are relatively far away from o
 1.0026751756394505
 
 As we can see, now there are three chains. The last line compares all three chains. This value
-is the variance between chains devided by the variance within chains as suggested by [Gelman_1996]_.
+is the variance between chains divided by the variance within chains as suggested by [Gelman_1996]_.
 If there are large differences between chains, the variance between chains will
 be very high and thus :math:`\hat{R}` will be very high, too. If :math:`\hat{R}` is larger than 1.1, this is typically an
 indication, that the chains did not converge. In the example above, :math:`\hat{R}` is nearly exactly 1 for
@@ -334,7 +327,7 @@ these chains really sample from the posterior distribution of parameters.
 
 The third plot on the right shows the marginal posterior density estimated from all three chains
 taken together (blue staircase curve). In addition, the prior density is plotted (green line) and
-three vertical lines. The solid vertical line markes the posterior mean, the two dotted curves
+three vertical lines. The solid vertical line marks the posterior mean, the two dotted curves
 mark the 2.5% and the 97.5% percentiles. This plot gives us a good idea of the posterior
 distribution of m. There are no strange outliers or discontinuities. For our special case, this is
 again good evidence that the chains really converged.
@@ -375,7 +368,7 @@ The plot on the lower left shows posterior predictive deviances. For each sample
 distribution, a data set has been generated. The deviance associated with the posterior samples and the
 observed data set is plotted against the deviance of these simulated data sets for the psychometric
 functions associated with the samples from the posterior distribution. If the observed data are
-likeli to come from the fitted model, all the  points in this plot should lie around the diagnonal. If
+likely to come from the fitted model, all the  points in this plot should lie around the diagonal. If
 the plots are mainly above the diagonal, the deviances of the observed data are higher than expected for
 data the originate from the fitted model. It is possible to calculate a "Bayesian p-value" that lies
 between 0 and 1. Values close to 0 or 1 indicate a bad fit in this case.
@@ -400,18 +393,21 @@ well as the priors associated with the respective model parameters (green lines)
 
 .. image:: BayesParameters.png
 
-The interpretation of these plots is straigtforward.
+The interpretation of these plots is straightforward.
 Also the ThresholdPlot() function that we applied to the bootstrap data in the first example can
 be used for Bayesian inference.
 
 
 References
 ==========
-.. [Hill_2001] Hill, NJ (2001): Testing Hypotheses About Psychometric Functions. PhD Thesis, Oxford.
-.. [Kuss_et_al_2005] Kuss, M, Jäkel, F, Wichmann, FA (2005): Bayesian inference for psychometric functions. J Vis, 5, 478-492.
-.. [Wichmann_and_Hill_2001a] Wichmann, FA, Hill, NJ (2001a): The psychometric function: I. Fitting, sampling, and goodness of fit. Perc Psychophys, 63(8), 1293-1313.
-.. [Wichmann_and_Hill_2001b] Wichmann, FA, Hill, NJ (2001b): The psychometric function: II. Bootstrap-based confidence intervals and sampling. Perc Psychophys, 63(8), 1314-1329.
-.. [Gilks_et_al_1996] Gilks, WR, Richardson, S, Spiegelhalter, DJ (Hrsg,1996): Markov chain Monte Carlo in practice. London: Chapman & Hall.
-.. [Raftery_and_Lewis_1996] Raftery & Lewis (1996): Implementing MCMC. In [Gilks_et_al_1996]_.
+.. [Blackwell_1952] Blackwell, H. R.(1952). Studies of psychophysical methods for measuring visual thresholds. Journal of the Optical Society of America, 42, 606-616.
 .. [Gelman_1996] Gelman A (1996): Inference and monitoring convergence. In [Gilks_et_al_1996]_.
 .. [Geweke_1992] Geweke, J (1992): Evaluating the accuracy of sampling-based approaches to calculating posterior moments. In Bernardo et al., pp 169-193.
+.. [Gilks_et_al_1996] Gilks, WR, Richardson, S, Spiegelhalter, DJ (Hrsg,1996): Markov chain Monte Carlo in practice. London: Chapman & Hall.
+.. [Hill_2001] Hill, NJ (2001): Testing Hypotheses About Psychometric Functions. PhD Thesis, Oxford.
+.. [Kuss_et_al_2005] Kuss, M, Jäkel, F, Wichmann, FA (2005): Bayesian inference for psychometric functions. J Vis, 5, 478-492.
+.. [Raftery_and_Lewis_1996] Raftery & Lewis (1996): Implementing MCMC. In [Gilks_et_al_1996]_.
+.. [Wichmann_and_Hill_2001a] Wichmann, FA, Hill, NJ (2001a): The psychometric function: I. Fitting, sampling, and goodness of fit. Perc Psychophys, 63(8), 1293-1313.
+.. [Wichmann_and_Hill_2001b] Wichmann, FA, Hill, NJ (2001b): The psychometric function: II. Bootstrap-based confidence intervals and sampling. Perc Psychophys, 63(8), 1314-1329.
+
+
