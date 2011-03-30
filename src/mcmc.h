@@ -86,6 +86,24 @@ class GenericMetropolis : public MetropolisHastings
 		void findOptimalStepwidth ( PsiMClist const &pilot );
 };
 
+class DefaultMCMC : public MetropolisHastings
+{
+	private:
+		std::vector<PsiPrior*> proposaldistributions;
+	public:
+		DefaultMCMC ( const PsiPsychometric * Model,                                      ///< psychometric function model to sample from
+				const PsiData * Data                                                      ///< data to base inference on
+				);
+		~DefaultMCMC ( void );
+		double acceptance_probability (
+				const std::vector<double> &current_theta,
+				const std::vector<double> &new_theta );
+		void proposePoint ( std::vector<double> &current_theta,
+				std::vector<double> &stepwidths,
+				PsiRandom * proposal,
+				std::vector<double> &new_theta);                                          ///< propose a new sample and save it in new_theta
+};
+
 class HybridMCMC : public PsiSampler
 {
 	private:

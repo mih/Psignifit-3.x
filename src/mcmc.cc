@@ -267,6 +267,50 @@ void GenericMetropolis::findOptimalStepwidth( PsiMClist const &pilot ){
 	delete [] paramindex;
 }
 
+/**********************************************************************
+ *
+ * DefaultMCMC
+ *
+ */
+DefaultMCMC::DefaultMCMC ( const PsiPsychometric* Model, const PsiData* Data ) :
+	MetropolisHastings ( Model, Data, new GaussRandom ),
+	proposaldistributions ( Model->getNparams () )
+{
+	unsigned int i;
+	for (i=0; i<Model->getNparams(); i++) {
+		proposaldistributions[i] = Model.getPrior ( i )->clone();
+	}
+	// TODO: Potential flat priors
+}
+
+DefaultMCMC::~DefaultMCMC ( void ) {
+	unsigned int i;
+	for (i=0; i<Model->getNparams(); i++) {
+		delete proposaldistributions[i];
+	}
+}
+
+double DefaultMCMC::acceptance_probability ( const std::vector<double>& current_theta, const std::vector<double>& new_theta ) {
+	double qnew;
+	unsigned int i,
+	qnew     = - model->neglpost ( new_theta, data );
+	for (i=0; i<Model->getNparams(); i++) {
+		qnew -= log ( proposaldistributions[i].pdf ( new_theta[i] ) );
+	}
+	return qnew - qold;
+}
+
+void DefaultMCMC::proposePoint (
+		std::vector<double> &current_theta,
+		std::vector<double> &stepwidths,
+		PsiRandom * proposal,
+		std::vector<double> &new_theta ) {
+	unsigned int i;
+
+	for ( i=0; i<new_theta.size(); i++ ) {
+		new_theta[i] = proposaldistributions[i].rand ();
+	}
+}
 
 /**********************************************************************
  *
