@@ -1,52 +1,56 @@
 Specifying the experimental design
 ==================================
 
-Psignifit needs to know how many alternatives you are presenting participants with. However, there are vast differences naming conventions for experimental designs. The way psignifit approaches the number of alternatives is stimulus based. Note that a large number of labs use a response based nomenclature.
+In order to estimate a guess rate, psignifit needs to know how many alternatives you are presenting participants with. 
+However, there are vast differences in naming conventions for experimental designs. The way psignifit approaches the number of alternatives is stimulus based. 
+Note that a large number of labs use a response based nomenclature.
 
-The easiest way of deciding which 'nafc' you want to set in your code is using the following approach:
+If you don't set 'narc' to a specific value, psignifit will assume that the data come from a 2 alternative
+forced choice experiment (AFC). That means, that on each trial two stimuli were presented and the
+observer knows that one and only one of these stimuli was the target stimulus. 
+For example, in a contrast detection task for luminance only the target stimulus would have contained a different luminance.
+Psignifit follows a classical signal-detection approach to experimental design. For all other situations you should create your Inference object with the keyword 'nafc' set to the number of stimulus alternatives that were presented. So, if your standard is always smaller or always larger than all the other alternatives 
+then you use the number of alternatives to determine the value that you set in 'nafc'.
+
+
+The easiest way of deciding which 'nafc' you want to set in your code is to consider the range of your psychometric function (PF) on the y-axis:
+
 	- PF from 0 to 1 -> nafc = 1
 	- PF from 0.5 to 1 -> nafc = 2
 	- PF from 0.33 to 1 -> nafc = 3
 	- PF from 0.25 to 1 -> nafc = 4
 	- etc.
 
-If nothing else is requested, psignifit will assume that the data come from a 2 alternative
-forced choice experiment (AFC). That means, that on each trial two stimuli were presented and the
-observer knows that one and only one of these stimuli was the target stimulus. So, in a contrast detection task  for luminances only the target stimulus would have contained a different luminance.
+Setting the keyword 'nafc' to a value of 2 or larger results in a fixed guessing rate of 1/nafc.
 
-For all other situations you should create your Inference object with the keyword 'nafc' set to the number of stimulus alternatives that were presented.
 
-Psignifit follows a classical signal-detection approach to experimental design. So, if your standard is always smaller or always larger than all the other alternatives then you use the number of alternatives to determine the value that you set in 'nafc'.
-
-If you are running an experiment that doesn't quite fit the classical AFC design, the way you think about your experiment might not correspond to the names you will use when analysing your data in psignifit.
-
+If you are running an experiment that doesn't quite fit the classical AFC design, the way you think about your experiment might not correspond to the names you will use when analyzing your data in psignifit.
 
 Two aspects that you will want to think about are:
 	- How many alternatives are you presenting?
 	- Is the standard stimulus the smallest of the comparisons?
  
+Again, these aspects crucially influence your guess rate, but also the way you interpret your diagnostic plots. 
 
-Another approach is to present only one stimulus per trial. The observers might then have to indicate whether the target stimulus
-was presented or not (typically called yes-no task). If your standard is in the middle of the stimulus intensities you will also have to change your approach. For example, in the discrimination example (ADD LINK) the stimulus intensities of the test stimulus vary symmetrically around the standard intensity. In this case you have to adjust 'nafc'. 
-In all these experiments we will record which response an observer chose and we will then
+In many experiments we will record which response an observer chose and we will then
 fit the number of "stimulus present", "stimulus left", "stimulus longer" responses (or
-whatever is suitable in the present context). We will summarize these designs as "yes-no
-designs" although the term yes-no is typically restricted to detection like tasks. The
-crucial difference between yes-no designs and forced choice designs for fitting
-psychometric functions is that yes-no designs allow for arbitrarily set "guessing" rates.
-
+whatever is suitable in the present context). In those cases our guess rate does not necessarily equal 1/nafc.
 For instance, in a detection task, the observer might be very conservative and virtually
 never report the presence of a target for low stimulus intensities. Or the observer might
 always respond "stimulus left" if the stimulus is presented sufficiently for to the left
-of a mark. In all these situations, the lower asymptote of the psychometric function will
-be a free parameter. As in all these situations only one stimulus is presented, we can
-make the lower asymptote of the psychometric function a free parameter by setting the
-keyword 'nafc' to 1. Note that in this case you also need to specify priors for four parameters
-instead of the three parameters in an nAFC experiment. 
+of a mark.
 
-Setting the keyword 'nafc' to a value of 2 or larger results in a fixed guessing rate of 1/nafc.
+Another common approach is to present only one stimulus per trial. The observers might then have to indicate whether the target stimulus
+was presented or not (typically called detection task, or yes-no-task). 
+If your standard is in the middle of the stimulus intensities you will also have to change your approach. For example, in the discrimination example (ADD LINK) 
+the stimulus intensities of the test stimulus vary symmetrically around the standard intensity. 
 
-
+We will summarize all these designs as "yes-no designs" although the term yes-no is typically restricted to detection like tasks. 
+The crucial difference between yes-no designs and forced choice designs for fitting
+psychometric functions is that yes-no designs allow for arbitrarily set "guessing" rates.
+In all these situations, the lower asymptote of the psychometric function will
+be a free parameter by setting the keyword 'nafc' to 1. 
+Note that in this case you also need to specify priors for four parameters instead of the three parameters in an nAFC experiment. 
 
 A note on yes-no designs
 -------------------------
