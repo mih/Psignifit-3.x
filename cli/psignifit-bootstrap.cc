@@ -46,6 +46,9 @@ int main ( int argc, char ** argv ) {
 	JackKnifeList *jk_list;
 	unsigned int nsamples ( atoi ( parser.getOptArg("-nsamples").c_str() ) );
 	double th;
+	double sl;
+	double th_m;
+	double sl_m;
 	double m,s;
 	setSeed (0);
 
@@ -61,6 +64,8 @@ int main ( int argc, char ** argv ) {
 	std::vector<double>   acc_thres  ( ncuts );
 	std::vector<double>   bias_slope ( ncuts );
 	std::vector<double>   acc_slope  ( ncuts );
+	std::vector<double>   thresholds ( ncuts );
+	std::vector<double>   slopes     ( ncuts );
 	std::vector<double> *influential;
 	std::vector<int>    *outliers;
 	std::vector<double> *ci_lower;
@@ -184,7 +189,7 @@ int main ( int argc, char ** argv ) {
 		}
 
 		// Write a summary of the parameter estimation if requested.
-		if ( summary ) {
+		/* if ( summary ) {
 			std::cerr << "Parameter estimates:\n";
 			std::cerr << "--------------------\n";
 			for ( i=0; i<nparams; i++ ) {
@@ -206,7 +211,17 @@ int main ( int argc, char ** argv ) {
 					<< bs_list->getSlope(.975,i) << ")\n";
 			}
 		}
-
+		*/
+		
+		// Get thresholds and slopes
+		for ( i=0; i<ncuts; i++ ) {
+		th_m = pmf->getThres ( theta, cuts[i] );
+		thresholds[i] = th_m;
+		sl_m = pmf->getSlope ( theta, th_m );
+		slopes[i] = sl_m;
+		}
+		
+		
 		// If we performed nonparametric bootstrap, we can't use the bootstrap samples for goodness of fit
 		// Here we perform a second, parametric bootstrap that gives the data for the goodness of fit assessment
 		if ( parser.getOptSet("-nonparametric") ) {
@@ -251,6 +266,8 @@ int main ( int argc, char ** argv ) {
 		print ( bias_slope,   matlabformat, "bias_slope",  ofile );
 		print ( acc_thres,    matlabformat, "acc_thres",   ofile );
 		print ( acc_slope,    matlabformat, "acc_slope",   ofile );
+		print ( thresholds,   matlabformat, "thresholds",  ofile );
+		print ( slopes,       matlabformat, "slopes",      ofile );
 
 
 		// Get the next input file (if there is one)
