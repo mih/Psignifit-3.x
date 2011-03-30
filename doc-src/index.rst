@@ -28,6 +28,16 @@ Contents:
    swig-api
    TODO
 
+   :hidden: 
+   PARAMETERPLOTS
+   REPARAMETERIZE
+   INSTALL_LINUX
+   INSTALL_MAC
+   INSTALL_WINDOWS
+   INSTALL_WITHOUT
+   INSTALL_MATLAB
+   INSTALL_REQUIRED_PACKAGES
+
 Indices and tables
 ==================
 
