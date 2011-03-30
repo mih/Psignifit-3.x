@@ -212,7 +212,7 @@ double GaussRandom::draw ( void )
 		return y*sigma+mu;
 	} else {
 		do {
-			x1 = 2*rngcall () - 1;
+                  x1 = 2*rngcall () - 1;
 			x2 = 2*rngcall () - 1;
 			w = x1*x1 + x2*x2;
 		} while ( w >= 1.0 );
@@ -233,9 +233,97 @@ double BinomialRandom::draw ( void )
 	return k;
 }
 
+double GammaRandom::draw ( void )
+{
+  double b, c, U, V, X, Y;
+  
+  if ( k == 1.0 )
+    {
+      /* exponential */
+      return -theta*log(1.0 - rngcall());
+    }
+  else if ( k < 1.0 )
+    {
+      for (;;)
+        {
+          U = rngcall();
+          V = -log(1.0 - rngcall());
+          if ( U <= 1.0 - k)
+            {
+              X = pow(U, 1./k);
+              if ( X <= V )
+                {
+                  return theta*X;
+                }
+            }
+          else
+            {
+              Y = -log((1-U)/k);
+              X = pow(1.0 - k + k*Y, 1./k);
+              if (X <= (V + Y))
+                {
+                  return theta*X;
+                }
+            }
+        }
+    }
+  else
+    {
+      b = k - 1./3.;
+      c = 1./sqrt(9*b);
+      for (;;)
+        {
+          do
+            {
+              X = grng.draw();
+              V = 1.0 + c*X;
+            } while ( V <= 0.0 );
+          V = V*V*V;
+          U = rngcall();
+          if (U < 1.0 - 0.0331*(X*X)*(X*X)) return theta*b*V;
+          if (log(U) < 0.5*X*X + b*(1. - V + log(V))) return theta*b*V;
+        }
+    }
+}
+
+double BetaRandom::draw ( void )
+{
+  double U, V, X, Y, Ga, Gb;
+
+  if ((alpha <= 1.0) && (beta <= 1.0))
+    {
+      /* Joehnk's Algorithm -> Jöhnk. Erzeugung von betaverteilten und 
+         gammaverteilten zufallszahlen. 
+         Metrika 8:5-15. 1964.*/
+      
+      while (1)
+        {
+          U = rngcall();
+          V = rngcall();
+          X = pow(U, 1.0/alpha);
+          Y = pow(V, 1.0/beta);
+          if ( X + Y <= 1.0)
+            {
+              return (X/(X+Y));
+            }
+        }
+    }
+  else
+    {
+      /* Sum of Gammas Algorithm */
+      Ga = grnga.draw();
+      Gb = grngb.draw();
+      return Ga/(Ga + Gb);
+    }
+  /* UFPExact -> Mahlooji, Mehruzu, Farzan. Fast Generation of Deviates 
+     for Order Statistics by an Exact Method. Journal of 
+     Industrial and Systems Engineering. Vol.2 , No.4, 
+     pp 288-299. 2009.*/
+}
+
 void setSeed(long int seedval){
     unsigned long init[4]={0x123, 0x234, 0x345, 0x456}, length=4;
-	unsigned long k;
+    unsigned long k;
 
     init_by_array(init, length);
 

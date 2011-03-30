@@ -103,10 +103,10 @@ class BetaPrior : public PsiPrior
 		double alpha;
 		double beta;
 		double normalization;
-		UniformRandom rng;
+		BetaRandom rng;
 		double mode;
 	public:
-		BetaPrior ( double al, double bt ) : alpha(al), beta(bt), normalization(betaf(al,bt)), rng (0,1) {
+		BetaPrior ( double al, double bt ) : alpha(al), beta(bt), normalization(betaf(al,bt)), rng (alpha, beta) {
             mode = (al-1)/(al+bt-2);
             mode = pdf(mode); }                      ///< Initialize with parameters alpha=al, beta=bt
         BetaPrior ( const BetaPrior& original) : alpha(original.alpha),
@@ -116,7 +116,7 @@ class BetaPrior : public PsiPrior
                                                  mode(original.mode) {} ///< copy constructor
 		double pdf ( double x ) { return (x<0||x>1 ? 0 : pow(x,alpha-1)*pow(1-x,beta-1)/normalization); }             ///< return beta pdf
 		double dpdf ( double x ) { return (x<0||x>1 ? 0 : ((alpha-1)*pow(x,alpha-2)*pow(1-x,beta-1) + (beta-1)*pow(1-x,beta-2)*pow(x,alpha-1))/normalization); }      ///< return derivative of beta pdf
-		double rand ( void );                                                                                         ///< draw a random number using rejection sampling
+		double rand ( void ) {return rng.draw();};                                                                                         ///< draw a random number using rejection sampling
         PsiPrior * clone ( void ) const { return new BetaPrior(*this); }
 		double mean ( void ) const { return alpha/(alpha+beta); }
 		double std  ( void ) const { return sqrt ( alpha*beta/((alpha+beta)*(alpha+beta)*(alpha+beta+1)) ); }
@@ -137,16 +137,16 @@ class GammaPrior : public PsiPrior
 		double k;
 		double theta;
 		double normalization;
-		UniformRandom rng;
+		GammaRandom rng;
 	public:
-		GammaPrior ( double shape, double scale ) : k(shape), theta(scale) { normalization = pow(scale,shape)*exp(gammaln(shape)); }                         ///< Initialize a gamma prior
+		GammaPrior ( double shape, double scale ) : k(shape), theta(scale), rng(shape, scale) { normalization = pow(scale,shape)*exp(gammaln(shape));}                         ///< Initialize a gamma prior
         GammaPrior ( const GammaPrior& original ) : k(original.k),
                                                     theta(original.theta),
                                                     normalization(original.normalization),
                                                     rng(original.rng) {} ///< copy constructor
 		virtual double pdf ( double x ) { return (x>0 ? pow(x,k-1)*exp(-x/theta)/normalization : 0 );}                                                             ///< return pdf at position x
 		virtual double dpdf ( double x ) { return (x>0 ? ( (k-1)*pow(x,k-2)*exp(-x/theta)-pow(x,k-1)*exp(-x/theta)/theta)/normalization : 0 ); }                   ///< return derivative of pdf
-		virtual double rand ( void );
+		virtual double rand ( void ) {return rng.draw(); };
         PsiPrior * clone ( void ) const { return new GammaPrior(*this); }
 		virtual double mean ( void ) const { return k*theta; }
 		double std  ( void ) const { return sqrt ( k*theta*theta ); }

@@ -58,6 +58,32 @@ class BinomialRandom : public PsiRandom
 		PsiRandom * clone ( void ) const { return new BinomialRandom(*this); }
 };
 
+class GammaRandom : public PsiRandom
+{
+	private:
+		double k;
+		double theta;
+                GaussRandom grng;
+	public:
+		GammaRandom ( double shape, double scale ) : k (shape), theta(scale), grng() {}
+		double draw ( void );              ///< draw a random number
+		PsiRandom * clone ( void ) const { return new GammaRandom(*this); }
+};
+
+class BetaRandom : public PsiRandom
+{
+	private:
+		double alpha;
+		double beta;
+                GammaRandom grnga;
+                GammaRandom grngb;
+	public:
+		BetaRandom ( double alpha, double beta ) : alpha(alpha), beta(beta), grnga (alpha, 1), grngb (beta, 1) {}
+		double draw ( void );              ///< draw a random number
+		PsiRandom * clone ( void ) const { return new BetaRandom(*this); }
+};
+
+
 void setSeed(long int seedval);
 
 #endif

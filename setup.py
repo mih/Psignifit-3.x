@@ -38,7 +38,6 @@ psipp_sources = [
     "src/sigmoid.cc",
     "src/special.cc",
     "src/linalg.cc",
-    "src/prior.cc",
     "src/getstart.cc"]
 
 # psipy interface
