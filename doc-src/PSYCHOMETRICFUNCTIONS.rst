@@ -1,110 +1,10 @@
-==================================================
-Specification of Models for Psychometric functions
-==================================================
-
-Typically, we want to use psignifit to fit data from a psychophysical experiment. These data
-can come from different experimental designs and can display different shapes. These points are
-not directly dependent on the actual fitting process.
-
-Specifying the experimental design
-==================================
-
-If nothing else is requested, psignifit will assume that the data come from a 2 alternative
-forced choice experiment (AFC). That means, that on each trial two stimuli were presented and the
-observer knows that one and only one of these stimuli was the target stimulus. So, in a contrast detection task  for luminances only the target stimulus would have contained a different luminance.
-
-For all other situations you should create your Inference object with the keyword 'nafc' set to the number of stimulus alternatives that were presented.
-
-Psignifit follows a classical signal-detection approach to experimental design. So, if your standard is always smaller or always larger than all the other alternatives then you use the number of alternatives to determine the value that you set in 'nafc'.
-
-If you are running an experiment that doesn't quite fit the classical AFC design, the way you think about your experiment might not correspond to the names you will use when analysing your data in psignifit.
-
-
-Two aspects that you will want to think about are:
-	- How many alternatives are you presenting?
-	- Is the standard stimulus the smallest of the comparisons?
- 
-
-One modification of the standard acquisition procedure could be to present only one
-stimulus per trial. The observers might then have to indicate whether the target stimulus
-was presented or not (typically called yes-no task).If your standard is in the middle of the stimulus intensities you will have to change your approach. For example, in the discrimination example (ADD LINK) the stimulus intensities of the test stimulus vary symmetrically around the standard intensity. In this case you have to adjust 'nafc'. 
-In all these experiments we will record which response an observer chose and we will then
-fit the number of "stimulus present", "stimulus left", "stimulus longer" responses (or
-whatever is suitable in the present context). We will summarize these designs as "yes-no
-designs" although the term yes-no is typically restricted to detection like tasks. The
-crucial difference between yes-no designs and forced choice designs for fitting
-psychometric functions is that yes-no designs allow for arbitrarily set "guessing" rates.
-
-For instance, in a detection task, the observer might be very conservative and virtually
-never report the presence of a target for low stimulus intensities. Or the observer might
-always respond "stimulus left" if the stimulus is presented sufficiently for to the left
-of a mark. In all these situations, the lower asymptote of the psychometric function will
-be a free parameter. As in all these situations only one stimulus is presented, we can
-make the lower asymptote of the psychometric function a free parameter by setting the
-keyword 'nafc' to 1. Note that in this case you also need to specify priors for four parameters
-instead of the three parameters in an nAFC experiment. 
-
-The easiest way of deciding which 'nafc' you want to set is using the following approach:
-	- PF from 0 to 1 -> nafc = 1
-	- PF from 0.5 to 1 -> nafc = 2
-	- PF from 0.33 to 1 -> nafc = 3
-	- PF from 0.25 to 1 -> nafc = 4
-	- etc.
-
-Setting the keyword 'nafc' to a value of 2 or larger results in a fixed guessing rate of 1/nafc.
-
-
-
-A note on non-Forced Choice designs
--------------------------------------
-
-Depending on your experimental design you are making/can make certain assumptions about your data. For a classical(in a signal detection sense) Forced Choice design you are making the following assumptions:
-ADD ASSUMPTIONS
-	- 
-	- 
-
-
-Whereas with a non-Forced Choice design you are violating some of these assumptions, namely:
-	- 
-	- 
-
-So while you are able to use psignifit with both Forced Choice and non-Forced Choice designs, keep in mind that you will have to approach your results differently (this is especially important for the interpretation of non-stationarities which we talk about in the ADD LINK & SECTION!) 
-
-In a detection experiment, we typically have two types of trials. In one case a target
-stimulus is presented, in the other case, no target stimulus is presented. In terms of signal
-detection theory, these two cases are called "signal+noise" and "noise only". The observer
-responds to these two cases with either "yes, a signal was present" or "no, only noise
-was presented". This results in four different outcomes on each trial: hits (the observer
-correctly reports the presence of a signal), false alarms (the observer reports a signal
-although "noise only" was presented), misses (the observer reports no signal
-although a signal was presented), and correct rejections (the observer correctly reports
-the absence of a signal). These different experimental outcomes are discussed in large detail
-in standard books on signal detection theory [Green_and_Swets_1966]_. What matters with respect
-to fitting psychometric functions is that depending on the strategy, both, hit rate as well
-as the correct response rate might change. So which of these two should be fitted with a
-psychometric function? There are two general objectives that an optimal observer could
-follow in a yes-no task.
-
-1. maximize the hit rate while keeping a fixed false alarm rate. In this case, we would
-   like to fit the hit rate with a psychometric function (the false alarm rate is
-   constant anyhow). Thus, if we want to fit the hit rate with a psychometric function,
-   we should check that the observers maintained a more of less fixed false alarm
-   rate. A future release of psignifit will contain more formal tools for this check.
-2. maximize the number of correct responses. In this case, we would like to fit
-   the correct response rate with a psychometric function. To check that an observer
-   really uses this strategy, we should check that the false alarm rate decreases with
-   the hit rate.
-
-Furthermore, Signal Detection Theory also offers a number of criterion free discriminability parameters,
-like area under the ROC curve and the famous d' index. However, these indices can not generally
-be assumed to have binomial variance (or anything similar to that). Therefore, psignifit
-does not attempt to fit such data.
-
 Specifying the shape of the psychometric function
 =================================================
 
+In this section you can find some more information about the different shapes your psychometric function can take. 
+
 A variety of different parametric shapes for psychometric functions have been used. In probit
-analysis for instance, the data are essentially fit by a cumulative gaussian; visual contrast
+analysis for example, the data are essentially fit by a cumulative gaussian; visual contrast
 detection data have been reported to be well fit by a weibull distribution function. Fitting
 visual contrast detection with a weibull function is also theoretically appealing because it
 corresponds to the Quick pooling model ([Graham_1989]_ p. 165).
@@ -146,7 +46,7 @@ psychometric function shapes. For instance, the lower right plot is a combinatio
 function is the cumulative distribution function of the weibull distribution. The combination of logistic sigmoid and ab core corresponds to
 the logistic function that was the default setting in earlier versions of psignifit. The advantage of separating sigmoid and core is that
 we can now use a different core object, to specify that a function should be fitted on different axes (e.g. logarithmic instead of linear) or
-in a different parametrization. Also note, that the figure only presents two sigmoids and two cores. This results in two different function families
+in a different parameterization. Also note, that the figure only presents two sigmoids and two cores. This results in two different function families
 for the psychometric function. Psignifit includes 6 different sigmoids and 5 different cores, resulting in 30 different function families.
 
 The following two sections describe the sigmoids and cores in more detail. Then finally, there is a section about
@@ -200,7 +100,7 @@ transformations. Typically, these will be needed to define a weibull function.
 ab
     the ab-core corresponds to the transformation that transforms an arbitrary normal
     distribution to the standard normal distribution. It is given by :math:`g(x,a,b) = \frac{x-a}{b}`.
-    For all symmetric sigmoids, this corresponds to the classical psignifit parametrization.
+    For all symmetric sigmoids, this corresponds to the classical psignifit parameterization.
 mw
     the mw-core is similar to the ab-core in that it is a linear transformation, too.
     However, the parameters now have a useful meaning. The first parameter is the "midpoint"
@@ -232,7 +132,7 @@ weibull
 poly
     While the weibull and the log core perform at the heart a fit on a logarithmic axis, this
     core performs something clearly different: :math:`g(x,a,b) = (x/a)^b`. In combination with a exponential
-    sigmoid, this gives the parametrization used in the classical psignifit version.
+    sigmoid, this gives the parameterization used in the classical psignifit version.
 
 Combining sigmoids and cores
 ----------------------------
@@ -245,10 +145,10 @@ Logistic function
 .................
 
 In this case, we combine the 'logistic' sigmoid with one of the linear cores (ab,mw,linear). Depending
-on the core used, this results in different parametrizations.
+on the core used, this results in different parameterizations.
 
 logistic + ab
-    This is the standard parametrization of the old psignifit version that was based on bootstrapping.
+    This is the standard parameterization of the old psignifit version that was based on bootstrapping.
     :math:`\alpha` can be interpreted as the 75% threshold and :math:`\beta` as a scaling factor that is inversely
     related to the slope of the psychometric function.
     Here we obtain:
@@ -258,7 +158,7 @@ logistic + ab
     F ( x; \alpha, \beta ) = \frac{1}{1+\exp( -\frac{x-\alpha}{\beta} ) }.
 
 logistic + mw
-    This parametrization was used in [Kuss_et_al_2005]_ for bayesian inference on psychometric functions.
+    This parameterization was used in [Kuss_et_al_2005]_ for bayesian inference on psychometric functions.
     It reads:
 
 .. math::
@@ -270,7 +170,7 @@ logistic + mw
     where :math:`z(\alpha) = 2\log(1/\alpha -1)`. This allows :math:`m` to be interpreted as the 75% threshold and :math:`w` as the
     width of the interval in which :math:`F(x;m,w)` rises from :math:`alpha` to :math:`1-alpha`. A typical choice for :math:`alpha` is 0.1.
 logistic + linear
-    This parametrization corresponds to the classical parametrization used in the literature about
+    This parameterization corresponds to the classical parameterization used in the literature about
     generalized linear models. Here, the psychometric function is modelled as
 
 .. math::
@@ -279,22 +179,22 @@ logistic + linear
 
 ..
 
-    This parametrization does not allow a psychophysically meaningful interpretation of the parameters.
+    This parameterization does not allow a psychophysically meaningful interpretation of the parameters.
 
 Cumulative Gaussian
 ...................
 
 The cumulative gaussian is obtained by combining the gauss sigmoid with one of the linear cores (ab,mw,linear).
-The parametrizations are precisely the same as for the logistic function with one exception:
-The scaling factor z(alpha) for the mw parametrization is :math:`z(\alpha) = \Phi^{-1}(1-\alpha)-\Phi^{-1}(\alpha)`, where :math:`\Phi`
+The parameterizations are precisely the same as for the logistic function with one exception:
+The scaling factor z(alpha) for the mw parameterization is :math:`z(\alpha) = \Phi^{-1}(1-\alpha)-\Phi^{-1}(\alpha)`, where :math:`\Phi`
 is the inverse of the the cumulative gaussian.
 
 Cumulative Gumbel
 .................
 
-Also for the cumulative Gumbel sigmoids, the parametrizations are similar to the logistic function. However,
-the Gumbel distribution is skewed. This implies that the alpha parameter of the ab parametrization can
-*not* be interpreted as a 75% threshold. For the mw parametrization this is solved in a different way.
+Also for the cumulative Gumbel sigmoids, the parameterizations are similar to the logistic function. However,
+the Gumbel distribution is skewed. This implies that the alpha parameter of the ab parameterization can
+*not* be interpreted as a 75% threshold. For the mw parameterization this is solved in a different way.
 The lgumbel + mw function is parametrized as follows:
 
 .. math::
@@ -320,7 +220,7 @@ exponential + poly
     which is implemented using the combination of an exponential-sigmoid and a poly-core.
 gumbel + weibull
     The Weibull function is equivalent to a Gumbel sigmoid on logarithmic coordinates. Thus,
-    [Kuss_et_al_2005]_ suggested a parametrization in terms of the 75% threshold m and the slope
+    [Kuss_et_al_2005]_ suggested a parameterization in terms of the 75% threshold m and the slope
     at the threshold s. This results in the following equivalent form
 
 .. math::
@@ -329,7 +229,7 @@ gumbel + weibull
 
 gumbel + log
     As the Weibull is a Gumbel fitted on log coordinates, a Weibull can also be obtained
-    using a gumbel sigmoid and the log-core, which results in the following parametrization
+    using a gumbel sigmoid and the log-core, which results in the following parameterization
 
 .. math::
 
@@ -343,5 +243,5 @@ References
 .. [Green_and_Swets_1966] Green, DM and Swets, JA (1966): Signal Detection Theory and
     Psychophysics. New York: Wiley.
 .. [Graham_1989] Graham, NVS (1989): Visual Pattern Analyzers. New York: Oxford University.
-.. [Kuss_et_al_2005] Kuss, M and Jäkel, F and Wichmann, FA: Bayesian inference for psychometric functions
+.. [Kuss_et_al_2005] Kuss, M and J√§kel, F and Wichmann, FA: Bayesian inference for psychometric functions
     Journal of Vision, 5, 478-492.
