@@ -9,6 +9,7 @@
 #include "psychometric.h"
 #include "rng.h"
 #include "mclist.h"
+#include "getstart.h"
 
 class PsiSampler
 {
