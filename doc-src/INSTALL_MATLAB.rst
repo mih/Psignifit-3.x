@@ -17,11 +17,11 @@ type::
     addpath path\to\mpsignfit\files
 
 where you replace ``path\to\mpsignifit\files`` with the path where you copied the ``mpsignifit``
-folder. You might now want to call::
+folder. If you now call::
 
     savepath
 
-to avoid having to call the above command everytime you start matlab.
+you avoid having to call the above command everytime you start matlab.
 
 You can check that everything went fine by calling::
 
