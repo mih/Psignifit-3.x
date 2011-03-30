@@ -234,7 +234,8 @@ double BinomialRandom::draw ( void )
 }
 
 double GammaRandom::draw ( void )
-{
+{ 
+  /* implementation from numpy: numpy/random/mtrand/distributions.c */
   double b, c, U, V, X, Y;
   
   if ( k == 1.0 )
