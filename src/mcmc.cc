@@ -21,8 +21,8 @@ MetropolisHastings::MetropolisHastings ( const PsiPsychometric * pmf, const PsiD
 	currenttheta(pmf->getNparams(),0),
 	newtheta(pmf->getNparams(),0),
 	stepwidths(pmf->getNparams(),.1),
-	qold(1),
-	accept(0)
+	accept(0),
+	qold(1)
 {
 	setTheta ( currenttheta );
     currentdeviance = (pmf->deviance(currenttheta,dat));
@@ -65,7 +65,7 @@ double MetropolisHastings::acceptance_probability (
 		const std::vector<double>& new_theta ) {
 	double qnew, lratio;
 
-	qnew = -model->neglpost ( new_theta, data );
+	qnew = -getModel()->neglpost ( new_theta, getData() );
 	lratio = qnew - qold;
 
 #ifdef DEBUG_MCMC
@@ -276,26 +276,28 @@ DefaultMCMC::DefaultMCMC ( const PsiPsychometric* Model, const PsiData* Data ) :
 	MetropolisHastings ( Model, Data, new GaussRandom ),
 	proposaldistributions ( Model->getNparams () )
 {
+	double xmin, xmax;
 	unsigned int i;
 	for (i=0; i<Model->getNparams(); i++) {
-		proposaldistributions[i] = Model.getPrior ( i )->clone();
+		proposaldistributions[i] = Model->getPrior ( i )->clone();
+		parameter_range ( Data, Model, i, &xmin, &xmax );
+		proposaldistributions[i]->shrink ( xmin, xmax );
 	}
-	// TODO: Potential flat priors
 }
 
 DefaultMCMC::~DefaultMCMC ( void ) {
 	unsigned int i;
-	for (i=0; i<Model->getNparams(); i++) {
+	for (i=0; i<proposaldistributions.size(); i++) {
 		delete proposaldistributions[i];
 	}
 }
 
 double DefaultMCMC::acceptance_probability ( const std::vector<double>& current_theta, const std::vector<double>& new_theta ) {
 	double qnew;
-	unsigned int i,
-	qnew     = - model->neglpost ( new_theta, data );
-	for (i=0; i<Model->getNparams(); i++) {
-		qnew -= log ( proposaldistributions[i].pdf ( new_theta[i] ) );
+	unsigned int i;
+	qnew     = - getModel()->neglpost ( new_theta, getData() );
+	for (i=0; i<getModel()->getNparams(); i++) {
+		qnew -= log ( proposaldistributions[i]->pdf ( new_theta[i] ) );
 	}
 	return qnew - qold;
 }
@@ -308,7 +310,7 @@ void DefaultMCMC::proposePoint (
 	unsigned int i;
 
 	for ( i=0; i<new_theta.size(); i++ ) {
-		new_theta[i] = proposaldistributions[i].rand ();
+		new_theta[i] = proposaldistributions[i]->rand ();
 	}
 }
 

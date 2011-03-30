@@ -23,7 +23,7 @@ void BetaPrior::shrink ( double xmin, double xmax ) {
 	if ( s<std() ) {
 		beta = m*(1-m)*(1-m)/(s*s) - 1 + m;
 		alpha = m*beta/(1-m);
-		normalization = betaf(al,bt);
+		normalization = betaf(alpha,beta);
 		rng = BetaRandom ( alpha, beta );
 	}
 }
@@ -33,7 +33,7 @@ void GammaPrior::shrink ( double xmin, double xmax ) {
 	k = ((1+xr)/(1-xr));
 	k *= k;
 	theta = xmax / (k+sqrt(k));
-	normalization = pow(scale,shape)*exp(gammaln(shape));
+	normalization = pow(theta,k)*exp(gammaln(k));
 	rng = GammaRandom ( k, theta );
 }
 

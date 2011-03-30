@@ -571,6 +571,7 @@ double PsiPsychometric::dpredict ( const std::vector<double>& prm, double x, uns
 		return -Sigmoid->f(Core->g(x,prm));
 	if (i==3 && getNalternatives()<2)
 		return 1-Sigmoid->f(Core->g(x,prm));
+	return 0;
 }
 
 double PsiPsychometric::ddpredict ( const std::vector<double>& prm, double x, unsigned int i, unsigned int j ) const {
@@ -736,7 +737,7 @@ double BetaPsychometric::fznull ( unsigned int z, const PsiData * data, double n
 
 double BetaPsychometric::negllikelinull ( const PsiData * data, double nu ) const {
 	double l ( 0 );
-	unsigned int z, nz;
+	unsigned int z;
 	double nunz, pz;
 	double fz;
 	double al, bt;

@@ -13,7 +13,7 @@ LFLAGS=-lm -pg
 
 BUILD=build
 HEADERS=core.h data.h errors.h optimizer.h prior.h psychometric.h sigmoid.h bootstrap.h mclist.h special.h mcmc.h rng.h linalg.h getstart.h
-OBJECTS= $(addprefix $(BUILD)/, core.o data.o optimizer.o psychometric.o sigmoid.o bootstrap.o mclist.o special.o mcmc.o rng.o linalg.o getstart.o)
+OBJECTS= $(addprefix $(BUILD)/, core.o data.o optimizer.o psychometric.o sigmoid.o bootstrap.o mclist.o special.o mcmc.o rng.o linalg.o getstart.o prior.o)
 TESTS=tests_all
 
 tests_all: tests_all.cc $(HEADERS) $(OBJECTS) testing.h
@@ -30,6 +30,8 @@ play: $(OBJECTS) play.cc $(HEADERS)
 $(BUILD):
 	mkdir $(BUILD)
 
+$(BUILD)/prior.o: prior.cc $(HEADERS) | $(BUILD)
+	$(CC)  -c $(CFLAGS) prior.cc -o $(BUILD)/prior.o
 $(BUILD)/core.o: core.cc $(HEADERS) | $(BUILD)
 	$(CC) -c $(CFLAGS) core.cc -o $(BUILD)/core.o
 $(BUILD)/data.o: data.cc $(HEADERS) | $(BUILD)
