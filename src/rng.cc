@@ -294,7 +294,13 @@ double BetaRandom::draw ( void )
     {
       /* Joehnk's Algorithm -> Jöhnk. Erzeugung von betaverteilten und 
          gammaverteilten zufallszahlen. 
-         Metrika 8:5-15. 1964.*/
+         Metrika 8:5-15. 1964.
+         
+         Notation and implementation from:
+         Devroye, Luc. Non-uniform random variables generation. 
+         Springer, New York, 1986. 
+         http://cg.scs.carleton.ca/~luc/rnbookindex.html
+      */
       
       while (1)
         {
@@ -315,10 +321,15 @@ double BetaRandom::draw ( void )
       Gb = grngb.draw();
       return Ga/(Ga + Gb);
     }
-  /* UFPExact -> Mahlooji, Mehruzu, Farzan. Fast Generation of Deviates 
-     for Order Statistics by an Exact Method. Journal of 
-     Industrial and Systems Engineering. Vol.2 , No.4, 
-     pp 288-299. 2009.*/
+  /* Alternative (possibly faster) algorithms:
+     - UFPExact -> Mahlooji, Mehruzu, Farzan. Fast Generation of Deviates 
+       for Order Statistics by an Exact Method. Journal of 
+       Industrial and Systems Engineering. Vol.2 , No.4, 
+       pp 288-299. 2009.
+     - Hörmann, Leydold. Continuous Random Variate Generation by Fast Numerical 
+       Inversion. ACM Trans. Model. Comput. Simul. 13(4): 347-362. 2003.
+       Implementation: statmath.wu.ac.at/unuran
+*/
 }
 
 void setSeed(long int seedval){
