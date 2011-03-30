@@ -1,6 +1,8 @@
 Windows
 =======
 
+This is the installation instruction for the python version, not the matlab version.
+
 The easiest way to use psignifit is to use the `Enthought Python Distribution <http://www.enthought.com/products/epd.php>`_.
 In that case, you might want to download one of the 'swigged' archives from:
 
@@ -15,8 +17,8 @@ Extract the archive to a folder. Navigate to this folder from the command line a
     python setup.py install
 
 
-Installing the command line interface
--------------------------------------
+Installing the command line interface (optional)
+-------------------------------------------------
 
 Download the file ``psignifit_cli_3_beta_installer.exe`` from
 `sourceforge <http://sourceforge.net/projects/psignifit/files/>`_ and run it.
@@ -26,7 +28,7 @@ will not be able to use psignifit from within matlab if you uncheck this box!
 
 
 Testing your installation
-=========================
+-------------------------
 
 To check whether your installation has been successful and pypsignifit is working properly, you can call::
 

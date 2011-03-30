@@ -112,7 +112,7 @@ And see some usage messages after each call.
 
 
 Testing your installation
-=========================
+-------------------------
 
 To check whether your installation has been successful and pypsignifit is working properly, you can call::
 
