@@ -64,10 +64,10 @@ message [#]_.
 Prior distributions for lapse rate and guessing rate
 ----------------------------------------------------
 
-In the models about psychometric there were two parameters that can directly be interpreted as probabilities for certain
+In the models about psychometric data there were two parameters that can directly be interpreted as probabilities for certain
 events to occur.
 
-* The lapse rate :math:`\lambda` can be interpreted as the probability that an observer misses the stimulus and thus gives a response
+* The lapse rate :math:`\lambda` can be interpreted as the probability that  an observer misses the stimulus and thus gives a response
   based only on guessing
 
 * The guessing rate :math:`\gamma` can be interpreted as the probability that an observer gets the stimulus right without having seen it.
@@ -75,7 +75,7 @@ events to occur.
 In certain experimental settings (in particular non AFC settings) the interpretation of these two parameters might change
 slightly but in any case, they will be probabilities. That means, that these parameters should always be within the unit
 interval --- there are neither negative probabilities nor probabilities greater than one.
-A simple but also trival prior for such probabilities would be the Uniform distribution::
+A simple but also trivial prior for such probabilities would be the Uniform distribution::
 
     "Uniform(0,1)"
 
@@ -110,7 +110,7 @@ Although we might feel that this is a good working solution, the translation of 
 
 Another typical prior distribution for parameters that might take values on the unit interval is therefore often the Beta-distribution.
 The Beta distribution has two parameters :math:`\alpha` and :math:`\beta`. We can think of the Beta-distribution in the following way: Imagine performing
-a random experiment with two possible outcomes (throwing a coin and looking at heads and tails, throwing a die and looking at odd and even
+a random experiment with two possible outcomes (throwing a coin and looking at heads and tails, throwing a dice and looking at odd and even
 numbers, ...). Imagine, we repeated this experiment a couple of times and we observed :math:`\alpha-1` successes and :math:`\beta-1` misses. In this
 case, the :math:`Beta(\alpha,\beta)` distribution expresses your knowledge about the probability of a success. Thus, we can easily use the
 Beta-distribution to express prior believes about lapse rate or guessing rate.
@@ -144,7 +144,7 @@ More generally, you could describe this as follows:
 
 If you are unsure about which distribution would be appropriate for the lapse rate in your data, the following numbers are a good starting point:
 	- For human participants who show a low lapse rate a Beta(2,20) is a good approximation of the lapse rate.
-	- For human participants who show a high lapse rate or for a lot of animal experiment a Beta(5,20) is a good starting point for your lapse rate.
+	- For human participants who show a high lapse rate or for a lot of animal experiments a Beta(5,20) is a good starting point for your lapse rate.
 
 
 It is also possible to set the prior :math:`\lambda=\gamma` which means that the upper asymptote of the psychometric function is as far from 1
@@ -156,8 +156,8 @@ Prior distributions for parameters of the psychometric function
 Selecting priors for the psychometric function depends on the exact parameterization of the psychometric function. We will
 explain the reasoning for a logistic-sigmoid and an mw01-core. In this parameterization, the psychometric function depends on the two
 parameters :math:`m` and :math:`w`. :math:`m` is the midpoint of the psychometric function. It is what we are often interested in when we talk about
-a "threshold". :math:`w` on the other hand gives the width of the interval on which the psychometric function rises. These two parameters have
-not natural constraints. The psychometric function is defined for any choice of :math:`m` and :math:`w`. One might therefore be tempted to omit any
+a "threshold". :math:`w` on the other hand gives the width of the interval on which the psychometric function rises. These two parameters don't have
+natural constraints. The psychometric function is defined for any choice of :math:`m` and :math:`w`. One might therefore be tempted to omit any
 priors on these two parameters. This can be done by taking a parameter list like::
 
     ("improper","improper","Beta(2,20)")
