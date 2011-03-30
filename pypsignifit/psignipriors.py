@@ -5,9 +5,24 @@ __doc__ = """This module gives default priors for bayesian estimation of psychom
 import numpy as np
 from scipy import stats, optimize
 
-def default_lapse ( ):
-    """Default prior for the lapse rate"""
-    return "Beta(2.5,12)"
+def default_lapse ( observer="normal" ):
+    """Default prior for the lapse rate
+
+    :Parameters:
+        *observer* :
+            Typically, animals have much higher lapse rates than humans.
+            The same is true for some clinical patient groups. Based on
+            simulation results, we suggest different priors for animals or
+            patients and for healthy adult humans. Thus, select either
+            observer='normal' for healthy adult humans or observer='lapse'
+            for an observer type with unusually high lapse rates.
+    """
+    if observer=="normal":
+        return "Beta(2,20)"
+    elif observer=="lapse":
+        return "Beta(2.5,12)"
+    else:
+        raise Exception, "Unknown observer %s" % (observer,)
 
 def default_width ( x, method="moments" ):
     """Default prior for the width of a psychometric function
