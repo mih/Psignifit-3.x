@@ -613,7 +613,7 @@ class BootstrapInference ( PsiInference ):
 
 ##############################################################################################################################
 class BayesInference ( PsiInference ):
-    def __init__ ( self, data, sample=True, cuts=(.25,.5,.75), conf=(.025,.975), automatic=True, resample=False, plotprm=None, generic=False, **kwargs ):
+    def __init__ ( self, data, sample=True, cuts=(.25,.5,.75), conf=(.025,.975), automatic=True, resample=False, plotprm=None, sampler="metropolis", **kwargs ):
         """Bayesian Inference for psychometric functions using MCMC
 
         :Parameters:
@@ -679,6 +679,12 @@ class BayesInference ( PsiInference ):
                 constrain guessing and lapsing rate to have the same values
             *verbose* :
                 print status messages
+            *sampler* :
+                sampler to be used. This could be either 'generic' for the
+                generic MetropolisGibbs sampler proposed by Raftery & Lewis,
+                or 'metropolis' for standard metropolis sampling, or
+                'independence' for independence sampling based on the prior
+                (or suggested prior).
 
         :Example:
         Use MCMC to estimate a psychometric function from some example data and derive posterior
@@ -774,10 +780,14 @@ class BayesInference ( PsiInference ):
         self.thin   = 1
         self.nsamples = None
 
-        if generic:
+        if sampler == "generic":
             self._sampler = "GenericMetropolis"
-        else:
+        elif sampler == "metropolis":
             self._sampler = "MetropolisHastings"
+        elif sampler == "independence":
+            self._sampler = "DefaultMCMC"
+        else:
+            raise ValueError, "Unknown sampler: %s" % (sampler,)
 
         # We assume that parameter variation is proportional to the
         # estimated parameters
