@@ -3,15 +3,19 @@ function results = BootstrapInference ( data, priors, varargin )
 %
 % Determine bias corrected and accelerated bootstrap confidence intervals for a psychometric function
 %
-% data should be an array with three columns and one row for each block of trials.
+% Data should be an array with three columns and one row for each block of trials.
 %    The first column should contain the stimulus intensity in the respective block,
 %    the second column should contain the number of correctly identified trials in
 %    the respective block, and the third column should contain the total number of
 %    trials presented in the respective block.
 %
-% constraints should be a struct with the fields m_or_a, w_or_b, lambda, and gamma. 'None'
+%    A valid data variable would be:
+%
+%    >> data = [0, 1, 2, 3; 3, 5, 9; 10, 10, 10]''
+%
+% Constraints should be a struct with the fields m_or_a, w_or_b, lambda, and gamma. 'None'
 %    can be used to specify "No constraint". Valid constraints would
-%    be
+%    be:
 %
 %    >> priors.m_or_a = 'None';
 %    >> priors.w_or_b = 'None';
