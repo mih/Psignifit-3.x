@@ -137,6 +137,16 @@ the lapse rate to a range that is roughly between 0 and 10%. In that case, we co
 That would correspond roughly to having knowledge from 20 trials on which we know for sure that the observer lapsed only once.
 This prior gives special emphasis to lapse rates close to 5% but also allows for any other value in the unit interval.
 
+More generally, you could describe this as follows:
+	- Beta (a,b)
+	- lapses = a - 1
+	- correct responses = b-a
+
+If you are unsure about which distribution would be appropriate for the lapse rate in your data, the following numbers are a good starting point:
+	- For human participants who show a low lapse rate a Beta(2,20) is a good approximation of the lapse rate.
+	- For human participants who show a high lapse rate or for a lot of animal experiment a Beta(5,20) is a good starting point for your lapse rate.
+
+
 It is also possible to set the prior :math:`\lambda=\gamma` which means that the upper asymptote of the psychometric function is as far from 1
 as the lower asymptote is from 0. However, this prior is not yet available from the python interface.
 

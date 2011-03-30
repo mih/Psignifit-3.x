@@ -1,17 +1,16 @@
 Specifying the shape of the psychometric function
 =================================================
 
-In this section you can find some more information about the different shapes your psychometric function can take. 
+In this section you can find some more information about the different shapes your psychometric function can take. Which one you go for is mainly dictated by your data but you should also take theoretical aspects into account.
 
 A variety of different parametric shapes for psychometric functions have been used. In probit
 analysis for example, the data are essentially fit by a cumulative gaussian; visual contrast
 detection data have been reported to be well fit by a weibull distribution function. Fitting
 visual contrast detection with a weibull function is also theoretically appealing because it
-corresponds to the Quick pooling model ([Graham_1989]_ p. 165).
+corresponds to the quick pooling model ([Graham_1989]_ p. 165).
 
 Psignifit supports a relatively large number of psychometric function shapes. These are selected
-using two keywords: 'sigmoid' and 'core'. To understand the meaning of these two keywords, let
-us take a look at the model that psignifit tries to fit:
+using two keywords: 'sigmoid' and 'core'. To understand the meaning of these two keywords, let us take a look at the model that psignifit tries to fit:
 
 .. math::
 
@@ -239,9 +238,6 @@ gumbel + log
 
 References
 ==========
-
-.. [Green_and_Swets_1966] Green, DM and Swets, JA (1966): Signal Detection Theory and
-    Psychophysics. New York: Wiley.
 .. [Graham_1989] Graham, NVS (1989): Visual Pattern Analyzers. New York: Oxford University.
 .. [Kuss_et_al_2005] Kuss, M and J√§kel, F and Wichmann, FA: Bayesian inference for psychometric functions
     Journal of Vision, 5, 478-492.
