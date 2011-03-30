@@ -3,7 +3,7 @@
 Reparameterizing the model
 ==========================
 
-pypsignifit reformulates the function :math:`F ( x | a,b )` by means of two separate functions :math:`f: \mathbb{R}\to\mathbb{R}`
+Psignifit3.0 reformulates the function :math:`F ( x | a,b )` by means of two separate functions :math:`f: \mathbb{R}\to\mathbb{R}`
 and :math:`g: \mathbb{R}^3\to\mathbb{R}`. We can think of :math:`f` as the nonlinear part of the psychometric function, while
 :math:`g` is in most cases linear in x. Often g can be changed without seriously altering the possible
 model shapes. In pypsignifit :math:`f` is called the 'sigmoid' and :math:`g` is called the 'core'. Using different
