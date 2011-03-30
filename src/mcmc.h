@@ -46,6 +46,7 @@ class MetropolisHastings : public PsiSampler
 			);                                                          ///< initialize the sampler
 		~MetropolisHastings ( void ) { delete propose; }
 		std::vector<double> draw ( void );                                                ///< perform a metropolis hastings step and draw a sample from the posterior
+		virtual double acceptance_probability ( const std::vector<double>& current_theta, const std::vector<double> new_theta );
 		void setTheta ( const std::vector<double>& prm );                                 ///< set the current state of the sampler
 		std::vector<double> getTheta ( void ) { return currenttheta; }                    ///< get the current state of the sampler
 		double getDeviance ( void ) { return currentdeviance; }                           ///< get the current deviance

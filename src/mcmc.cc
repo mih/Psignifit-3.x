@@ -29,7 +29,7 @@ MetropolisHastings::MetropolisHastings ( const PsiPsychometric * pmf, const PsiD
 }
 
 std::vector<double> MetropolisHastings::draw ( void ) {
-	double qnew, lratio, acc(propose->rngcall());
+	double lratio, acc(propose->rngcall());
 	const PsiPsychometric * model (getModel());
 	const PsiData * data (getData());
 
@@ -37,35 +37,11 @@ std::vector<double> MetropolisHastings::draw ( void ) {
 	proposePoint(currenttheta, stepwidths, propose, newtheta);
 
 	// negative log posterior of the point
-	qnew = model->neglpost ( newtheta, data );
-	lratio = exp(qold - qnew);
-	if (lratio>1) lratio = 1;
+	lratio = acceptance_probability ( currenttheta, newtheta );
 
-#ifdef DEBUG_MCMC
-
-	std::cerr
-		<< "Q_old: " << std::setiosflags ( std::ios::fixed ) << qold
-		<< " Q_new: " << std::setiosflags ( std::ios::fixed ) << qnew
-		<< " P(accept):" << std::setiosflags ( std::ios::fixed ) << exp(qold-qnew)
-        << "\n";
-    int i, Nparams(model->getNparams());
-    std::cerr << "Current Theta:\t\t";
-    for(i=0; i<Nparams; i++){
-        std::cerr << currenttheta[i] << "\t";
-    }
-    std::cerr << "\n";
-
-    std::cerr << "New Theta:\t\t";
-    for(i=0; i<Nparams; i++){
-        std::cerr << newtheta[i] << "\t";
-    }
-    std::cerr << "\n";
-
-#endif
-
-	if (acc<lratio) {
+	if (acc<exp(lratio)) {
 		// accept the new point
-		qold = qnew;
+		qold += lratio;   ///////////////////////////////// <---- das hier ist falsch
 		currenttheta = newtheta;
 		currentdeviance = model->deviance ( currenttheta, data );
 		accept ++;
@@ -82,6 +58,39 @@ std::vector<double> MetropolisHastings::draw ( void ) {
 #endif
 
 	return currenttheta;
+}
+
+double MetropolisHastings::acceptance_probability (
+		const std::vector<double>& current_theta,
+		const std::vector<double>& new_theta ) {
+	double qnew, lratio;
+
+	qnew = -model->neglpost ( new_theta, data );
+	lratio = qnew - qold;
+
+#ifdef DEBUG_MCMC
+
+	std::cerr
+		<< "Q_old: " << std::setiosflags ( std::ios::fixed ) << qold
+		<< " Q_new: " << std::setiosflags ( std::ios::fixed ) << qnew
+		<< " P(accept):" << std::setiosflags ( std::ios::fixed ) << (lratio>1 ? 1 : lratio)
+        << "\n";
+    int i, Nparams(model->getNparams());
+    std::cerr << "Current Theta:\t\t";
+    for(i=0; i<Nparams; i++){
+        std::cerr << currenttheta[i] << "\t";
+    }
+    std::cerr << "\n";
+
+    std::cerr << "New Theta:\t\t";
+    for(i=0; i<Nparams; i++){
+        std::cerr << newtheta[i] << "\t";
+    }
+    std::cerr << "\n";
+
+#endif
+
+	return lratio;
 }
 
 void MetropolisHastings::proposePoint( std::vector<double> &current_theta,
