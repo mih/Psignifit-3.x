@@ -19,8 +19,8 @@ Extract the archive to a folder. Navigate to this folder from the command line a
     python setup.py install
 
 
-Installing the command line interface
--------------------------------------
+Installing the command line interface (optional)
+------------------------------------------------
 
 Download psignifit from `sourceforge <http://sourceforge.net/projects/psignifit/files/>`_ and
 extract the compressed file to a folder in your home directory. Navigate into the folder.
@@ -55,7 +55,7 @@ And see some usage messages after each call.
 
 
 Testing your installation
-=========================
+-------------------------
 
 To check whether your installation has been successful and pypsignifit is working properly, you can call::
 

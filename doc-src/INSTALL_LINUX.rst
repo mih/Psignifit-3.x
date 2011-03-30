@@ -76,8 +76,8 @@ Yet another option is to set the ``$PYTHONPATH`` variable directly from the
 python interpreter using the ``os`` module.
 
 
-Installing the command line interface
--------------------------------------
+Installing the command line interface (optional)
+------------------------------------------------
 
 Download psignifit from `sourceforge <http://sourceforge.net/projects/psignifit/files/>`_ and
 extract the compressed file to a folder in your home directory. Navigate into the folder.
