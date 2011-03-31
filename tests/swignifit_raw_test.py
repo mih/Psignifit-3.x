@@ -351,7 +351,8 @@ class TestLinalg(ut.TestCase):
             # here we use the typemap magic from cpointer.i
             sfr.doublep_assign(matrix(i,j), 1 if i ==j else 0)
         # print is a python keyword, hence it was wrapped as _print
-        matrix._print()
+        # do not test print! 
+        #matrix._print()
         matrix.getnrows()
         matrix.getncols()
         matrix.cholesky_dec()
@@ -369,5 +370,6 @@ class TestLinalg(ut.TestCase):
         # solve and inverse don't work
 
 if __name__ == "__main__":
-    ut.main()
-
+    #ut.main()
+    suite = ut.TestLoader().loadTestsFromName("__main__")
+    ut.TextTestRunner(verbosity=2).run(suite)
