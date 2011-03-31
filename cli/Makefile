@@ -1,6 +1,8 @@
 CC=g++
-CFLAGS=-pg -ggdb -Wall
-LFLAGS=-lm -pg
+# CFLAGS=-pg -ggdb -Wall
+# LFLAGS=-lm -pg
+CFLAGS=-Wall
+LFLAGS=-lm
 TODAY=`date +%d-%m-%G`
 LONGTODAY=`date +%G-%m-%d`
 GIT_DESCRIPTION=`git describe --tags`
