@@ -823,7 +823,7 @@ class BayesInference ( PsiInference ):
 
         if start is None:
             start = self.mapestimate
-        chain,deviance,ppdata,ppdeviances,ppRpd,ppRkd,logpostratios,accept_rate = interface.mcmc ( self.data, start, Nsamples, stepwidths=self._steps, **self.model )
+        chain,deviance,ppdata,ppdeviances,ppRpd,ppRkd,logpostratios,accept_rate = interface.mcmc ( self.data, start, Nsamples, stepwidths=self._steps, sampler=self._sampler, **self.model )
         print "Acceptance:",accept_rate
         self.__mcmc_chains.append(N.array(chain))
         self.__mcmc_deviances.append(N.array(deviance))
@@ -882,7 +882,7 @@ class BayesInference ( PsiInference ):
         elif isinstance (Nsamples,int):
             start = self.__mcmc_chains[chain][start,:]
 
-        mcchain,deviance,ppdata,ppdeviances,ppRpd,ppRkd,logpostratios,accept_rate = interface.mcmc ( self.data, start, Nsamples, stepwidths=self._steps, **self.model )
+        mcchain,deviance,ppdata,ppdeviances,ppRpd,ppRkd,logpostratios,accept_rate = interface.mcmc ( self.data, start, Nsamples, stepwidths=self._steps, sampler=self._sampler, **self.model )
         print "Acceptance:",accept_rate
         self.__mcmc_chains[chain] = N.array(mcchain)
         self.__mcmc_deviances[chain] = N.array(deviance)
@@ -1584,7 +1584,7 @@ class BayesInference ( PsiInference ):
         oldnsamples = NN
         self.debug_samples = []
         for n in xrange ( noptimizations ):
-            samples,deviances,ppdata,ppdeviances,ppRpd,ppRkd,logpostratios,accept_rate = interface.mcmc ( self.data, self.mapestimate, NN, stepwidths=a, **self.model )
+            samples,deviances,ppdata,ppdeviances,ppRpd,ppRkd,logpostratios,accept_rate = interface.mcmc ( self.data, self.mapestimate, NN, stepwidths=a, sampler=self._sampler, **self.model )
             print "Acceptance:",accept_rate
             self.debug_samples.append ( samples )
 
