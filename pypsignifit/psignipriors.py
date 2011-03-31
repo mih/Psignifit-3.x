@@ -18,9 +18,9 @@ def default_lapse ( observer="normal" ):
             for an observer type with unusually high lapse rates.
     """
     if observer=="normal":
-        return "Beta(2,20)",0,0.5
+        return "Beta(2,20)",0.,0.5
     elif observer=="lapse":
-        return "Beta(2.5,12)",0.0.5
+        return "Beta(2.5,12)",0.,0.5
     else:
         raise Exception, "Unknown observer %s" % (observer,)
 
@@ -80,7 +80,7 @@ def default_mid ( x, method="moments" ):
         sg = (mmax-mmin)/(zmax-zmin)
         mu = mmin - sg*zmin
 
-    return "Gauss(%g,%g)" % (mu,sg), tmin, tmax
+    return "Gauss(%g,%g)" % (mu,sg), mmin, mmax
 
 if __name__ == "__main__":
     import pylab as pl
