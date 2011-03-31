@@ -685,6 +685,8 @@ class BayesInference ( PsiInference ):
                 or 'metropolis' for standard metropolis sampling, or
                 'independence' for independence sampling based on the prior
                 (or suggested prior).
+            *stepwidths* :
+                stepwidths for the sampler, a pilot sample, or the proposal distributions for independence sampling
 
         :Example:
         Use MCMC to estimate a psychometric function from some example data and derive posterior
@@ -724,6 +726,7 @@ class BayesInference ( PsiInference ):
                 "gammaislambda": kwargs.setdefault("gammaislambda", False)
                 }
         self.retry = resample
+        self._proposal = kwargs.setdefault ( "stepwidths", None )
 
         self._data,self._pmf,self.nparams = sfu.make_dataset_and_pmf (
                 self.data, self.model["nafc"], self.model["sigmoid"], self.model["core"], self.model["priors"], gammaislambda=self.model["gammaislambda"] )
@@ -823,7 +826,12 @@ class BayesInference ( PsiInference ):
 
         if start is None:
             start = self.mapestimate
-        chain,deviance,ppdata,ppdeviances,ppRpd,ppRkd,logpostratios,accept_rate = interface.mcmc ( self.data, start, Nsamples, stepwidths=self._steps, sampler=self._sampler, **self.model )
+        if self._sampler == "DefaultMCMC":
+            steps_or_proposal = self._proposal
+        else:
+            steps_or_proposal = self._steps
+        chain,deviance,ppdata,ppdeviances,ppRpd,ppRkd,logpostratios,accept_rate = interface.mcmc (
+                self.data, start, Nsamples, stepwidths=steps_or_proposal, sampler=self._sampler, **self.model )
         print "Acceptance:",accept_rate
         self.__mcmc_chains.append(N.array(chain))
         self.__mcmc_deviances.append(N.array(deviance))
@@ -882,7 +890,12 @@ class BayesInference ( PsiInference ):
         elif isinstance (Nsamples,int):
             start = self.__mcmc_chains[chain][start,:]
 
-        mcchain,deviance,ppdata,ppdeviances,ppRpd,ppRkd,logpostratios,accept_rate = interface.mcmc ( self.data, start, Nsamples, stepwidths=self._steps, sampler=self._sampler, **self.model )
+        if self._sampler == "DefaultMCMC":
+            steps_or_proposal = self._proposal
+        else:
+            steps_or_proposal = self._steps
+        mcchain,deviance,ppdata,ppdeviances,ppRpd,ppRkd,logpostratios,accept_rate = interface.mcmc (
+                self.data, start, Nsamples, stepwidths=steps_or_proposal, sampler=self._sampler, **self.model )
         print "Acceptance:",accept_rate
         self.__mcmc_chains[chain] = N.array(mcchain)
         self.__mcmc_deviances[chain] = N.array(deviance)
@@ -1584,7 +1597,12 @@ class BayesInference ( PsiInference ):
         oldnsamples = NN
         self.debug_samples = []
         for n in xrange ( noptimizations ):
-            samples,deviances,ppdata,ppdeviances,ppRpd,ppRkd,logpostratios,accept_rate = interface.mcmc ( self.data, self.mapestimate, NN, stepwidths=a, sampler=self._sampler, **self.model )
+            if self._sampler == "DefaultMCMC":
+                steps_or_proposal = self._proposal
+            else:
+                steps_or_proposal = a
+            samples,deviances,ppdata,ppdeviances,ppRpd,ppRkd,logpostratios,accept_rate = interface.mcmc (
+                    self.data, self.mapestimate, NN, stepwidths=steps_or_proposal, sampler=self._sampler, **self.model )
             print "Acceptance:",accept_rate
             self.debug_samples.append ( samples )
 
@@ -1651,7 +1669,11 @@ class BayesInference ( PsiInference ):
         oldnsamples = NN
 
         for n in xrange ( noptimizations ):
-            results = interface.mcmc ( self.data, self.mapestimate, self.nsamples, stepwidths=pilot, sampler=self._sampler, **self.model )
+            if self._sampler == "DefaultMCMC":
+                steps_or_proposal = self._proposal
+            else:
+                steps_or_proposal = pilot
+            results = interface.mcmc ( self.data, self.mapestimate, self.nsamples, stepwidths=steps_or_proposal, sampler=self._sampler, **self.model )
             pilot,accept_rate = results[0:len(results)-1]
             print n,"Acceptance:",accept_rate
 
