@@ -103,7 +103,11 @@ def mcmc( data, start=None, nsamples=10000, nafc=2, sigmoid='logistic',
             raise sfu.PsignifitException("You specified \'"+str(len(stepwidths))+\
                     "\' stepwidth(s), but there are \'"+str(nparams)+ "\' parameters.")
         else:
-            sampler.setStepSize(sfr.vector_double(stepwidths))
+            if isinstance ( sampler, sfr.DefaultMCMC ):
+                for i,p in enumerate(stepwidths):
+                    sampler.set_proposal(i, p)
+            else:
+                sampler.setStepSize(sfr.vector_double(stepwidths))
 
     post = sampler.sample(nsamples)
 
