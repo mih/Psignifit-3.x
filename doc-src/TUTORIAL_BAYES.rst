@@ -7,7 +7,7 @@ If you come from the Bootstrap Example, you already have loaded pypsignifit and 
 In that case you can skip the following two sections. 
 
 Getting started
-===============
+---------------
 To get you started with pypsignifit, open a python interpreter and type the following:
 
 >>> import pypsignifit as psi
@@ -24,7 +24,7 @@ will show you the documentation of the BayesInference object class.
 
 
 Experimental scenario and data format
-=====================================
+------------------------------------
 The data that will be used in the following tutorials have been gathered in a 2-alternative forced-choice discrimination experiment. Observers had to discriminate between two stimultaneously presented stimuli. One of them  was the original (standard) and the other one was a comparison of five different stimulus intensities which were all larger than the standard. Different comparison intensities were presented in different experimental blocks (num_of_block = 5). One block contained 50 trials (num_of_trials = 50), 25 of which contained the original and the other 25 contained one of the five different stimulus intensities. Data for all stimulus intensities were repeatedly gathered in three sessions (num_of_sess = 3). Different experimental designs are described in detail in the section `specifying your experimental design <http://psignifit.sourceforge.net/MODELSPECIFICATION.html#specifiing-the-experimental-design>`_.
 
 We will now create our example data set for which we want to estimate a psychometric function. The data format should be a numpy array consisting of the following three columns: stimulus intensities, relative/absolute frequencies of correct (or 'yes') responses, number of observations per stimulus intensity:
