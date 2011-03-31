@@ -4,7 +4,16 @@ Mac OSX
 This is the installation instruction for the python version, not the matlab version.
 
 The easiest way to use psignifit is to use the `Enthought Python Distribution <http://www.enthought.com/products/epd.php>`_.
-You will also need to download gcc which you can get through the Apple Developer Tools for which you have to get a developer account (you can use your normal apple account for this and it's free) which will allow you to access the developer tools where you want to download Xcode (this is a very large file but as far as we know is the only way of downloading gcc).
+
+You will also need gcc. You can check whether your machine already has gcc installed by typing::
+
+>>> which gcc
+
+If this gives you the output::
+
+	gcc not found
+
+you have to download gcc through the Apple Developer Tools. Register for a  developer account (you can use your normal apple account for this and it's free, you don't have to join the developer program) which will allow you to access the developer tools where you want to download Xcode (this is a very large file but as far as we know is the only way of downloading gcc) at the time of writing Xcode 3 is free (and has everything you need) so there is no need to pay for Xcode 4. If you are not running Snow Leopard, you will have to find an older version of Xcode such as 3.1.
 
 You will want to download one of the 'swigged' psignifit archives from:
 
