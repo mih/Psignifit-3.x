@@ -105,6 +105,7 @@ def mcmc( data, start=None, nsamples=10000, nafc=2, sigmoid='logistic',
         else:
             if isinstance ( sampler, sfr.DefaultMCMC ):
                 for i,p in enumerate(stepwidths):
+                    p = sfu.get_prior(p)
                     sampler.set_proposal(i, p)
             else:
                 sampler.setStepSize(sfr.vector_double(stepwidths))
