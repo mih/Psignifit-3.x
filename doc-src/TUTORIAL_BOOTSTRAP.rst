@@ -1,58 +1,5 @@
-============================
-A quick start to pypsignifit
-============================
-
-This document presents two example analyses of psychometric data using pypsignifit.
-:ref:`Example 1 <Example 1>` explains how to fit a psychometric function using constrained maximum
-likelihood as described in the papers by [Wichmann_and_Hill_2001a]_, [Wichmann_and_Hill_2001b]_. 
-:ref:`Example 2 <Example 2>` explains how to fit a psychometric function using a bayesian approach. Parts of 
-the ideas that are implemented here can be found in the paper by [Kuss_et_al_2005]_, the rest was new at the time of this writing.
-
-
-Getting started
-===============
-To get you started with pypsignifit, open a python interpreter and type the following:
-
->>> import pypsignifit as psi
->>> dir(psi)
-['BayesInference', 'BootstrapInference', 'ConvergenceMCMC', 'GoodnessOfFit', 'ParameterPlot', 'ThresholdPlot', '__builtins__', '__doc__', '__docformat__', '__file__', '__name__', '__package__', '__path__', '__test__', '__version__', 'interface', 'plotInfluential', 'plotMultiplePMFs', 'plotSensitivity', 'psignidata', 'psignierrors', 'psigniplot', 'pygibbsit', 'set_seed', 'show', 'subprocess', 'sys', 'version']
-
-With the first command you import the complete functionality of the python module pypsignifit to your current workspace. Dir( module name ) provides you with a list of functions and data types that come with pypsignifit.
-To get help and documentation about one of these functions, you can use the online python help by typing
-help ( function name ). For instance,
-
->>> help ( psi.BayesInference )
-
-will show you the documentation of the BayesInference object class.
-
-
-Experimental scenario and data format
-=====================================
-The data that will be used in the following tutorials have been gathered in a 2-alternative forced-choice discrimination experiment. Observers had to discriminate between two stimultaneously presented stimuli. One of them  was the original (standard) and the other one was a comparison of five different stimulus intensities which were all larger than the standard. Different comparison intensities were presented in different experimental blocks (num_of_block = 5). One block contained 50 trials (num_of_trials = 50), 25 of which contained the original and the other 25 contained one of the five different stimulus intensities. Data for all stimulus intensities were repeatedly gathered in three sessions (num_of_sess = 3). Different experimental designs are described in detail in the section `specifying your experimental design <http://psignifit.sourceforge.net/MODELSPECIFICATION.html#specifiing-the-experimental-design>`_.
-
-We will now create our example data set for which we want to estimate a psychometric function. The data format should be a numpy array consisting of the following three columns: stimulus intensities, relative/absolute frequencies of correct (or 'yes') responses, number of observations per stimulus intensity:
-
-    >>> import numpy as np # numpy module required
-    >>> num_of_sess   = 3  # experimental parameters
-    >>> num_of_block  = 5
-    >>> num_of_trials = 50
-    >>> stimulus_intensities = [0.021, 0.079, 0.154, 0.255,  0.30] # stimulus levels
-    >>> percent_correct_1    = [0.5 ,  0.84,  0.96,  1.,   1.]     # percent correct sessions 1-3
-    >>> percent_correct_2    = [0.64,  0.92,  1.  ,  0.96, 1.]
-    >>> percent_correct_3    = [0.58,  0.76,  0.98,  1.,   1.]
-    >>> num_observations     = [num_of_trials] * num_of_block      # observations per block
-    >>> data_1 = np.c_[stimulus_intensities, percent_correct_1, num_observations]
-    >>> data_2 = np.c_[stimulus_intensities, percent_correct_2, num_observations]
-    >>> data_3 = np.c_[stimulus_intensities, percent_correct_3, num_observations]
-    >>> data_single_sessions = np.r_[ data_1, data_2, data_3 ]       # concatenate data from all sessions
-
-Numpy arrays data_1, data_2, data_3 summarize data from each session with each line representing a single experimental block. It is assumed that data are entered in the same sequence in which they have been acquired (often in ascending stimulus intensity as in classical signal detection tasks [Blackwell_1952]_). The last line of the code concatenates data from single sessions into a single numpy array. Again, the information about the sequence of acquisition is coded by the ordering of blocks (rows) and it will be used for the assessment of stability of performance in the :ref:`goodness of fit diagnostics <goodness_of_fit>`.
-
-
-.. _Example 1:
-
-Example 1: Constrained Maximum Likelihood and Bootstrap Inference
-=================================================================
+Constrained Maximum Likelihood and Bootstrap Inference
+======================================================
 
 We will guide you through a recommended workflow, consisting of:
 
@@ -60,6 +7,7 @@ We will guide you through a recommended workflow, consisting of:
 * assessment of goodness of fit
 * sensitivity analysis for potential correction of confidence intervals (!! required for smaller datasets)
 
+If you got here directly from the Table of Contents you should jump to the `quickstart </QUICKSTART>`_ in order to learn how to organize your data for subsequent fitting:
 
 Fitting
 -------
@@ -80,7 +28,6 @@ For a 2AFC task, the guessing rate is fixed at :math:`\gamma=0.5`. Thus, our mod
 
 * For observers who exhibit a low lapse rate :math:`\lambda` can be approximated by Beta(2,20).
 * For observers who exhibit a high lapse rate (typically observed in animals) :math:`\lambda` can be approximated by Beta(5,20). For more information about prior selection you might read the `Introduction to Bayes Inference <http://psignifit.sourceforge.net/BAYESINTRO.html#>`_.
-
 
 
 >>> nafc = 2
@@ -189,7 +136,7 @@ Parameter plots
 
 We can also get a graphical representation of the fitted parameters:
 
->>> psi.ParameterPlot(B)
+>>> psi.ParameterPlot(B_single_sessions)
 
 this should open a graph similar to the one depicted below (again, you might have to type psi.show() to open the plot window). Please note that for illustrative purposes this and the following plot are generated with the B_single_sessions object before the Sensitivity Analysis.
 
@@ -204,10 +151,9 @@ In some cases, we may not directly be interested in the parameters of the model.
 ask for "thresholds", that is predefined performance levels of the sigmoid :math:`F`. We can get a plot
 of such thresholds and the associated confidence intervals using the function
 
->>> psi.ThresholdPlot(B)
+>>> psi.ThresholdPlot(B_single_sessions)
 
-The plots show estimated densities for thresholds at  looks essentially the same as for the ParameterPlot only that this time, the threshold(s)
-of the model are displayed.
+The plots show estimated densities for thresholds at  looks essentially the same as for the ParameterPlot only that this time, the threshold(s) of the model are displayed.
 
 .. image:: threshplot_single_sessions.png
 
@@ -215,27 +161,29 @@ of the model are displayed.
 Reparameterizing the model
 --------------------------
 
-Psignifit3.0 reformulates the function :math:`F ( x | a,b )` by means of two separate functions :math:`\mathbb{R} \to \mathbb{R}` and :math:`g: \mathbb{R}^3\to\mathbb{R}`. We can think of :math:`f` as the nonlinear part of the psychometric function, while :math:`g` is in most cases linear in x. Often g can be changed without seriously altering the possible model shapes. In pypsignifit :math:`f` is called the 'sigmoid' and :math:`g` is called the 'core'. Using different
-combinations of sigmoid and core allows a high flexibility of model fitting. For instance
-Kuss, et al (2005) used a parameterization in terms of the 'midpoint' :math:`m` of the sigmoid and the
-'width' :math:`w`. Here width is defined as the distance :math:`F^{-1} ( 1-\alpha ) - F^{-1} ( \alpha )`. To perform BootstrapInference for this model we can proceed as follows
+Psignifit3.0 reformulates the function :math:`F ( x | a,b )` by means of two separate functions :math:`f: R \to R` and :math:`g: R^3 \to R`. We can think of :math:`f` as the nonlinear part of the psychometric function, while :math:`g` is in most cases linear in :math:`x`. Often :math:`g` can be changed without seriously altering the possible model shapes. In pypsignifit :math:`f` is called the 'sigmoid' and :math:`g` is called the 'core'. Using different combinations of sigmoid and core allows a high flexibility of model fitting. For instance, Kuss et al. (2005) used a parameterization in terms of the 'midpoint' :math:`m` of the sigmoid and the 'width' :math:`w`. Here width is defined as the distance :math:`F^{-1} ( 1-\alpha ) - F^{-1} ( \alpha )`. To perform BootstrapInference for this model we can proceed as follows
 
->>> Bmw = psi.BootstrapInference ( data, sample=2000, priors=constraints, core="mw0.1", nafc=nafc )
->>> Bmw.estimate
-array([ 2.75176858,  6.40375494,  0.01555636])
->>> Bmw.deviance
-8.0713313674704921
->>> Bmw.getThres()
-2.7517685843037913
->>> Bmw.cuts
+>>> B_single_sessions_mw = psi.BootstrapInference ( data_single_sessions, sample=2000, priors=constraints, core="mw0.1", nafc=nafc )
+>>> B_single_sessions_mw.estimate
+array([ 0.061001  ,  0.10004294,  0.00982475])
+>>> B_single_sessions_mw.deviance
+17.419559245740842
+>>> B_single_sessions_mw.getThres()
+0.061001001373125807
+>>> B_single_sessions_mw.cuts
 (0.25, 0.5, 0.75)
->>> Bmw.getCI(1)
+>>> B_single_sessions_mw.getCI(0.5)
 array([ 1.4842732 ,  4.06407509])
 
-Note that this model has the same deviance as the model fitted above. Also the obtained thresholds are the same. However, as the parameterization is different, the actual fitted parameter values are different. More details on sigmoids and cores and how they can be used to specify models can be found in the section about _`Specification of Models for Psychometric functions`
+Note that this model has the same deviance as the model fitted above. Also the obtained thresholds are the same. However, as the parameterization is different, the actual fitted parameter values are different as can be seen in the following plot:
 
-Instead of using  :math:`a` and :math:`b`, we can `reparameterize the model <http://psignifit.sourceforge.net/REPARAMETERIZE.html>`_.
-E.g. Kuss, et al (2005) used a parameterization in terms of the 'midpoint' :math:`m` of the sigmoid and the 'width' :math:`w` as described by.
+>>> psi.ParameterPlot(B_single_sessions_mw)
+
+.. image:: paramplot_single_sessions_mw.png
+
+
+More details on sigmoids and cores and how they can be used to specify models can be found in the section about _`Specification of Models for Psychometric functions`
+
 
 References
 ==========
