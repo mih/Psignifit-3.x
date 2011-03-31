@@ -5,6 +5,19 @@ __doc__ = """This module gives default priors for bayesian estimation of psychom
 import numpy as np
 from scipy import stats, optimize
 
+def default(x):
+    """ All default priors, with default settings.
+
+    :Parameters:
+        *x* :
+            array of stimulus intensities used in the experiment
+
+    :Returns:
+        tuple of 3 priors: m, w, lapse
+
+    """
+    return default_mid(x)[0], default_width(x)[0], default_lapse()[0]
+
 def default_lapse ( observer="normal" ):
     """Default prior for the lapse rate
 

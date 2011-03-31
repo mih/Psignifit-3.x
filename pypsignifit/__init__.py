@@ -20,6 +20,9 @@ import swignifit as interface
 from psignidata import *
 from psigniplot import *
 
+# Methods to set default priors
+import psignipriors
+
 # This is to enable display of graphics
 from pylab import show
 
