@@ -120,6 +120,19 @@ stepwidths = [0.1,0.1,0.01];
 pilot = false;
 generic = '';
 
+% If priors for lambda and gamma are set as 'None', display warning
+if exist ( 'priors.lambda' ) 
+    if priors.lambda == 'None'
+        disp('No prior set on lambda; this may lead to non-plausible value for the lapse rate')
+    end
+end
+
+if exist ( 'priors.gamma')
+    if priors.gamma == 'None'
+        disp('No prior set on gamma; this may lead to non-plausible value for the guess rate')
+    end
+end
+
 % Set a default prior if none is present
 if exist ( 'priors' ) ~= 1;
     priors.m_or_a = 'None';
@@ -127,6 +140,7 @@ if exist ( 'priors' ) ~= 1;
     priors.lambda = 'Uniform(0,.1)';
     priors.gamma  = 'Uniform(0,.1)';
 end
+
 
 % Check input
 while size(varargin,2) > 0
