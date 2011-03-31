@@ -67,7 +67,7 @@ Download the current version of psignifit from:
 
     `<http://sourceforge.net/projects/psignifit/>`_
 
-In the following, installation instructions are provided for different operating systems. You can find a detailed listing of :doc:`INSTALL_MATLAB` at the end of this document, but the dependencies are also considered in the following sections:
+In the following, installation instructions are provided for different operating systems. You can find a detailed listing of :doc:`INSTALL_REQUIRED_PACKAGES` at the end of this document, but the dependencies are also considered in the following sections:
 
 * :doc:`INSTALL_LINUX`
 * :doc:`INSTALL_MAC`
