@@ -25,10 +25,10 @@ data = [stimulus_intensities; number_of_correct; number_of_trials]';
 results = BootstrapInference(data, priors);
 
 % Print thresholds and slops for all cuts
-for i = 1:length(inference.cuts)
-    th = sprintf('Threshold(%.2f)  = \t %f', inference.cuts(i), getThres(results, i));
+for i = 1:length(results.cuts)
+    th = sprintf('Threshold(%.2f)  = \t %f', results.cuts(i), getThres(results, i));
     disp(th)
-    sl = sprintf('Slope(%.2f) \t = \t %f', inference.cuts(i), getSlope(results, i));
+    sl = sprintf('Slope(%.2f) \t = \t %f', results.cuts(i), getSlope(results, i));
     disp(sl)
 end
 

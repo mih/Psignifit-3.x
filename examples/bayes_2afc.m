@@ -8,8 +8,8 @@
 
 
 % Set the priors
-priors.m_or_a = 'Gauss(0, 5)'
-priors.w_or_b = 'Gauss(1, 3);
+priors.m_or_a = 'Gauss(0, 5)';
+priors.w_or_b = 'Gauss(1, 3)';
 priors.lambda = 'Beta(2, 30)';
 
 % Type of data
@@ -23,3 +23,11 @@ data = [stimulus_intensities; number_of_correct; number_of_trials]';
 
 % Run the bootstrap inference
 results = BayesInference(data, priors);
+
+% Print thresholds and slops for all cuts
+for i = 1:length(results.cuts)
+    th = sprintf('Threshold(%.2f)  = \t %f', results.cuts(i), getThres(results, i));
+    disp(th)
+    sl = sprintf('Slope(%.2f) \t = \t %f', results.cuts(i), getSlope(results, i));
+    disp(sl)
+end

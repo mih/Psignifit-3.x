@@ -9,4 +9,9 @@ function threshold = getThres(inference, cut)
 
 if strcmp ( inference.call, 'bootstrap' )
     threshold = inference.thresholds(cut);
+elseif strcmp ( inference.call, 'bayes' )
+    threshold = inference.thresholds(cut);
+else
+    disp('Inference object is neither of type "bootstrap" nor "bayes". Will Stop')    
 end;
+
