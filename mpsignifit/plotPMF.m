@@ -70,10 +70,10 @@ drange = [min(inference.mcdeviance(burnin:end)),min(inference.mcdeviance(burnin:
 
 % Diagnostics of the point estimate
 if inference.gammaislambda
-    diag = Diagnostics ( inference.data, inference.thetahat, ...
+    diag = Diagnostics ( inference.data, inference.params_estimate, ...
         'sigmoid', inference.sigmoid, 'core', inference.core, 'nafc', inference.nafc, 'cuts', inference.cuts, 'gammaislambda' );
 else
-    diag = Diagnostics ( inference.data, inference.thetahat, ...
+    diag = Diagnostics ( inference.data, inference.params_estimate, ...
         'sigmoid', inference.sigmoid, 'core', inference.core, 'nafc', inference.nafc, 'cuts', inference.cuts );
 end
 
@@ -124,9 +124,9 @@ for cut = 1:length(inference.cuts)
     if inference.nafc>1
         guess = 1./inference.nafc;
     else
-        guess = inference.thetahat(end);
+        guess = inference.params_estimate(end);
     end
-    h = guess + inference.cuts(cut)*(1-guess-inference.thetahat(3));
+    h = guess + inference.cuts(cut)*(1-guess-inference.params_estimate(3));
     plot ( axhandle, ci, [h,h], '-', 'color', color );
 end
 
