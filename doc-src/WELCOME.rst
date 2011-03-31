@@ -67,13 +67,13 @@ Download the current version of psignifit from:
 
     `<http://sourceforge.net/projects/psignifit/>`_
 
-In the following, installation instructions are provided for different operating systems. You can find a detailed listing of `required packages <file:///home/marianne/psignifit/doc-html/INSTALL_MATLAB.html>`_ at the end of this document, but the dependencies are also considered in the following sections:
+In the following, installation instructions are provided for different operating systems. You can find a detailed listing of :doc:`INSTALL_MATLAB` at the end of this document, but the dependencies are also considered in the following sections:
 
-* `Linux <file:///home/marianne/psignifit/doc-html/INSTALL_LINUX.html>`_
-* `Mac OSX <file:///home/marianne/psignifit/doc-html/INSTALL_MAC.html>`_
-* `Windows <file:///home/marianne/psignifit/doc-html/INSTALL_WINDOWS.html>`_
-* `Running without installation <file:///home/marianne/psignifit/doc-html/INSTALL_WITHOUT.html>`_
-* `Psignifit for Matlab users <file:///home/marianne/psignifit/doc-html/INSTALL_MATLAB.html>`_
+* :doc:`INSTALL_LINUX`
+* :doc:`INSTALL_MAC`
+* :doc:`INSTALL_WINDOWS`
+* :doc:`INSTALL_WITHOUT`
+* :doc:`INSTALL_MATLAB`
 
 Currently this documentation only describes the installation of the python version of psignifit. 
 
