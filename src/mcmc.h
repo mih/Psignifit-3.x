@@ -94,7 +94,8 @@ class DefaultMCMC : public MetropolisHastings
 		std::vector<PsiPrior*> proposaldistributions;
 	public:
 		DefaultMCMC ( const PsiPsychometric * Model,                                      ///< psychometric function model to sample from
-				const PsiData * Data                                                      ///< data to base inference on
+				const PsiData * Data,                                                     ///< data to base inference on
+				PsiRandom* proposal                                                       ///< IGNORED
 				);
 		~DefaultMCMC ( void );
 		double acceptance_probability (

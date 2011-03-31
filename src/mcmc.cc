@@ -22,7 +22,7 @@ MetropolisHastings::MetropolisHastings ( const PsiPsychometric * pmf, const PsiD
 	newtheta(pmf->getNparams(),0),
 	stepwidths(pmf->getNparams(),.1),
 	accept(0),
-	qold(1)
+	qold(-1e5)
 {
 	std::cerr << "Hi my name is MetropolisHastings\n";
 	setTheta ( currenttheta );
@@ -30,7 +30,7 @@ MetropolisHastings::MetropolisHastings ( const PsiPsychometric * pmf, const PsiD
 }
 
 std::vector<double> MetropolisHastings::draw ( void ) {
-	double lratio, acc(propose->rngcall());
+	double qnew, acc(propose->rngcall());
 	const PsiPsychometric * model (getModel());
 	const PsiData * data (getData());
 
@@ -38,11 +38,12 @@ std::vector<double> MetropolisHastings::draw ( void ) {
 	proposePoint(currenttheta, stepwidths, propose, newtheta);
 
 	// negative log posterior of the point
-	lratio = acceptance_probability ( currenttheta, newtheta );
+	qnew = acceptance_probability ( currenttheta, newtheta );
+	std::cerr << qnew-qold << " " << exp(qnew-qold) << "\n";
 
-	if (acc<exp(lratio)) {
+	if (acc<exp(qnew-qold)) {
 		// accept the new point
-		qold += lratio;   ///////////////////////////////// <---- das hier ist falsch
+		qold = qnew;
 		currenttheta = newtheta;
 		currentdeviance = model->deviance ( currenttheta, data );
 		accept ++;
@@ -67,7 +68,6 @@ double MetropolisHastings::acceptance_probability (
 	double qnew, lratio;
 
 	qnew = -getModel()->neglpost ( new_theta, getData() );
-	lratio = qnew - qold;
 
 #ifdef DEBUG_MCMC
 
@@ -76,7 +76,7 @@ double MetropolisHastings::acceptance_probability (
 		<< " Q_new: " << std::setiosflags ( std::ios::fixed ) << qnew
 		<< " P(accept):" << std::setiosflags ( std::ios::fixed ) << (lratio>1 ? 1 : lratio)
         << "\n";
-    int i, Nparams(model->getNparams());
+    int i, Nparams(getModel()->getNparams());
     std::cerr << "Current Theta:\t\t";
     for(i=0; i<Nparams; i++){
         std::cerr << currenttheta[i] << "\t";
@@ -91,7 +91,7 @@ double MetropolisHastings::acceptance_probability (
 
 #endif
 
-	return lratio;
+	return qnew;
 }
 
 void MetropolisHastings::proposePoint( std::vector<double> &current_theta,
@@ -154,6 +154,8 @@ MCMCList MetropolisHastings::sample ( unsigned int N ) {
 		}
 		reduceddata[k] = new PsiData ( reducedx, reducedn, reducedk, data->getNalternatives() );
 	}
+
+	qold = acceptance_probability ( currenttheta, currenttheta );
 
 	for (i=0; i<N; i++) {
 		// Draw the next sample
@@ -273,7 +275,7 @@ void GenericMetropolis::findOptimalStepwidth( PsiMClist const &pilot ){
  * DefaultMCMC
  *
  */
-DefaultMCMC::DefaultMCMC ( const PsiPsychometric* Model, const PsiData* Data ) :
+DefaultMCMC::DefaultMCMC ( const PsiPsychometric* Model, const PsiData* Data, PsiRandom* prop ) :
 	MetropolisHastings ( Model, Data, new GaussRandom ),
 	proposaldistributions ( Model->getNparams () )
 {
@@ -303,7 +305,26 @@ double DefaultMCMC::acceptance_probability ( const std::vector<double>& current_
 	for (i=0; i<getModel()->getNparams(); i++) {
 		qnew -= log ( proposaldistributions[i]->pdf ( new_theta[i] ) );
 	}
-	return qnew - qold;
+
+	/*
+	std::cerr << "qnew = " << qnew << "\n"
+		<< "Points: " << std::setiosflags(std::ios::fixed) << new_theta[0] << " " << new_theta[1] << " " << new_theta[2] << "\n"
+		<< "Q*:     " << std::setiosflags(std::ios::fixed) << log ( proposaldistributions[0]->pdf ( new_theta[0] ) )
+				<< " " << log ( proposaldistributions[1]->pdf ( new_theta[1] ) )
+				<< " " << log ( proposaldistributions[2]->pdf ( new_theta[2] ) )
+//				<< " " << log ( proposaldistributions[3]->pdf ( new_theta[3] ) )
+				<< "\n"
+		<< "P*:     " << -getModel()->neglpost ( new_theta, getData () ) << "\n"
+		<< "qnew = " << qnew << "\n"
+		<< "qold = " << qold << "\n"
+		<< "qnew-qold = " << qnew - qold << " P(acceptance) = " << exp(qnew-qold) << "\n";
+	*/
+
+#ifdef DEBUG_MCMC
+	std::cerr << "p(accept) = " << exp(qnew-qold) << "\n";
+#endif
+
+	return qnew;
 }
 
 void DefaultMCMC::proposePoint (
