@@ -1,20 +1,20 @@
-==========================
-Additional Plots
-==========================
+===================================
+Additional Plots for the Bootstrap
+===================================
 
-In addition to the plots mentioned in the 'tutorial <http://psignifit.sourceforge.net/TUTORIAL.html'_ you can access several other plots. 
+In addition to the plots mentioned in the 'tutorial <http://psignifit.sourceforge.net/TUTORIAL.html'_ you can access several other plots in psignifit. 
 
 Parameter Plots
 ---------------
 
 >>> ParameterPlot(B)
 
-in an interactive session, this should again open a window showing estimated densities of
-the model parameters as shown below. (Again, you might have to type show() to see the window).
+In an interactive session, this should open a window showing the sampling distribution of
+the model parameters as shown below (you might have to type show() to see the window).
 
 .. image:: BootstrapParameters.png
 
-Each of these plots shows the estimated density of one of the model parameters. In addition,
+Each of these plots shows the sampling distribution of the model parameters. In addition,
 the estimated parameter is marked by a solid vertical line and the 95% confidence interval is
 marked by dotted vertical lines. The confidence interval limits and the estimates are written
 on top of the graph.
