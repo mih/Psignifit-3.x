@@ -16,7 +16,7 @@ function axhandle = plotPMF ( inference, varargin )
 % xlabel        label for the x axis
 % ylabel        label for the y axis
 % 
-% This file is part of psignifit3 for matlab (c) by Ingo Fründ
+% This file is part of psignifit3 for matlab (c) by Ingo FrÃ¼nd
 
 % Check data format
 if size ( inference.data, 2 ) ~= 3
@@ -31,8 +31,8 @@ end
 verbose = false;
 axhandle = gca;
 color = [0,0,1];
-xname = 'stimulus intensity';
-yname = 'fraction of correct responses';
+xname = 'Stimulus intensity';
+yname = 'Proportion correct';
 
 % posterior samples only make sense in a bayesian framework
 if strcmp(inference.call, 'bayes')
@@ -140,5 +140,15 @@ set(axhandle, 'xlim', [xmin-.05*xrange,xmax+.05*xrange], 'ylim', [0,1] );
 xlabel ( xname );
 ylabel ( yname );
 
+
+% Add info about psychometric function as multi-line text object
+textstr(1) = {['sigmoid: ', inference.sigmoid]};
+textstr(2) = {['core: ', inference.core]};
+textstr(3) = {['nAFC: ', num2str(inference.nafc)]};
+textstr(4) = {'Deviance'};
+
+text(xmin, 0.9, textstr, 'HorizontalAlignment', 'left');
+
 % Releast the plot
 hold off;
+
