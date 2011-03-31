@@ -32,3 +32,5 @@ for i = 1:length(results.cuts)
     disp(sl)
 end
 
+% Plot the results
+plotPMF(results)

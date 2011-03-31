@@ -31,3 +31,6 @@ for i = 1:length(results.cuts)
     sl = sprintf('Slope(%.2f) \t = \t %f', results.cuts(i), getSlope(results, i));
     disp(sl)
 end
+
+% Plot the results
+plotPMF(results)
