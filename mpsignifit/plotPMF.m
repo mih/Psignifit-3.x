@@ -107,7 +107,7 @@ for k = 1:nposteriorsamples
     elseif dpos < 0
         dpos = 0;
     elseif dpos > 1
-        dpos = 1
+        dpos = 1;
     end
 
     % Plot the example
