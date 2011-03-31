@@ -5,27 +5,35 @@ Changes between psignifit 2 and 3
 This page contains some of the changes in conversion between psignifit 2 and 3. As of now, this list is nots complete, while we are in the process of updating this list, please let us know if you find any differences that we have not added so far.
 
 Order of Parameters
--------------------
+--------------------
 
 In psignifit 2 the different parameters were used in the following oder:
 
-a b gamma lambda
+alpha beta gamma lambda
 
 Psignifit 3 changes the order of the parameters slightly when you are using the classical notation 
 
-a b lambda gamma
+alpha beta lambda gamma
 
-This is because you do not have to use gamma in all situations. When you are analysing a 2AFC task you will only have to specify 3 priors. If you are analysing a yes-no task, for example, you will have to specify your 4th prior for gamma as well.
-
-
-SPecifying Psychometric function
-Old: give function (one of the options)
-New: now, simoid and core specify what maps onto what
-OLD: always ab
-NEW: still an option, now mw is also a option, and lots of different other combinations.
-
-Priors specified differently
-NEW: struct, if you want to change one thing you have to make all explicit either completely default or all specified
-OLD: each parameter separately, so you can keep most of them default and only change one
+This is because you do not have to use gamma in all situations. When you are analysing a 2AFC task you will only have to specify 3 priors. If you are analysing a yes-no task, for example, you will have to specify your 4th prior (for gamma) as well.
 
 
+Specifying the psychometric function
+-------------------------------------
+
+In psignifit 2 you specify a function from the list
+	- ADD OPTIONS
+
+This has changed. In psignifit 3 this is split into the sigmoid and the core. Below we have summarized how the old functions map onto the new sigmoid-core framework:
+
+ADD HOW THINGS MAP ONTO EACH OTHER
+
+You should be aware though, that by having the simoid-core framework you have several other combinations that you can choose from. For a description of the different combinations that are possible in psignifit 3 have a look at the section on how to specify the different psychometric functions (ADD LINK)
+
+
+Specifying priors
+------------------
+
+In psignifit 2 you could access the priors independently. For example, if you only wanted to change your lamda prior you only had to specify the lambda prior.
+In psignifit 3 you have two options, either you leave all priors at their default setting or (even if you just want to change one of them) you make all priors explicit.
+NEEDS MORE DETAIL
