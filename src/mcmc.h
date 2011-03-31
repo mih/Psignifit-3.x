@@ -105,6 +105,10 @@ class DefaultMCMC : public MetropolisHastings
 				std::vector<double> &stepwidths,
 				PsiRandom * proposal,
 				std::vector<double> &new_theta);                                          ///< propose a new sample and save it in new_theta
+        void set_proposal(unsigned int i, PsiPrior* proposal){
+            delete proposaldistributions.at(i);
+            proposaldistributions.at(i) = proposal->clone();
+        }
 };
 
 class HybridMCMC : public PsiSampler

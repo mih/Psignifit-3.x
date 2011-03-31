@@ -13,6 +13,8 @@
 import numpy, pylab
 import unittest as ut
 import swignifit.swignifit_raw as sfr
+import swignifit.utility as sfu
+import pypsignifit.psignipriors as pfp
 
 class TestData(ut.TestCase):
 
@@ -256,6 +258,16 @@ class TestMCMC(ut.TestCase):
                               new_theta)
         mclist = sampler.sample(4)
         sampler.findOptimalStepwidth(mclist)
+
+    def test_independence_mcmc(self):
+        data = TestData.generate_test_dataset()
+        psi = TestPsychometric.generate_test_model()
+        # just test initialization
+        sampler = sfr.DefaultMCMC(psi, data, sfr.GaussRandom())
+        # default priors has length 4
+        priors = pfp.default(data.getIntensities())
+        for i,p in enumerate(priors):
+            sampler.set_proposal(i, sfu.get_prior(p))
 
     def test_hybrid_mcmc(self):
         data = TestData.generate_test_dataset()
