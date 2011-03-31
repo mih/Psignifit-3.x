@@ -73,11 +73,10 @@ In the following, installation instructions are provided for different operating
 * :doc:`INSTALL_MAC`
 * :doc:`INSTALL_WINDOWS`
 * :doc:`INSTALL_WITHOUT`
-* :doc:`INSTALL_MATLAB`
 
 Currently this documentation only describes the installation of the python version of psignifit. 
 
-If you are looking for installation instructions for matlab, see `Installing mpsignifit`_. Installation instructions for R are going to follow as soon as these toolboxes are
+If you are looking for installation instructions for Matlab, see :doc:`INSTALL_MATLAB`. Installation instructions for R are going to follow as soon as these toolboxes are
 ready for use. 
 Unless you are an expert user, or want to use the matlab version mpsignifit, you do not need to install the optional commandline interface, which is however required for the matlab version mpsignifit. 
 
