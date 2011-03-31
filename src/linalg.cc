@@ -271,7 +271,7 @@ Matrix *Matrix::inverse_qr ( void ) const {
 
 	Matrix * QR = A->qr_dec ();
 
-	QR->print();
+	//QR->print();
 
 	for ( k=getncols()-1; k<UINT_MAX; k-- ) {
 		for ( i=getnrows()-1; i<UINT_MAX; i-- ) {
@@ -281,8 +281,8 @@ Matrix *Matrix::inverse_qr ( void ) const {
 			(*QR)(i,k+getncols()) /= (*QR)(i,i);
 			(*inv)(i,k) = (*QR)(i,k+getncols());
 		}
-		std::cout << "QR(" << k << ") = ";
-		QR->print();
+		//std::cout << "QR(" << k << ") = ";
+		//QR->print();
 	}
 	delete A;
 	delete QR;
