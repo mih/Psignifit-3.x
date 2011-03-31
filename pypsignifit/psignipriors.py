@@ -18,9 +18,9 @@ def default_lapse ( observer="normal" ):
             for an observer type with unusually high lapse rates.
     """
     if observer=="normal":
-        return "Beta(2,20)"
+        return "Beta(2,20)",0,0.5
     elif observer=="lapse":
-        return "Beta(2.5,12)"
+        return "Beta(2.5,12)",0.0.5
     else:
         raise Exception, "Unknown observer %s" % (observer,)
 
@@ -40,7 +40,6 @@ def default_width ( x, method="moments" ):
     xx = np.sort(x)
     wmin = np.min(np.diff(xx))
     wmax = xx[-1]-xx[0]
-    print wmin,wmax
     if method=='moments':
         wr = wmin/wmax
         k  = ((1+wr)/(1-wr))**2
@@ -55,7 +54,7 @@ def default_width ( x, method="moments" ):
                 return e
         k,th = optimize.fmin ( error, [1.,4.] )
 
-    return "Gamma(%g,%g)" % (k,th),k,th
+    return "Gamma(%g,%g)" % (k,th),wmin,wmax
 
 def default_mid ( x, method="moments" ):
     """Default prior for the midpoint (threshold) of a psychometric function
@@ -81,7 +80,7 @@ def default_mid ( x, method="moments" ):
         sg = (mmax-mmin)/(zmax-zmin)
         mu = mmin - sg*zmin
 
-    return "Gauss(%g,%g)" % (mu,sg), mu, sg
+    return "Gauss(%g,%g)" % (mu,sg), tmin, tmax
 
 if __name__ == "__main__":
     import pylab as pl
@@ -95,7 +94,7 @@ if __name__ == "__main__":
     # # pl.plot ( xx, [0]*len(xx), 'o', x, (x/th)**(k-1)*np.exp(-x/th) )
     # pl.plot ( xx, [0]*len(xx), 'o', x, stats.gamma.pdf ( x, k, scale=th ), x, stats.gamma.cdf ( x, k, scale=th ) )
 
-    g,mu,sg = default_mid ( xx )
-    print g
-    pl.plot ( xx, [0]*len(xx), 'o', x, stats.norm.pdf ( x, mu, scale=sg ) )
-    pl.show()
+    # g,mu,sg = default_mid ( xx )
+    # print g
+    # pl.plot ( xx, [0]*len(xx), 'o', x, stats.norm.pdf ( x, mu, scale=sg ) )
+    # pl.show()
