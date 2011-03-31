@@ -189,7 +189,7 @@ int main ( int argc, char ** argv ) {
 		}
 
 		// Write a summary of the parameter estimation if requested.
-		/* if ( summary ) {
+		if ( summary ) {
 			std::cerr << "Parameter estimates:\n";
 			std::cerr << "--------------------\n";
 			for ( i=0; i<nparams; i++ ) {
@@ -211,7 +211,7 @@ int main ( int argc, char ** argv ) {
 					<< bs_list->getSlope(.975,i) << ")\n";
 			}
 		}
-		*/
+		
 		
 		// Get thresholds and slopes
 		for ( i=0; i<ncuts; i++ ) {
