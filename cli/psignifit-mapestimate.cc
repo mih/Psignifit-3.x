@@ -100,7 +100,7 @@ int main ( int argc, char ** argv ) {
 		if ( verbose ) std::cerr << "\n";
 
 		// Print output
-		print ( theta,                          parser.getOptSet ( "--matlab" ), "thetahat", ofile );
+		print ( theta,                          parser.getOptSet ( "--matlab" ), "params_estimate", ofile );
 		print_fisher ( pmf, theta, data, ofile, parser.getOptSet ( "--matlab" ) );
 		print ( cuts,                           parser.getOptSet ( "--matlab" ), "thres", ofile );
 		print ( pmf->deviance ( theta, data ),  parser.getOptSet ( "--matlab" ), "deviance", ofile );
