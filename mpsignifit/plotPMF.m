@@ -145,7 +145,7 @@ ylabel ( yname );
 textstr(1) = {['sigmoid: ', inference.sigmoid]};
 textstr(2) = {['core: ', inference.core]};
 textstr(3) = {['nAFC: ', num2str(inference.nafc)]};
-textstr(4) = {'Deviance'};
+textstr(4) = {['Deviance: ', num2str(diag.deviance)]};
 
 text(xmin, 0.9, textstr, 'HorizontalAlignment', 'left');
 
