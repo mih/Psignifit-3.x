@@ -58,6 +58,9 @@ int main ( int argc, char ** argv ) {
 	MCMCList                   *mcmc_list;
 	unsigned int                nsamples ( atoi ( parser.getOptArg("-nsamples").c_str() ) );
 	double                      th;
+	double 						sl;
+	double 						th_m;
+	double 						sl_m;	
 	double                      meanestimate;
 	double                      bayesian_p;
 	GaussRandom                 proposal;
@@ -126,6 +129,8 @@ int main ( int argc, char ** argv ) {
 	std::vector<double>                 ppRpd      ( nsamples );
 	std::vector<double>                 ppRkd      ( nsamples );
 	std::vector<double>                 dummydata  ( nsamples/2 );
+	std::vector<double>   thresholds ( ncuts );
+	std::vector<double>   slopes     ( ncuts );
 	std::vector<double>                *influential;
 	std::vector<int>                   *outliers;
 	std::vector<double>                *ci_lower;
@@ -288,6 +293,14 @@ int main ( int argc, char ** argv ) {
 			}
 		}
 
+		
+		for ( i=0; i<ncuts; i++ ) {
+		th_m = pmf->getThres ( theta, cuts[i] );
+		thresholds[i] = th_m;
+		sl_m = pmf->getSlope ( theta, th_m );
+		slopes[i] = sl_m;
+		}
+		
 		// Now store everything related to goodness of fit
 		for ( i=0; i<nsamples; i++ ) {
 			mcdeviance[i] = mcmc_list->getdeviance(i);
@@ -327,6 +340,8 @@ int main ( int argc, char ** argv ) {
 		print ( mcRkd,        matlabformat, "mcRkd",       ofile );
 		print ( ppRkd,        matlabformat, "ppRkd",       ofile );
 		print ( *influential, matlabformat, "influential", ofile );
+		print ( thresholds,   matlabformat, "thresholds",  ofile );
+		print ( slopes,       matlabformat, "slopes",      ofile );
 
 		// Get the next input file (if there is one)
 		fname = parser.popArg();
@@ -345,3 +360,4 @@ int main ( int argc, char ** argv ) {
 
 	return 0;
 }
+
