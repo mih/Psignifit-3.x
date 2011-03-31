@@ -52,6 +52,8 @@ In all these situations, the lower asymptote of the psychometric function will
 be a free parameter by setting the keyword 'nafc' to 1. 
 Note that in this case you also need to specify priors for four parameters instead of the three parameters in an nAFC experiment. 
 
+If you would like to read more about how you specify the shape of the psychometric functions, have a look at the section on :doc:`PSYCHOMETRICFUNCTIONS`
+
 A note on yes-no designs
 -------------------------
 
@@ -88,6 +90,7 @@ Furthermore, signal detection theory also offers a number of criterion free disc
 like area under the ROC curve and the famous d' index. However, these indices can not generally
 be assumed to have binomial variance (or anything similar to that). Therefore, psignifit
 does not attempt to fit such data.
+
 
 References
 ==========

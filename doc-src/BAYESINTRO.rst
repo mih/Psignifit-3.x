@@ -140,7 +140,7 @@ This prior gives special emphasis to lapse rates close to 5% but also allows for
 More generally, you could describe this as follows:
 	- Beta (a,b)
 	- lapses = a - 1
-	- correct responses = b-a
+	- correct responses = b-(a-1)
 
 If you are unsure about which distribution would be appropriate for the lapse rate in your data, the following numbers are a good starting point:
 	- For human participants who show a low lapse rate a Beta(2,20) is a good approximation of the lapse rate.

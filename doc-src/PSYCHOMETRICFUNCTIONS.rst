@@ -10,7 +10,7 @@ visual contrast detection with a weibull function is also theoretically appealin
 corresponds to the quick pooling model ([Graham_1989]_ p. 165).
 
 Psignifit supports a relatively large number of psychometric function shapes. These are selected
-using two keywords: 'sigmoid' and 'core'. To understand the meaning of these two keywords, let us take a look at the model that psignifit tries to fit:
+using two keywords: 'sigmoid' and 'core' (this is independent of whether you are using bootstrap or bayes). To understand the meaning of these two keywords, let us take a look at the model that psignifit tries to fit:
 
 .. math::
 
