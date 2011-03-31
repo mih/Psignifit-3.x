@@ -4,10 +4,10 @@
  */
 #include "mcmc.h"
 
-#ifdef DEBUG_MCMC
+// #define DEBUG_MCMC
+
 #include <iostream>
 #include <iomanip>
-#endif
 
 /**********************************************************************
  *
@@ -24,6 +24,7 @@ MetropolisHastings::MetropolisHastings ( const PsiPsychometric * pmf, const PsiD
 	accept(0),
 	qold(1)
 {
+	std::cerr << "Hi my name is MetropolisHastings\n";
 	setTheta ( currenttheta );
     currentdeviance = (pmf->deviance(currenttheta,dat));
 }
@@ -276,12 +277,15 @@ DefaultMCMC::DefaultMCMC ( const PsiPsychometric* Model, const PsiData* Data ) :
 	MetropolisHastings ( Model, Data, new GaussRandom ),
 	proposaldistributions ( Model->getNparams () )
 {
+	std::cerr << "Hi my name is DefaultMCMC\n";
 	double xmin, xmax;
 	unsigned int i;
 	for (i=0; i<Model->getNparams(); i++) {
 		proposaldistributions[i] = Model->getPrior ( i )->clone();
+		/*
 		parameter_range ( Data, Model, i, &xmin, &xmax );
 		proposaldistributions[i]->shrink ( xmin, xmax );
+		*/
 	}
 }
 
@@ -311,7 +315,13 @@ void DefaultMCMC::proposePoint (
 
 	for ( i=0; i<new_theta.size(); i++ ) {
 		new_theta[i] = proposaldistributions[i]->rand ();
+#ifdef DEBUG_MCMC
+        std::cerr << new_theta[i] << "\t";
+#endif
 	}
+#ifdef DEBUG_MCMC
+	std::cerr << "\n";
+#endif
 }
 
 /**********************************************************************
