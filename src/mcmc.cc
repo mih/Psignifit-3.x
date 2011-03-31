@@ -39,7 +39,7 @@ std::vector<double> MetropolisHastings::draw ( void ) {
 
 	// negative log posterior of the point
 	qnew = acceptance_probability ( currenttheta, newtheta );
-	std::cerr << qnew-qold << " " << exp(qnew-qold) << "\n";
+	// std::cerr << qnew-qold << " " << exp(qnew-qold) << "\n";
 
 	if (acc<exp(qnew-qold)) {
 		// accept the new point
