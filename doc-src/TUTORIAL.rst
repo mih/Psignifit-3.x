@@ -2,40 +2,67 @@
 A quick start to pypsignifit
 ============================
 
-This document presents two example analyses of psychometric function data using pypsignifit.
+This document presents two example analyses of psychometric data using pypsignifit.
 :ref:`Example 1 <Example 1>` explains how to fit a psychometric function using constrained maximum
-likelihood as described in the papers by [Wichmann_and_Hill_2001a]_, [Wichmann_and_Hill_2001b]_. In its two parts we show standard workflows for data acquired (1A) in single sessions and data averaged across sessions (1B). For more information about these prerequisites, see the section about 
-`specifying your experimental design <http://psignifit.sourceforge.net/MODELSPECIFICATION.html#specifiing-the-experimental-design>`_.
-:ref:`Example 2 <Example 2>` deals with a bayesian approach to fitting a psychometric function. Parts of
-the ideas for this can be found in the paper by [Kuss_et_al_2005]_, however most of this example is new
-at the time of this writing.
+likelihood as described in the papers by [Wichmann_and_Hill_2001a]_, [Wichmann_and_Hill_2001b]_. 
+:ref:`Example 2 <Example 2>` explains how to fit a psychometric function using a bayesian approach. Parts of 
+the ideas that are implemented here can be found in the paper by [Kuss_et_al_2005]_, the rest was new at the time of this writing.
 
-To get you starting with pypsignifit, open a python interpreter and type the following:
->>> import numpy as np>>> import pypsignifit as psi
+
+Getting started
+===============
+To get you started with pypsignifit, open a python interpreter and type the following:
+
+>>> import pypsignifit as psi
 >>> dir(psi)
 ['BayesInference', 'BootstrapInference', 'ConvergenceMCMC', 'GoodnessOfFit', 'ParameterPlot', 'ThresholdPlot', '__builtins__', '__doc__', '__docformat__', '__file__', '__name__', '__package__', '__path__', '__test__', '__version__', 'interface', 'plotInfluential', 'plotMultiplePMFs', 'plotSensitivity', 'psignidata', 'psignierrors', 'psigniplot', 'pygibbsit', 'set_seed', 'show', 'subprocess', 'sys', 'version']
 
-As you see, there is a number of functions and data types imported in the current workspace.
-To view documentation about one of these functions, you can use the online python help by typing
+With the first command you import the complete functionality of the python module pypsignifit to your current workspace. Dir( module name ) provides you with a list of functions and data types that come with pypsignifit.
+To get help and documentation about one of these functions, you can use the online python help by typing
 help ( function name ). For instance,
 
 >>> help ( BayesInference )
 
-will show the documentation of the BayesInference object class.
+will show you the documentation of the BayesInference object class.
 
 
-In our examples we will guide you through a standard workflow, including
-* Parameter Estimation with BootstrapInference
-* Bootstrap Sampling to assess Goodness of Fit Statistics
-* Sensitivity Analysis for adaption of confidence intervals (especially required for smaller datasets)
+Experimental scenario and data format
+=====================================
+The data that will be used in the following tutorials have been gathered in a 2-alternative forced-choice discrimination experiment. Observers had to discriminate between two stimultaneously presented stimuli. One of them  was the original (standard) and the other one was a comparison of five different stimulus intensities which were all larger than the standard. Different comparison intensities were presented in different experimental blocks (num_of_block = 5). One block contained 50 trials (num_of_trials = 50), 25 of which contained the original and the other 25 contained one of the five different stimulus intensities. Data for all stimulus intensities were repeatedly gathered in three sessions (num_of_sess = 3). Different experimental designs are described in detail in the section `specifying your experimental design <http://psignifit.sourceforge.net/MODELSPECIFICATION.html#specifiing-the-experimental-design>`_.
+
+We will now create our example data set for which we want to estimate a psychometric function. The data format should be a numpy array consisting of the following three columns: stimulus intensities, relative/absolute frequencies of correct (or 'yes') responses, number of observations per stimulus intensity:
+
+    >>> import numpy as np # numpy module required
+    >>> num_of_sess   = 3  # experimental parameters
+    >>> num_of_block  = 5
+    >>> num_of_trials = 50
+    >>> stimulus_intensities = [0.021, 0.079, 0.154, 0.255,  0.30] # stimulus levels
+    >>> percent_correct_1    = [0.5 ,  0.84,  0.96,  1.,   1.]     # percent correct sessions 1-3
+    >>> percent_correct_2    = [0.64,  0.92,  1.  ,  0.96, 1.]
+    >>> percent_correct_3    = [0.58,  0.76,  0.98,  1.,   1.]
+    >>> num_observations     = [num_of_trials] * num_of_block      # observations per block
+    >>> data_1 = np.c_[stimulus_intensities, percent_corect_1, num_observations]
+    >>> data_2 = np.c_[stimulus_intensities, percent_corect_2, num_observations]
+    >>> data_3 = np.c_[stimulus_intensities, percent_corect_3, num_observations]
+    >>> data_single_sessions = np.r_[ data1, data2, data_3 ]       # concatenate data from all sessions
+
+Numpy arrays data_1, data_2, data_3 summarize data from each session with each line representing a single experimental block. It is assumed that data are entered in the same sequence in which they have been acquired (often in ascending stimulus intensity as in classical signal detection tasks [Blackwell_1952]_). The last line concatenates data from single sessions into a single numpy array. Again, the information about the sequence of acquisition is coded by the ordering of blocks (rows) and it will be used for the assessment of stability of performance in the :ref:`goodness of fit diagnostics <goodness_of_fit>`.
 
 
 .. _Example 1:
 
-Example 1A: Constrained Maximum Likelihood and Bootstrap Inference for Data from single sessions
-================================================================================================
+Example 1: Constrained Maximum Likelihood and Bootstrap Inference
+=================================================================
+
+We will guide you through a recommended workflow, consisting of:
+
+* psychometric function fitting and parameter estimation
+* assessment of goodness of fit
+* sensitivity analysis for potential correction of confidence intervals (!! required for smaller datasets)
 
 
+Fitting
+-------
 Constrained maximum likelihood provides a way to estimate parameters from a psychometric function
 using maximum likelihood estimation while imposing constraints on some of the parameters.
 
@@ -49,45 +76,34 @@ Parameters:
 For more information on different psychometric functions see `specifying the shape of the psychometric function <http://psignifit.sourceforge.net/MODELSPECIFICATION.html#specifiing-the-shape-of-the-psychometric-function>`_. 
 
 For a 2AFC task, the guessing rate is fixed at :math:`\gamma=0.5`. Thus, our model has three free parameters:
-:math:`a`, :math:`b`, and :math:`\lambda`. We want to keep :math:`a` and :math:`b` unconstrained and restrict :math:`\lambda` to values between
-0 and 0.1:
+:math:`a`, :math:`b`, and :math:`\lambda`. We want to keep :math:`a` and :math:`b` unconstrained. In order to constrain :math:`\lambda` the following considerations might be helpful:
+
+* For human participants who show a low lapse rate a Beta(2,20) is a good approximation of the lapse rate.
+* For human participants who show a high lapse rate, or for a lot of animal experiments a Beta(5,20) is a good starting point for your lapse rate. More about prior selection, can be found here: link to BAYESINTRO#Specification of Prior Distributions.html in the introduction to Bayes Inference.
 
 >>> nafc = 2
 >>> constraints = ( 'unconstrained', 'unconstrained', 'Beta(2,20)' )
 
-We will now create an example data set for which we want to estimate a psychometric function.
-We assume that the data are from a 2AFC task acquired in three sessions which include five blocks each. 
 
->>> num_of_sess = 3>>> num_of_block= 5>>> stimulus_intensities = [0.02058733,  0.07901082,  0.15381762,  0.25508501,  0.29625966]>>> num_of_trials = [50.] * num_of_block>>> percent_correct_1 = [0.5 ,  0.84,  0.96,  1.,   1.]>>> percent_correct_2 = [0.64,  0.92,  1.  ,  0.96, 1.]>>> percent_correct_3 = [0.58,  0.76,  0.98,  1.,   1.]
->>> data_single_sessions = np.c_[ stimulus_intensities * num_of_sess, percent_corect_1 + percent_corect_2 + percent_corect_3, n * num_of_sess ]
-
-The last line concatenates the data into numpy arrays of the form (stimulus intensity, number of correct responses,
-number of trials). Each array summarizes data from a single experimental block. We will assume that 
-the data have been acquired in the same sequence in which they are entered, i.e. in the sequence
-of ascending stimulus intensity comparable to classical signal detection tasks [Blackwell_1952]_.
-
-Now we can fit the psychometric function
+Now we can fit the psychometric function by calling:
 
 >>> B_single_sessions = psi.BootstrapInference ( data_single_sessions, priors=constraints, nafc=nafc )
 
-We could have omitted the argument nafc=nafc in the call to BootstrapInference(). All inference
-functions assume a 2AFC task by default.
-
-B_single_sessions is now a Bootstrap Inference Object, but we haven't drawn any samples, yet.
+Note that all inference functions assume a 2AFC task by default. B_single_sessions is a Bootstrap Inference Object,
 
 >>> print B_single_sessions
 < BootstrapInference object with 15 blocks and 0 samples >
 
+You can access estimates for all parameters by typing:
+
 >>> B_single_sessions.estimate
 array([ 0.06093954,  0.02290658,  0.00974794])
 
-The code snippet shows, that:
+*  :math:`a` (threshold) is approximately 0.0609
+*  :math:`b` (slope) is approximately 0.0229
+*  :math:`\lambda` (lapse rate) is approximately 0.0097
 
-*  :math:`a` is approximately 0.0609
-*  :math:`b` is approximately 0.0229
-*  :math:`\lambda` is approximately 0.0097
-
-We can also get the threshold and slope:
+You can also get the threshold and slope more directly:
 
 >>> B_single_sessions.getThres()
 0.060939542976445368
@@ -95,9 +111,16 @@ We can also get the threshold and slope:
 >>> B_single_sessions.getSlope()
 10.913894618457103
 
-How well do these parameters describe the data? 
-The deviance is a measure that describes the goodness of fit for a model, based on the sum of the
-squares error metric. In our example, the deviance is approximately 8.07. 
+>>> B_single_sessions.getThres(0.5)
+
+>>> B_single_sessions.getThres(0.75)
+
+
+.. _goodness_of_fit:
+
+Goodness of fit assessment
+--------------------------
+How well do these parameters describe the data? The deviance is a measure that describes the goodness of fit for a model, based on the sum of the squares error metric. In our example, the deviance is approximately 8.07. 
 
 >>> B_single_sessions.deviance
 17.3983
@@ -185,11 +208,6 @@ We can also get a graphical representation of the `fitted parameters <http://psi
 Instead of using  :math:`a` and :math:`b`, we can `reparameterize the model <http://psignifit.sourceforge.net/REPARAMETERIZE.html>`_.
 E.g. Kuss, et al (2005) used a parameterization in terms of the 'midpoint' :math:`m` of the sigmoid and the
 'width' :math:`w` as described by. 
-
-Example 1: Constrained Maximum Likelihood and Bootstrap Inference for Data averaged across sessions
-===================================================================================================
-
-We can do the same steps as described above for data that has been averaged across sessions before the fitting is done. 
 
 
 .. _Example 2:
