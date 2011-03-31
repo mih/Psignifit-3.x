@@ -50,5 +50,5 @@ Numpy arrays data_1, data_2, data_3 summarize data from each session with each l
 
 
 Now as you generated your data, it is time to choose whether you want to fit your psychometric function using the Bootstrap approach based on Maximum Likelihood estimation
-`:doc:`Bootstrap Tutorial </TUTORIAL_BOOTSTRAP>` or to chose the Bayesian Inference Approach :doc:`Bayes Tutorial </TUTORIAL_BAYES>`. 
+:doc:`Maximum Likelihood Bootstrap </TUTORIAL_BOOTSTRAP>` or to chose the  :doc:`Bayesian Inference Approach </TUTORIAL_BAYES>`. 
 Large scale simulations show, that especially for small datasets (n < 750) confidence intervals estimated via the Bootstrap procedure are often too small, a problem which does not occur in the Bayesian Inference approach. 

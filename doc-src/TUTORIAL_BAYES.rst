@@ -1,50 +1,5 @@
-.. _Example 2:
+If you haven't generated the example dataset (same as in the Bootstrap section), you can find it :doc:`here </QUICKSTART>` .
 
-Example 2: Bayesian inference
-=============================
-
-If you come from the Bootstrap Example, you already have loaded pypsignifit and you generated the example data.
-In that case you can skip the following two sections. 
-
-Getting started
----------------
-To get you started with pypsignifit, open a python interpreter and type the following:
-
->>> import pypsignifit as psi
->>> dir(psi)
-['BayesInference', 'BootstrapInference', 'ConvergenceMCMC', 'GoodnessOfFit', 'ParameterPlot', 'ThresholdPlot', '__builtins__', '__doc__', '__docformat__', '__file__', '__name__', '__package__', '__path__', '__test__', '__version__', 'interface', 'plotInfluential', 'plotMultiplePMFs', 'plotSensitivity', 'psignidata', 'psignierrors', 'psigniplot', 'pygibbsit', 'set_seed', 'show', 'subprocess', 'sys', 'version']
-
-With the first command you import the complete functionality of the python module pypsignifit to your current workspace. Dir( module name ) provides you with a list of functions and data types that come with pypsignifit.
-To get help and documentation about one of these functions, you can use the online python help by typing
-help ( function name ). For instance,
-
->>> help ( BayesInference )
-
-will show you the documentation of the BayesInference object class.
-
-
-Experimental scenario and data format
-------------------------------------
-The data that will be used in the following tutorials have been gathered in a 2-alternative forced-choice discrimination experiment. Observers had to discriminate between two stimultaneously presented stimuli. One of them  was the original (standard) and the other one was a comparison of five different stimulus intensities which were all larger than the standard. Different comparison intensities were presented in different experimental blocks (num_of_block = 5). One block contained 50 trials (num_of_trials = 50), 25 of which contained the original and the other 25 contained one of the five different stimulus intensities. Data for all stimulus intensities were repeatedly gathered in three sessions (num_of_sess = 3). Different experimental designs are described in detail in the section `specifying your experimental design <http://psignifit.sourceforge.net/MODELSPECIFICATION.html#specifiing-the-experimental-design>`_.
-
-We will now create our example data set for which we want to estimate a psychometric function. The data format should be a numpy array consisting of the following three columns: stimulus intensities, relative/absolute frequencies of correct (or 'yes') responses, number of observations per stimulus intensity:
-
-    >>> import numpy as np # numpy module required
-    >>> num_of_sess   = 3  # experimental parameters
-    >>> num_of_block  = 5
-    >>> num_of_trials = 50
-    >>> stimulus_intensities = [0.021, 0.079, 0.154, 0.255,  0.30] # stimulus levels
-    >>> percent_correct_1    = [0.5 ,  0.84,  0.96,  1.,   1.]     # percent correct sessions 1-3
-    >>> percent_correct_2    = [0.64,  0.92,  1.  ,  0.96, 1.]
-    >>> percent_correct_3    = [0.58,  0.76,  0.98,  1.,   1.]
-    >>> num_observations     = [num_of_trials] * num_of_block      # observations per block
-    >>> data_1 = np.c_[stimulus_intensities, percent_correct_1, num_observations]
-    >>> data_2 = np.c_[stimulus_intensities, percent_correct_2, num_observations]
-    >>> data_3 = np.c_[stimulus_intensities, percent_correct_3, num_observations]
-    >>> data_single_sessions = np.r_[ data_1, data_2, data_3 ]       # concatenate data from all sessions
-    >>> nafc = 2
-
-Numpy arrays data_1, data_2, data_3 summarize data from each session with each line representing a single experimental block. It is assumed that data are entered in the same sequence in which they have been acquired (often in ascending stimulus intensity as in classical signal detection tasks [Blackwell_1952]_). The last line concatenates data from single sessions into a single numpy array. Again, the information about the sequence of acquisition is coded by the ordering of blocks (rows) and it will be used for the assessment of stability of performance in the :ref:`goodness of fit diagnostics <goodness_of_fit>`.
 
 Bayesian inference
 ==================
