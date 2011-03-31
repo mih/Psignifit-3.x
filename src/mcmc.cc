@@ -280,15 +280,6 @@ DefaultMCMC::DefaultMCMC ( const PsiPsychometric* Model, const PsiData* Data, Ps
 	proposaldistributions ( Model->getNparams () )
 {
 	std::cerr << "Hi my name is DefaultMCMC\n";
-	double xmin, xmax;
-	unsigned int i;
-	for (i=0; i<Model->getNparams(); i++) {
-		proposaldistributions[i] = Model->getPrior ( i )->clone();
-		/*
-		parameter_range ( Data, Model, i, &xmin, &xmax );
-		proposaldistributions[i]->shrink ( xmin, xmax );
-		*/
-	}
 }
 
 DefaultMCMC::~DefaultMCMC ( void ) {
