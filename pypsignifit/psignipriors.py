@@ -52,7 +52,7 @@ def default_width ( x, method="moments" ):
     """
     xx = np.sort(x)
     wmin = np.min(np.diff(xx))
-    wmax = xx[-1]-xx[0]
+    wmax = 2*(xx[-1]-xx[0])
     if method=='moments':
         wr = wmin/wmax
         k  = ((1+wr)/(1-wr))**2
