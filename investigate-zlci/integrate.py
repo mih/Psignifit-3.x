@@ -7,6 +7,9 @@ import pypsignifit.psignipriors as pfp
 import swignifit.swignifit_raw as sfr
 import swignifit.utility as sfu
 import pypsignifit.psigobservers as pfo
+from scipy import stats
+
+# Error functions based on KL-Divergence?
 
 def bounds ( mapest, pdata, ppmf, parameter="m" ):
     prm = mapest.copy()
@@ -32,16 +35,15 @@ def bounds ( mapest, pdata, ppmf, parameter="m" ):
     elif parameter=="lm":
         index = 2
         pmin = 0
-        pmax = 1
+        pmax = .5
     elif parameter=="gm":
         index = 3
         pmin = 0
-        pmax = 1
+        pmax = .5
 
     def error ( x, target=0.1*maxpost ):
         prm[index] = x
         lpost = -ppmf.neglpost ( prm, pdata )
-        print "%s: %.3f %.3f %.3f %.3f %.3f" % ( parameter,lpost,maxpost,lpost-maxpost,target,x )
         return lpost - target
 
     lmax = pmax
@@ -66,10 +68,31 @@ def bounds ( mapest, pdata, ppmf, parameter="m" ):
     if lmax==pmax:
         print "WARNING: did not optimize upper bound for parameter",parameter
 
+    if lmin>lmax:
+        lmin,lmax = lmax,lmin
+    if parameter in ["lm","gm"]:
+        if lmax<0.1:
+            lmax = 0.1
+        if lmin>0.02:
+            lmin = 0.02
 
     return lmin,lmax
 
-def integration_grid ( data, gridsize=9 ):
+def revised_bounds ( dist ):
+    name,prm = dist.split("(")
+    prm = prm.strip(") ")
+    p1,p2 = [float(p) for p in prm.split(",")]
+    if name=="Gauss":
+        f = stats.norm ( p1, p2 )
+    elif name=="Gamma":
+        f = stats.gamma ( p1, scale=p2 )
+    elif name=="Beta":
+        f = stats.beta ( p1, p2 )
+    else:
+        raise ValueError, "Unknown distribution: %s" % (name,)
+    return f
+
+def integration_grid ( data, run=1, dists=None ):
     data = np.array(data)
     mprior,mmin,mmax = pfp.default_mid ( data[:,0] )
     wprior,wmin,wmax = pfp.default_width ( data[:,0] )
@@ -79,21 +102,31 @@ def integration_grid ( data, gridsize=9 ):
 
     pdata,ppmf,pn = sfu.make_dataset_and_pmf ( data, 1, "logistic", "mw0.1", priors )
     mapest = pf.BootstrapInference ( data, priors, nafc=1 ).estimate
-    mmin,mmax = bounds ( mapest, pdata, ppmf, "m" )
-    wmin,wmax = bounds ( mapest, pdata, ppmf, "w" )
-    lmin,lmax = bounds ( mapest, pdata, ppmf, "lm" )
-    gmin,gmax = bounds ( mapest, pdata, ppmf, "gm" )
 
-    print data[:,0]
-    print "m",mmin,mmax
-    print "w",wmin,wmax
-    print "l",lmin,lmax
-    print "g",gmin,gmax
-
-
-    print gridsize*1j
-    grid = np.reshape ( np.mgrid[mmin:mmax:1j*gridsize,wmin:wmax:1j*gridsize,lmin:lmax:1j*gridsize,gmin:gmax:1j*gridsize], (4,-1) )
-
+    if run==1:
+        gridsize = 9
+        mmin,mmax = bounds ( mapest, pdata, ppmf, "m" )
+        wmin,wmax = bounds ( mapest, pdata, ppmf, "w" )
+        lmin,lmax = bounds ( mapest, pdata, ppmf, "lm" )
+        gmin,gmax = bounds ( mapest, pdata, ppmf, "gm" )
+        grid = np.reshape ( np.mgrid[
+            mmin:mmax:1j*gridsize,
+            wmin:wmax:1j*gridsize,
+            lmin:lmax:1j*gridsize,
+            gmin:gmax:1j*gridsize
+            ], (4,-1) )
+    elif run==2:
+        f_m = revised_bounds ( dists[0] )
+        f_w = revised_bounds ( dists[1] )
+        f_l = revised_bounds ( dists[2] )
+        f_g = revised_bounds ( dists[3] )
+        grid = np.mgrid[.025:.975:7j,.025:.975:7j,.025:.975:7j,.025:.975:7j]
+        grid[0] = f_m.ppf ( grid[0] )
+        grid[1] = f_w.ppf ( grid[1] )
+        grid[2] = f_l.ppf ( grid[2] )
+        grid[3] = f_g.ppf ( grid[3] )
+        grid = np.reshape ( grid, (4,-1) )
+        gridsize = 7
 
     post = np.reshape ( np.array ( map ( lambda prm: ppmf.neglpost ( prm, pdata ), grid.T ) ), [gridsize]*pn ) # negative log posterior
     post = np.exp ( -post ) # posterior
@@ -122,18 +155,23 @@ def marginalize ( post, d, i ):
 def error_gauss ( prm, fx, x ):
     Z,mu,sg = prm
     sg = sg*sg
-    return np.sum ( ( Z**2*np.exp ( -0.5*((x-mu)/sg)**2 ) - fx )**2 )
+    # return np.sum ( ( Z**2*np.exp ( -0.5*((x-mu)/sg)**2 ) - fx )**2 )
     # return Z*Z*np.exp ( -0.5*((x-mu)/sg**2 ) ) - fx
+    return np.sum ( np.log ( Z**2*np.exp ( -0.5*((x-mu)/sg)**2 ) / fx )**2 )
 
 def error_gamma ( prm, fx, x ):
     Z,k,th = prm
     k = k*k
     th = th*th
     return np.sum ( ( Z**2*x**(k-1)*np.exp(-x/th) - fx )**2 )
+    # return np.sum ( np.log ( Z**2*x**(k-1)*np.exp(-x/th) / fx )**2 )
 
 def error_beta ( prm, fx, x ):
     Z,al,bt = prm
-    return np.sum ( ( Z**2*x**(al-1)*(1-x)**(bt-1) - fx )**2 )
+    al = al**2
+    bt = bt**2
+    # return np.sum ( ( Z**2*x**(al-1)*(1-x)**(bt-1) - fx )**2 )
+    return np.sum ( np.log( Z**2*x**(al-1)*(1-x)**(bt-1) / fx )**2 )
 
 def fit_posterior ( fx, x ):
     post = []
@@ -152,12 +190,12 @@ def fit_posterior ( fx, x ):
 
     fx[2] /= fx[2].max()
     lprm = fmin ( error_beta, [1.,2,20], args=(fx[2],x[2]), maxfun=N, maxiter=I )
-    post.append ( "Beta(%g,%g)" % ( lprm[1],lprm[2] ) )
+    post.append ( "Beta(%g,%g)" % ( lprm[1]**2,lprm[2]**2 ) )
 
     if len(fx)>3:
         fx[3] /=  fx[3].max()
         gprm = fmin ( error_beta, [1.,2,20], args=(fx[3],x[3]), maxfun=N, maxiter=I )
-        post.append ( "Beta(%g,%g)" % ( gprm[1],gprm[2] ) )
+        post.append ( "Beta(%g,%g)" % ( gprm[1]**2,gprm[2]**2 ) )
 
     return post
 
@@ -166,16 +204,33 @@ if __name__ == "__main__":
     O = pfo.Observer ( 5,3,.05,.05, core="mw0.1", sigmoid="logistic", nafc=1 )
     data = O.DoAnExperiment ( [1,2,3,4,5,6,7,8,12], 30 )
     # data = [[1, 2, 30], [2, 2, 30], [3, 2, 30], [4, 5, 30], [5, 16, 30], [6, 22, 30], [7, 26, 30], [8, 27, 30], [12, 29, 30]]
-    x,fx,priors = integration_grid ( data )
+    # data = [[1, 1, 30], [2, 4, 30], [3, 3, 30], [4, 7, 30], [5, 11, 30], [6, 26, 30], [7, 27, 30], [8, 29, 30], [12, 30, 30]]
+    # data = [[1, 1, 30], [2, 2, 30], [3, 4, 30], [4, 9, 30], [5, 19, 30], [6, 27, 30], [7, 25, 30], [8, 27, 30], [12, 30, 30]]  # First optimization does not converge
+    # data = [[1, 1, 30], [2, 2, 30], [3, 5, 30], [4, 9, 30], [5, 20, 30], [6, 25, 30], [7, 29, 30], [8, 24, 30], [12, 28, 30]]
+    # data = [[1, 3, 30], [2, 0, 30], [3, 0, 30], [4, 5, 30], [5, 17, 30], [6, 22, 30], [7, 24, 30], [8, 27, 30], [12, 29, 30]] # Bad initial fit ~> log fitting?
+    # data = [[1, 1, 30], [2, 2, 30], [3, 1, 30], [4, 5, 30], [5, 13, 30], [6, 28, 30], [7, 26, 30], [8, 29, 30], [12, 27, 30]] # Takes many refinements to converge
+    # data = [[1, 0, 30], [2, 2, 30], [3, 1, 30], [4, 9, 30], [5, 17, 30], [6, 24, 30], [7, 27, 30], [8, 28, 30], [12, 29, 30]] # Bad initial fit for w
+    # data = [[1, 1, 30], [2, 2, 30], [3, 1, 30], [4, 3, 30], [5, 14, 30], [6, 26, 30], [7, 28, 30], [8, 28, 30], [12, 28, 30]] # Bad initial fit for w
+    # data = [[1, 0, 30], [2, 2, 30], [3, 2, 30], [4, 9, 30], [5, 17, 30], [6, 26, 30], [7, 25, 30], [8, 28, 30], [12, 29, 30]] # Bad initial fit for w
+    # data = [[1, 2, 30], [2, 4, 30], [3, 2, 30], [4, 9, 30], [5, 16, 30], [6, 17, 30], [7, 27, 30], [8, 27, 30], [12, 30, 30]] # Bad initial fit for w
+    nrefine = 2
     print data
 
+    x,fx,priors = integration_grid ( data )
+    print "x1 =",x
+    print "f1 =",fx
     post = fit_posterior(fx,x)
-    print post
+    for i in xrange ( nrefine ):
+        x,fx,priors = integration_grid ( data, 2, post )
+        print post
+        print "x%d =" % (i+1,),x
+        print "f%d =" % (i+1),fx
+        post = fit_posterior (fx, x)
     f = [ sfu.get_prior ( p ) for p in post ]
 
     mapest = pf.BootstrapInference ( data, priors, core="mw0.1", nafc=1 ).estimate
 
-    rng = [(0,10),(0,5),(0,.5),(0,.5)]
+    rng = [(3,7),(0,6),(0,.5),(0,.5)]
 
     for i,prm in enumerate ( ["m","w","lm","gm"] ):
         pl.subplot(221+i)
@@ -188,7 +243,11 @@ if __name__ == "__main__":
         pl.plot ( [O.params[i]]*2,[0,f[i].pdf(O.params[i])], 'k' )
         pl.plot ( [mapest[i]]*2,[0,f[i].pdf(mapest[i])], 'r' )
         pl.title ( prm  )
+        print fx[i]/r
+        pl.ylim ( 0, 1.5 * np.max(fx[i]/r) )
 
     print mapest
 
     pl.show()
+
+    print "data =",data
