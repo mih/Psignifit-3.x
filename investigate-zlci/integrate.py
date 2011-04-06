@@ -265,22 +265,59 @@ if __name__ == "__main__":
     f = [ sfu.get_prior ( p ) for p in post ]
 
     mapest = pf.BootstrapInference ( data, priors, core="mw0.1", nafc=1 ).estimate
+    pdata,ppmf,pn = sfu.make_dataset_and_pmf ( data, 1, "logistic", "mw0.1", priors )
+    samples = sample_importance_resample ( post, pdata, ppmf, nresample=600, nsamples=6000 )
 
     rng = [(3,7),(0,6),(0,.5),(0,.5)]
 
-    for i,prm in enumerate ( ["m","w","lm","gm"] ):
-        pl.subplot(221+i)
+    hist_ax = [pl.axes ( [.15+.2*i,.75-.2*i,.15,.15] ) for i in xrange ( 4 )]
+    labels = ["m","w","lm","gm"]
+
+    for i,prm in enumerate ( labels ):
+        ax = hist_ax[i]
+        h,b = np.histogram ( samples[:,i], normed=True )
+        ax.step ( np.convolve ( [.5,.5], b, 'valid' ), h, where='mid' )
         xx = np.mgrid[rng[i][0]:rng[i][1]:1000j]
         g = np.array ( [f[i].pdf(x_) for x_ in xx] )
-        pl.plot ( xx, g, '-' )
+        ax.plot ( xx, g, '-', linewidth=2 )
         mxind = np.argmax(fx[i])
         r = fx[i][mxind]/f[i].pdf(x[i][mxind])
-        pl.plot ( x[i], fx[i]/r, 'o' )
-        pl.plot ( [O.params[i]]*2,[0,f[i].pdf(O.params[i])], 'k' )
-        pl.plot ( [mapest[i]]*2,[0,f[i].pdf(mapest[i])], 'r' )
-        pl.title ( prm  )
+        ax.plot ( x[i], fx[i]/r, 'o' )
+        ax.plot ( [O.params[i]]*2,[0,f[i].pdf(O.params[i])], 'k' )
+        ax.plot ( [mapest[i]]*2,[0,f[i].pdf(mapest[i])], 'r' )
+        ax.set_title ( prm  )
         print fx[i]/r
-        pl.ylim ( 0, 1.5 * np.max(fx[i]/r) )
+        ax.set_ylim ( 0, 1.5 * np.max(fx[i]/r) )
+        ax.set_xlim ( rng[i] )
+
+    for i in xrange ( 4 ):
+        for j in xrange ( i+1, 4 ):
+            ax = pl.axes ( [.15+.2*j,.75-.2*i,.15,.15 ] )
+            ax.plot ( samples[:,j], samples[:,i], '.' )
+
+            m,b,r,pr,se = stats.linregress ( samples[:,j], samples[:,i] )
+            x = np.sort ( samples[:,j] )
+            ax.plot ( x, m*x+b )
+            ax.set_title ( r"$r=%.2f\pm%.2f$" % (r,se) )
+
+            ax.set_xlim ( rng[j] )
+            ax.set_ylim ( rng[i] )
+
+            pl.setp ( ax, xticklabels=() )
+            if j-i > 1:
+                pl.setp ( ax, yticklabels=() )
+
+    ax = pl.axes ( [.1,.1,.3,.3] )
+    data = np.array(data, dtype="d")
+    x = np.mgrid[data[:,0].min():data[:,0].max():100j]
+    for k in xrange ( 20 ):
+        ax.plot ( x, [ppmf.evaluate ( xx, samples[k,:] ) for xx in x], color=[.7,.7,1.] )
+    ax.plot ( x, [ppmf.evaluate ( xx, samples.mean(0) ) for xx in x], color='b', linewidth=2 )
+    ax.plot ( data[:,0], data[:,1]/data[:,2], 'ko' )
+    ax.set_xlabel ( "stimulus intensity" )
+    ax.set_ylabel ( r"$\Psi(x|\theta)$" )
+
+    print "Number of duplicates:",1-float(len(np.unique(samples[:,0])))/samples.shape[0]
 
     print mapest
 
