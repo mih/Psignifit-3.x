@@ -78,7 +78,7 @@ def bounds ( mapest, pdata, ppmf, parameter="m" ):
 
     return lmin,lmax
 
-def revised_bounds ( dist ):
+def dist2class ( dist ):
     name,prm = dist.split("(")
     prm = prm.strip(") ")
     p1,p2 = [float(p) for p in prm.split(",")]
@@ -116,10 +116,10 @@ def integration_grid ( data, run=1, dists=None ):
             gmin:gmax:1j*gridsize
             ], (4,-1) )
     elif run==2:
-        f_m = revised_bounds ( dists[0] )
-        f_w = revised_bounds ( dists[1] )
-        f_l = revised_bounds ( dists[2] )
-        f_g = revised_bounds ( dists[3] )
+        f_m = dist2class ( dists[0] )
+        f_w = dist2class ( dists[1] )
+        f_l = dist2class ( dists[2] )
+        f_g = dist2class ( dists[3] )
         grid = np.mgrid[.025:.975:7j,.025:.975:7j,.025:.975:7j,.025:.975:7j]
         grid[0] = f_m.ppf ( grid[0] )
         grid[1] = f_w.ppf ( grid[1] )
