@@ -199,6 +199,42 @@ def fit_posterior ( fx, x ):
 
     return post
 
+def sample_importance_resample ( post, pdata, ppmf, nresample=600, nsamples=6000 ):
+    f = [ dist2class ( dist ) for dist in post ]
+    print "Sample"
+    presamples = []
+    for dist in f:
+        presamples.append ( dist.rvs ( nsamples ) )
+    presamples = np.array(presamples)
+
+    print "Calculate importance weights"
+    w = []
+    for prm in presamples.T:
+        q = 1.
+        for th,dist in zip ( prm, f ):
+            q *= dist.pdf(th)
+        p = np.exp ( -ppmf.neglpost ( prm, pdata ) )
+        w.append ( p/q )
+    w = np.array ( w )
+    w /= w.sum()
+    P = np.cumsum(w)
+    u = np.sort ( np.random.rand ( nresample ) )
+
+    print "Resample"
+    samples = []
+    ind = 0
+    k = 0
+    while k<nresample:
+        n = 0
+        while u[k] <= P[ind]:
+            k += 1
+            n += 1
+            if k>=nresample:
+                break
+        samples += [presamples[:,ind]]*n
+        ind += 1
+    return np.array(samples)
+
 if __name__ == "__main__":
     import pylab as pl
     O = pfo.Observer ( 5,3,.05,.05, core="mw0.1", sigmoid="logistic", nafc=1 )
