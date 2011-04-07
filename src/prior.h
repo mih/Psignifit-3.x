@@ -185,4 +185,60 @@ class nGammaPrior : public GammaPrior
 		int get_code(void) const { return 4; } /// return the typcode of this prior
 };
 
+/** \brief inverse gamma prior
+ *
+ * This defines an inverse gamma prior that is conjugate to the variance of a normal distribution
+ * and can probably be assumed quasi conjugate to the width or parameters like that. Its pdf is defined
+ * by
+ *
+ \f[
+ f(x) = \frac{\beta^\alpha}{\Gamma(\alpha)} x^{-\alpha-1} \exp ( -\beta/x )
+ \f]
+ */
+class invGammaPrior : public PsiPrior
+{
+	private:
+		double alpha;
+		double beta;
+		double normalization;
+		GammaRandom rng;
+	public:
+		invGammaPrior ( double shape, double scale ) : alpha ( shape ), beta ( scale ), rng ( shape, 1./scale ) { normalization = pow(alpha,beta)/exp(gammaln(shape));} ///< Initialize inverse gamma prior
+		invGammaPrior ( const invGammaPrior& original ) : alpha(original.alpha),
+					beta(original.beta),
+					normalization ( original.normalization ),
+					rng(original.rng) {} ///< copy constructor
+		virtual double pdf ( double x ) { return ( x>0 ? pow ( x, -alpha-1 ) * exp ( -beta/x ) * normalization : 0 ); }
+		virtual double dpdf ( double x ) { return (x>0 ? ( (-alpha-1)*pow(x,-alpha-2) * exp ( -beta/x ) + pow(x,-alpha-1) * exp ( -beta/x ) * beta / (x*x) ) * normalization : 0 ); }
+		virtual double rand ( void ) { return 1./rng.draw(); }
+		PsiPrior * clone ( void ) const { return new invGammaPrior(*this); }
+		virtual double mean ( void ) const { return beta/(alpha-1); }
+		double std ( void ) const { return ( alpha>2 ? beta / ( (alpha-1)*sqrt(alpha-2) ) : 1e5 ); }
+		virtual void shrink ( double xmin, double xmax ) {} /// Doesn't shrink!!
+		virtual int get_code ( void ) const { return 5; } /// return the typecode of this prior
+};
+
+/** \brief negative inverse gamma prior
+ *
+ * This defines a negative inverse gamma prior that is conjugate to the variance of a normal distribution
+ * and can probably be assumed quasi conjugate to the width or parameters like that. Its pdf is defined
+ * by
+ *
+ \f[
+ f(x) = \frac{\beta^\alpha}{\Gamma(\alpha)} (-x)^{-\alpha-1} \exp ( \beta/x )
+ \f]
+ */
+class ninvGammaPrior : public invGammaPrior
+{
+	public:
+		ninvGammaPrior ( double shape, double scale ) : invGammaPrior ( shape, scale ) {}
+		ninvGammaPrior ( const ninvGammaPrior& origina ) : invGammaPrior ( original ) {}
+		double pdf ( double x ) { return invGammaPrior::pdf ( -x ); }
+		double dpdf ( double x ) { return -invGammaPrior::dpdf ( -x ); }
+		double rand ( void ) { return -invGammaPrior::rand(); }
+		PsiPrior * clone ( void ) const { return new ninvGammaPrior ( *this ); }
+		double mean ( void ) const { return -invGammaPrior::mean(); }
+		void shrink ( double xmin, double xmax ) { invGammaPrior::shrink ( -xmax, -xmin ); }
+		int get_code ( void ) const { return 6; } /// return the typecode of this prior
+};
 #endif
