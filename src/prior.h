@@ -177,7 +177,7 @@ class nGammaPrior : public GammaPrior
 		nGammaPrior ( double shape, double scale ) : GammaPrior(shape,scale) {}
         nGammaPrior ( const nGammaPrior& original ) : GammaPrior(original) {} ///< copy constructor
 		double pdf ( double x ) { return GammaPrior::pdf ( -x ); }
-		double dpdf ( double x ) { return GammaPrior::dpdf ( -x ); }
+		double dpdf ( double x ) { return -GammaPrior::dpdf ( -x ); }
 		double rand ( void ) { return -GammaPrior::rand(); }
         PsiPrior * clone ( void ) const { return new nGammaPrior(*this); }
 		double mean ( void ) const { return -GammaPrior::mean(); }
