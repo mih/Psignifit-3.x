@@ -159,7 +159,7 @@ class GammaPrior : public PsiPrior
 		virtual double mean ( void ) const { return k*theta; }
 		double std  ( void ) const { return sqrt ( k*theta*theta ); }
 		void shrink ( double xmin, double xmax );
-		int get_code(void) const { return 3; } /// return the typcode of this prior
+		virtual int get_code(void) const { return 3; } /// return the typcode of this prior
 };
 
 /** \brief negative gamma prior
