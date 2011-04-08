@@ -232,7 +232,7 @@ class ninvGammaPrior : public invGammaPrior
 {
 	public:
 		ninvGammaPrior ( double shape, double scale ) : invGammaPrior ( shape, scale ) {}
-		ninvGammaPrior ( const ninvGammaPrior& origina ) : invGammaPrior ( original ) {}
+		ninvGammaPrior ( const ninvGammaPrior& original ) : invGammaPrior ( original ) {}
 		double pdf ( double x ) { return invGammaPrior::pdf ( -x ); }
 		double dpdf ( double x ) { return -invGammaPrior::dpdf ( -x ); }
 		double rand ( void ) { return -invGammaPrior::rand(); }
