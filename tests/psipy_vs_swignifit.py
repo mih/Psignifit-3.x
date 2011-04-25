@@ -25,7 +25,7 @@ n = [50]*6
 data = [[xx,kk,nn] for xx,kk,nn in zip(x,k,n)]
 
 def print_time(name, sec):
-    """ print seconds in terms of hours, minutes and secondd """
+    """ print seconds in terms of hours, minutes and seconds """
     hours, remainder = divmod(sec, 3600)
     minutes, seconds = divmod(remainder, 60) 
     print '%s took %d hours %d minutes and %d seconds' % (name, hours, minutes, seconds)
@@ -111,7 +111,7 @@ class TestMCMC(ut.TestCase):
                 TestMCMC.output_description)
 
     # we have so many tests here since we were once debugging a nasty error in
-    # the RNG the cause of which was long unknowen
+    # the RNG the cause of which was long unknown
 
     def test_with_more_params(self):
         compare_wrappers(TestMCMC.basic_helper, TestMCMC.output_description)

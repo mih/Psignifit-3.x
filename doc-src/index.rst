@@ -5,7 +5,7 @@
 Welcome to pypsignifit's documentation!
 =======================================
 
-Note that the "old" version of psignifit ( Version 2.5.6 and before, also knowen
+Note that the "old" version of psignifit ( Version 2.5.6 and before, also known
 as: **psignifit-classic**) can still be found at
 `<http://www.bootstrap-software.org/psignifit/>`_.
 
