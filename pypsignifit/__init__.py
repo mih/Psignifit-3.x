@@ -33,6 +33,15 @@ interface.set_seed( 0 )
 def set_seed(value):
     interface.set_seed(value)
 
+def dump_info():
+    """
+    Print some basic system info.
+    
+    NOTE: This will be extended to a more sophisticated scheme.
+    """
+    print("psignifit version: \t" + version)
+    print("python version: \t" + sys.version)
+
 def __test__ ( ):
     "If we call the file directly, we perform a test run"
     import numpy as N
