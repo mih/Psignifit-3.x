@@ -2,7 +2,7 @@
 Additional Plots for the Bootstrap
 ===================================
 
-In addition to the plots mentioned in the 'tutorial <http://psignifit.sourceforge.net/TUTORIAL.html'_ you can access several other plots in psignifit. 
+In addition to the plots mentioned in the :doc:`tutorial </TUTORIAL>` you can access several other plots in psignifit. 
 
 Parameter Plots
 ---------------
