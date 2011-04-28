@@ -3,32 +3,32 @@ Welcome to Psignifit 3.0
 ========================
 
 Psignifit is a toolbox that allows the user to fit psychometric functions and to test
-hypotheses about psychometric data. Compared to the "classical" version of psignifit,
+hypotheses about psychometric data. Compared to the "classical" version of Psignifit,
 the new package comes with a number of **additional features**:
     * full Bayesian treatment of psychometric functions including Bayesian model selection and goodness of fit assessment
     * identification of influential observations
     * detection of outliers (potentially to be excluded)
     * new philosophy of defining the shape of the psychometric function allowing for considerably more flexibility in specifiing psychometric function models.
 
-The primary interface for psignifit 3.0 is now `Python <http://www.python.org/>`_, instead of Matlab. In contrast to
+The primary interface for Psignifit 3.0 is now `Python <http://www.python.org/>`_, instead of Matlab. In contrast to
 Matlab, Python is a complete programming language that supports virtually all features you
 might wish for. Python allows you to perform numerical computations as flexible and fast as
 in Matlab. In addition, Python provides features like object oriented programming and simple creation of graphical user interfaces. Python is easy to learn: even users with no prior programming experience can master Python within weeks.
 Finally Python is free to use because of its OSI-approved open source license.
 
 However, even though Python is similar to *Matlab*, it is not the same. Therefore, we also plan
-to provide a Matlab version of psignifit 3.0 with the first official release. However, we will
+to provide a Matlab version of Psignifit 3.0 with the first official release. However, we will
 not guarantee support for this toolbox in future releases and we encourage users to use the
 Python version as this will be up to date.
 
 We also noted that a growing number of statistical toolboxes are designed for the statistics
-environment *R* and there might be users that are interested in using a R version of psignifit.
-Similar to the Matlab interface, we provide a basic R version of psignifit 3.0. Again, we do not
+environment *R* and there might be users that are interested in using a R version of Psignifit.
+Similar to the Matlab interface, we provide a basic R version of Psignifit 3.0. Again, we do not
 guarantee support for this R library. A very rudimentary R library can be found in the folder 'rpsignifit'. Be warned that this is work in progress.
 
 
 We would be glad to find developers that are interested in supporting these non-Python interfaces
-to the psignifit engine.
+to the Psignifit engine.
 
 .. raw :: html
 
@@ -51,11 +51,11 @@ Getting in touch
 
 To contact the authors and current maintainers please use:
 
-    psignifit-users@lists.sourceforge.net
+    Psignifit-users@lists.sourceforge.net
 
 
 This list can be used to ask questions about usage and installation, report
-bugs, and request new features. If you use psignifit we recommend you subscribe
+bugs, and request new features. If you use Psignifit we recommend you subscribe
 to this list.
 
 
@@ -63,7 +63,7 @@ to this list.
 How to install
 **************
 
-Download the current version of psignifit from:
+Download the current version of Psignifit from:
 
     `<http://sourceforge.net/projects/psignifit/>`_
 
@@ -74,13 +74,13 @@ In the following, installation instructions are provided for different operating
 * :doc:`INSTALL_WINDOWS`
 * :doc:`INSTALL_WITHOUT`
 
-Currently this documentation only describes the installation of the Python version of psignifit. 
+Currently this documentation only describes the installation of the Python version of Psignifit. 
 
 If you are looking for installation instructions for Matlab, see :doc:`INSTALL_MATLAB`. Installation instructions for R are going to follow as soon as these toolboxes are
 ready for use. 
 Unless you are an expert user, or want to use the Matlab version mpsignifit, you do not need to install the optional commandline interface, which is however required for the Matlab version mpsignifit. 
 
-The C++ core of psignifit does the real work. It is completely coded in C++ and does not require any
+The C++ core of Psignifit does the real work. It is completely coded in C++ and does not require any
 additional libraries installed.
 
 For additional information about the structure of the code, the build system and
