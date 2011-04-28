@@ -10,20 +10,20 @@ the new package comes with a number of **additional features**:
     * detection of outliers (potentially to be excluded)
     * new philosophy of defining the shape of the psychometric function allowing for considerably more flexibility in specifiing psychometric function models.
 
-The primary interface for psignifit 3.0 is now `python <http://www.python.org/>`_, instead of matlab. In contrast to
-matlab, python is a complete programming language that supports virtually all features you
+The primary interface for psignifit 3.0 is now `python <http://www.python.org/>`_, instead of Matlab. In contrast to
+Matlab, python is a complete programming language that supports virtually all features you
 might wish for. Python allows you to perform numerical computations as flexible and fast as
-in matlab. In addition, python provides features like object oriented programming and simple creation of graphical user interfaces. Python is easy to learn: even users with no prior programming experience can master python within weeks.
+in Matlab. In addition, python provides features like object oriented programming and simple creation of graphical user interfaces. Python is easy to learn: even users with no prior programming experience can master python within weeks.
 Finally python is free to use because of its OSI-approved open source license.
 
-However, even though python is similar to *matlab*, it is not the same. Therefore, we also plan
-to provide a matlab version of psignifit 3.0 with the first official release. However, we will
+However, even though python is similar to *Matlab*, it is not the same. Therefore, we also plan
+to provide a Matlab version of psignifit 3.0 with the first official release. However, we will
 not guarantee support for this toolbox in future releases and we encourage users to use the
 python version as this will be up to date.
 
 We also noted that a growing number of statistical toolboxes are designed for the statistics
 environment *R* and there might be users that are interested in using a R version of psignifit.
-Similar to the matlab interface, we provide a basic R version of psignifit 3.0. Again, we do not
+Similar to the Matlab interface, we provide a basic R version of psignifit 3.0. Again, we do not
 guarantee support for this R library. A very rudimentary R library can be found in the folder 'rpsignifit'. Be warned that this is work in progress.
 
 
@@ -78,7 +78,7 @@ Currently this documentation only describes the installation of the python versi
 
 If you are looking for installation instructions for Matlab, see :doc:`INSTALL_MATLAB`. Installation instructions for R are going to follow as soon as these toolboxes are
 ready for use. 
-Unless you are an expert user, or want to use the matlab version mpsignifit, you do not need to install the optional commandline interface, which is however required for the matlab version mpsignifit. 
+Unless you are an expert user, or want to use the Matlab version mpsignifit, you do not need to install the optional commandline interface, which is however required for the Matlab version mpsignifit. 
 
 The C++ core of psignifit does the real work. It is completely coded in C++ and does not require any
 additional libraries installed.
