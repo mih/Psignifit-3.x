@@ -40,9 +40,10 @@ That is why typically :math:`P(\theta)` is called the "prior" distribution. :mat
 posterior distribution, because it is the distribution of parameters *after* taking into accout the information
 contained in the data.
 
-In this section, we will mainly explain how to specify the prior probability distribution in psignifit.
-The section `Specification of Models for Psychometric functions`_ explains in considerable detail how the term
-:math:`P(\mathcal{D} | \theta)` is specified in psignifit.
+In this section, we will mainly explain how to specify the prior probability
+distribution in psignifit.  The sections :doc:`/DESIGN`
+and :doc:`/PSYCHOMETRICFUNCTIONS` explain in considerable
+detail how the term :math:`P(\mathcal{D} | \theta)` is specified in psignifit.
 
 Specification of prior distributions
 ------------------------------------
