@@ -5,7 +5,7 @@ Welcome to Psignifit 3.0
 Psignifit is a toolbox that allows the user to fit psychometric functions and to test
 hypotheses about psychometric data. Compared to the "classical" version of psignifit,
 the new package comes with a number of **additional features**:
-    * full bayesian treatment of psychometric functions including bayesian model selection and goodness of fit assessment
+    * full Bayesian treatment of psychometric functions including Bayesian model selection and goodness of fit assessment
     * identification of influential observations
     * detection of outliers (potentially to be excluded)
     * new philosophy of defining the shape of the psychometric function allowing for considerably more flexibility in specifiing psychometric function models.

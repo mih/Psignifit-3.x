@@ -5,7 +5,7 @@ A quick start to pypsignifit
 This document presents two example analyses of psychometric data using pypsignifit.
 The :doc:`Bootstrap Tutorial </TUTORIAL_BOOTSTRAP>` explains how to fit a psychometric function using constrained maximum
 likelihood as described in the papers by [Wichmann_and_Hill_2001a]_, [Wichmann_and_Hill_2001b]_. 
-The :doc:`Bayes Tutorial </TUTORIAL_BAYES>` explains how to fit a psychometric function using a bayesian approach. Parts of 
+The :doc:`Bayes Tutorial </TUTORIAL_BAYES>` explains how to fit a psychometric function using a Bayesian approach. Parts of 
 the ideas that are implemented here can be found in the paper by [Kuss_et_al_2005]_, the rest was new at the time of this writing.
 
 

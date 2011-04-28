@@ -7,10 +7,10 @@ Bayesian inference
 
 Bayesian inference follows a slightly different logic than conventional frequentist inference.
 
-1. In a bayesian framework, probability is used to quantify *uncertainty*. As the data are perfectly
+1. In a Bayesian framework, probability is used to quantify *uncertainty*. As the data are perfectly
    certain (we measured them), the data are typically considered fixed. In contrast, the parameters
    are uncertain (we don't know them). Thus, the parameters are modeled as random variables.
-2. In a bayesian framework, it is not common to simply consider a single value of a parameter.
+2. In a Bayesian framework, it is not common to simply consider a single value of a parameter.
    Instead, we want to get an idea of the so called 'posterior' distribution. That is the distribution
    of parameters (and the associated uncertainty about parameters) that is left after having
    observed the data. The posterior distribution is in most cases relatively easy to write down
@@ -167,7 +167,7 @@ We can now use the same goodness of fit function as for the BootstrapInference o
 .. image:: BayesGoodnessOfFit.png
 
 The structure of the plot is very similar to the goodness of fit plot for the BootstrapInference
-object. However, the interpretations should now be taken from a bayesian perspective.
+object. However, the interpretations should now be taken from a Bayesian perspective.
 
 The upper left panel shows psychometric functions sampled from the posterior distribution, data, and
 credibility intervals for three thresholds. Data and credibility intervals have essentially the

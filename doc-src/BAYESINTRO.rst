@@ -1,17 +1,17 @@
 Bayesian model fitting and prior selection
 ==========================================
 
-The new psignifit version heavily relies on bayesian methods. So far, our simulations with psignifit seem
-to indicate that bayesian inference for psychometric functions (based on Markov Chain Monte Carlo) is superior
+The new psignifit version heavily relies on Bayesian methods. So far, our simulations with psignifit seem
+to indicate that Bayesian inference for psychometric functions (based on Markov Chain Monte Carlo) is superior
 to maximum likelihood inference with a sampling distribution that is approximated using the bootstrap technique.
-Here, we present a very general introduction to bayesian analysis that is specially tailored towards psychometric
+Here, we present a very general introduction to Bayesian analysis that is specially tailored towards psychometric
 functions. More elaborate introductions to the topic can be found in most modern textbooks about statistics.
 
-The idea of bayesian inference
+The idea of Bayesian inference
 ------------------------------
 
-The basic idea of bayesian inference is to treat both, parameters as well as data, as probabilistic. That means,
-that a "model" in bayesian terms is an explicit formulation of the joint distribution of parameters :math:`\theta`
+The basic idea of Bayesian inference is to treat both, parameters as well as data, as probabilistic. That means,
+that a "model" in Bayesian terms is an explicit formulation of the joint distribution of parameters :math:`\theta`
 and data :math:`\mathcal{D}`
 
 .. math::
@@ -231,7 +231,7 @@ Although these priors seem natural at first sight, it is often a good idea to th
 For example, uniform priors might also be interesting for :math:`m` and :math:`w`, and Michelson contrast is restricted to have values in the unit interval,
 so a Beta prior might also be justified for contrast thresholds.
 
-.. [#] In some cases, you might still want to use bayesian inference techniques but without a 'real' prior for a certain parameter.
+.. [#] In some cases, you might still want to use Bayesian inference techniques but without a 'real' prior for a certain parameter.
     To specify such an 'improper' prior, you could use the empty string "" or explicitely demand "improper". Such a prior will assign
     a prior probability of 1 to any value of the respective parameter and is thus no proper probability distribution.
 

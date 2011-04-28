@@ -5,7 +5,7 @@ A quick start to pypsignifit
 This document presents two example analyses of psychometric data using pypsignifit.
 :ref:`Example 1 <Example 1>` explains how to fit a psychometric function using constrained maximum
 likelihood as described in the papers by [Wichmann_and_Hill_2001a]_, [Wichmann_and_Hill_2001b]_. 
-:ref:`Example 2 <Example 2>` explains how to fit a psychometric function using a bayesian approach. Parts of 
+:ref:`Example 2 <Example 2>` explains how to fit a psychometric function using a Bayesian approach. Parts of 
 the ideas that are implemented here can be found in the paper by [Kuss_et_al_2005]_, the rest was new at the time of this writing.
 
 
