@@ -24,8 +24,9 @@ If you haven't created the Bootstrap Inference Object and done the sampling, do:
 
 >>> B_single_sessions = psi.BootstrapInference ( data_single_sessions, priors=("unconstrained","unconstrained","Beta(2,20)"), sample=True )
 
->>> B.infl.round(2)
-INSERT DATA
+>>> B_single_sessions.infl.round(2)
+array([ 0.34,  0.02,  0.19,  0.13,  0.15,  0.21,  0.43,  0.19,  0.86,
+        0.15,  0.06,  0.4 ,  0.02,  0.13,  0.15])
 
 What do these numbers tell us? Obviously, the last block has a relatively high "influence" here, while
 the second to last has a lower "influence".
@@ -58,7 +59,7 @@ estimates for reduced data sets are still perfectly within the confidence limits
 Typcially, we want to visualize the influence of the datapoints to get a quick idea of the influences of the individual
 data points. To do so, we can use the plotInfluential() method
 
->>> plotInfluential(B)
+>>> psi.plotInfluential(B_single_sessions)
 
 .. image:: BootstrapInfluential.png
 
