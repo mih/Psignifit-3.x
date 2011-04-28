@@ -5,8 +5,8 @@ In order to estimate a guess rate, psignifit needs to know how many alternatives
 However, there are vast differences in naming conventions for experimental designs. The way psignifit approaches the number of alternatives is stimulus based. 
 Note that a large number of labs use a response based nomenclature.
 
-If you don't set 'narc' to a specific value, psignifit will assume that the data come from a 2 alternative
-forced choice experiment (AFC). That means, that on each trial two stimuli were presented and the
+If you don't set 'nafc' to a specific value, psignifit will assume that the data come from a 2 alternative-forced-choice
+experiment (AFC). That means, that on each trial two stimuli were presented and the
 observer knows that one and only one of these stimuli was the target stimulus. 
 For example, in a contrast detection task for luminance only the target stimulus would have contained a different luminance.
 Psignifit follows a classical signal-detection approach to experimental design. For all other situations you should create your Inference object with the keyword 'nafc' set to the number of stimulus alternatives that were presented. So, if your standard is always smaller or always larger than all the other alternatives 
@@ -36,8 +36,8 @@ In many experiments we will record which response an observer chose and we will 
 fit the number of "stimulus present", "stimulus left", "stimulus longer" responses (or
 whatever is suitable in the present context). In those cases our guess rate does not necessarily equal 1/nafc.
 For instance, in a detection task, the observer might be very conservative and virtually
-never report the presence of a target for low stimulus intensities. Or the observer might
-always respond "stimulus left" if the stimulus is presented sufficiently for to the left
+never report the presence of a target for low stimulus intensities. Or, the observer might
+always respond "stimulus left" if the stimulus is presented sufficiently far to the left
 of a mark.
 
 Another common approach is to present only one stimulus per trial. The observers might then have to indicate whether the target stimulus
