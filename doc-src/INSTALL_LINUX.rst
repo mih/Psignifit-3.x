@@ -42,7 +42,7 @@ To generate the documentation use::
 
 If you want to try psignifit without installing it into your system, you are referred to the section `Execute without Installation`_ below.
 
-If you want a special flavor of the python installation and are familiar with using python
+If you want a special flavor of the Python installation and are familiar with using Python
 setup-scripts, you can also use special options for the installation, by
 executing the ``setup.py`` script explicitly. Note however, that in this case
 you will first have to generate the swig interface. An example can be found in
@@ -62,7 +62,7 @@ After this you may install psignifit locally by typing::
 where ``$HOME`` should be replace by the name of your own home-directory.
 This command will install psignifit into ``$HOME/lib/python/psignifit``.
 To use psignifit from this path, you will also have to set the ``$PYTHONPATH``
-variable. Either you invoke the python interpreter from the commandline by
+variable. Either you invoke the Python interpreter from the commandline by
 calling::
 
     PYTHONPATH=$HOME/lib/python python
@@ -73,7 +73,7 @@ by adding the line::
     export PYTHONPATH=$HOME/lib/python
 
 Yet another option is to set the ``$PYTHONPATH`` variable directly from the
-python interpreter using the ``os`` module.
+Python interpreter using the ``os`` module.
 
 
 Installing the command line interface (optional)

@@ -1,7 +1,7 @@
 Mac OSX
 =======
 
-This is the installation instruction for the python version, not the Matlab version.
+This is the installation instruction for the Python version, not the Matlab version.
 
 The easiest way to use psignifit is to use the `Enthought Python Distribution <http://www.enthought.com/products/epd.php>`_.
 

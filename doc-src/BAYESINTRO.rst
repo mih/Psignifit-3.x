@@ -148,7 +148,7 @@ If you are unsure about which distribution would be appropriate for the lapse ra
 
 
 It is also possible to set the prior :math:`\lambda=\gamma` which means that the upper asymptote of the psychometric function is as far from 1
-as the lower asymptote is from 0. However, this prior is not yet available from the python interface.
+as the lower asymptote is from 0. However, this prior is not yet available from the Python interface.
 
 Prior distributions for parameters of the psychometric function
 ---------------------------------------------------------------

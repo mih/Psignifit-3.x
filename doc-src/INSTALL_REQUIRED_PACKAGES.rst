@@ -11,11 +11,11 @@ Compile-Time
 * `Gcc <http://gcc.gnu.org/>`_ (4:4.4.3-1)/
 * `Python <python http://www.python.org/>`_ (2.5.5-6)/
 * `Python/C API <http://docs.python.org/c-api/>`_ (2.5.5-2)
-    for compiling the ``psipy`` and ``swignifit`` interface for python
+    for compiling the ``psipy`` and ``swignifit`` interface for Python
 * `Numpy/C API <http://docs.scipy.org/doc/numpy/reference/c-api.html>`_ (1:1.3.0-3)
-    for compiling the ``psipy`` interface for python
+    for compiling the ``psipy`` interface for Python
 * `Simplified Wrapper and Interface Generator (SWIG) <http://www.swig.org/>`_ (1.3.40-2)
-    for compiling the ``swignifit`` interface for python
+    for compiling the ``swignifit`` interface for Python
 
 Run-Time
 ........
@@ -23,7 +23,7 @@ Run-Time
 * `Numpy <http://numpy.scipy.org/>`_  (1:1.3.0-3)/
 * `Scipy <http://www.scipy.org/>`_ (0.7.1-1)/
 * `Matplotlib <http://matplotlib.sourceforge.net/>`_ (0.99.1.2-3)
-    for the python version
+    for the Python version
 
 Documentation
 .............

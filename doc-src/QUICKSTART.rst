@@ -11,14 +11,14 @@ the ideas that are implemented here can be found in the paper by [Kuss_et_al_200
 
 Getting started
 ===============
-To get you started with pypsignifit, open a python interpreter and type the following:
+To get you started with pypsignifit, open a Python interpreter and type the following:
 
 >>> import pypsignifit as psi
 >>> dir(psi)
 ['BayesInference', 'BootstrapInference', 'ConvergenceMCMC', 'GoodnessOfFit', 'ParameterPlot', 'ThresholdPlot', '__builtins__', '__doc__', '__docformat__', '__file__', '__name__', '__package__', '__path__', '__test__', '__version__', 'interface', 'plotInfluential', 'plotMultiplePMFs', 'plotSensitivity', 'psignidata', 'psignierrors', 'psigniplot', 'pygibbsit', 'set_seed', 'show', 'subprocess', 'sys', 'version']
 
-With the first command you import the complete functionality of the python module pypsignifit to your current workspace. Dir( module name ) provides you with a list of functions and data types that come with pypsignifit.
-To get help and documentation about one of these functions, you can use the online python help by typing
+With the first command you import the complete functionality of the Python module pypsignifit to your current workspace. Dir( module name ) provides you with a list of functions and data types that come with pypsignifit.
+To get help and documentation about one of these functions, you can use the online Python help by typing
 help ( function name ). For instance,
 
 >>> help ( psi.BayesInference )

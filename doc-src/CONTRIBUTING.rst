@@ -179,4 +179,4 @@ When adding a new C++ source or header file you will have to:
 
 * add the file to the git repository
 * add the filename to the Makefile
-* add the filename to the python setup file
+* add the filename to the Python setup file
