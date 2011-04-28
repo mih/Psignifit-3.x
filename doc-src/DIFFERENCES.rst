@@ -22,13 +22,25 @@ Specifying the psychometric function
 -------------------------------------
 
 In psignifit 2 you specify a function from the list
-	- ADD OPTIONS
+    - Logistic
+    - cumulative Gaussian
+    - Linear
+    - Gumbel
+    - Weibull
 
 This has changed. In psignifit 3 this is split into the sigmoid and the core. Below we have summarized how the old functions map onto the new sigmoid-core framework:
 
-ADD HOW THINGS MAP ONTO EACH OTHER
+======================  ==================== =====================
+ psignifit 2             psignifit 3 core     psignifit 3 sigmoid
+======================  ==================== =====================
+ Logistic                ab                    logistic
+ cumulative Gaussian     ab                    gauss
+ Linear                  linear                id
+ Gumbel                  ab                    gumbel_l
+ Weibull                 poly                  exp
+======================  ==================== =====================
 
-You should be aware though, that by having the simoid-core framework you have several other combinations that you can choose from. For a description of the different combinations that are possible in psignifit 3 have a look at the section on how to specify the different psychometric functions (ADD LINK)
+You should be aware though, that by having the simoid-core framework you have several other combinations that you can choose from. For a description of the different combinations that are possible in psignifit 3 have a look at the section :doc:`PSYCHOMETRICFUNCTIONS`.
 
 
 Specifying priors
@@ -36,4 +48,4 @@ Specifying priors
 
 In psignifit 2 you could access the priors independently. For example, if you only wanted to change your lamda prior you only had to specify the lambda prior.
 In psignifit 3 you have two options, either you leave all priors at their default setting or (even if you just want to change one of them) you make all priors explicit.
-NEEDS MORE DETAIL
+More information can be found in :doc:`BAYESINTRO`.
