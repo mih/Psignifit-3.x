@@ -956,7 +956,8 @@ def plotInfluential ( InferenceObject ):
 
     p.figure ( figsize=(6,8) )
     # ax = p.axes ( (0.0,.5,.9,.5) )
-    ax = p.subplot ( 2,1,1 )
+    ax = prepare_axes ( p.subplot ( 2,1,1 ) )
+    ax.set_ylabel ( r"$\Psi(x)$" )
     if InferenceObject.__repr__().split()[1] == "BayesInference":
         InferenceObject.drawposteriorexamples ( ax=ax )
     plotPMF ( InferenceObject, ax=ax, showaxes=True, showdesc=False, color="b", linewidth=2 )
@@ -976,7 +977,7 @@ def plotInfluential ( InferenceObject ):
         yname = "D_KL( full || reduced )"
     ax.plot ( InferenceObject.data[:,0], InferenceObject.infl, 'bo' )
     ax.set_xlim(xl)
-    drawaxes ( ax, ax.get_xticks(), "%g", ax.get_yticks(), "%g", "stimulus intensity", yname )
+    drawaxes ( ax, ax.get_xticks(), "%g", ax.get_yticks(), "%g", r"stimulus intensity $x$", yname )
 
 def plotMultiplePMFs ( *InferenceObjects, **kwargs ):
     """
