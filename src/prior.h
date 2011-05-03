@@ -20,7 +20,7 @@ class PsiPrior
 	private:
 		PsiRandom rng;
 	public:
-		virtual double pdf ( double x ) { return 1.;}    ///< evaluate the pdf of the prior at position x (in this default form, the parameter is completely unconstrained)
+		virtual double pdf ( double x ) const { return 1.;}    ///< evaluate the pdf of the prior at position x (in this default form, the parameter is completely unconstrained)
 		virtual double dpdf ( double x ) { return 0.; }  ///< evaluate the derivative of the pdf of the prior at position x (in this default form, the parameter is completely unconstrained)
 		virtual double rand ( void ) { return rng.draw(); } ///< draw a random number
 		virtual PsiPrior * clone ( void ) const { throw NotImplementedError(); }///< clone by value
@@ -48,7 +48,7 @@ class UniformPrior : public PsiPrior
                                                         upper(original.upper),
                                                         height(original.height),
                                                         rng(original.rng) {} ///< copy constructor
-		double pdf ( double x ) { return ( x>lower && x<upper ? height : 0 ); }                      ///< evaluate the pdf of the prior at position x
+		double pdf ( double x ) const { return ( x>lower && x<upper ? height : 0 ); }                      ///< evaluate the pdf of the prior at position x
 		double dpdf ( double x ) { return ( x!=lower && x!=upper ? 0 : (x==lower ? 1e20 : -1e20 ));} ///< derivative of the pdf of the prior at position x (jumps at lower and upper are replaced by large numbers)
 		double rand ( void ) { return rng.draw(); }                                                 ///< draw a random number
         PsiPrior * clone ( void ) const { return new UniformPrior(*this); }
@@ -83,7 +83,7 @@ class GaussPrior : public PsiPrior
                                                     var(original.var),
                                                     twovar(original.twovar),
                                                     rng(original.rng) {} ///< copy contructor
-		double pdf ( double x ) { return normalization * exp ( - (x-mu)*(x-mu)/twovar ); }                                              ///< return pdf of the prior at position x
+		double pdf ( double x ) const { return normalization * exp ( - (x-mu)*(x-mu)/twovar ); }                                              ///< return pdf of the prior at position x
 		double dpdf ( double x ) { return - x * pdf ( x ) / var; }                                                                      ///< return derivative of the prior at position x
 		double rand ( void ) {return rng.draw(); }
         PsiPrior * clone ( void ) const { return new GaussPrior(*this); }
@@ -120,7 +120,7 @@ class BetaPrior : public PsiPrior
                                                  normalization(original.normalization),
                                                  rng(original.rng),
                                                  mode(original.mode) {} ///< copy constructor
-		double pdf ( double x ) { return (x<0||x>1 ? 0 : pow(x,alpha-1)*pow(1-x,beta-1)/normalization); }             ///< return beta pdf
+		double pdf ( double x ) const { return (x<0||x>1 ? 0 : pow(x,alpha-1)*pow(1-x,beta-1)/normalization); }             ///< return beta pdf
 		double dpdf ( double x ) { return (x<0||x>1 ? 0 : ((alpha-1)*pow(x,alpha-2)*pow(1-x,beta-1) + (beta-1)*pow(1-x,beta-2)*pow(x,alpha-1))/normalization); }      ///< return derivative of beta pdf
 		double rand ( void ) {return rng.draw();};                                                                                         ///< draw a random number using rejection sampling
         PsiPrior * clone ( void ) const { return new BetaPrior(*this); }
@@ -152,7 +152,7 @@ class GammaPrior : public PsiPrior
                                                     theta(original.theta),
                                                     normalization(original.normalization),
                                                     rng(original.rng) {} ///< copy constructor
-		virtual double pdf ( double x ) { return (x>0 ? pow(x,k-1)*exp(-x/theta)/normalization : 0 );}                                                             ///< return pdf at position x
+		virtual double pdf ( double x ) const { return (x>0 ? pow(x,k-1)*exp(-x/theta)/normalization : 0 );}                                                             ///< return pdf at position x
 		virtual double dpdf ( double x ) { return (x>0 ? ( (k-1)*pow(x,k-2)*exp(-x/theta)-pow(x,k-1)*exp(-x/theta)/theta)/normalization : 0 ); }                   ///< return derivative of pdf
 		virtual double rand ( void ) {return rng.draw(); };
         PsiPrior * clone ( void ) const { return new GammaPrior(*this); }
@@ -176,7 +176,7 @@ class nGammaPrior : public GammaPrior
 	public:
 		nGammaPrior ( double shape, double scale ) : GammaPrior(shape,scale) {}
         nGammaPrior ( const nGammaPrior& original ) : GammaPrior(original) {} ///< copy constructor
-		double pdf ( double x ) { return GammaPrior::pdf ( -x ); }
+		double pdf ( double x ) const { return GammaPrior::pdf ( -x ); }
 		double dpdf ( double x ) { return -GammaPrior::dpdf ( -x ); }
 		double rand ( void ) { return -GammaPrior::rand(); }
         PsiPrior * clone ( void ) const { return new nGammaPrior(*this); }
