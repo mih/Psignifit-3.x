@@ -51,8 +51,75 @@ double gammaln(double xx) {
 	return -tmp+log(2.5066282746310005*ser/x);
 }
 
+double gammainc ( double x, double a ) {
+	double gm,Ga,xi(1),h,dl,aa,bb;
+	unsigned int i;
+	double D,C;
+	gm = exp ( -x ) * pow(x,a);
+	Ga = exp ( gammaln(a) );
+	if ( x < a+1 ) {
+		// Series
+		i = 0;
+		while (i<2000) {
+			gm += xi * Ga / ( exp ( gammaln ( a+1+i ) ) );
+			xi *= x;
+			i++;
+		}
+		return gm;
+	} else {
+		// Continued fraction
+		h = 1e-30;
+		D = x+1-a;
+		C = x+1-a + 1/h;
+		dl = C/D;
+		h *= dl;
+		i = 1;
+		while ( i++<2000 ) {
+			bb = x+2*(i-1)+1-a;
+			aa = (i-1)*(i-1-a);
+			D = bb + aa * D;
+			C = bb + aa / C;
+			if (D==0) D = 1e-30;
+			if (C==0) C = 1e-30;
+			dl = C/D;
+			h *= dl;
+			if ( fabs(dl-1) < 1e-7 ) break;
+		}
+		gm *= h;
+		gm = Ga - gm;
+	}
+	return gm;
+}
+
 double betaf(double z, double w) {
 	return exp(gammaln(z)+gammaln(w)-gammaln(z+w));
+}
+
+double betainc ( double x, double a, double b ) {
+	unsigned int i,m;
+	double h(1), C(1), D(0), d, dl;
+
+	i = 0;
+	while (i++<2000) {
+		if ( i%2==0 ) {
+			m = i/2;
+			d = m*(b-m)*x / ((a+2*m-1)*(a+2*m));
+		} else {
+			m = (i-1)/2;
+			d = - (a+m)*(a+b+m)*x / ( (a+2*m-1)*(a+2*m) );
+		}
+
+		D = 1 + d*D;
+		C = 1 + d/C;
+		if ( D==0 ) d = 1e-30;
+		if ( C==0 ) d = 1e-30;
+
+		dl = C/D;
+		h = dl*h;
+		if ( fabs(dl-1) < 1e-7 ) break;
+	}
+
+	return pow ( x,a )*pow ( x, b ) / (a*betaf ( a, b ) ) * h;
 }
 
 double psi ( double z ) {
