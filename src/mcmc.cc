@@ -65,7 +65,7 @@ std::vector<double> MetropolisHastings::draw ( void ) {
 double MetropolisHastings::acceptance_probability (
 		const std::vector<double>& current_theta,
 		const std::vector<double>& new_theta ) {
-	double qnew, lratio;
+	double qnew;
 
 	qnew = -getModel()->neglpost ( new_theta, getData() );
 
