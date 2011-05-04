@@ -25,6 +25,16 @@ In order to install missing packages, type::
 
     sudo aptitude install make gcc python python-dev python-numpy python-scipy python-matplotlib python-nose
 
+You will want to download the most recent version of psignifit from::
+
+`Psignifit3 Downloads <http://sourceforge.net/.projects/psignifit/files/>`_
+
+Extract the file by typing::
+
+    unzip psignifit3.0_beta_<date of the snapshot>.zip
+    cd psignifit3.0_beta_<date of the snapshot>
+
+where you replace <date of the snapshot> by the date string in the file name.
 
 System-wide installation
 ------------------------

@@ -15,16 +15,18 @@ If this gives you the output::
 
 you have to download gcc through the Apple Developer Tools. Register for a  developer account (you can use your normal apple account for this and it's free, you don't have to join the developer program) which will allow you to access the developer tools where you want to download Xcode (this is a very large file but as far as we know is the only way of downloading gcc) at the time of writing Xcode 3 is free (and has everything you need) so there is no need to pay for Xcode 4. If you are not running Snow Leopard, you will have to find an older version of Xcode such as 3.1.
 
-You will want to download one of the 'swigged' psignifit archives from:
+You will want to download the most recent version of psignifit from::
 
 `Psignifit3 Downloads <http://sourceforge.net/.projects/psignifit/files/>`_
 
-(The 'swigged' archives are the ones with the string 'swigged' in the filename)
 
-Extract the archive to a folder. Navigate to this folder from the command line and install::
+Extract the file by typing::
 
-    unzip psignifit3.0_beta_swigged_24-03-2011.zip
-    cd psignifit3.0_beta_swigged_24-03-2011
+    unzip psignifit3.0_beta_<date of the snapshot>.zip
+    cd psignifit3.0_beta_<date of the snapshot>
+
+where you replace <date of the snapshot> by the date string in the file name. Now simply run::
+
     python setup.py install
 
 
