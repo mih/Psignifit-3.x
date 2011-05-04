@@ -59,6 +59,28 @@ bugs, and request new features. If you use Psignifit we recommend you
 `subscribe <https://lists.sourceforge.net/lists/listinfo/psignifit-users>`_
 to this list.
 
+************************
+Authors and Contributors
+************************
+
+Authors & Contributors¶
+
+The Psignifit3 core development team currently consists of:
+
+* Ingo Fründ
+* Valentin Haenel
+
+We are very grateful to the following people, who have contributed to Psignifit3:
+
+* Simon Barthelmé
+* Hannah Dold
+* Sophie Herbst 
+* Jeremy Hill
+* Marianne Maertens 
+* Manuel Spitschan 
+* Felix Wichmann 
+* Katharina Maria Zeiner 
+* Tiziano Zito 
 
 **************
 How to install
