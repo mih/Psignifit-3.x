@@ -195,6 +195,9 @@ plot for the posterior deviance.
 
 We can observe that in all cases, the fitted model describes the data reasonably well.
 
+For more information about the sensitivity of posterior predictive simulations in the setting of psychometric
+functions refer to [Fruend_et_al_2011]_.
+
 Posterior distributions
 -----------------------
 
@@ -215,6 +218,7 @@ be used for Bayesian inference.
 References
 ==========
 .. [Blackwell_1952] Blackwell, H. R.(1952). Studies of psychophysical methods for measuring visual thresholds. Journal of the Optical Society of America, 42, 606-616.
+.. [Fruend_et_al_2011] Fründ, I, Haenel, NV, Wichmann, FA (2011). Inference for psychometric functions in the presence of nonstationary behavior. Journal of Vision, in press.
 .. [Gelman_1996] Gelman A (1996): Inference and monitoring convergence. In [Gilks_et_al_1996]_.
 .. [Geweke_1992] Geweke, J (1992): Evaluating the accuracy of sampling-based approaches to calculating posterior moments. In Bernardo et al., pp 169-193.
 .. [Gilks_et_al_1996] Gilks, WR, Richardson, S, Spiegelhalter, DJ (Hrsg,1996): Markov chain Monte Carlo in practice. London: Chapman & Hall.
