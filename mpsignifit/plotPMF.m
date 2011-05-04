@@ -16,7 +16,7 @@ function axhandle = plotPMF ( inference, varargin )
 % xlabel        label for the x axis
 % ylabel        label for the y axis
 % 
-% This file is part of psignifit3 for matlab (c) by Ingo Fründ
+% This file is part of psignifit3 for matlab (c) by Ingo FrÃ¼nd
 
 % Check data format
 if size ( inference.data, 2 ) ~= 3
@@ -31,8 +31,8 @@ end
 verbose = false;
 axhandle = gca;
 color = [0,0,1];
-xname = 'stimulus intensity';
-yname = 'fraction of correct responses';
+xname = 'Stimulus intensity';
+yname = 'Proportion correct';
 
 % posterior samples only make sense in a bayesian framework
 if strcmp(inference.call, 'bayes')
@@ -70,10 +70,10 @@ drange = [min(inference.mcdeviance(burnin:end)),min(inference.mcdeviance(burnin:
 
 % Diagnostics of the point estimate
 if inference.gammaislambda
-    diag = Diagnostics ( inference.data, inference.thetahat, ...
+    diag = Diagnostics ( inference.data, inference.params_estimate, ...
         'sigmoid', inference.sigmoid, 'core', inference.core, 'nafc', inference.nafc, 'cuts', inference.cuts, 'gammaislambda' );
 else
-    diag = Diagnostics ( inference.data, inference.thetahat, ...
+    diag = Diagnostics ( inference.data, inference.params_estimate, ...
         'sigmoid', inference.sigmoid, 'core', inference.core, 'nafc', inference.nafc, 'cuts', inference.cuts );
 end
 
@@ -107,7 +107,7 @@ for k = 1:nposteriorsamples
     elseif dpos < 0
         dpos = 0;
     elseif dpos > 1
-        dpos = 1
+        dpos = 1;
     end
 
     % Plot the example
@@ -124,9 +124,9 @@ for cut = 1:length(inference.cuts)
     if inference.nafc>1
         guess = 1./inference.nafc;
     else
-        guess = inference.thetahat(end);
+        guess = inference.params_estimate(end);
     end
-    h = guess + inference.cuts(cut)*(1-guess-inference.thetahat(3));
+    h = guess + inference.cuts(cut)*(1-guess-inference.params_estimate(3));
     plot ( axhandle, ci, [h,h], '-', 'color', color );
 end
 
@@ -140,5 +140,15 @@ set(axhandle, 'xlim', [xmin-.05*xrange,xmax+.05*xrange], 'ylim', [0,1] );
 xlabel ( xname );
 ylabel ( yname );
 
+
+% Add info about psychometric function as multi-line text object
+textstr(1) = {['sigmoid: ', inference.sigmoid]};
+textstr(2) = {['core: ', inference.core]};
+textstr(3) = {['nAFC: ', num2str(inference.nafc)]};
+textstr(4) = {['Deviance: ', num2str(diag.deviance)]};
+
+text(xmin, 0.9, textstr, 'HorizontalAlignment', 'left');
+
 % Releast the plot
 hold off;
+

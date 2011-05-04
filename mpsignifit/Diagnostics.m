@@ -5,26 +5,30 @@ function results = Diagnostics ( data, parameters, varargin )
 % This involves evaluation of the function for different x values or determining
 % some diagnostic values for goodness of fit.
 %
-% data should be an array with three columns and one row for each block of trials.
+% Data should be an array with three columns and one row for each block of trials.
 %    The first column should contain the stimulus intensity in the respective block,
 %    the second column should contain the number of correctly identified trials in
 %    the respective block, and the third column should contain the total number of
 %    trials presented in the respective block.
 %
-% parameters should a vector of parameters at which the diagnostic values should
+%    A valid data variable would be:
+%
+%    >> data = [0, 1, 2, 3; 3, 5, 9; 10, 10, 10]''
+%
+% Parameters should a vector of parameters at which the diagnostic values should
 %    be evaluated.
 %
-% The bevavior of this function can be modified by specifiing certain addition
+% The behavior of this function can be modified by specifiing certain addition
 % parameters. To specify one of these parameters, call the function as
 %
 % >> Diagnostics ( data, priors, 'PARAM', VALUE )
 %
-% Some parameters don't require a value (for instance the 'gammaislambda' setting). In this
+% Some parameters do not require a value (for instance the 'gammaislambda' setting). In this
 % case call the function as
 %
 % >> Diagnostics ( data, priors, 'PARAM' )
 %
-% In the folloing list, all valid parameters are given. If a parameter requires a value argument,
+% In the following list, all valid parameters are given. If a parameter requires a value argument,
 % the type of this value argument is given after the name of the parameter and separated by a comma.
 %
 % Parameters
