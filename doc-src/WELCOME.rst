@@ -10,13 +10,13 @@ the new package comes with a number of **additional features**:
     * detection of outliers (potentially to be excluded)
     * new philosophy of defining the shape of the psychometric function allowing for considerably more flexibility in specifiing psychometric function models.
 
-The primary interface for Psignifit 3.0 is now `Python <http://www.python.org/>`_, instead of Matlab. In contrast to
+The preferred interface for Psignifit 3.0 is now `Python <http://www.python.org/>`_, but Matlab is also supported. In contrast to
 Matlab, Python is a complete programming language that supports virtually all features you
 might wish for. Python allows you to perform numerical computations as flexible and fast as
 in Matlab. In addition, Python provides features like object oriented programming and simple creation of graphical user interfaces. Python is easy to learn: even users with no prior programming experience can master Python within weeks.
 Finally Python is free to use because of its OSI-approved open source license.
 
-However, even though Python is similar to *Matlab*, it is not the same. Therefore, we also plan
+However, even though Python is similar to **Matlab**, it is not the same. Therefore, we also plan
 to provide a Matlab version of Psignifit 3.0 with the first official release. However, we will
 not guarantee support for this toolbox in future releases and we encourage users to use the
 Python version as this will be up to date.
@@ -55,7 +55,8 @@ To contact the authors and current maintainers please use:
 
 
 This list can be used to ask questions about usage and installation, report
-bugs, and request new features. If you use Psignifit we recommend you subscribe
+bugs, and request new features. If you use Psignifit we recommend you
+`subscribe <https://lists.sourceforge.net/lists/listinfo/psignifit-users>`_
 to this list.
 
 
