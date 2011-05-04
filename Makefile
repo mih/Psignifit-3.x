@@ -263,7 +263,7 @@ dist-upload-archives: | dist-changelog dist-git-tag-snap dist-swigged dist-win
 	mkdir psignifit3.0_beta_$(TODAY)
 	cp psignifit3.0_beta_$(TODAY).tar.gz psignifit3.0_beta_swigged_$(TODAY).tar.gz psignifit3.0_beta_$(TODAY).zip psignifit3.0_beta_swigged_$(TODAY).zip psignifit-cli_3_beta_installer_$(TODAY).exe psignifit3.0_beta_$(TODAY)
 	if [ -d dist ];
-	cp dist/*.exe psignifit3.0_beta_$(TODAY); 
+	cp dist/pypsignifit-3.0beta.win32-py2.6.exe psignifit3.0_beta_$(TODAY)/psignifit3.0_beta_$(TODAY)_win32-py2.6.exe; 
 	else
 	echo "Installer for Python w32 has not been built; will be omitted in Upload."
 	fi
