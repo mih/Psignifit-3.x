@@ -27,7 +27,7 @@ For a 2AFC task, the guessing rate is fixed at :math:`\gamma=0.5`. Thus, our mod
 :math:`a`, :math:`b`, and :math:`\lambda`. We want to keep :math:`a` and :math:`b` unconstrained. In order to constrain :math:`\lambda` the following considerations might be helpful:
 
 * For observers who exhibit a low lapse rate :math:`\lambda` can be approximated by Beta(2,20).
-* For observers who exhibit a high lapse rate (typically observed in animals) :math:`\lambda` can be approximated by Beta(5,20). For more information about prior selection you might read the `Introduction to Bayes Inference <http://psignifit.sourceforge.net/BAYESINTRO.html#>`_.
+* For observers who exhibit a high lapse rate (typically observed in animals) :math:`\lambda` can be approximated by Beta(1.5,12). For more information about prior selection you might read the `Introduction to Bayes Inference <http://psignifit.sourceforge.net/BAYESINTRO.html#>`_.
 
 
 >>> nafc = 2
@@ -38,7 +38,7 @@ Now we can fit the psychometric function by calling:
 
 >>> B_single_sessions = psi.BootstrapInference ( data_single_sessions, priors=constraints, nafc=nafc )
 
-Note that all inference functions assume a 2AFC task by default. B_single_sessions is a Bootstrap Inference Object,
+Note that all inference functions assume a 2AFC task by default. ``B_single_sessions`` is a Bootstrap Inference Object,
 
 >>> print B_single_sessions
 < BootstrapInference object with 15 blocks and 0 samples >
@@ -67,7 +67,7 @@ You can also get the threshold and slope more directly:
 >>> B_single_sessions.getThres(0.75)
 0.08599647282382343
 
-Please not that .getThres(), .getSlope() and .getCI() return by default their respective values at :math:`\Psi(x)=0.5`
+Please not that ``.getThres()``, ``.getSlope()`` and ``.getCI()`` return by default their respective values at :math:`\Psi(x)=0.5`
 
 
 .. _goodness_of_fit:
@@ -90,12 +90,12 @@ Is this a high or a low value? In order to decide whether or not the fitted func
 >>> print B_single_sessions
 < BootstrapInference object with 15 blocks and 2000 samples >
 
-We see that B_single_sessions has changed: instead of 0 samples, we now have 2000 parametric bootstrap samples in the object. We can use these samples to assess the goodness of fit:
+We see that ``B_single_sessions`` has changed: instead of 0 samples, we now have 2000 parametric bootstrap samples in the object. We can use these samples to assess the goodness of fit:
 
 >>> psi.GoodnessOfFit(B_single_sessions)
 
 In an interactive session, this should open a window that looks like the following. (In some
-cases, you may have to type psi.show() before you see the window).
+cases, you may have to type ``psi.show()`` before you see the window).
 
 .. image:: gof_single_sessions.png
 
@@ -110,6 +110,8 @@ cases, you may have to type psi.show() before you see the window).
 5. Top right: deviance residuals are plotted as a function of block index i.e. the sequence in which the data were acquired (WARNING: this graph can be properly interpreted only when stimulus intensities were fixed in separate blocks). If the observer was learning, the fitted linear correlation between residuals and block index should be positive.
 
 6. Bottom right: histrogram of bootstrapped correlation coefficients for the correlation between deviance residuals and block index (same logic applies as in panel 2 and 4).
+
+More information about these parameters can also be found in the paper by [Fruend_et_al_2011]_.
 
 Sensitivity Analysis
 --------------------
@@ -188,6 +190,7 @@ More details on sigmoids and cores and how they can be used to specify models ca
 References
 ==========
 .. [Blackwell_1952] Blackwell, H. R.(1952). Studies of psychophysical methods for measuring visual thresholds. Journal of the Optical Society of America, 42, 606-616.
+.. [Fruend_et_al_2011] Fründ, I, Haenel, NV, Wichmann, FA (2011). Inference for psychometric functions in the presence of nonstationary behavior. Journal of Vision, in press.
 .. [Gelman_1996] Gelman A (1996): Inference and monitoring convergence. In [Gilks_et_al_1996]_.
 .. [Geweke_1992] Geweke, J (1992): Evaluating the accuracy of sampling-based approaches to calculating posterior moments. In Bernardo et al., pp 169-193.
 .. [Gilks_et_al_1996] Gilks, WR, Richardson, S, Spiegelhalter, DJ (Hrsg,1996): Markov chain Monte Carlo in practice. London: Chapman & Hall.
