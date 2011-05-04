@@ -11,22 +11,22 @@ is at the heart a classical frequentist approach to the detection of influential
 We will first explain how psignifit implements this procedure and then show how to use a similar
 procedure to determine influential observations in Bayesian terms.
 
+If you haven't generated the example dataset named "data_single_sessions", you can find it :doc:`here </QUICKSTART>`.
+
+
 Influential observations in bootstrapped data
 =============================================
 
 The procedure to detect influential observations that was suggested by [Wichmann_and_Hill_2001a]_ starts
 with the regular bootstrap confidence intervals as obtained by the bootstrap procedure. We apply this
 procedure to the example from the tutorial:
+If you haven't created the Bootstrap Inference Object and done the sampling, do:
 
->>> from pypsignifit import *
->>> nafc = 2
->>> stimulus_intensities = [0.0,2.0,4.0,6.0,8.0,10.0]
->>> number_of_correct = [34,32,40,48,50,48]
->>> number_of_trials  = [50]*len(stimulus_intensities)
->>> data = zip(stimulus_intensities,number_of_correct,number_of_trials)
->>> B = BootstrapInference ( data, priors=("unconstrained","unconstrained","Uniform(0,.1)"), sample=True )
->>> B.infl.round(2)
-array([ 0.52,  0.79,  0.32,  0.38,  0.31,  0.95])
+>>> B_single_sessions = psi.BootstrapInference ( data_single_sessions, priors=("unconstrained","unconstrained","Beta(2,20)"), sample=True )
+
+>>> B_single_sessions.infl.round(2)
+array([ 0.34,  0.02,  0.19,  0.13,  0.15,  0.21,  0.43,  0.19,  0.86,
+        0.15,  0.06,  0.4 ,  0.02,  0.13,  0.15])
 
 What do these numbers tell us? Obviously, the last block has a relatively high "influence" here, while
 the second to last has a lower "influence".
@@ -59,7 +59,7 @@ estimates for reduced data sets are still perfectly within the confidence limits
 Typcially, we want to visualize the influence of the datapoints to get a quick idea of the influences of the individual
 data points. To do so, we can use the plotInfluential() method
 
->>> plotInfluential(B)
+>>> psi.plotInfluential(B_single_sessions)
 
 .. image:: BootstrapInfluential.png
 

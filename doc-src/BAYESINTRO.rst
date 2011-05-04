@@ -1,17 +1,17 @@
 Bayesian model fitting and prior selection
 ==========================================
 
-The new psignifit version heavily relies on bayesian methods. So far, our simulations with psignifit seem
-to indicate that bayesian inference for psychometric functions (based on Markov Chain Monte Carlo) is superior
+The new psignifit version heavily relies on Bayesian methods. So far, our simulations with psignifit seem
+to indicate that Bayesian inference for psychometric functions (based on Markov Chain Monte Carlo) is superior
 to maximum likelihood inference with a sampling distribution that is approximated using the bootstrap technique.
-Here, we present a very general introduction to bayesian analysis that is specially tailored towards psychometric
+Here, we present a very general introduction to Bayesian analysis that is specially tailored towards psychometric
 functions. More elaborate introductions to the topic can be found in most modern textbooks about statistics.
 
-The idea of bayesian inference
+The idea of Bayesian inference
 ------------------------------
 
-The basic idea of bayesian inference is to treat both, parameters as well as data, as probabilistic. That means,
-that a "model" in bayesian terms is an explicit formulation of the joint distribution of parameters :math:`\theta`
+The basic idea of Bayesian inference is to treat both, parameters as well as data, as probabilistic. That means,
+that a "model" in Bayesian terms is an explicit formulation of the joint distribution of parameters :math:`\theta`
 and data :math:`\mathcal{D}`
 
 .. math::
@@ -40,9 +40,10 @@ That is why typically :math:`P(\theta)` is called the "prior" distribution. :mat
 posterior distribution, because it is the distribution of parameters *after* taking into accout the information
 contained in the data.
 
-In this section, we will mainly explain how to specify the prior probability distribution in psignifit.
-The section `Specification of Models for Psychometric functions`_ explains in considerable detail how the term
-:math:`P(\mathcal{D} | \theta)` is specified in psignifit.
+In this section, we will mainly explain how to specify the prior probability
+distribution in psignifit.  The sections :doc:`/DESIGN`
+and :doc:`/PSYCHOMETRICFUNCTIONS` explain in considerable
+detail how the term :math:`P(\mathcal{D} | \theta)` is specified in psignifit.
 
 Specification of prior distributions
 ------------------------------------
@@ -64,10 +65,10 @@ message [#]_.
 Prior distributions for lapse rate and guessing rate
 ----------------------------------------------------
 
-In the models about psychometric there were two parameters that can directly be interpreted as probabilities for certain
+In the models about psychometric data there were two parameters that can directly be interpreted as probabilities for certain
 events to occur.
 
-* The lapse rate :math:`\lambda` can be interpreted as the probability that an observer misses the stimulus and thus gives a response
+* The lapse rate :math:`\lambda` can be interpreted as the probability that  an observer misses the stimulus and thus gives a response
   based only on guessing
 
 * The guessing rate :math:`\gamma` can be interpreted as the probability that an observer gets the stimulus right without having seen it.
@@ -75,7 +76,7 @@ events to occur.
 In certain experimental settings (in particular non AFC settings) the interpretation of these two parameters might change
 slightly but in any case, they will be probabilities. That means, that these parameters should always be within the unit
 interval --- there are neither negative probabilities nor probabilities greater than one.
-A simple but also trival prior for such probabilities would be the Uniform distribution::
+A simple but also trivial prior for such probabilities would be the Uniform distribution::
 
     "Uniform(0,1)"
 
@@ -110,7 +111,7 @@ Although we might feel that this is a good working solution, the translation of 
 
 Another typical prior distribution for parameters that might take values on the unit interval is therefore often the Beta-distribution.
 The Beta distribution has two parameters :math:`\alpha` and :math:`\beta`. We can think of the Beta-distribution in the following way: Imagine performing
-a random experiment with two possible outcomes (throwing a coin and looking at heads and tails, throwing a die and looking at odd and even
+a random experiment with two possible outcomes (throwing a coin and looking at heads and tails, throwing a dice and looking at odd and even
 numbers, ...). Imagine, we repeated this experiment a couple of times and we observed :math:`\alpha-1` successes and :math:`\beta-1` misses. In this
 case, the :math:`Beta(\alpha,\beta)` distribution expresses your knowledge about the probability of a success. Thus, we can easily use the
 Beta-distribution to express prior believes about lapse rate or guessing rate.
@@ -137,8 +138,18 @@ the lapse rate to a range that is roughly between 0 and 10%. In that case, we co
 That would correspond roughly to having knowledge from 20 trials on which we know for sure that the observer lapsed only once.
 This prior gives special emphasis to lapse rates close to 5% but also allows for any other value in the unit interval.
 
+More generally, you could describe this as follows:
+	- Beta (a,b)
+	- lapses = a - 1
+	- non-lapses = b-(a-1)
+
+If you are unsure about which distribution would be appropriate for the lapse rate in your data, the following numbers are a good starting point:
+	- For human participants who show a low lapse rate a Beta(2,20) is a good approximation of the lapse rate.
+	- For human participants who show a high lapse rate or for a lot of animal experiments a Beta(1.5,12) is a good starting point for your lapse rate.
+
+
 It is also possible to set the prior :math:`\lambda=\gamma` which means that the upper asymptote of the psychometric function is as far from 1
-as the lower asymptote is from 0. However, this prior is not yet available from the python interface.
+as the lower asymptote is from 0. However, this prior is not yet available from the Python interface.
 
 Prior distributions for parameters of the psychometric function
 ---------------------------------------------------------------
@@ -146,8 +157,8 @@ Prior distributions for parameters of the psychometric function
 Selecting priors for the psychometric function depends on the exact parameterization of the psychometric function. We will
 explain the reasoning for a logistic-sigmoid and an mw01-core. In this parameterization, the psychometric function depends on the two
 parameters :math:`m` and :math:`w`. :math:`m` is the midpoint of the psychometric function. It is what we are often interested in when we talk about
-a "threshold". :math:`w` on the other hand gives the width of the interval on which the psychometric function rises. These two parameters have
-not natural constraints. The psychometric function is defined for any choice of :math:`m` and :math:`w`. One might therefore be tempted to omit any
+a "threshold". :math:`w` on the other hand gives the width of the interval on which the psychometric function rises. These two parameters don't have
+natural constraints. The psychometric function is defined for any choice of :math:`m` and :math:`w`. One might therefore be tempted to omit any
 priors on these two parameters. This can be done by taking a parameter list like::
 
     ("improper","improper","Beta(2,20)")
@@ -221,7 +232,7 @@ Although these priors seem natural at first sight, it is often a good idea to th
 For example, uniform priors might also be interesting for :math:`m` and :math:`w`, and Michelson contrast is restricted to have values in the unit interval,
 so a Beta prior might also be justified for contrast thresholds.
 
-.. [#] In some cases, you might still want to use bayesian inference techniques but without a 'real' prior for a certain parameter.
+.. [#] In some cases, you might still want to use Bayesian inference techniques but without a 'real' prior for a certain parameter.
     To specify such an 'improper' prior, you could use the empty string "" or explicitely demand "improper". Such a prior will assign
     a prior probability of 1 to any value of the respective parameter and is thus no proper probability distribution.
 
