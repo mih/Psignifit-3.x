@@ -1,5 +1,5 @@
-Linux
-=====
+Debian/Ubuntu
+=============
 
 If you are using `Debian <http://www.debian.org/>`_, the following packages need to be installed:
 
@@ -17,49 +17,37 @@ If you are using `Debian <http://www.debian.org/>`_, the following packages need
 
 In order to check whether or not you have the packages already installed, type::
 
-    sudo aptitude search make gcc python ... swig
+    aptitude search make gcc python python-dev python-numpy python-scipy python-matplotlib python-nose
 
 Packages that are installed on your machine are listed with a leading <i>
 
 In order to install missing packages, type::
 
-    sudo aptitude install make gcc python ... swig
-
+    sudo aptitude install make gcc python python-dev python-numpy python-scipy python-matplotlib python-nose
 
 
 System-wide installation
 ------------------------
 On the command line, navigate to the root directory of the psignifit distribution. Now, you can simply type::
 
-    make install
+    sudo python setup.py install
 
-as root and everything will be installed to the right place. By default, the psignifit documentation will be installed into the root directory into a folder called doc-html. To change this behavior, you might want to modify the Makefile (this should be self-explaining).
-
-To generate the documentation use::
-
-    make doc
-
-
-If you want to try psignifit without installing it into your system, you are referred to the section `Execute without Installation`_ below.
+as root and everything will be installed to the right place.
 
 If you want a special flavor of the Python installation and are familiar with using Python
 setup-scripts, you can also use special options for the installation, by
-executing the ``setup.py`` script explicitly. Note however, that in this case
-you will first have to generate the swig interface. An example can be found in
+executing the ``setup.py`` script explicitly. An example can be found in
 the section `Install into users home directory`_.
 
 
 Install into users home directory
 ---------------------------------
-If you do not have root/admin rights on your computer the setup routine allows installation into your home-directory. In this case you must first generate the ``swig`` interface::
-
-    make swig
-
-After this you may install psignifit locally by typing::
+If you do not have root/admin rights on your computer the setup routine allows installation into your home-directory.
+You may install psignifit locally by typing::
 
     python setup.py install --home=$HOME
 
-where ``$HOME`` should be replace by the name of your own home-directory.
+where ``$HOME`` should be automatically replaced by the name of your own home-directory.
 This command will install psignifit into ``$HOME/lib/python/psignifit``.
 To use psignifit from this path, you will also have to set the ``$PYTHONPATH``
 variable. Either you invoke the Python interpreter from the commandline by
@@ -111,12 +99,15 @@ Now, you should be able to call::
 And see some usage messages after each call.
 
 
-Testing your installation
--------------------------
+Testing your installation (optional)
+------------------------------------
 
 To check whether your installation has been successful and pypsignifit is working properly, you can call::
 
     make test
 
 This will call the standard test suite for psignifit.
+
+NOTE: Currently a couple of tests report failures although they actually pass. This will change in the future.
+But for now, don't be too alarmed if tests fail. As long as you can start the tests at all, everything is probably ok.
 
