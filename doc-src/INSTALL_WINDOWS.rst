@@ -4,18 +4,12 @@ Windows
 This is the installation instruction for the python version, not the Matlab version.
 
 The easiest way to use psignifit is to use the `Enthought Python Distribution <http://www.enthought.com/products/epd.php>`_.
-In that case, you might want to download one of the 'swigged' archives from:
+In that case, you might want to download psignifit from
 
 `Psignifit3 Downloads <http://sourceforge.net/.projects/psignifit/files/>`_
 
-(The 'swigged' archives are the ones with the string 'swigged' in the filename)
-
-Extract the archive to a folder. Navigate to this folder from the command line and install::
-
-    unzip psignifit3.0_beta_swigged_24-03-2011.zip
-    cd psignifit3.0_beta_swigged_24-03-2011
-    python setup.py install
-
+Choose one of the files ``psignifit3.0_beta_<date of the snapshot>_win32-py2.6.exe``. Executing the
+installer should install psignifit3.0 on your system.
 
 Installing the command line interface (optional)
 -------------------------------------------------
