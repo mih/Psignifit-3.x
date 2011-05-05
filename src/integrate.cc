@@ -10,7 +10,7 @@ std::vector<double> raw_grid (
 {
 	unsigned int i;
 	double xmin,xmax,dx;
-	std::vector<double> x;
+	std::vector<double> x (gridsize);
 	parameter_range ( data, pmf, prmindex, &xmin, &xmax );
 
 	dx = (xmax-xmin)/(gridsize-1);
