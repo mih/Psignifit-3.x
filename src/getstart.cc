@@ -297,10 +297,11 @@ void b_range ( const PsiData* data, double *xmin, double *xmax ) {
 	}
 
 	// In any case, b should be scaled to be roughly equivalent to w
+	/*
 	x = 2*log(9.);
 	*xmin /= x;
 	*xmax /= x;
-
+	*/
 }
 
 void lm_range ( const PsiData* data, double *xmin, double *xmax ) {
