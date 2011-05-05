@@ -31,25 +31,23 @@ std::vector<double> cdf_grid (
 
 	std::vector<double> p(gridsize);
 	std::vector<double> x(gridsize);
-	double dp ((pmax-pmin)/(gridsize-1)), x0, d;
-	unsigned int i,j;
+	double dp ((pmax-pmin)/(gridsize-1));
+	unsigned int i;
 
 	for ( i=0; i<gridsize; i++ )
 		p[i] = pmin + i*dp;
 
-	x0 = fitted_dist->mean()-3*fitted_dist->std();
-	if ( fitted_dist->get_code() != 1 )
-		x0 = ( x0<0 ? 1e-5 : x0 );
+	x[0] = fitted_dist->ppf ( p[0], fitted_dist->mean() );
 
-	for ( i=0; i<gridsize; i++ ) {
-		for ( j=0; j<10; j++ ) {
-			d = fitted_dist->cdf ( x0 ) - p[i];
-			if ( d<1e-5 )
-				break;
-			x0 -= d/fitted_dist->pdf(x0);
-		}
-		x[i] = x0;
+	for ( i=1; i<gridsize; i++ ) {
+		x[i] = fitted_dist->ppf ( p[i], x[i-1] );
+#ifdef DEBUG_INTEGRATE
+		std::cerr << "ppf(" << p[i] << ") = " << x[i] << ",";
+#endif
 	}
+#ifdef DEBUG_INTEGRATE
+	std::cerr << "\n";
+#endif
 
 	return x;
 }

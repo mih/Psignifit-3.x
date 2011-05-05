@@ -30,6 +30,7 @@ class PsiPrior
 		virtual int get_code(void) const { throw NotImplementedError(); } ///< return the typcode of this prior
 		virtual double cdf ( double x ) const { throw NotImplementedError(); } ///< cdf of the prior
 		virtual double getprm ( unsigned int prm ) const { throw NotImplementedError(); }
+		virtual double ppf ( double p, double start=NULL ) const { throw NotImplementedError(); }
 };
 
 /** \brief Uniform prior on an interval
@@ -60,6 +61,7 @@ class UniformPrior : public PsiPrior
 		int get_code(void) const { return 0; } /// return the typcode of this prior
 		double cdf ( double x ) const { return ( x<lower ? 0 : (x>upper ? 1 : (x-lower)/(upper-lower) ) ); }
 		double getprm ( unsigned int prm ) const { return (prm==0 ? lower : upper ); }
+		double ppf ( double p, double start=NULL ) const { return ( p>1 ? upper : (p<0 ? lower : p*(upper-lower)+lower)); }
 };
 
 /** \brief gaussian (normal) prior
@@ -97,6 +99,7 @@ class GaussPrior : public PsiPrior
 		int get_code(void) const { return 1; } /// return the typcode of this prior
 		double cdf ( double x ) const { return Phi ( (x-mu)/sg ); }
 		double getprm ( unsigned int prm ) const { return ( prm==0 ? mu : sg ); }
+		double ppf ( double p, double start=NULL ) const;
 };
 
 /** \brief beta prior
@@ -136,6 +139,7 @@ class BetaPrior : public PsiPrior
 		int get_code(void) const { return 2; } /// return the typcode of this prior
 		double cdf ( double x ) const { return (x<0 ? 0 : (x>1 ? 1 : betainc ( x, alpha, beta ))); }
 		double getprm ( unsigned int prm ) const { return ( prm==0 ? alpha : beta ); }
+		double ppf ( double p, double start=NULL ) const;
 };
 
 /** \brief gamma prior
@@ -170,6 +174,7 @@ class GammaPrior : public PsiPrior
 		virtual int get_code(void) const { return 3; } /// return the typcode of this prior
 		virtual double cdf ( double x ) const { return ( x<0 ? 0 : gammainc ( k, x/theta ) / exp ( gammaln ( k ) ) ); }
 		double getprm ( unsigned int prm ) const { return ( prm==0 ? k : theta ); }
+		virtual double ppf ( double p, double start=NULL ) const;
 };
 
 /** \brief negative gamma prior
@@ -194,6 +199,7 @@ class nGammaPrior : public GammaPrior
 		void shrink ( double xmin, double xmax );
 		int get_code(void) const { return 4; } /// return the typcode of this prior
 		double cdf ( double x ) const { return ( x>0 ? 1 : 1-GammaPrior::cdf ( -x ) ); }
+		double ppf ( double p, double start=NULL ) const { return - GammaPrior::ppf ( 1-p ); }
 };
 
 /** \brief inverse gamma prior
