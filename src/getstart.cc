@@ -317,7 +317,7 @@ void lm_range ( const PsiData* data, double *xmin, double *xmax ) {
 	}
 	*xmax = 2*(1-pmax);
 	if (*xmax>=1) *xmax=.99;
-	if (*xmax<=0) *xmax=0.01;
+	if (*xmax<=0) *xmax=0.1;
 }
 
 void gm_range ( const PsiData* data, double *xmin, double *xmax ) {
