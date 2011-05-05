@@ -10,6 +10,7 @@
 #include "testing.h"
 #include "mcmc.h"
 #include "getstart.h"
+#include "integrate.h"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -1336,6 +1337,7 @@ int main ( int argc, char ** argv ) {
 	Tests.addTest(&ReturnTest,            "Testing return bug in jackknifedata");
 	Tests.addTest(&InitialParametersTest, "Initial parameter heuristics" );
 	Tests.addTest(&GetstartTest,          "Finding good starting values" );
+	Tests.addTest ( &IntegrateTest,        "Approximate numerical integration" );
 
 	Tests.runTests();
 }
