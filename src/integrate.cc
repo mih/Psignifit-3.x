@@ -586,6 +586,6 @@ void sample_diagnostics (
 
 		// Store log posterior ratios for reduced data sets
 		for ( j=0; j<nblocks; j++ )
-			samples->setlogratio ( i, k, pmf->neglpost(est,data) - pmf->neglpost(est,reduceddata[j]) );
+			samples->setlogratio ( i, j, pmf->neglpost(est,data) - pmf->neglpost(est,reduceddata[j]) );
 	}
 }
