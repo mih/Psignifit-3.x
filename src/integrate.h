@@ -8,6 +8,8 @@
 #include <vector>
 #include <algorithm>
 
+// #define DEBUG_INTEGRATE
+
 std::vector<double> raw_grid (
 		const PsiData *data,
 		const PsiPsychometric *pmf,
@@ -88,18 +90,16 @@ class PsiIndependentPosterior {
 		std::vector< std::vector<double> > grids;
 		std::vector< std::vector<double> > margins;
 	public:
-		PsiIndependentPosterior ( unsigned int nprm ) :
-			nparams ( nprm ), fitted_posteriors ( nprm ), grids ( nprm ), margins ( nprm ) {}
 		PsiIndependentPosterior (
 				unsigned int nprm,
 				std::vector<PsiPrior*> posteriors,
 				std::vector< std::vector<double> > x,
 				std::vector< std::vector<double> > fx
-				) : nparams (nprm), fitted_posteriors ( posteriors ), grids ( x ), margins ( fx )
-	{ unsigned int i; for (i=0; i<nparams; i++) fitted_posteriors[i] = new PsiPrior; }
+				) : nparams (nprm), fitted_posteriors ( posteriors ), grids ( x ), margins ( fx ) {}
+			// { unsigned int i; for (i=0; i<nparams; i++) fitted_posteriors[i] = new PsiPrior; }
 		PsiIndependentPosterior ( const PsiIndependentPosterior& post ) :
 			nparams ( post.nparams ), fitted_posteriors ( post.nparams ), grids ( post.grids ), margins ( post.margins )
-	{ unsigned int i; for ( i=0; i<nparams; i++ ) fitted_posteriors[i] = post.fitted_posteriors[i]->clone(); }
+			{ unsigned int i; for ( i=0; i<nparams; i++ ) fitted_posteriors[i] = post.fitted_posteriors[i]->clone(); }
 		~PsiIndependentPosterior ( void ) { unsigned int i; for ( i=0; i<nparams; i++ ) delete fitted_posteriors[i]; }
 		const PsiPrior *get_posterior ( unsigned int parameter ) { return fitted_posteriors[parameter]; }
 		std::vector<double> get_grid ( unsigned int parameter ) { return grids[parameter]; }
@@ -109,7 +109,21 @@ class PsiIndependentPosterior {
 PsiIndependentPosterior independent_marginals (
 		const PsiPsychometric *pmf,
 		const PsiData *data,
-		unsigned int nrefinements=3
+		unsigned int nrefinements=3,
+		unsigned int gridsize=7
+		);
+
+MCMCList sample_posterior (
+		const PsiPsychometric *pmf,
+		const PsiData *data,
+		PsiIndependentPosterior& post,
+		unsigned int nsamples=600
+		);
+
+void sample_diagnostics (
+		const PsiPsychometric *pmf,
+		const PsiData *data,
+		MCMCList *samples
 		);
 
 #endif
