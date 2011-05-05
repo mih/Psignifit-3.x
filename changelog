@@ -1,3 +1,10 @@
+2011-05-05
+
+* Updated documentation
+* changed distribution targets
+* a number of small bugfixes
+* improvements of matlab interface
+
 2011-03-24
 
 * Bugfix: command line interface checks ALL output for NaN
