@@ -17,7 +17,7 @@ CLI_O= $(addprefix $(BUILD)/, cli.o cli_utilities.o)
 compile: cli-version psignifit-mapestimate psignifit-bootstrap psignifit-mcmc psignifit-diagnostics
 
 clean:
-	rm -r $(BUILD)
+	-rm -r $(BUILD)
 
 cli-version:
 	if git rev-parse &> /dev/null ; then \
