@@ -466,7 +466,7 @@ MCMCList sample_posterior (
 		const PsiPsychometric *pmf,
 		const PsiData *data,
 		PsiIndependentPosterior& post,
-		unsigned int nsamples=600
+		unsigned int nsamples
 		)
 {
 	unsigned int nprm ( pmf->getNparams() ), i, j, k;
