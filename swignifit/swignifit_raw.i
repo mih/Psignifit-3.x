@@ -71,3 +71,4 @@ namespace std {
 %include "rng.h"
 %include "linalg.h"
 %include "getstart.h"
+%include "integrate.h"
