@@ -185,12 +185,28 @@ std::vector<double> fit_posterior (
 	double (*error) ( const std::vector<double>&, const std::vector<double>&, const std::vector<double>&);
 
 	std::vector<double> e ( 4 );
-	std::vector<double> centroid ( 3 ), suggested1 ( 3 ), suggested2(3);
-	std::vector< std::vector<double> > simplex (4, start );
+	std::vector<double> centroid ( start ), suggested1 ( 3 ), suggested2(3);
+	if ( index != 0 ) {
+		centroid[0] = sqrt ( centroid[0] );
+		centroid[1] = sqrt ( centroid[1] );
+	}
 	unsigned int i, j, iter;
+	double mmax(0);
+	std::vector<double> margin ( fx );
+	for ( i=0; i<margin.size(); i++ )
+		if ( margin[i] > mmax )
+			mmax = margin[i];
+	for ( i=0; i<margin.size(); i++ )
+		margin[i] = log ( margin[i]/mmax );
+
+	centroid[2] = 0;
+	for ( i=0; i<margin.size(); i++ ) centroid[2] += margin[i];
+	centroid[2] /= double ( margin.size() );
+	std::vector< std::vector<double> > simplex (4, centroid );
 	double emin(1e5),emax(0);
-	unsigned int imin, imax;
+	unsigned int imin(0), imax(0);
 	double esuggested1, esuggested2, minmax;
+	double me,se;
 
 	const double alpha ( 1.), gamma ( 2.), beta ( 0.5 );
 
@@ -213,19 +229,30 @@ std::vector<double> fit_posterior (
 
 	// Evaluate simplex
 	for ( i=0; i<4; i++ )
-		e[i] = (*error)(simplex[i], x, fx );
+		e[i] = (*error)(simplex[i], x, margin );
 
 	// Start simplex here
-	for ( iter=0; iter<50; iter++ ) {
+	for ( iter=0; iter<200; iter++ ) {
 		emin = 1e5; emax = 0;
 		for ( i=0; i<4; i++ ) {
 			if ( e[i] < emin ) { emin = e[i]; imin = i; }
 			if ( e[i] > emax ) { emax = e[i]; imax = i; }
 		}
 
-		// If there is no significant change on the simplex, we believe that it has converged
-		if ( fabs(emin-emax) < 1e-3 )
+		// Check for convergence
+		se = 0.; me = 0.;
+		for ( i=0; i<4; i++ ) me += e[i];
+		me /= 4.;
+		for ( i=0; i<4; i++ ) se += (e[i]-me)*(e[i]-me);
+		se = sqrt(se/4.);
+		if ( se < 1e-7 ) {
+#ifdef DEBUG_INTEGRATE
+			std::cerr << "Posterior fit converged after " << iter << " iterations\n";
+			std::cerr << "    mean residual error:    " << me << "\n";
+			std::cerr << "    minimum residual error: " << emin << "\n";
+#endif
 			break;
+		}
 
 		// Determine the centroid
 		for ( j=0; j<3; j++ ) centroid[j] = 0;
@@ -233,11 +260,11 @@ std::vector<double> fit_posterior (
 			if ( i!=imax )
 				for ( j=0; j<3; j++ )
 					centroid[j] += simplex[i][j];
-		for ( j=0; j<3; j++ ) centroid[j] /= 3;
+		for ( j=0; j<3; j++ ) centroid[j] /= 3.;
 
 		// Reflect on the centroid
 		for ( j=0; j<3; j++ ) suggested1[j] = (1+alpha) * centroid[j] - alpha * simplex[imax][j];
-		esuggested1 = (*error)( suggested1, x, fx );
+		esuggested1 = (*error)( suggested1, x, margin );
 
 		if ( esuggested1 > emin && esuggested1 < emax ) {
 			for ( j=0; j<3; j++ )
@@ -246,7 +273,7 @@ std::vector<double> fit_posterior (
 		} else if ( esuggested1 < emin ) {
 			for ( j=0; j<3; j++ )
 				suggested2[j] = gamma * suggested1[j] + (1-gamma) * centroid[j];
-			esuggested2 = (*error)( suggested2, x, fx );
+			esuggested2 = (*error)( suggested2, x, margin );
 			if ( esuggested2 < esuggested1 ) {
 				for ( j=0; j<3; j++ ) simplex[imax][j] = suggested2[j];
 				e[imax] = esuggested2;
@@ -261,13 +288,19 @@ std::vector<double> fit_posterior (
 				emax = esuggested1;
 			}
 			for ( j=0; j<3; j++ ) suggested2[j] = beta * simplex[imax][j] + (1-beta) * centroid[j];
-			esuggested2 = (*error)( suggested2, x, fx );
+			esuggested2 = (*error)( suggested2, x, margin );
 			if ( esuggested2 > minmax ) e[imax] = emax;
 			else {
 				for ( j=0; j<3; j++ ) simplex[imax][j] = suggested2[j];
 				e[imax] = esuggested2;
 			}
 		}
+	}
+
+	// Transform back
+	if ( index != 0 ) {
+		simplex[imin][0] *= simplex[imin][0];
+		simplex[imin][1] *= simplex[imin][1];
 	}
 
 	return simplex[imin];
