@@ -355,6 +355,52 @@ double error_beta ( const std::vector<double>& prm, const std::vector<double>& x
 	return e;
 }
 
+std::vector<double> start_gauss ( const std::vector<double>& x, const std::vector<double>& fx ) {
+	unsigned int i;
+	std::vector<double> start ( 3 );
+
+	start[0] = 0;
+	for ( i=0; i<fx.size(); i++ ) {
+		start[0] += x[i];
+	}
+	start[0] /= fx.size();
+
+	start[1] = 0;
+	for ( i=0; i<fx.size(); i++ ) {
+		start[1] += (x[i]-start[0])*(x[i]-start[0]);
+	}
+	start[1] /= fx.size();
+	start[1] = sqrt ( start[1] );
+
+	return start;
+}
+
+std::vector<double> start_gamma ( const std::vector<double>& x, const std::vector<double>& fx ) {
+	std::vector<double> start ( start_gauss ( x, fx ) );
+	double theta, k;
+	double m ( start[0] ), v ( start[1]*start[1] );
+	theta = v / m;
+	k     = v / (theta*theta);
+	start[0] = k;
+	start[1] = theta;
+	return start;
+}
+
+std::vector<double> start_beta ( const std::vector<double>& x, const std::vector<double>& fx ) {
+	std::vector<double> start ( start_gauss ( x, fx ) );
+	double alpha, beta;
+	double m ( start[0] ), v ( 2*start[1]*start[1] );
+	alpha = (1-m)*m*m - v*m;
+	alpha /= v;
+	beta = alpha * (1-m)/m;
+	start[0] = alpha;
+	start[1] = beta;
+#ifdef DEBUG_INTEGRATE
+	std::cerr << "start: Beta(" << alpha << ", " << beta << ")\n";
+#endif
+	return start;
+}
+
 PsiIndependentPosterior independent_marginals (
 		const PsiPsychometric *pmf,
 		const PsiData *data,
