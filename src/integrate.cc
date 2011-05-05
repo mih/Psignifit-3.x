@@ -480,7 +480,7 @@ MCMCList sample_posterior (
 	std::vector< std::vector<double> > proposed ( nproposals, std::vector<double> (nprm) );
 	std::vector<double> weights ( nproposals );
 	std::vector<double> cum_probs ( nproposals );
-	std::vector<double> rnumbers ( nproposals );
+	std::vector<double> rnumbers ( nsamples );
 
 	for ( j=0; j<nprm; j++ )
 		posteriors[j] = post.get_posterior (j)->clone();
@@ -501,7 +501,9 @@ MCMCList sample_posterior (
 			cum_probs[i] = cum_probs[i-1] + weights[i];
 		else
 			cum_probs[0] = weights[0];
+	}
 
+	for ( i=0; i<nsamples; i++ ) {
 		// And generate random numbers
 		rnumbers[i] = rng.rngcall();
 	}
