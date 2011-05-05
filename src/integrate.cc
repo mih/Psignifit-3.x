@@ -311,11 +311,11 @@ double error_gauss ( const std::vector<double>& prm, const std::vector<double>& 
 	unsigned int i;
 	double a,b,Z;
 	a = prm[0];
-	b = prm[1]*prm[1];
+	b = prm[1];
 	Z = prm[2];
 
 	for ( i=0; i<x.size(); i++ ) {
-		ee = (x[i]-a)*(x[i]-a)/b - Z - fx[i];
+		ee = -(x[i]-a)*(x[i]-a)/(2*b*b) - Z - fx[i];
 		e += ee*ee;
 	}
 
