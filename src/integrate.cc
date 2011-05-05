@@ -404,14 +404,14 @@ std::vector<double> start_beta ( const std::vector<double>& x, const std::vector
 PsiIndependentPosterior independent_marginals (
 		const PsiPsychometric *pmf,
 		const PsiData *data,
-		unsigned int nrefinements=3,
-		unsigned int gridsize=7
+		unsigned int nrefinements,
+		unsigned int gridsize
 		)
 {
 	unsigned int nprm ( pmf->getNparams() ), i, j;
 	std::vector< std::vector<double> > grids ( nprm );
 	std::vector< std::vector<double> > margin ( nprm, std::vector<double>(gridsize) );
-	std::vector< std::vector<double> > distparams (nprm);
+	std::vector< std::vector<double> > distparams (nprm, std::vector<double>(3) );
 	std::vector<PsiPrior*> fitted_posteriors (nprm);
 
 	for ( i=0; i<nprm; i++ )
@@ -420,15 +420,17 @@ PsiIndependentPosterior independent_marginals (
 	integrate_grid ( pmf, data, grids, &(margin[0]), &(margin[1]), &(margin[2]), (nprm==4 ? &(margin[3]) : NULL) );
 
 	for ( i=0; i<nprm; i++ ) {
-		distparams[i] = fit_posterior ( grids[i], margin[i], distparams[i], i );
 		switch (i) {
 			case 0:
+				distparams[i] = fit_posterior ( grids[i], margin[i], start_gauss(grids[i], margin[i]), i );
 				fitted_posteriors[i] = new GaussPrior ( distparams[i][0], distparams[i][1] );
 				break;
 			case 1:
+				distparams[i] = fit_posterior ( grids[i], margin[i], start_gamma(grids[i], margin[i]), i );
 				fitted_posteriors[i] = new GammaPrior ( distparams[i][0], distparams[i][1] );
 				break;
 			case 2: case 3:
+				distparams[i] = fit_posterior ( grids[i], margin[i], start_beta(grids[i], margin[i]), i );
 				fitted_posteriors[i] = new BetaPrior ( distparams[i][0], distparams[i][1] );
 				break;
 		}
@@ -439,16 +441,18 @@ PsiIndependentPosterior independent_marginals (
 			grids[i] = cdf_grid ( fitted_posteriors[i], 0.1, 0.9, gridsize );
 		integrate_grid ( pmf, data, grids, &(margin[0]), &(margin[1]), &(margin[2]), (nprm==4 ? &(margin[3]) : NULL ) );
 		for ( i=0; i<nprm; i++ ) {
-			distparams[i] = fit_posterior ( grids[i], margin[i], distparams[i], i );
 			delete fitted_posteriors[i];
 			switch (i) {
 				case 0:
+					distparams[i] = fit_posterior ( grids[i], margin[i], start_gauss(grids[i], margin[i]), i );
 					fitted_posteriors[i] = new GaussPrior ( distparams[i][0], distparams[i][1] );
 					break;
 				case 1:
+					distparams[i] = fit_posterior ( grids[i], margin[i], start_gamma(grids[i], margin[i]), i );
 					fitted_posteriors[i] = new GammaPrior ( distparams[i][0], distparams[i][1] );
 					break;
 				case 2: case 3:
+					distparams[i] = fit_posterior ( grids[i], margin[i], start_beta(grids[i], margin[i]), i );
 					fitted_posteriors[i] = new BetaPrior ( distparams[i][0], distparams[i][1] );
 					break;
 			}
