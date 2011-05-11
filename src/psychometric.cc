@@ -263,7 +263,9 @@ void PsiPsychometric::setPrior ( unsigned int index, PsiPrior* prior ) throw(Bad
 		throw BadArgumentError ( "Trying to set a prior for a nonexistent parameter" );
 	}
 	delete priors[index];
+#ifdef DEBUG_PSYCHOMETRIC
 	std::cerr << "Setting prior for parameter " << index << "\n";
+#endif
 	priors[index] = prior->clone();
 }
 
