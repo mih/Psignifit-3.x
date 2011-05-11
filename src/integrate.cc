@@ -568,15 +568,47 @@ PsiIndependentPosterior independent_marginals (
 		)
 {
 	unsigned int nprm ( pmf->getNparams() ), i, j;
+	unsigned int maxntrials ( 0 );
+	double minp,minm,maxm,maxw,s;
 	std::vector< std::vector<double> > grids ( nprm );
 	std::vector< std::vector<double> > margin ( nprm, std::vector<double>(gridsize) );
 	std::vector< std::vector<double> > distparams (nprm, std::vector<double>(3) );
 	std::vector<PsiPrior*> fitted_posteriors (nprm);
+	std::vector<double> marginsd (nprm);
+	std::vector<double> maxprm (nprm);
+	std::vector<double> minprm (nprm);
+
+	for ( j=0; j<data->getNblocks(); j++ ) {
+		if ( data->getNtrials(j) > maxntrials )
+			maxntrials = data->getNtrials(j);
+	}
 
 	for ( i=0; i<nprm; i++ )
 		grids[i] = raw_grid ( data, pmf, i, gridsize );
+	minm = grids[0][0];
+	maxm = grids[0].back();
+	maxw = grids[1].back();
+	minp = 1./maxntrials;
 
 	integrate_grid ( pmf, data, grids, &(margin[0]), &(margin[1]), &(margin[2]), (nprm==4 ? &(margin[3]) : NULL) );
+	for ( i=0; i<nprm; i++ ) {
+		normalize_margin ( &(margin[i]) );
+		marginsd[i] = sd ( margin[i] );
+		minprm[i] = grids[i][0];
+		maxprm[i] = grids[i].back();
+		for ( j=0; j<margin[i].size(); j++ ) {
+			if ( margin[i][j]<.1 )
+				minprm[i] = grids[i][j];
+			else
+				break;
+		}
+		for ( j=margin[i].size()-1;j>=0; j-- ) {
+			if ( margin[i][j]<.1 )
+				maxprm[i] = grids[i][j];
+			else
+				break;
+		}
+	}
 
 	for ( i=0; i<nprm; i++ ) {
 		switch (i) {
@@ -597,25 +629,90 @@ PsiIndependentPosterior independent_marginals (
 
 	for ( j=0; j<nrefinements; j++ ) {
 		for ( i=0; i<nprm; i++ )
+			grids[i] = lingrid ( minprm[i], maxprm[i], gridsize );
+		/*
+		for ( i=0; i<nprm; i++ )
 			grids[i] = cdf_grid ( fitted_posteriors[i], 0.1, 0.9, gridsize );
+		*/
+
+		// Sanity check for grids
+		/*
+		if ( grids[0][gridsize-1] < minm )
+			grids[0] = lingrid(minm,maxm, gridsize );
+		else if ( grids[0][0] > maxm )
+			grids[0] = lingrid(minm,maxm, gridsize );
+		if ( grids[0][0] < minm )
+			grids[0] = lingrid(minm,grids[0][gridsize-1], gridsize);
+		if ( grids[0][gridsize-1] > maxm )
+			grids[0] = lingrid(grids[0][0], maxm, gridsize);
+		*/
+
+		if ( grids[1][0] < 0 )
+			grids[1] = lingrid(0,grids[1][gridsize-1], gridsize );
+		/*
+		if ( grids[1][0]!=grids[1][0] )
+			grids[1] = raw_grid ( data, pmf, i, gridsize );
+		if ( grids[1][gridsize-1] > maxw )
+			grids[1] = lingrid ( grids[1][0], maxw, gridsize );
+		*/
+
+		/*
+		if ( grids[2][gridsize-1] < minp )
+			grids[2] = lingrid(grids[2][0], minp, gridsize);
+		if ( grids[2][gridsize-1] > 1./pmf->getNparams() )
+			grids[2] = lingrid(grids[2][0], 1./pmf->getNparams(), gridsize );
+		*/
+		for ( i=0; i<gridsize; i++ )
+		if ( grids[2][0] < 0 )
+			grids[2] = lingrid(0, grids[2][gridsize-1], gridsize );
+		if ( grids[2][gridsize-1] > 1 )
+			grids[2] = lingrid(grids[2][0], 1, gridsize );
+
 		integrate_grid ( pmf, data, grids, &(margin[0]), &(margin[1]), &(margin[2]), (nprm==4 ? &(margin[3]) : NULL ) );
 		for ( i=0; i<nprm; i++ ) {
-			delete fitted_posteriors[i];
-			switch (i) {
-				case 0:
-					distparams[i] = fit_posterior ( grids[i], margin[i], start_gauss(grids[i], margin[i]), i );
-					fitted_posteriors[i] = new GaussPrior ( distparams[i][0], distparams[i][1] );
+			s = sd ( margin[i] );
+			// only refit, if the new grid has more variance
+			if ( s < marginsd[i] )
+				continue;
+			else {
+				marginsd[i] = s;
+				delete fitted_posteriors[i];
+				switch (i) {
+					case 0:
+						distparams[i] = fit_posterior ( grids[i], margin[i], start_gauss(grids[i], margin[i]), i );
+						fitted_posteriors[i] = new GaussPrior ( distparams[i][0], distparams[i][1] );
+						break;
+					case 1:
+						distparams[i] = fit_posterior ( grids[i], margin[i], start_gamma(grids[i], margin[i]), i );
+						fitted_posteriors[i] = new GammaPrior ( distparams[i][0], distparams[i][1] );
+						break;
+					case 2: case 3:
+						distparams[i] = fit_posterior ( grids[i], margin[i], start_beta(grids[i], margin[i]), i );
+						fitted_posteriors[i] = new BetaPrior ( distparams[i][0], distparams[i][1] );
+						break;
+				}
+			}
+		}
+
+		for ( i=0; i<nprm; i++ ) {
+			normalize_margin ( &(margin[i]) );
+			marginsd[i] = sd ( margin[i] );
+			minprm[i] = -1e5;
+			maxprm[i] = 1e5;
+			for ( j=0; j<margin[i].size(); j++ ) {
+				if ( margin[i][j]<.1 )
+					minprm[i] = grids[i][j];
+				else
 					break;
-				case 1:
-					distparams[i] = fit_posterior ( grids[i], margin[i], start_gamma(grids[i], margin[i]), i );
-					fitted_posteriors[i] = new GammaPrior ( distparams[i][0], distparams[i][1] );
-					break;
-				case 2: case 3:
-					distparams[i] = fit_posterior ( grids[i], margin[i], start_beta(grids[i], margin[i]), i );
-					fitted_posteriors[i] = new BetaPrior ( distparams[i][0], distparams[i][1] );
+			}
+			for ( j=margin[i].size()-1;j>=0; j++ ) {
+				if ( margin[i][j]<.1 )
+					maxprm[i] = grids[i][j];
+				else
 					break;
 			}
 		}
+
 	}
 
 	return PsiIndependentPosterior ( nprm, fitted_posteriors, grids, margin );
