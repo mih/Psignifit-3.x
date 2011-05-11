@@ -1,5 +1,30 @@
 #include "integrate.h"
 #include "errors.h"
+#include "linalg.h"
+
+PsiIndependentPosterior::PsiIndependentPosterior ( unsigned int nprm,
+				std::vector<PsiPrior*> posteriors,
+				std::vector< std::vector<double> > x,
+				std::vector< std::vector<double> > fx
+				) : nparams (nprm), fitted_posteriors ( posteriors ), grids ( x ), margins ( fx ) {
+	unsigned int i,j;
+	std::vector<double> w;
+	Matrix M ( grids[0].size(), 2 );
+
+	for ( i=0; i<nparams; i++ ) {
+		for ( j=0; j<grids[i].size(); j++ ) {
+			M(j,0) = margins[i][j];
+			M(j,1) = posteriors[i]->pdf ( grids[i][j] );
+		}
+		w = leastsq ( &M );
+#ifdef DEBUG_INTEGRATE
+		std::cerr << "w = " << w[0] << "\n";
+#endif
+		for ( j=0; j<margins[i].size(); j++ )
+			margins[i][j] *= w[0];
+	}
+}
+
 
 std::vector<double> raw_grid (
 		const PsiData *data,

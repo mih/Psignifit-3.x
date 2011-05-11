@@ -95,7 +95,7 @@ class PsiIndependentPosterior {
 				std::vector<PsiPrior*> posteriors,
 				std::vector< std::vector<double> > x,
 				std::vector< std::vector<double> > fx
-				) : nparams (nprm), fitted_posteriors ( posteriors ), grids ( x ), margins ( fx ) {}
+				);
 			// { unsigned int i; for (i=0; i<nparams; i++) fitted_posteriors[i] = new PsiPrior; }
 		PsiIndependentPosterior ( const PsiIndependentPosterior& post ) :
 			nparams ( post.nparams ), fitted_posteriors ( post.nparams ), grids ( post.grids ), margins ( post.margins )
