@@ -97,6 +97,25 @@ std::vector<double> cdf_grid (
 	return x;
 }
 
+void normalize_margin ( std::vector<double> *margin ) {
+	double m(0);
+	unsigned int i;
+
+	/*
+	// Mean normalization
+	for ( i=0; i<margin->size(); i++ )
+		m += (*margin)[i];
+	m /= double ( margin->size() );
+	*/
+	// max normalization
+	for ( i=0; i<margin->size(); i++ )
+		if ( (*margin)[i] > m )
+			m = (*margin)[i];
+
+	for ( i=0; i<margin->size(); i++ )
+		(*margin)[i] /= m;
+}
+
 void integrate_3d (
 		const PsiPsychometric *pmf,
 		const PsiData *data,
