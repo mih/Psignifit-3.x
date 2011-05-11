@@ -116,6 +116,19 @@ void normalize_margin ( std::vector<double> *margin ) {
 		(*margin)[i] /= m;
 }
 
+double sd ( std::vector<double>& margin ) {
+	unsigned int i;
+	double s(0),m(0);
+
+	for ( i=0; i<margin.size(); i++ )
+		m += margin[i];
+	m /= double ( margin.size() );
+	for ( i=0; i<margin.size(); i++ )
+		s += (margin[i]-m)*(margin[i]-m);
+	s /= double ( margin.size() );
+	return sqrt ( s );
+}
+
 void integrate_3d (
 		const PsiPsychometric *pmf,
 		const PsiData *data,

@@ -28,6 +28,8 @@ std::vector<double> lingrid ( double xmin, double xmax, unsigned int gridsize );
 
 void normalize_margin ( std::vector<double>* margin );
 
+double sd ( const std::vector<double>& x );
+
 void integrate_3d (
 		const PsiPsychometric *pmf,        ///< psychometric function model to be evaluated
 		const PsiData *data,               ///< data set to be evaluated
