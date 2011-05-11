@@ -390,9 +390,16 @@ std::vector<double> fit_posterior (
 #endif
 
 	// Transform back
-	if ( index != 0 ) {
+	if ( index == 0 ) {
+		simplex[imin][1] = fabs ( simplex[imin][1] );
+	} else if ( index==1 ) {
 		simplex[imin][0] *= simplex[imin][0];
 		simplex[imin][1] *= simplex[imin][1];
+	} else {
+		simplex[imin][0] *= simplex[imin][0];
+		simplex[imin][0] += 1;
+		simplex[imin][1] *= simplex[imin][1];
+		simplex[imin][1] += simplex[imin][0];
 	}
 
 	return simplex[imin];
@@ -401,15 +408,21 @@ std::vector<double> fit_posterior (
 double error_gauss ( const std::vector<double>& prm, const std::vector<double>& x, const std::vector<double>& fx ) {
 	double e (0), ee;
 	unsigned int i;
-	double a,b,Z;
+	double a,b,Z,m(0),z;
 	a = prm[0];
 	b = prm[1];
 	Z = prm[2];
 
+	// This should be in non log coordinates
 	for ( i=0; i<x.size(); i++ ) {
-		ee = -(x[i]-a)*(x[i]-a)/(2*b*b) - Z - fx[i];
+		z = (x[i]-a)/b;
+		ee = exp(-0.5*z*z + Z) - fx[i];
 		e += ee*ee;
+		m += x[i];
 	}
+	m /= double ( x.size() );
+	e *= exp(0.001*(a-m)*(a-m));
+	e *= exp(0.001*b*b);
 
 	return e;
 }
@@ -423,9 +436,13 @@ double error_gamma ( const std::vector<double>& prm, const std::vector<double>& 
 	Z = prm[2];
 
 	for ( i=0; i<x.size(); i++ ) {
-		ee = (k-1)*log(x[i]) - x[i]/th - Z - fx[i];
-		e += ee*ee;
+		if ( x[i]>0 ) {
+			ee = (k-1)*log(x[i]) - x[i]/th + Z - log(fx[i]);
+			e += ee*ee;
+		}
 	}
+	// e *= log(1e-5+k)/(1e-5+k);
+	e += 0.001*th*th;
 
 	return e;
 }
@@ -435,14 +452,23 @@ double error_beta ( const std::vector<double>& prm, const std::vector<double>& x
 	unsigned int i;
 	double al,bt,Z;
 
-	al = prm[0]*prm[0];
-	bt = prm[1]*prm[1];
+	// This parameterization might seem strange at first, but it makes certain constraints explicit:
+	// 1. alpha>1
+	// 2. beta>alpha>1
+	al = 1+prm[0]*prm[0];
+	bt = al+prm[1]*prm[1];
 	Z  = prm[2];
 
 	for ( i=0; i<x.size(); i++ ) {
-		ee = (al-1)*log(x[i]) + (bt-1)*log(1-x[i]) - Z - fx[i];
-		e += ee*ee;
+		if ( x[i]>=0 && x[i]<=1 ) {
+			ee = (al-1)*log(x[i]) + (bt-1)*log(1-x[i]) + Z - log(fx[i]);
+			// ee = pow(x[i],al-1) * pow(1-x[i],bt-1) * Z - fx[i];
+			e += ee*ee;
+		}
 	}
+	// e -= log(1e-5+al)/(1e-5+al);
+	// e -= log(1e-5+bt)/(1e-5+bt);
+	// e += exp ( log ( 1+10*fabs(al-bt) ) );
 
 	return e;
 }
@@ -450,43 +476,84 @@ double error_beta ( const std::vector<double>& prm, const std::vector<double>& x
 std::vector<double> start_gauss ( const std::vector<double>& x, const std::vector<double>& fx ) {
 	unsigned int i;
 	std::vector<double> start ( 3 );
+	Matrix X ( x.size(), 4 );
+	double sgsq, mu, k;
 
-	start[0] = 0;
-	for ( i=0; i<fx.size(); i++ ) {
-		start[0] += x[i];
-	}
-	start[0] /= fx.size();
+	// Perform linear regression in log coordinates here
 
-	start[1] = 0;
-	for ( i=0; i<fx.size(); i++ ) {
-		start[1] += (x[i]-start[0])*(x[i]-start[0]);
+	for ( i=0; i<x.size(); i++ ) {
+		X(i,0) = 1;
+		X(i,1) = x[i];
+		X(i,2) = x[i]*x[i];
+		X(i,3) = log(fx[i]);
 	}
-	start[1] /= fx.size();
-	start[1] = sqrt ( start[1] );
+	start = leastsq ( &X );
+
+	sgsq = -1./(2*start[2]);
+	mu   = start[1] * sgsq;
+	k    = start[0] + mu*mu/(2*sgsq);
+
+	start[0] = mu;
+	start[1] = sqrt(sgsq);
+	start[2] = k;
+
+#ifdef DEBUG_INTEGRATE
+	std::cerr << "start: Gauss( " << start[0] << ", " << start[1] << ")\n";
+#endif
 
 	return start;
 }
 
 std::vector<double> start_gamma ( const std::vector<double>& x, const std::vector<double>& fx ) {
-	std::vector<double> start ( start_gauss ( x, fx ) );
+	std::vector<double> start ( 3 );
 	double theta, k;
-	double m ( start[0] ), v ( start[1]*start[1] );
+	double m ( 0 ), v ( 0 );
+	unsigned int i;
+	double s(0);
+
+	for ( i=0; i<fx.size(); i++ ) {
+		m += x[i]*fx[i];
+		s += fx[i];
+	}
+	m /= s;
+	for (i=0; i<fx.size(); i++ ) {
+		v += (x[i]-m)*(x[i]-m) * fx[i];
+	}
+	v /= s;
+
 	theta = v / m;
 	k     = v / (theta*theta);
 	start[0] = k;
 	start[1] = theta;
+#ifdef DEBUG_INTEGRATE
+	std::cerr << "start: Gamma( " << start[0] << ", " << start[1] << ")\n";
+#endif
 	return start;
 }
 
 std::vector<double> start_beta ( const std::vector<double>& x, const std::vector<double>& fx ) {
-	std::vector<double> start ( start_gauss ( x, fx ) );
+	std::vector<double> start ( 3 );
 	double alpha, beta;
-	double m ( start[0] ), v ( 2*start[1]*start[1] );
+	double m ( 0 ), v ( 0 );
+	unsigned int i;
+	double s(0);
+
+	for ( i=0; i<fx.size(); i++ ) {
+		m += x[i]*fx[i];
+		s += fx[i];
+	}
+	m /= s;
+	for (i=0; i<fx.size(); i++ ) {
+		v += (x[i]-m)*(x[i]-m) * fx[i];
+	}
+	v /= s;
+	v *= 2;
+
 	alpha = (1-m)*m*m - v*m;
 	alpha /= v;
 	beta = alpha * (1-m)/m;
-	start[0] = alpha;
-	start[1] = beta;
+	start[0] = sqrt(alpha);
+	start[1] = sqrt(beta-start[0]);
 #ifdef DEBUG_INTEGRATE
 	std::cerr << "start: Beta(" << alpha << ", " << beta << ")\n";
 #endif
