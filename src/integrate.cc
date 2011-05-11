@@ -288,6 +288,14 @@ std::vector<double> fit_posterior (
 	double esuggested1, esuggested2, minmax;
 	double me,se;
 
+#ifdef DEBUG_INTEGRATE
+	std::cerr << "x = [" << x[0];
+	for ( i=1; i<x.size(); i++ ) std::cerr << ", " << x[i];
+	std::cerr << "]\nfx = [" << fx[0];
+	for ( i=1; i<x.size(); i++ ) std::cerr << ", " << fx[i];
+	std::cerr << "]\n";
+#endif
+
 	const double alpha ( 1.), gamma ( 2.), beta ( 0.5 );
 
 	switch ( index ) {
@@ -327,7 +335,7 @@ std::vector<double> fit_posterior (
 		se = sqrt(se/4.);
 		if ( se < 1e-7 ) {
 #ifdef DEBUG_INTEGRATE
-			std::cerr << "Posterior fit converged after " << iter << " iterations\n";
+			std::cerr << "Posterior fit for parameter " << index << " converged after " << iter << " iterations\n";
 			std::cerr << "    mean residual error:    " << me << "\n";
 			std::cerr << "    minimum residual error: " << emin << "\n";
 #endif
@@ -376,6 +384,10 @@ std::vector<double> fit_posterior (
 			}
 		}
 	}
+#ifdef DEBUG_INTEGRATE
+	if ( iter>=maxiter )
+		std::cerr << "Maximum number of iterations reached for optimization of parameter " << index << ":\n iter = " << iter << "\n";
+#endif
 
 	// Transform back
 	if ( index != 0 ) {
