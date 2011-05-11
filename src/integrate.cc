@@ -726,7 +726,7 @@ MCMCList sample_posterior (
 		)
 {
 	unsigned int nprm ( pmf->getNparams() ), i, j, k;
-	unsigned int nproposals ( nsamples*10 );
+	unsigned int nproposals ( nsamples*25 );
 	MCMCList finalsamples ( nsamples, nprm, data->getNblocks() );
 	double q,p;
 	double nduplicate ( 0 );
@@ -782,12 +782,19 @@ MCMCList sample_posterior (
                 break;
 		}
         j++;
+		if (j>nproposals) {
+#ifdef DEBUG_INTEGRATE
+			std::cerr << "What's going on here? i=" <<  i << ", cum_probs.max() = " << cum_probs[nproposals-1] << "\n";
+#endif
+			break;
+		}
 	}
 
 	finalsamples.set_accept_rate ( double(nduplicate)/nsamples );
 
 	for ( i=0; i<nprm; i++ )
 		delete posteriors[i];
+
 
 	return finalsamples;
 }
