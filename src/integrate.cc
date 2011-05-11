@@ -53,16 +53,16 @@ std::vector<double> raw_grid (
 		unsigned int gridsize
 		)
 {
-	unsigned int i;
-	double xmin,xmax,dx;
-	std::vector<double> x (gridsize);
+	/*
+	double xmin,xmax;
 	parameter_range ( data, pmf, prmindex, &xmin, &xmax );
+	return lingrid ( xmin, xmax, gridsize );
+	*/
+	std::vector<double> incr ( pmf->getNparams() );
+	std::vector<double> mapest (getstart ( pmf, data, gridsize, 3, 3, &incr ));
+	int m ( (gridsize-1)/2 );
 
-	dx = (xmax-xmin)/(gridsize-1);
-	for ( i=0; i<gridsize; i++ )
-		x[i] = xmin + i*dx;
-
-	return x;
+	return lingrid ( mapest[prmindex] - m*incr[prmindex], mapest[prmindex] + m*incr[prmindex], gridsize );
 }
 
 std::vector<double> cdf_grid (
