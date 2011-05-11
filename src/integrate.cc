@@ -25,7 +25,6 @@ PsiIndependentPosterior::PsiIndependentPosterior ( unsigned int nprm,
 	}
 }
 
-
 std::vector<double> lingrid ( double xmin, double xmax, unsigned int gridsize ) {
 	unsigned int i;
 	double dx;
@@ -267,18 +266,22 @@ std::vector<double> fit_posterior (
 		centroid[0] = sqrt ( centroid[0] );
 		centroid[1] = sqrt ( centroid[1] );
 	}
-	unsigned int i, j, iter;
+	unsigned int i, j, iter, maxiter(500);
 	double mmax(0);
 	std::vector<double> margin ( fx );
 	for ( i=0; i<margin.size(); i++ )
 		if ( margin[i] > mmax )
 			mmax = margin[i];
 	for ( i=0; i<margin.size(); i++ )
-		margin[i] = log ( margin[i]/mmax );
+		margin[i] = margin[i]/mmax;
 
-	centroid[2] = 0;
-	for ( i=0; i<margin.size(); i++ ) centroid[2] += margin[i];
-	centroid[2] /= double ( margin.size() );
+	if ( index!=0 ) {
+		centroid[2] = 0;
+		for ( i=0; i<margin.size(); i++ ) centroid[2] += margin[i];
+		centroid[2] /= double ( margin.size() );
+	} else {
+		maxiter = 10000;
+	}
 	std::vector< std::vector<double> > simplex (4, centroid );
 	double emin(1e5),emax(0);
 	unsigned int imin(0), imax(0);
@@ -309,7 +312,7 @@ std::vector<double> fit_posterior (
 		e[i] = (*error)(simplex[i], x, margin );
 
 	// Start simplex here
-	for ( iter=0; iter<200; iter++ ) {
+	for ( iter=0; iter<maxiter; iter++ ) {
 		emin = 1e5; emax = 0;
 		for ( i=0; i<4; i++ ) {
 			if ( e[i] < emin ) { emin = e[i]; imin = i; }
