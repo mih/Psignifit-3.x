@@ -26,6 +26,26 @@ PsiIndependentPosterior::PsiIndependentPosterior ( unsigned int nprm,
 }
 
 
+std::vector<double> lingrid ( double xmin, double xmax, unsigned int gridsize ) {
+	unsigned int i;
+	double dx;
+	std::vector<double> x (gridsize);
+
+	if ( xmin>xmax ) {
+		dx = xmin;
+		xmin = xmax;
+		xmax = dx;
+	}
+
+	// std::cerr << "xmax = " << xmax << " xmin = " << xmin << "\n";
+	dx = (xmax-xmin)/(gridsize-1);
+	// std::cerr << "dx = " << dx << "\n";
+	for ( i=0; i<gridsize; i++ )
+		x[i] = xmin + i*dx;
+
+	return x;
+}
+
 std::vector<double> raw_grid (
 		const PsiData *data,
 		const PsiPsychometric *pmf,
