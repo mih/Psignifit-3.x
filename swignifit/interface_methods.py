@@ -225,9 +225,13 @@ def asir ( data, nsamples=2000, nafc=2, sigmoid="logistic",
             'logposterior_ratios':      np.array ( [ samples.getlogratio ( i ) for i in xrange ( nsamples ) ] ),
             'duplicates':               samples.get_accept_rate (),
             'posterior_approximations_py': [posterior.get_posterior(i) for i in xrange ( nparams ) ],
-            'posterior_approximations_str': None,
+            'posterior_approximations_str': [r"$\mathcal{N}(%.2f,%.2f)$" % (posterior.get_posterior(0).getprm(0),posterior.get_posterior(0).getprm(1)),
+                r"$\mathrm{Gamma}(%.2f,%.2f)$" % (posterior.get_posterior(1).getprm(0),posterior.get_posterior(1).getprm(1)),
+                r"$\mathrm{Beta}(%.2f,%.2f)$" % (posterior.get_posterior(2).getprm(0),posterior.get_posterior(2).getprm(1))]
             'posterior_grids':          [ posterior.get_grid ( i ) for i in xrange ( nparams ) ],
             'posterior_margin':         [ posterior.get_margin ( i ) for i in xrange ( nparams ) ]
             }
+    if nparams==4:
+        out['posterior_approximations_str'].append ( r"$\mathrm{Beta}(%.2f,%.2f)$" % (posterior.get_posterior(3).getprm(0),posterior.get_posterior(3).getprm(1)) )
 
     return out

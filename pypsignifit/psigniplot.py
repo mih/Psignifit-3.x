@@ -1047,6 +1047,43 @@ def plotMultiplePMFs ( *InferenceObjects, **kwargs ):
 
     return pmflines,pmfdata
 
+def plotFits ( ASIRInferenceObject ):
+    """plot an ASIRInference objects approximation to the posterior as well as samples that illustrate properties of the posterior"""
+    nprm = ASIRInferenceObject.nparams
+    parnames = ASIRInferenceObject.parnames
+
+    fig = pl.figure ()
+    txt = ""
+    h,w = .9/nprm,.9/nprm
+    for i in xrange ( nprm ):
+        ax = prepare_axes ( fig.add_axes ( [.05+i*w,.95-(i+1)*h,.8*w,.8*h] ) )
+        gr = ASIRInferenceObject.grids[i]
+        mrg = ASIRInferenceObject.margins[i]
+        ax.plot ( gr, mrg, 'bo' )
+        gn,gx = ASIRInference.getCI ( parnames[i], conf=(.01,.99) )
+        x = pl.mgrid[gn:gx:100j]
+        ax.plot ( x, ASIRInferenceObject.posterior_pdf ( x ), 'b-' )
+        ax.plot ( x, ASIRInferenceObject.prior_pdf ( x ) 'b:' )
+
+        th = ASIRInferenceObject.mcestimates[:,i]
+        if not (th==0).all():
+            hist,b = np.histogram ( th, normed=True )
+            ax.bar ( b[:-1], hist, np.diff(b), color=[.8,.8,1], edgecolor=[.8,.8,1] )
+
+        txt += r"$" + prmnames[i] + r"\sim" + ASIRInferenceObject.posterior_approximations[i] + r"$\n"
+        ax.xaxis.set_major_locator(MaxNLocator(5))
+
+    for  i in xrange ( nprm ):
+        ti = ASIRInferenceObject.mcestimates[:,i]
+        for j in xrange ( i+1, nprm ):
+            ax = fig.add_axes ( [.05+j*w, .95-(i+1)*h, .8*w,.8*h] )
+            tj = ASIRInferenceObject.mcestimates[:,j]
+            ax.plot ( tj, ti, '.' )
+            ax.xaxis.set_major_locator(MaxNLocator(5))
+
+    txt += r"duplicates: %g\n" % (ASIRInferenceObject.duplicates,)
+    fig.text ( .1,.1,txt )
+
 
 gof = GoodnessOfFit
 
