@@ -16,6 +16,7 @@ import numpy as N
 import pylab as p
 from scipy import stats,special,optimize
 import pypsignifit
+from pypsignifit import psignipriors
 interface = pypsignifit.interface
 
 import swignifit.swignifit_raw as sft
@@ -25,7 +26,7 @@ import pygibbsit
 
 from psignierrors import NosamplesError
 
-__all__ = ["BootstrapInference","BayesInference"]
+__all__ = ["BootstrapInference","BayesInference","ASIRInference"]
 __doc__ = """
 This module contains data objects to store psychophysical data and perform inference on them. Two general approaches
 have been suggested to fit psychometric functions
@@ -1780,6 +1781,273 @@ class BayesInference ( PsiInference ):
             # print "a_boots =",a
 
         return a
+
+MCMCInference = BayesInference
+
+##############################################################################################################################
+class ASIRInference ( PsiInference ):
+    def __init__ ( self, data, cuts=(.25,.5,.75), conf=(.025,.975), *kwargs ):
+        """Perform bayesian inference using posterior approximation and sampling importance resampling
+
+        :Parameters:
+            *data* :
+                an array of data in three columns -- stimulus intensity, number of correct responses and number of trials.
+            *cuts* :
+                cuts at which thresholds and slopes should be plotted by default
+            *conf* :
+                confidence levels that should be marked in plots by default
+            *sigmoid* :
+                sigmoid to be used
+            *core* :
+                core object to be used
+            *priors* :
+                a tuple of priors to be applied to the parameters
+            *nafc* :
+                number of stimulus alternatives presented in a forced choice design. If only one stimulus has been
+                presented, this will typically be 1.
+            *gammaislambda* :
+                setting this to True will constrain the upper and lower asymptotes to be equal in single stimulus
+                designs (i.e. nafc==1)
+            *plotprm* :
+                a dictionary to take parameters for plotting data. Currently supported are the arguments
+                'label', 'color', 'linestyle', 'linewidth' and 'marker'. These can all be set after creating
+                an Inference instance, too. By using the respective properties.
+            *nsamples* :
+                typically 2000 samples will be drawn. If you feel that this is takes too long, you might want to reduce this
+                number
+        """
+        if check_kwargs ( kwargs, ASIRInference.__init__.__doc__ ):
+            msg = "Unknown parameter '%s'. See docstring for valid arguments" % (check_kwargs(kwargs, ASIRInference.__init__.__doc__ ),)
+            raise ValueError, msg
+
+        self.plotprm = kwargs.setdefault ( 'plotprm', {} )
+        self.plotprm.setdefault ( 'label': "Psychometric function" )
+        self.plotprm.setdefault ( 'color': "b" )
+        self.plotprm.setdefault ( 'linestyle': "-" )
+        self.plotprm.setdefault ( 'linewidth': 1 )
+        self.plotprm.setdefault ( 'marker': "o" )
+        PsiInference.__init__(self,plotprm)
+
+        if self.model["core"][:2] == "mw":
+            self.parnames = ["m","w"]
+        elif self.model["core"] == "weibull":
+            self.parnames = ["m","s"]
+        else:
+            self.parnames = ["a","b"]
+        self.parnames.append("lambda")
+        if self.model["nafc"]<2:
+            self.parnames.append("guess")
+
+        # Store basic data
+        self.data = N.array(data,'d')
+        if self.data[:,1].max() <= 1:
+            # We have relative frequencies
+            self.data[:,1] *= self.data[:,2]
+            self.data[:,1] = N.floor ( self.data[:,1] )
+        self.model = {
+                "sigmoid":       kwargs.setdefault("sigmoid","logistic"),
+                "core":          kwargs.setdefault("core",   "mw0.1"),
+                "priors":        kwargs.setdefault ( 'priors',  psignipriors.default ( data[:,0] ) ),
+                "nafc":          kwargs.setdefault("nafc",    2),
+                "gammaislambda": kwargs.setdefault("gammaislambda", False)
+                }
+
+        self.__inference = interface.asir ( self.data, nsamples=kwargs.setdefault ( 'nsamples', 2000 ),
+                nafc=self.model['nafc'], sigmoid=self.model['sigmoid'], core=self.model['core'],
+                priors=self.model['priors'], gammaislambda=self.model['gammaislambda'] )
+        self._data,self._pmf,self.nparams = sfu.make_dataset_and_pmf (
+                self.data, self.model["nafc"], self.model["sigmoid"], self.model["core"], self.model["priors"], gammaislambda=self.model["gammaislambda"] )
+
+        self.mapestimate,self.fisher,thres,slope,self.mapdeviance = interface.mapestimate(self.data,start=None,**self.model)
+
+        if cuts is None:
+            self.cuts = (.25,.5,.75)
+        elif getattr ( cuts, "__iter__", False ):
+            self.cuts = cuts
+        elif isinstance ( cuts, float ):
+            self.cuts = (cuts,)
+        else:
+            raise ValueError, "'cuts' should be a sequence or a float"
+
+        self.Ncuts = len(self.cuts)
+
+        deviance_residuals = self._pmf.getDevianceResiduals ( self.mapestimate, self._data )
+        self.Rpd = self._pmf.getRpd ( deviance_residuals, self.mapestimate, self._data )
+        self.Rkd = self._pmf.getRkd ( deviance_residuals, self._data )
+
+        self.__meanestimate = self.__inference["mcestimates"].mean(0)
+        self.__meandeviance = self.__inference["mcdeviance"].mean(0)
+
+        self.conf = conf
+
+        self.nsamples = kwargs.setdefault( 'nsamples', 2000 )
+
+    def bayesian_p ( self, quantity="deviance" ):
+        """Bayesian p value associated with a given quantity
+
+        The Bayesian p value of a model compares posterior predictives with the observed data.
+        If the observed data are very unequal to the posterior predictives, this indicates that
+        the model does not describe the data well. To compare observed data and simulated data
+        (posterior predictives), it is common to derive a quantity of interest from the posterior
+        predictives. The Bayesian p value is between 0 and 1 and values close to 0 and close to 1
+        indicate bad model fit. This p value can be interpreted like a two sided test.
+
+        :Parameters:
+            *quantity* :
+                This is the quantity do be derived. By default only deviance, Rpd and Rkd are available.
+                If quantity is a function, this will be called on every data set and the respective
+                p value will be calculated. The call on every data set takes two arguments:
+                1. a nblocksX3 array of data and
+                2. a parameter vector.
+                This way any other transformation of the data can be realized.
+
+        :Output:
+            the bayesian p-value
+        """
+        if isinstance ( quantity, str ):
+            if quantity.lower() == "deviance":
+                return N.mean ( (self.ppdeviance-self.mcdeviance)>=0 )
+            elif quantity.lower() == "rpd":
+                return N.mean ( (self.ppRpd-self.mcRpd)>=0 )
+            elif quantity.lower() == "rkd":
+                return N.mean ( (self.ppRkd-self.mcRkd)>=0 )
+            else:
+                raise ValueError, "unsupported quantity for bayesian p value"
+        elif operator.isCallable ( quantity ):
+            d = self.data.copy()
+            I = 0.
+            for k in xrange ( self.Nsamples ):
+                d[:,1] = self.posterior_predictive[k,:]
+                I += double ( (quantity ( d, self.mcestimates[k,:] ) - quantity ( self.data, self.mcestimates[k,:] )) >= 0 )
+            return I/self.Nsamples
+
+    def getCI ( self, param="thres", cut=None, conf=(.025,.5,.975), method="samples" ):
+        """Get a posterior credibility interval for a particular parameter
+
+        :Parameters:
+            *param* :
+                parameter of interest. Currently, only thres/threshold, slope, Rkd,
+                deviance and the parameters in BayesInference.parnames are defined
+            *cut* :
+                cut at which to determine the confidence interval
+            *conf* :
+                levels of confidence (i.e. quantiles of the respective marginal)
+            *method* :
+                usually quantiles are derived from samples. For te actual parameters
+                of the psychometric function(i.e. those in BayesInference.parnames),
+                it is also possible to specify method="approx" to determine quantiles
+                from an analytic approximation to the posterior.
+        """
+        if isinstance ( cut, float ):
+            if cut>=1. or cut<=0:
+                raise ValueError, "If cut is a float, it should be between 0 and 1."
+        elif isinstance ( cut, int ):
+            if cut<0 or cut>=len(self.cuts):
+                raise ValueError, "If cut is an int, it should index the cuts sequence provided to the constructor."
+        for c in conf:
+            if c>=1 or c<=0:
+                raise ValueError, "Can't determine quantiles for a value outside the unit interval"
+
+        # Determine the parameter
+        if param=="thres":
+            if cut is None:
+                post_param = self.mcthres
+            elif isinstance ( cut, float ):
+                post_param = N.array (
+                        [self._pmf.getThres( self.mcestimates[k,:], cut ) for k in xrange ( self.Nsamples ) ] )
+            elif isinstance ( cut, int ):
+                post_param = self.mcthres[:,cut]
+            else:
+                raise ValueError, "Don't know what to do with this type of cut"
+        elif param=="slope":
+            if cut is None:
+                post_param = self.mcslope
+            elif isinstance ( cut, float ):
+                post_param = N.array (
+                        [self._pmf.getSlope ( self.mcestimates[k,:], self._pmf.getThres( self.mcestimates[k,:], cut ) )
+                            for k in xrange ( self.Nsamples ) ] )
+            elif isinstance ( cut, int ):
+                post_param = self.mcslope[:,cut]
+            else:
+                raise ValueError, "Don't know what to do with this type of cut"
+        elif param=="Rkd":
+            post_param = self.mcRkd
+        elif param=="Rpd":
+            post_param = self.mcRpd
+        elif param in ["deviance", "D"]:
+            post_param = self.mcdeviance
+        elif param in self.parnames:
+            ind = self.parnames.index ( param )
+            if method=="samples":
+                post_param = self.mcestimates[:,ind]
+            elif method=="approx":
+                return [ self.__inference["posterior_approximations_py"].ppf ( c ) for c in conf ]
+
+        if len(post_param.shape)==2:
+            out = []
+            for i in xrange ( post_param.shape[1] ):
+                out.append ( p.prctile ( post_param[:,i], 100*N.array(conf) ) )
+            return out
+        elif len(post_param.shape)==1:
+            return p.prctile ( post_param, 100*N.array(conf) )
+        else:
+            raise IOError, "This should not happen"
+
+    def __repr__ ( self ):
+        return "< ASIRInference object with %d blocks and %d samples for %d parameters >" % (self.data.shape[0], self.Nsamples, self.nparams)
+
+    inference = property ( fget=lambda self: "ASIR", doc="Type of inference performed by the object" )
+    mcestimates = property ( fget=lambda self: self.__inference["mcestimates"], doc="posterior samples"  )
+    mcdeviance  = property ( fget=lambda self: self.__inference["mcdeviance"], doc="deviances associated with posterior samples" )
+    posterior_predictive = property ( fget=lambda self: self.__inference["posterior_predictive_data"], doc="posterior predictive simulation data" )
+    ppRpd     = property ( fget=lambda self: self.__inference['posterior_predictive_Rpd'],\
+            doc="Correlations between model prediction and deviance residuals for posterior predictive samples" )
+    mcRpd     = property ( fget=lambda self: self.__inference['mcRpd'],\
+            doc="Correlations between model prediction and deviance residuals for posterior samples" )
+    ppRkd     = property ( fget=lambda self: self.__inference['posterior_predictive_Rkd'],\
+            doc="Correlations between block index and deviance residuals for posterior predictive samples" )
+    mcRkd     = property ( fget=lambda self: self.__inference['posterior_predictive_Rkd'],\
+            doc="Correlations between block index and deviance residuals for posterior samples" )
+    estimate = property ( fget=lambda self: self.MEAN_mc, doc="MEAN estimate for the parameters" )
+    MEAN_mc  = property ( fget=lambda self: self.__meanestimate, doc="MEAN estimate for the paramters (based on monte carlo simulation)" )
+    MEAN_app = property ( fget=lambda self: [ self.__inference["posterior_approximations_py"][i].mean() for i in xrange ( self.nparams ) ],
+            doc="MEAN estimate for the parameters (based on analytic approximations to the marginals)" )
+
+    @Property
+    def posterior_median ():
+        "Median of the posterior"
+        def fget ( self ):
+            self.__posterior_median = getattr ( self, "__posterior_median", None )
+            if self.__posterior_median == None:
+                self.__posterior_median = N.median ( self.mcestimates, 0 )
+            return self.__posterior_median
+
+    @Property
+    def infl ():
+        "Influences of the respective blocks"
+        def fget ( self ):
+            self.__infl = getattr ( self, "__infl", None )
+            if self.__infl == None:
+                self.__infl = -N.mean(self.__inference["logposterior_ratios"],0) + N.log(N.mean(N.exp(self.__inference["logposterior_ratios"]),0))
+            return self.__infl
+
+    @Property
+    def mcthres ():
+        "thresholds of all posterior samples"
+        def fget ( self ):
+            self.__mcthres = getattr ( self, "__mcthres", None )
+            if self.__mcthres == None:
+                self.__mcthres = N.array ( [ [self._pmf.getThres( self.mcestimates[k,:], c ) for c in self.cuts ] for k in xrange ( self.Nsamples ) ] )
+            return self.__mcthres
+
+    @Property
+    def mcslope ():
+        "slopes of all posterior samples"
+        def fget ( self ):
+            self.mcslope = getattr ( self, "__mcslope", None )
+            if self.__mcslope == None:
+                self.__mcslope = N.array ( [ [self._pmf.getSlope ( self.mcestimates[k,:], th ) for th in self.mcthres[k,:] ] for k in xrange ( self.Nsamples ) ] )
+            return self.__mcslope
 
 if __name__ == "__main__":
     import doctest
