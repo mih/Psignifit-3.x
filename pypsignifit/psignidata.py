@@ -1993,6 +1993,34 @@ class ASIRInference ( PsiInference ):
         else:
             raise IOError, "This should not happen"
 
+    def posterior_pdf ( self, param, x ):
+        """Evaluate the pdf of the posterior approximation for one parameter
+
+        :Parameters:
+            *param* :
+                index of the parameter of interest
+            *x* :
+                x values at which to evaluate the posterior
+        """
+        if isinstance ( x, (float, int) ):
+            return self.__inference['posterior_approximations_py'].pdf ( x )
+        else:
+            return N.array ( [ self.__inference['posterior_approximations_py'].pdf ( xx ) for xx in x ] )
+
+    def prior_pdf ( self, param, x ):
+        """Evaluate the pdf of the prior for one parameter
+
+        :Parameters:
+            *param* :
+                index of the parameter of interest
+            *x* :
+                x values at which to evaluate the prior
+        """
+        if isinstance ( x, (float, int) ):
+            return self._pmf.getPrior(param).pdf ( x )
+        else:
+            return N.array ( [ self._pmf.getPrior(param).pdf ( xx ) for xx in x ] )
+
     def __repr__ ( self ):
         return "< ASIRInference object with %d blocks and %d samples for %d parameters >" % (self.data.shape[0], self.Nsamples, self.nparams)
 
@@ -2012,6 +2040,10 @@ class ASIRInference ( PsiInference ):
     MEAN_mc  = property ( fget=lambda self: self.__meanestimate, doc="MEAN estimate for the paramters (based on monte carlo simulation)" )
     MEAN_app = property ( fget=lambda self: [ self.__inference["posterior_approximations_py"][i].mean() for i in xrange ( self.nparams ) ],
             doc="MEAN estimate for the parameters (based on analytic approximations to the marginals)" )
+    grids    = property ( fget=lambda self: self.__inference["posterior_grids"], doc="grids on which the posterior was numerically integrated" )
+    margins  = property ( fget=lambda self: self.__inference["posterior_margin"], doc="numerically integrated marginal posterior distributions" )
+    duplicates = property ( fget=lambda self: self.__inference["duplicates"], doc="duplicate samples that were generated during the sampling-importance-resampling process" )
+    posterior_approximations = property ( fget=lambda self: self.__inference["posterior_approximations_str"], doc="fitted posterior approximations" )
 
     @Property
     def posterior_median ():
