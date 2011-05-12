@@ -205,3 +205,29 @@ def diagnostics(data, params, nafc=2, sigmoid='logistic', core='ab', cuts=None, 
         rpd = pmf.getRpd(deviance_residuals, params, dataset)
         rkd = pmf.getRkd(deviance_residuals, dataset)
         return predicted, deviance_residuals, deviance, thres, slope, rpd, rkd
+
+def asir ( data, nsamples=2000, nafc=2, sigmoid="logistic",
+        core="mw0.1", priors=None, gammaislambda=False ):
+    dataset, pmf, nparams = sfu.make_dataset_and_pmf ( data, nafc, sigmoid, core, priors, gammaislambda=gammaislambda )
+
+    posterior = sfr.independent_marginals ( pmf, data, 1, 7 )
+    samples   = sfr.sample_posterior ( pmf, data, posterior, nsamples )
+    sfr.sample_diagnostics ( pmf, data, samples )
+
+    out = {'mcestimates': np.array( [ [samples.getEst ( i, par ) for par in xrange ( nparams ) ] for i in xrange ( nsamples )]),
+            'mcdeviance': np.array( [ samples.getdeviance ( i ) for i in xrange ( nparams ) ] ),
+            'mcRpd':                    np.array ( [ samples.getRpd ( i ) for i in xrange ( nsamples ) ] ),
+            'mcRkd':                    np.array ( [ samples.getRkd ( i ) for i in xrange ( nsamples ) ] ),
+            'posterior_predictive_data': np.array ( [ samples.getppData ( i ) for i in xrange ( nsamples ) ] ),
+            'posterior_predictive_deviance': np.array ( [ samples.getppDeviance ( i ) for i in xrange ( nsamples ) ] ),
+            'posterior_predictive_Rpd': np.array ( [ samples.getppRpd ( i ) for i in xrange ( nsamples ) ] ),
+            'posterior_predictive_Rkd': np.array ( [ samples.getppRkd ( i ) for i in xrange ( nsamples ) ] ),
+            'logposterior_ratios':      np.array ( [ samples.getlogratio ( i ) for i in xrange ( nsamples ) ] ),
+            'duplicates':               samples.get_accept_rate (),
+            'posterior_approximations_py': [posterior.get_posterior(i) for i in xrange ( nparams ) ],
+            'posterior_approximations_str': None,
+            'posterior_grids':          [ posterior.get_grid ( i ) for i in xrange ( nparams ) ],
+            'posterior_margin':         [ posterior.get_margin ( i ) for i in xrange ( nparams ) ]
+            }
+
+    return out
