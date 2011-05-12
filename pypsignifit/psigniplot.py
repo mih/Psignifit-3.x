@@ -566,15 +566,15 @@ def GoodnessOfFit ( InferenceObject, warn=True ):
     ax_deviance,ax_rpdh,ax_rkdh = axes_array_h ( fig, 3, (.22,.3), (.1,.1), dist=0.1, showally=True )
 
     infer = InferenceObject.__repr__().split()[1]
-    if infer not in ["BayesInference","BootstrapInference"]:
+    if infer not in ["BayesInference","BootstrapInference", "ASIRInference"]:
         raise ValueError, "Unknown InferenceObject: %s" % (InferenceObject.__repr__().split()[1],)
 
     # First plot about deviance
-    if infer  == "BayesInference":
+    if infer in ["BayesInference","ASIRInference"]:
         InferenceObject.drawposteriorexamples ( ax=ax_plot )
     plotThres ( InferenceObject, ax=ax_plot )
     plotPMF   ( InferenceObject, ax=ax_plot, showdesc=True )
-    if infer == "BayesInference":
+    if infer in ["BayesInference","ASIRInference"]:
         distname = "posterior"
         observed = -2*N.log ( InferenceObject.nullevidence )
         good = plotppScatter ( InferenceObject.ppdeviance, InferenceObject.mcdeviance, "deviance", "D", ax_deviance )
@@ -597,7 +597,7 @@ def GoodnessOfFit ( InferenceObject, warn=True ):
     for k in xrange ( 2 ):
         plotRd ( InferenceObject, ax[k], index[k] )
         name = "R%sd" % (index[k],)
-        if infer == "BayesInference":
+        if infer in ["BayesInference","ASIRInference"]:
             good = plotppScatter ( eval("InferenceObject.pp%s" % (name,)), eval("InferenceObject.mc%s"%(name,)), name,name, axh[k] )
         else:
             good = plotHistogram ( eval("InferenceObject.mc%s" % (name,)), eval("InferenceObject.%s"%(name,)), "bootstrap "+name, name, axh[k] )
@@ -721,7 +721,7 @@ def plotParameterDist ( InferenceObject, parameter=0, ax=None ):
     samples = InferenceObject.mcestimates[:,parameter]
     h,b,ptch = ax.hist ( samples, bins=20, normed=True, histtype="step", lw=2 )
 
-    if InferenceObject.__repr__().split()[1] == "BayesInference":
+    if InferenceObject.__repr__().split()[1] in ["BayesInference","ASIRInference"]:
         priorstr = InferenceObject.model["priors"]
         if not priorstr is None:
             priorstr = priorstr[parameter]
@@ -958,7 +958,7 @@ def plotInfluential ( InferenceObject ):
     # ax = p.axes ( (0.0,.5,.9,.5) )
     ax = prepare_axes ( p.subplot ( 2,1,1 ) )
     ax.set_ylabel ( r"$\Psi(x)$" )
-    if InferenceObject.__repr__().split()[1] == "BayesInference":
+    if InferenceObject.__repr__().split()[1] in ["BayesInference","ASIRInference"]:
         InferenceObject.drawposteriorexamples ( ax=ax )
     plotPMF ( InferenceObject, ax=ax, showaxes=True, showdesc=False, color="b", linewidth=2 )
     ax.plot ( [InferenceObject.data[maxinfl,0]], [InferenceObject.data[maxinfl,1].astype("d")/InferenceObject.data[maxinfl,2]],
