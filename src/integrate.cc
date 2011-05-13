@@ -115,7 +115,7 @@ void normalize_margin ( std::vector<double> *margin ) {
 		(*margin)[i] /= m;
 }
 
-double sd ( std::vector<double>& margin ) {
+double sd ( const std::vector<double>& margin ) {
 	unsigned int i;
 	double s(0),m(0);
 
