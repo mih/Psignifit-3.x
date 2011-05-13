@@ -17,6 +17,8 @@ from scipy import stats
 import psignidata
 import swignifit.interface_methods as interface
 
+from matplotlib.ticker import MaxNLocator
+
 __all__ = ["GoodnessOfFit","ConvergenceMCMC","ParameterPlot","ThresholdPlot","plotSensitivity","plotInfluential","plotMultiplePMFs"]
 __warnred = [.7,0,0]
 
@@ -1053,10 +1055,10 @@ def plotFits ( ASIRInferenceObject ):
     parnames = ASIRInferenceObject.parnames
 
     fig = p.figure ()
-    txt = ""
+    txt = []
     h,w = .9/nprm,.9/nprm
     for i in xrange ( nprm ):
-        ax = prepare_axes ( fig.add_axes ( [.05+i*w,.95-(i+1)*h,.8*w,.8*h] ) )
+        ax = prepare_axes ( fig.add_axes ( [.05+i*w,.97-(i+1)*h,.8*w,.8*h] ) )
         gr = ASIRInferenceObject.grids[i]
         mrg = ASIRInferenceObject.margins[i]
         ax.plot ( gr, mrg, 'bo' )
@@ -1067,22 +1069,31 @@ def plotFits ( ASIRInferenceObject ):
 
         th = ASIRInferenceObject.mcestimates[:,i]
         if not (th==0).all():
-            hist,b = np.histogram ( th, normed=True )
-            ax.bar ( b[:-1], hist, np.diff(b), color=[.8,.8,1], edgecolor=[.8,.8,1] )
+            hist,b = N.histogram ( th, normed=True )
+            ax.bar ( b[:-1], hist, N.diff(b), color=[.8,.8,1], edgecolor=[.8,.8,1] )
 
-        txt += r"$" + prmnames[i] + r"\sim" + ASIRInferenceObject.posterior_approximations[i] + r"$\n"
+        if parnames[i] == "lambda":
+            pr = r"\lambda"
+        elif parnames[i] == "guess":
+            pr = r"\gamma"
+        else:
+            pr = parnames[i]
+        txt.append ( r"$%s\sim%s$" % (pr, ASIRInferenceObject.posterior_approximations[i].strip("$")) )
         ax.xaxis.set_major_locator(MaxNLocator(5))
+        ax.set_xlabel ( r"$"+pr+r"$" )
 
     for  i in xrange ( nprm ):
         ti = ASIRInferenceObject.mcestimates[:,i]
         for j in xrange ( i+1, nprm ):
-            ax = fig.add_axes ( [.05+j*w, .95-(i+1)*h, .8*w,.8*h] )
+            ax = prepare_axes ( fig.add_axes ( [.05+j*w, .97-(i+1)*h, .8*w,.8*h] ) )
             tj = ASIRInferenceObject.mcestimates[:,j]
             ax.plot ( tj, ti, '.' )
             ax.xaxis.set_major_locator(MaxNLocator(5))
+            ax.text ( ax.get_xlim()[0], ax.get_ylim()[0],r"$r=%.2f$" % ( N.corrcoef(ti,tj)[0,1], ),
+                    fontsize=10, horizontalalignment="left", verticalalignment="bottom" )
 
-    txt += r"duplicates: %g\n" % (ASIRInferenceObject.duplicates,)
-    fig.text ( .1,.1,txt )
+    txt.append ( r"duplicates: %g" % (ASIRInferenceObject.duplicates,) )
+    fig.text ( .1,.1,"\n".join(txt) )
 
 
 gof = GoodnessOfFit
