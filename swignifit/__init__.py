@@ -8,7 +8,7 @@
 #
 ######################################################################
 
-from interface_methods import bootstrap, mcmc, mapestimate, diagnostics
+from interface_methods import bootstrap, mcmc, mapestimate, diagnostics, asir
 
 def set_seed(value):
     swignifit_raw.setSeed(value)
