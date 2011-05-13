@@ -1828,16 +1828,6 @@ class ASIRInference ( PsiInference ):
         self.plotprm.setdefault ( 'marker', "o" )
         PsiInference.__init__(self,self.plotprm)
 
-        if self.model["core"][:2] == "mw":
-            self.parnames = ["m","w"]
-        elif self.model["core"] == "weibull":
-            self.parnames = ["m","s"]
-        else:
-            self.parnames = ["a","b"]
-        self.parnames.append("lambda")
-        if self.model["nafc"]<2:
-            self.parnames.append("guess")
-
         # Store basic data
         self.data = N.array(data,'d')
         if self.data[:,1].max() <= 1:
@@ -1851,6 +1841,16 @@ class ASIRInference ( PsiInference ):
                 "nafc":          kwargs.setdefault("nafc",    2),
                 "gammaislambda": kwargs.setdefault("gammaislambda", False)
                 }
+
+        if self.model["core"][:2] == "mw":
+            self.parnames = ["m","w"]
+        elif self.model["core"] == "weibull":
+            self.parnames = ["m","s"]
+        else:
+            self.parnames = ["a","b"]
+        self.parnames.append("lambda")
+        if self.model["nafc"]<2:
+            self.parnames.append("guess")
 
         self.__inference = interface.asir ( self.data, nsamples=kwargs.setdefault ( 'nsamples', 2000 ),
                 nafc=self.model['nafc'], sigmoid=self.model['sigmoid'], core=self.model['core'],
