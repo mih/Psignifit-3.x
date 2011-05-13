@@ -1786,7 +1786,7 @@ MCMCInference = BayesInference
 
 ##############################################################################################################################
 class ASIRInference ( PsiInference ):
-    def __init__ ( self, data, cuts=(.25,.5,.75), conf=(.025,.975), *kwargs ):
+    def __init__ ( self, data, cuts=(.25,.5,.75), conf=(.025,.975), **kwargs ):
         """Perform bayesian inference using posterior approximation and sampling importance resampling
 
         :Parameters:
@@ -1821,12 +1821,12 @@ class ASIRInference ( PsiInference ):
             raise ValueError, msg
 
         self.plotprm = kwargs.setdefault ( 'plotprm', {} )
-        self.plotprm.setdefault ( 'label': "Psychometric function" )
-        self.plotprm.setdefault ( 'color': "b" )
-        self.plotprm.setdefault ( 'linestyle': "-" )
-        self.plotprm.setdefault ( 'linewidth': 1 )
-        self.plotprm.setdefault ( 'marker': "o" )
-        PsiInference.__init__(self,plotprm)
+        self.plotprm.setdefault ( 'label', "Psychometric function" )
+        self.plotprm.setdefault ( 'color', "b" )
+        self.plotprm.setdefault ( 'linestyle', "-" )
+        self.plotprm.setdefault ( 'linewidth', 1 )
+        self.plotprm.setdefault ( 'marker', "o" )
+        PsiInference.__init__(self,self.plotprm)
 
         if self.model["core"][:2] == "mw":
             self.parnames = ["m","w"]
@@ -1847,7 +1847,7 @@ class ASIRInference ( PsiInference ):
         self.model = {
                 "sigmoid":       kwargs.setdefault("sigmoid","logistic"),
                 "core":          kwargs.setdefault("core",   "mw0.1"),
-                "priors":        kwargs.setdefault ( 'priors',  psignipriors.default ( data[:,0] ) ),
+                "priors":        kwargs.setdefault ( 'priors',  psignipriors.default ( self.data[:,0] ) ),
                 "nafc":          kwargs.setdefault("nafc",    2),
                 "gammaislambda": kwargs.setdefault("gammaislambda", False)
                 }
@@ -1877,10 +1877,11 @@ class ASIRInference ( PsiInference ):
 
         self.__meanestimate = self.__inference["mcestimates"].mean(0)
         self.__meandeviance = self.__inference["mcdeviance"].mean(0)
+        self.devianceresiduals = self._pmf.getDevianceResiduals ( self.__meanestimate, self._data )
 
         self.conf = conf
 
-        self.nsamples = kwargs.setdefault( 'nsamples', 2000 )
+        self.Nsamples = kwargs.setdefault( 'nsamples', 2000 )
 
     def bayesian_p ( self, quantity="deviance" ):
         """Bayesian p value associated with a given quantity
@@ -2005,7 +2006,7 @@ class ASIRInference ( PsiInference ):
         if isinstance ( x, (float, int) ):
             return self.__inference['posterior_approximations_py'].pdf ( x )
         else:
-            return N.array ( [ self.__inference['posterior_approximations_py'].pdf ( xx ) for xx in x ] )
+            return N.array ( [ self.__inference['posterior_approximations_py'][param].pdf ( xx ) for xx in x ] )
 
     def prior_pdf ( self, param, x ):
         """Evaluate the pdf of the prior for one parameter
@@ -2024,9 +2025,47 @@ class ASIRInference ( PsiInference ):
     def __repr__ ( self ):
         return "< ASIRInference object with %d blocks and %d samples for %d parameters >" % (self.data.shape[0], self.Nsamples, self.nparams)
 
+    def drawposteriorexamples ( self, ax=None, Nsamples=20 ):
+        """plots the mean estimate of the psychometric function and a number of samples from the posterior
+
+        :Parameters:
+            *ax* :
+                axes object in which to draw the plot. If this is None,
+                a new axes object is created.
+            *Nsamples* :
+                number of psychometric functions that should be drawn
+                from the posterior
+        """
+        if ax is None:
+            ax = p.axes()
+
+        # Plot the psychometric function
+        xmin = self.data[:,0].min()
+        xmax = self.data[:,0].max()
+        x = N.mgrid[xmin:xmax:100j]
+
+        lines = []
+
+        # Now we sample Nsamples psychometric functions from all the chains we have
+        samples = self.mcestimates
+        deviances = self.mcdeviance
+        indices = N.random.randint ( samples.shape[0], size=(Nsamples,) )
+        # Scale deviance to 0,1
+        deviances -= deviances[indices].min()
+        deviances /= deviances[indices].max()
+        deviances = N.clip(.4+4*deviances,0,1)
+        for i in indices:
+            psi = N.array ( [ self._pmf.evaluate ( xx, samples[i,:] ) for xx in x] )
+            lines.append ( ax.plot(x, psi,color=[deviances[i]]*2+[1]) )
+
+        return lines
+
+
+
     inference = property ( fget=lambda self: "ASIR", doc="Type of inference performed by the object" )
     mcestimates = property ( fget=lambda self: self.__inference["mcestimates"], doc="posterior samples"  )
     mcdeviance  = property ( fget=lambda self: self.__inference["mcdeviance"], doc="deviances associated with posterior samples" )
+    ppdeviance  = property ( fget=lambda self: self.__inference["posterior_predictive_deviance"], doc="deviances associated with posterior predictive simulation" )
     posterior_predictive = property ( fget=lambda self: self.__inference["posterior_predictive_data"], doc="posterior predictive simulation data" )
     ppRpd     = property ( fget=lambda self: self.__inference['posterior_predictive_Rpd'],\
             doc="Correlations between model prediction and deviance residuals for posterior predictive samples" )
@@ -2034,9 +2073,8 @@ class ASIRInference ( PsiInference ):
             doc="Correlations between model prediction and deviance residuals for posterior samples" )
     ppRkd     = property ( fget=lambda self: self.__inference['posterior_predictive_Rkd'],\
             doc="Correlations between block index and deviance residuals for posterior predictive samples" )
-    mcRkd     = property ( fget=lambda self: self.__inference['posterior_predictive_Rkd'],\
+    mcRkd     = property ( fget=lambda self: self.__inference['mcRkd'],\
             doc="Correlations between block index and deviance residuals for posterior samples" )
-    estimate = property ( fget=lambda self: self.MEAN_mc, doc="MEAN estimate for the parameters" )
     MEAN_mc  = property ( fget=lambda self: self.__meanestimate, doc="MEAN estimate for the paramters (based on monte carlo simulation)" )
     MEAN_app = property ( fget=lambda self: [ self.__inference["posterior_approximations_py"][i].mean() for i in xrange ( self.nparams ) ],
             doc="MEAN estimate for the parameters (based on analytic approximations to the marginals)" )
@@ -2044,6 +2082,16 @@ class ASIRInference ( PsiInference ):
     margins  = property ( fget=lambda self: self.__inference["posterior_margin"], doc="numerically integrated marginal posterior distributions" )
     duplicates = property ( fget=lambda self: self.__inference["duplicates"], doc="duplicate samples that were generated during the sampling-importance-resampling process" )
     posterior_approximations = property ( fget=lambda self: self.__inference["posterior_approximations_str"], doc="fitted posterior approximations" )
+
+    nullevidence = property ( fget=lambda self: 1., doc="This returns nonsense -- should be removed in the future" )
+
+    @Property
+    def estimate():
+        "MEAN estimate for the parameters"
+        def fget ( self ):
+            return self.MEAN_mc
+        def fset ( self,v ):
+            pass
 
     @Property
     def posterior_median ():
