@@ -1052,7 +1052,7 @@ def plotFits ( ASIRInferenceObject ):
     nprm = ASIRInferenceObject.nparams
     parnames = ASIRInferenceObject.parnames
 
-    fig = pl.figure ()
+    fig = p.figure ()
     txt = ""
     h,w = .9/nprm,.9/nprm
     for i in xrange ( nprm ):
@@ -1060,10 +1060,10 @@ def plotFits ( ASIRInferenceObject ):
         gr = ASIRInferenceObject.grids[i]
         mrg = ASIRInferenceObject.margins[i]
         ax.plot ( gr, mrg, 'bo' )
-        gn,gx = ASIRInference.getCI ( parnames[i], conf=(.01,.99) )
-        x = pl.mgrid[gn:gx:100j]
-        ax.plot ( x, ASIRInferenceObject.posterior_pdf ( x ), 'b-' )
-        ax.plot ( x, ASIRInferenceObject.prior_pdf ( x ) 'b:' )
+        gn,gx = ASIRInferenceObject.getCI ( parnames[i], conf=(.01,.99) )
+        x = p.mgrid[gn:gx:100j]
+        ax.plot ( x, ASIRInferenceObject.posterior_pdf ( i, x ), 'b-' )
+        ax.plot ( x, ASIRInferenceObject.prior_pdf ( i, x ), 'b:' )
 
         th = ASIRInferenceObject.mcestimates[:,i]
         if not (th==0).all():
