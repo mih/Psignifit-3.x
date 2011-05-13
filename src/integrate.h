@@ -107,7 +107,7 @@ class PsiIndependentPosterior {
 			nparams ( post.nparams ), fitted_posteriors ( post.nparams ), grids ( post.grids ), margins ( post.margins )
 			{ unsigned int i; for ( i=0; i<nparams; i++ ) fitted_posteriors[i] = post.fitted_posteriors[i]->clone(); }
 		~PsiIndependentPosterior ( void ) { unsigned int i; for ( i=0; i<nparams; i++ ) delete fitted_posteriors[i]; }
-		const PsiPrior *get_posterior ( unsigned int parameter ) { return fitted_posteriors[parameter]; }
+		PsiPrior *get_posterior ( unsigned int parameter ) { return fitted_posteriors[parameter]->clone(); }
 		std::vector<double> get_grid ( unsigned int parameter ) { return grids[parameter]; }
 		std::vector<double> get_margin ( unsigned int parameter ) { return margins[parameter]; }
 };
