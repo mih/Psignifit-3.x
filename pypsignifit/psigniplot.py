@@ -1089,7 +1089,10 @@ def plotFits ( ASIRInferenceObject ):
             tj = ASIRInferenceObject.mcestimates[:,j]
             ax.plot ( tj, ti, '.' )
             ax.xaxis.set_major_locator(MaxNLocator(5))
-            ax.text ( ax.get_xlim()[0], ax.get_ylim()[0],r"$r=%.2f$" % ( N.corrcoef(ti,tj)[0,1], ),
+            a,b,r,pr,se = stats.linregress ( tj, ti )
+            x = N.sort(tj)
+            ax.plot ( x, a*x+b, 'y' )
+            ax.text ( ax.get_xlim()[0], ax.get_ylim()[0],r"$r=%.2f, p=%g$" % ( r,pr ),
                     fontsize=10, horizontalalignment="left", verticalalignment="bottom" )
 
     txt.append ( r"duplicates: %g" % (ASIRInferenceObject.duplicates,) )
