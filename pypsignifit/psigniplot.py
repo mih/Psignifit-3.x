@@ -1058,7 +1058,7 @@ def plotFits ( ASIRInferenceObject ):
     txt = []
     h,w = .9/nprm,.9/nprm
     for i in xrange ( nprm ):
-        ax = prepare_axes ( fig.add_axes ( [.05+i*w,.97-(i+1)*h,.8*w,.8*h] ) )
+        ax = prepare_axes ( fig.add_axes ( [.07+i*w,.97-(i+1)*h,.8*w,.8*h] ) )
         gr = ASIRInferenceObject.grids[i]
         mrg = ASIRInferenceObject.margins[i]
         ax.plot ( gr, mrg, 'bo' )
@@ -1085,7 +1085,7 @@ def plotFits ( ASIRInferenceObject ):
     for  i in xrange ( nprm ):
         ti = ASIRInferenceObject.mcestimates[:,i]
         for j in xrange ( i+1, nprm ):
-            ax = prepare_axes ( fig.add_axes ( [.05+j*w, .97-(i+1)*h, .8*w,.8*h] ) )
+            ax = prepare_axes ( fig.add_axes ( [.07+j*w, .97-(i+1)*h, .8*w,.8*h] ) )
             tj = ASIRInferenceObject.mcestimates[:,j]
             ax.plot ( tj, ti, '.' )
             ax.xaxis.set_major_locator(MaxNLocator(5))
