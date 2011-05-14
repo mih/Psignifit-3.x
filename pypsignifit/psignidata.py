@@ -1837,7 +1837,7 @@ class ASIRInference ( PsiInference ):
         self.model = {
                 "sigmoid":       kwargs.setdefault("sigmoid","logistic"),
                 "core":          kwargs.setdefault("core",   "mw0.1"),
-                "priors":        kwargs.setdefault ( 'priors',  psignipriors.default ( self.data[:,0] ) ),
+                "priors":        list(kwargs.setdefault ( 'priors',  psignipriors.default ( self.data[:,0] ) )),
                 "nafc":          kwargs.setdefault("nafc",    2),
                 "gammaislambda": kwargs.setdefault("gammaislambda", False)
                 }
@@ -1849,8 +1849,11 @@ class ASIRInference ( PsiInference ):
         else:
             self.parnames = ["a","b"]
         self.parnames.append("lambda")
-        if self.model["nafc"]<2:
+        if self.model["nafc"]<2 and not self.model["gammaislambda"]:
             self.parnames.append("guess")
+            if len(self.model["priors"])==3:
+                self.model["priors"].append ( psignipriors.default_lapse() )
+
 
         self.__inference = interface.asir ( self.data, nsamples=kwargs.setdefault ( 'nsamples', 2000 ),
                 nafc=self.model['nafc'], sigmoid=self.model['sigmoid'], core=self.model['core'],
