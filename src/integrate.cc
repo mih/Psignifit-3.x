@@ -732,7 +732,7 @@ MCMCList sample_posterior (
 	double nduplicate ( 0 );
 	PsiRandom rng;
 	std::vector < PsiPrior* > posteriors ( nprm );
-	double H(0);
+	double H(0),N(0);
 
 	std::vector< std::vector<double> > proposed ( nproposals, std::vector<double> (nprm) );
 	std::vector<double> weights ( nproposals );
@@ -769,10 +769,15 @@ MCMCList sample_posterior (
 		cum_probs[i] /= cum_probs[nproposals-1];
 
 	H = - cum_probs[0] * log(cum_probs[0]);
+	N = 1.;
 	// Avoid zeros
-	for ( i=0; i<nproposals-1; i++ )
-		H -= (cum_probs[i+1]-cum_probs[i]) * log ( cum_probs[i+1]-cum_probs[i] );
-	H /= log(nproposals);
+	for ( i=0; i<nproposals-1; i++ ) {
+		if ((cum_probs[i+1]-cum_probs[i])>0) {
+			H -= (cum_probs[i+1]-cum_probs[i]) * log ( cum_probs[i+1]-cum_probs[i] );
+			N += 1;
+		}
+	}
+	H /= log(N);
 	std::cerr << "H = " << H << "\n";
 
 	sort ( rnumbers.begin(), rnumbers.end() );
