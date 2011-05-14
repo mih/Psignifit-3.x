@@ -1049,28 +1049,20 @@ def plotMultiplePMFs ( *InferenceObjects, **kwargs ):
 
     return pmflines,pmfdata
 
-def plotFits ( ASIRInferenceObject ):
-    """plot an ASIRInference objects approximation to the posterior as well as samples that illustrate properties of the posterior"""
-    nprm = ASIRInferenceObject.nparams
-    parnames = ASIRInferenceObject.parnames
+def plotJoint ( InferenceObject ):
+    """Plot joint distribution of parameters
+    
+    For ASIRInference objects, also the fitted marginals are shown
+    """
+    nprm = InferenceObject.nparams
+    parnames = InferenceObject.parnames
 
     fig = p.figure ()
     txt = []
     h,w = .9/nprm,.9/nprm
     for i in xrange ( nprm ):
         ax = prepare_axes ( fig.add_axes ( [.07+i*w,.97-(i+1)*h,.8*w,.8*h] ) )
-        gr = ASIRInferenceObject.grids[i]
-        mrg = ASIRInferenceObject.margins[i]
-        ax.plot ( gr, mrg, 'bo' )
-        gn,gx = ASIRInferenceObject.getCI ( parnames[i], conf=(.01,.99) )
-        x = p.mgrid[gn:gx:100j]
-        ax.plot ( x, ASIRInferenceObject.posterior_pdf ( i, x ), 'b-' )
-        ax.plot ( x, ASIRInferenceObject.prior_pdf ( i, x ), 'b:' )
-
-        th = ASIRInferenceObject.mcestimates[:,i]
-        if not (th==0).all():
-            hist,b = N.histogram ( th, normed=True )
-            ax.bar ( b[:-1], hist, N.diff(b), color=[.8,.8,1], edgecolor=[.8,.8,1] )
+        ax.xaxis.set_major_locator(MaxNLocator(5))
 
         if parnames[i] == "lambda":
             pr = r"\lambda"
@@ -1078,15 +1070,28 @@ def plotFits ( ASIRInferenceObject ):
             pr = r"\gamma"
         else:
             pr = parnames[i]
-        txt.append ( r"$%s\sim%s$" % (pr, ASIRInferenceObject.posterior_approximations[i].strip("$")) )
-        ax.xaxis.set_major_locator(MaxNLocator(5))
+
+        if InferenceObject.inference == "ASIR":
+            gr  = InferenceObject.grids[i]
+            mrg = InferenceObject.margins[i]
+            ax.plot ( gr, mrg, 'bo' )
+            gn,gx = InferenceObject.getCI ( parnames[i], conf=(.01,.99) )
+            x = p.mgrid[gn:gx:100j]
+            ax.plot ( x, InferenceObject.posterior_pdf ( i, x ), 'b-' )
+            ax.plot ( x, InferenceObject.prior_pdf ( i, x ), 'b:' )
+            txt.append ( r"$%s\sim%s$" % (pr, InferenceObject.posterior_approximations[i].strip("$")) )
         ax.set_xlabel ( r"$"+pr+r"$" )
 
+        th = InferenceObject.mcestimates[:,i]
+        if not (th==0).all():
+            hist,b = N.histogram ( th, normed=True )
+            ax.bar ( b[:-1], hist, N.diff(b), color=[.8,.8,1], edgecolor=[.8,.8,1] )
+
     for  i in xrange ( nprm ):
-        ti = ASIRInferenceObject.mcestimates[:,i]
+        ti = InferenceObject.mcestimates[:,i]
         for j in xrange ( i+1, nprm ):
             ax = prepare_axes ( fig.add_axes ( [.07+j*w, .97-(i+1)*h, .8*w,.8*h] ) )
-            tj = ASIRInferenceObject.mcestimates[:,j]
+            tj = InferenceObject.mcestimates[:,j]
             ax.plot ( tj, ti, '.' )
             ax.xaxis.set_major_locator(MaxNLocator(5))
             a,b,r,pr,se = stats.linregress ( tj, ti )
@@ -1095,7 +1100,8 @@ def plotFits ( ASIRInferenceObject ):
             ax.text ( ax.get_xlim()[0], ax.get_ylim()[0],r"$r=%.2f, p=%g$" % ( r,pr ),
                     fontsize=10, horizontalalignment="left", verticalalignment="bottom" )
 
-    txt.append ( r"duplicates: %g" % (ASIRInferenceObject.duplicates,) )
+    if InferenceObject.inference == "ASIR":
+        txt.append ( r"duplicates: %g" % (InferenceObject.duplicates,) )
     fig.text ( .1,.1,"\n".join(txt) )
 
 
