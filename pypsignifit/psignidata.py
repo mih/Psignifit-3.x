@@ -2064,7 +2064,7 @@ class ASIRInference ( PsiInference ):
 
     inference = property ( fget=lambda self: "ASIR", doc="Type of inference performed by the object" )
     mcestimates = property ( fget=lambda self: self.__inference["mcestimates"], doc="posterior samples"  )
-    mcdeviance  = property ( fget=lambda self: self.__inference["mcdeviance"], doc="deviances associated with posterior samples" )
+    mcdeviance  = property ( fget=lambda self: self.__inference["mcdeviance"].copy(), doc="deviances associated with posterior samples" )
     ppdeviance  = property ( fget=lambda self: self.__inference["posterior_predictive_deviance"], doc="deviances associated with posterior predictive simulation" )
     posterior_predictive = property ( fget=lambda self: self.__inference["posterior_predictive_data"], doc="posterior predictive simulation data" )
     ppRpd     = property ( fget=lambda self: self.__inference['posterior_predictive_Rpd'],\
