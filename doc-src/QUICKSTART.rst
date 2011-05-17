@@ -47,9 +47,11 @@ To get you started with pypsignifit, open a Python interpreter and type the foll
  'sys',
  'version']
 
-With the first command you import the complete functionality of the Python module ``pypsignifit`` to your current workspace. ``dir( <module_name> )`` provides you with a list of functions and data types that come with pypsignifit.
-To get help and documentation about one of these functions, you can use the online Python help by typing
-``help ( <object_name> )``. For instance,
+With the first command you import the complete functionality of the Python
+module ``pypsignifit`` to your current workspace. ``dir( <module_name> )``
+provides you with a list of functions and data types that come with pypsignifit.
+To get help and documentation about one of these functions, you can use the
+online Python help by typing ``help( <object_name> )``. For instance,
 
 >>> help ( psi.BayesInference )
 
