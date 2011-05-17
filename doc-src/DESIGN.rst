@@ -93,7 +93,7 @@ does not attempt to fit such data.
 
 
 References
-==========
+----------
 
 .. [Green_and_Swets_1966] Green, DM and Swets, JA (1966): Signal Detection Theory and
     Psychophysics. New York: Wiley.
