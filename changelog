@@ -1,3 +1,11 @@
+2011-05-17
+
+* New strategy for Bayesian inference: Numerical integration of posterior,
+  fitting marginal distributions and sampling importance resampling in python
+  object ASIRInference
+* plotJoint distribution
+* various bugfixes
+
 2011-05-05
 
 * Updated documentation
