@@ -55,6 +55,10 @@ To get help and documentation about one of these functions, you can use the onli
 
 will show you the documentation of the ``BayesInference`` object.
 
+Hint: if you would like to copy and paste the examples from this website we
+recommend using the `IPython <http://ipython.scipy.org/moin/>`_ interpreter.
+This has a special magic command ``%cpaste`` which ignores prefixing ``>>>``
+from its input.
 
 Experimental scenario and data format
 =====================================
