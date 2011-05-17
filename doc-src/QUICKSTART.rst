@@ -62,6 +62,12 @@ recommend using the `IPython <http://ipython.scipy.org/moin/>`_ interpreter.
 This has a special magic command ``%cpaste`` which ignores prefixing ``>>>``
 from its input.
 
+If you want to obtain the version identifier (for inclusion in support requests
+and bug reports), type:
+
+>>> psi.version
+'snap-2011-05-17'
+
 Experimental scenario and data format
 =====================================
 The data [1]_ that will be used in the following tutorials have been gathered in a 2-alternative forced-choice discrimination experiment. Observers had to discriminate between two simultaneously presented stimuli. One of them  was the original (standard) and the other one was a comparison of five different stimulus intensities which were all larger than the standard. Different comparison intensities were presented in different experimental blocks (num_of_block = 5). One block contained 50 trials (num_of_trials = 50), 25 of which contained the original and the other 25 contained one of the five different stimulus intensities. Data for all stimulus intensities were repeatedly gathered in three sessions (num_of_sess = 3). Different experimental designs are described in detail in the section `specifying your experimental design <http://psignifit.sourceforge.net/MODELSPECIFICATION.html#specifiing-the-experimental-design>`_.
