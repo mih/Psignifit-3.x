@@ -30,7 +30,6 @@ Contents:
    swig-api
    TODO
 
-   :hidden: 
    PARAMETERPLOTS
    REPARAMETERIZE
    INSTALL_LINUX
