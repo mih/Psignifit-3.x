@@ -56,6 +56,7 @@ swignifit = Extension('swignifit._swignifit_raw',
 
 # decide which interface to use
 # control this via the INTERFACE environment varible
+# by default build swignifit only
 interface = os.getenv("INTERFACE")
 ext_modules = []
 if interface not in ("swignifit", "psipy", None):
@@ -63,7 +64,7 @@ if interface not in ("swignifit", "psipy", None):
 if interface == "swignifit" or interface == None:
     packages.append("swignifit")
     ext_modules.append(swignifit)
-if interface == "psipy" or interface == None:
+if interface == "psipy":
     ext_modules.append(psipy)
 
 if __name__ == "__main__":
