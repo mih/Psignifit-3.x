@@ -5,7 +5,7 @@ Contributing to Psignifit 3.0
 psignifit 3.0 is free software. You are free to modify the software under the terms of the license
 that is distributed with psignifit 3.0. We welcome developers that want to contribute to psignifit 3.0.
 
-Software Archtiecture
+Software Architecture
 ---------------------
 
 The psignifit 3.x code base is logically split into several components:
