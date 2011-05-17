@@ -47,7 +47,7 @@ std::vector<double> PsiOptimizer::optimize ( const PsiPsychometric * model, cons
 	} else {
 		start = std::vector<double>(model->getNparams());
 		incr  = std::vector<double>(model->getNparams());
-		for ( k=0; k<model->getNparams(); k++ ) {
+		for ( k=0; k<int(model->getNparams()); k++ ) {
 			start[k] = startingvalue->at(k);
 			if ( (k+model->getNparams())<startingvalue->size() ) {
 				incr[k] = startingvalue->at(k+model->getNparams());

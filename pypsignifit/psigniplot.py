@@ -17,6 +17,8 @@ from scipy import stats
 import psignidata
 import swignifit.interface_methods as interface
 
+from matplotlib.ticker import MaxNLocator
+
 __all__ = ["GoodnessOfFit","ConvergenceMCMC","ParameterPlot","ThresholdPlot","plotSensitivity","plotInfluential","plotMultiplePMFs"]
 __warnred = [.7,0,0]
 
@@ -566,15 +568,15 @@ def GoodnessOfFit ( InferenceObject, warn=True ):
     ax_deviance,ax_rpdh,ax_rkdh = axes_array_h ( fig, 3, (.22,.3), (.1,.1), dist=0.1, showally=True )
 
     infer = InferenceObject.__repr__().split()[1]
-    if infer not in ["BayesInference","BootstrapInference"]:
+    if infer not in ["BayesInference","BootstrapInference", "ASIRInference"]:
         raise ValueError, "Unknown InferenceObject: %s" % (InferenceObject.__repr__().split()[1],)
 
     # First plot about deviance
-    if infer  == "BayesInference":
+    if infer in ["BayesInference","ASIRInference"]:
         InferenceObject.drawposteriorexamples ( ax=ax_plot )
     plotThres ( InferenceObject, ax=ax_plot )
     plotPMF   ( InferenceObject, ax=ax_plot, showdesc=True )
-    if infer == "BayesInference":
+    if infer in ["BayesInference","ASIRInference"]:
         distname = "posterior"
         observed = -2*N.log ( InferenceObject.nullevidence )
         good = plotppScatter ( InferenceObject.ppdeviance, InferenceObject.mcdeviance, "deviance", "D", ax_deviance )
@@ -597,7 +599,7 @@ def GoodnessOfFit ( InferenceObject, warn=True ):
     for k in xrange ( 2 ):
         plotRd ( InferenceObject, ax[k], index[k] )
         name = "R%sd" % (index[k],)
-        if infer == "BayesInference":
+        if infer in ["BayesInference","ASIRInference"]:
             good = plotppScatter ( eval("InferenceObject.pp%s" % (name,)), eval("InferenceObject.mc%s"%(name,)), name,name, axh[k] )
         else:
             good = plotHistogram ( eval("InferenceObject.mc%s" % (name,)), eval("InferenceObject.%s"%(name,)), "bootstrap "+name, name, axh[k] )
@@ -721,7 +723,7 @@ def plotParameterDist ( InferenceObject, parameter=0, ax=None ):
     samples = InferenceObject.mcestimates[:,parameter]
     h,b,ptch = ax.hist ( samples, bins=20, normed=True, histtype="step", lw=2 )
 
-    if InferenceObject.__repr__().split()[1] == "BayesInference":
+    if InferenceObject.__repr__().split()[1] in ["BayesInference","ASIRInference"]:
         priorstr = InferenceObject.model["priors"]
         if not priorstr is None:
             priorstr = priorstr[parameter]
@@ -958,7 +960,7 @@ def plotInfluential ( InferenceObject ):
     # ax = p.axes ( (0.0,.5,.9,.5) )
     ax = prepare_axes ( p.subplot ( 2,1,1 ) )
     ax.set_ylabel ( r"$\Psi(x)$" )
-    if InferenceObject.__repr__().split()[1] == "BayesInference":
+    if InferenceObject.__repr__().split()[1] in ["BayesInference","ASIRInference"]:
         InferenceObject.drawposteriorexamples ( ax=ax )
     plotPMF ( InferenceObject, ax=ax, showaxes=True, showdesc=False, color="b", linewidth=2 )
     ax.plot ( [InferenceObject.data[maxinfl,0]], [InferenceObject.data[maxinfl,1].astype("d")/InferenceObject.data[maxinfl,2]],
@@ -1046,6 +1048,61 @@ def plotMultiplePMFs ( *InferenceObjects, **kwargs ):
     p.legend (pmflines,pmflabels)
 
     return pmflines,pmfdata
+
+def plotJoint ( InferenceObject ):
+    """Plot joint distribution of parameters
+    
+    For ASIRInference objects, also the fitted marginals are shown
+    """
+    nprm = InferenceObject.nparams
+    parnames = InferenceObject.parnames
+
+    fig = p.figure ()
+    txt = []
+    h,w = .9/nprm,.9/nprm
+    for i in xrange ( nprm ):
+        ax = prepare_axes ( fig.add_axes ( [.07+i*w,.97-(i+1)*h,.8*w,.8*h] ) )
+        ax.xaxis.set_major_locator(MaxNLocator(5))
+
+        if parnames[i] == "lambda":
+            pr = r"\lambda"
+        elif parnames[i] == "guess":
+            pr = r"\gamma"
+        else:
+            pr = parnames[i]
+
+        if InferenceObject.inference == "ASIR":
+            gr  = InferenceObject.grids[i]
+            mrg = InferenceObject.margins[i]
+            ax.plot ( gr, mrg, 'bo' )
+            gn,gx = InferenceObject.getCI ( parnames[i], conf=(.01,.99) )
+            x = p.mgrid[gn:gx:100j]
+            ax.plot ( x, InferenceObject.posterior_pdf ( i, x ), 'b-' )
+            ax.plot ( x, InferenceObject.prior_pdf ( i, x ), 'b:' )
+            txt.append ( r"$%s\sim%s$" % (pr, InferenceObject.posterior_approximations[i].strip("$")) )
+        ax.set_xlabel ( r"$"+pr+r"$" )
+
+        th = InferenceObject.mcestimates[:,i]
+        if not (th==0).all():
+            hist,b = N.histogram ( th, normed=True )
+            ax.bar ( b[:-1], hist, N.diff(b), color=[.8,.8,1], edgecolor=[.8,.8,1] )
+
+    for  i in xrange ( nprm ):
+        ti = InferenceObject.mcestimates[:,i]
+        for j in xrange ( i+1, nprm ):
+            ax = prepare_axes ( fig.add_axes ( [.07+j*w, .97-(i+1)*h, .8*w,.8*h] ) )
+            tj = InferenceObject.mcestimates[:,j]
+            ax.plot ( tj, ti, '.' )
+            ax.xaxis.set_major_locator(MaxNLocator(5))
+            a,b,r,pr,se = stats.linregress ( tj, ti )
+            x = N.sort(tj)
+            ax.plot ( x, a*x+b, 'y' )
+            ax.text ( ax.get_xlim()[0], ax.get_ylim()[0],r"$r=%.2f, p=%g$" % ( r,pr ),
+                    fontsize=10, horizontalalignment="left", verticalalignment="bottom" )
+
+    if InferenceObject.inference == "ASIR":
+        txt.append ( r"duplicates: %g" % (InferenceObject.duplicates,) )
+    fig.text ( .1,.1,"\n".join(txt) )
 
 
 gof = GoodnessOfFit

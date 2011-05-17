@@ -271,7 +271,7 @@ Matrix *Matrix::inverse_qr ( void ) const {
 
 	Matrix * QR = A->qr_dec ();
 
-	QR->print();
+	//QR->print();
 
 	for ( k=getncols()-1; k<UINT_MAX; k-- ) {
 		for ( i=getnrows()-1; i<UINT_MAX; i-- ) {
@@ -281,8 +281,8 @@ Matrix *Matrix::inverse_qr ( void ) const {
 			(*QR)(i,k+getncols()) /= (*QR)(i,i);
 			(*inv)(i,k) = (*QR)(i,k+getncols());
 		}
-		std::cout << "QR(" << k << ") = ";
-		QR->print();
+		//std::cout << "QR(" << k << ") = ";
+		//QR->print();
 	}
 	delete A;
 	delete QR;
@@ -394,4 +394,42 @@ bool Matrix::symmetric ( void ) {
 		}
 	}
 	return true;
+}
+
+std::vector<double> leastsq ( const Matrix *A, const std::vector<double>& b ) {
+	Matrix *M = new Matrix ( A->getnrows(), A->getncols()+1 );
+	unsigned int i, j;
+	unsigned int nr (A->getnrows()),nc(A->getncols());
+
+	for ( i=0; i<nr; i++ ) {
+		for ( j=0; j<nc; j++ ) {
+			(*M)(i,j) = (*A)(i,j);
+		}
+		(*M)(i,nc) = b[i];
+	}
+
+	std::vector<double> out ( leastsq ( M ) );
+	delete M;
+
+	return out;
+}
+
+std::vector<double> leastsq ( const Matrix *M ) {
+	int i,j;
+	unsigned int nr(M->getnrows()),nc(M->getncols()-1);
+	Matrix *R = M->qr_dec();
+	std::vector<double> x (nc);
+	double s;
+
+	for ( i=nc-1; i>=0; i-- ) {
+		s = (*R)(i,nc);
+		for ( j=i+1; j<nc; j++ ) {
+			s -= (*R)(i,j)*x[j];
+		}
+		x[i] = s/(*R)(i,i);
+	}
+
+	delete R;
+
+	return x;
 }

@@ -523,6 +523,7 @@ double NakaRushton::dinv ( double y, const std::vector<double>& prm, int i ) con
 					log(sigm)/k - log(odds*pow(sigm,k))/(k*k)
 					);
 	}
+	return -1;
 }
 
 std::vector<double> NakaRushton::transform ( int nprm, double a, double b ) const

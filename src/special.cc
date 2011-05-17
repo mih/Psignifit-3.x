@@ -3,6 +3,7 @@
  *   the copyright and license terms
  */
 #include "special.h"
+#include "errors.h"
 
 const double SQRT2PI ( sqrt(2*M_PI) );
 
@@ -51,8 +52,121 @@ double gammaln(double xx) {
 	return -tmp+log(2.5066282746310005*ser/x);
 }
 
+double gammainc ( double x, double a ) {
+	double gm,h,dl, b,c,d,an;
+	int i;
+	gm = 0.;
+	if ( x < a+1 ) {
+		dl = exp ( gammaln ( a ) - gammaln ( a+1 ) );
+		// Series
+		for ( i=0; i<2000; i++ ) {
+			gm += dl;
+			dl *= x/(a+1+i);
+			if ( dl < 1e-7 ) break;
+		}
+		return exp ( -x+ a*log(x) - gammaln ( a ) ) * gm;
+	} else {
+		// Continued fraction
+		gm = gammaln ( a );
+		b = x+1.-a;
+		c = 1./1e-30;
+		d = 1./b;
+		h = d;
+		for ( i=1; i<=2000; i++ ) {
+			an = -i*(i-a);
+			b += 2.;
+			d = an*d+b;
+			if ( fabs ( d ) < 1e-30 ) d = 1e-30;
+			c = b + an/c;
+			if ( fabs ( c ) < 1e-30 ) c = 1e-30;
+			d = 1./d;
+			dl = c*d;
+			h *= dl;
+			if ( fabs(dl-1.) < 1e-7 ) break;
+		}
+		return 1-exp ( -x+a*log(x)-gm)*h;
+	}
+	return gm;
+}
+
 double betaf(double z, double w) {
 	return exp(gammaln(z)+gammaln(w)-gammaln(z+w));
+}
+
+double betahelper ( double a, double b, double x ) {
+	int m, m2;
+	double aa, c, d, dl, h, qab, qam,qap;
+
+	qab = a+b;
+	qap = a+1;
+	qam = a-1;
+	c = 1.;
+	d = 1.-qab*x/qap;
+	if ( fabs(d) < 1e-30 ) d=1e-30;
+	d = 1./d;
+	h = d;
+	for ( m=1; m<=200; m++ ) {
+		// even terms
+		m2 = 2*m;
+		aa = m*(b-m)*x/((qam+m2)*(a+m2));
+		d = 1.+aa*d;
+		c = 1.+aa/c;
+		if ( fabs(d) < 1e-30 ) d=1e-30;
+		if ( fabs(c) < 1e-30 ) c=1e-30;
+		d = 1./d;
+		h *= c*d;
+		// odd terms
+		aa = -(a+m)*(qab+m)*x/((a+m2)*(qap+m2));
+		d = 1.+aa*d;
+		c = 1.+aa/c;
+		if ( fabs(d) < 1e-30 ) d = 1e-30;
+		if ( fabs(c) < 1e-30 ) c = 1e-30;
+		d = 1./d;
+		dl = c*d;
+		h *= dl;
+		if ( fabs ( dl-1 ) < 1e-7 ) break;
+	}
+	return h;
+}
+
+double betainc ( double x, double a, double b ) {
+	/*
+	unsigned int i,m;
+	double h(1), C(1), D(0), d, dl;
+
+	i = 0;
+	while (i++<2000) {
+		if ( i%2==0 ) {
+			m = i/2;
+			d = m*(b-m)*x / ((a+2*m-1)*(a+2*m));
+		} else {
+			m = (i-1)/2;
+			d = - (a+m)*(a+b+m)*x / ( (a+2*m-1)*(a+2*m) );
+		}
+
+		D = 1 + d*D;
+		C = 1 + d/C;
+		if ( D==0 ) d = 1e-30;
+		if ( C==0 ) d = 1e-30;
+
+		dl = C/D;
+		h = dl*h;
+		if ( fabs(dl-1) < 1e-7 ) break;
+	}
+
+	return pow ( x,a )*pow ( x, b ) / (a*betaf ( a, b ) ) * h;
+	*/
+	double bt;
+
+	if ( x<0 || x>1 ) throw BadArgumentError ( "Invalid x value" );
+	if (x==0 || x==1) bt = 0;
+	else
+		bt = exp ( gammaln(a+b)-gammaln(a)-gammaln(b) + a*log(x)+b*log(1-x) );
+
+	if ( x < (a+1)/(a+b+2) )
+		return bt*betahelper ( a, b, x )/a;
+	else
+		return 1.-bt*betahelper ( b, a, 1.-x )/b;
 }
 
 double psi ( double z ) {

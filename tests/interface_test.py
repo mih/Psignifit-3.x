@@ -82,7 +82,7 @@ class TestMCMC(ut.TestCase):
         sfr.setSeed(1)
         (estimates, deviance, posterior_predictive_data,
         posterior_predictive_deviances, posterior_predictive_Rpd,
-        posterior_predictive_Rkd, logposterior_ratios) = interface.mcmc(d,nsamples=10000,priors=priors,stepwidths=stepwidths)
+        posterior_predictive_Rkd, logposterior_ratios, accept_rate) = interface.mcmc(d,nsamples=10000,priors=priors,stepwidths=stepwidths)
         self.assertAlmostEqual( np.mean(estimates[:,0]), 2.52579214385 )
         self.assertAlmostEqual( np.mean(estimates[:,1]), 7.30680631915 )
 

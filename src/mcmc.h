@@ -9,6 +9,7 @@
 #include "psychometric.h"
 #include "rng.h"
 #include "mclist.h"
+#include "getstart.h"
 
 class PsiSampler
 {
@@ -35,9 +36,10 @@ class MetropolisHastings : public PsiSampler
 		std::vector<double> currenttheta;
 		std::vector<double> newtheta;
 		std::vector<double> stepwidths;
-		double qold;
 		double currentdeviance;
 		int accept;
+	protected:
+		double qold;
 	public:
 		MetropolisHastings (
 			const PsiPsychometric * Model,                                                  ///< psychometric funciton model to sample from
@@ -46,6 +48,7 @@ class MetropolisHastings : public PsiSampler
 			);                                                          ///< initialize the sampler
 		~MetropolisHastings ( void ) { delete propose; }
 		std::vector<double> draw ( void );                                                ///< perform a metropolis hastings step and draw a sample from the posterior
+		virtual double acceptance_probability ( const std::vector<double>& current_theta, const std::vector<double>& new_theta );
 		void setTheta ( const std::vector<double>& prm );                                 ///< set the current state of the sampler
 		std::vector<double> getTheta ( void ) { return currenttheta; }                    ///< get the current state of the sampler
 		double getDeviance ( void ) { return currentdeviance; }                           ///< get the current deviance
@@ -83,6 +86,29 @@ class GenericMetropolis : public MetropolisHastings
 		 * @param pilot a pilot sample to base the regression on
 		 */
 		void findOptimalStepwidth ( PsiMClist const &pilot );
+};
+
+class DefaultMCMC : public MetropolisHastings
+{
+	private:
+		std::vector<PsiPrior*> proposaldistributions;
+	public:
+		DefaultMCMC ( const PsiPsychometric * Model,                                      ///< psychometric function model to sample from
+				const PsiData * Data,                                                     ///< data to base inference on
+				PsiRandom* proposal                                                       ///< IGNORED
+				);
+		~DefaultMCMC ( void );
+		double acceptance_probability (
+				const std::vector<double> &current_theta,
+				const std::vector<double> &new_theta );
+		void proposePoint ( std::vector<double> &current_theta,
+				std::vector<double> &stepwidths,
+				PsiRandom * proposal,
+				std::vector<double> &new_theta);                                          ///< propose a new sample and save it in new_theta
+        void set_proposal(unsigned int i, PsiPrior* proposal){
+            delete proposaldistributions.at(i);
+            proposaldistributions.at(i) = proposal->clone();
+        }
 };
 
 class HybridMCMC : public PsiSampler

@@ -263,6 +263,9 @@ void PsiPsychometric::setPrior ( unsigned int index, PsiPrior* prior ) throw(Bad
 		throw BadArgumentError ( "Trying to set a prior for a nonexistent parameter" );
 	}
 	delete priors[index];
+#ifdef DEBUG_PSYCHOMETRIC
+	std::cerr << "Setting prior for parameter " << index << "\n";
+#endif
 	priors[index] = prior->clone();
 }
 
@@ -571,6 +574,7 @@ double PsiPsychometric::dpredict ( const std::vector<double>& prm, double x, uns
 		return -Sigmoid->f(Core->g(x,prm));
 	if (i==3 && getNalternatives()<2)
 		return 1-Sigmoid->f(Core->g(x,prm));
+	return 0;
 }
 
 double PsiPsychometric::ddpredict ( const std::vector<double>& prm, double x, unsigned int i, unsigned int j ) const {
@@ -736,7 +740,7 @@ double BetaPsychometric::fznull ( unsigned int z, const PsiData * data, double n
 
 double BetaPsychometric::negllikelinull ( const PsiData * data, double nu ) const {
 	double l ( 0 );
-	unsigned int z, nz;
+	unsigned int z;
 	double nunz, pz;
 	double fz;
 	double al, bt;

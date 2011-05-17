@@ -35,7 +35,6 @@ class PsiGrid {
 		double operator() ( unsigned int i, unsigned int j ) const { return grid1d[i][j]; }
 };
 
-
 std::vector<double> linspace (
 		double xmin,
 		double xmax,

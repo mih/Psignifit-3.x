@@ -228,7 +228,7 @@ results.gammaislambda = gammaislambda;
 results.cuts = cuts;
 results.data = data;
 results.priors = priors;
-results.params_estimates = mean ( results.mcestimates(samples/2:end,:) );
+results.params_estimate = mean ( results.mcestimates(samples/2:end,:) );
 results.burnin = samples/2;
 results.nsamples = samples;
 

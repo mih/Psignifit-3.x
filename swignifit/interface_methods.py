@@ -103,7 +103,12 @@ def mcmc( data, start=None, nsamples=10000, nafc=2, sigmoid='logistic',
             raise sfu.PsignifitException("You specified \'"+str(len(stepwidths))+\
                     "\' stepwidth(s), but there are \'"+str(nparams)+ "\' parameters.")
         else:
-            sampler.setStepSize(sfr.vector_double(stepwidths))
+            if isinstance ( sampler, sfr.DefaultMCMC ):
+                for i,p in enumerate(stepwidths):
+                    p = sfu.get_prior(p)
+                    sampler.set_proposal(i, p)
+            else:
+                sampler.setStepSize(sfr.vector_double(stepwidths))
 
     post = sampler.sample(nsamples)
 
@@ -128,9 +133,11 @@ def mcmc( data, start=None, nsamples=10000, nafc=2, sigmoid='logistic',
         posterior_predictive_Rpd[i] = post.getppRpd(i)
         posterior_predictive_Rkd[i] = post.getppRkd(i)
 
+    accept_rate = post.get_accept_rate()
+
     return (estimates, deviance, posterior_predictive_data,
         posterior_predictive_deviances, posterior_predictive_Rpd,
-        posterior_predictive_Rkd, logposterior_ratios)
+        posterior_predictive_Rkd, logposterior_ratios, accept_rate)
 
 def mapestimate ( data, nafc=2, sigmoid='logistic', core='ab', priors=None,
         cuts = None, start=None, gammaislambda=False):
@@ -198,3 +205,33 @@ def diagnostics(data, params, nafc=2, sigmoid='logistic', core='ab', cuts=None, 
         rpd = pmf.getRpd(deviance_residuals, params, dataset)
         rkd = pmf.getRkd(deviance_residuals, dataset)
         return predicted, deviance_residuals, deviance, thres, slope, rpd, rkd
+
+def asir ( data, nsamples=2000, nafc=2, sigmoid="logistic",
+        core="mw0.1", priors=None, gammaislambda=False ):
+    dataset, pmf, nparams = sfu.make_dataset_and_pmf ( data, nafc, sigmoid, core, priors, gammaislambda=gammaislambda )
+
+    posterior = sfr.independent_marginals ( pmf, dataset, 1, 7 )
+    samples   = sfr.sample_posterior ( pmf, dataset, posterior, nsamples )
+    sfr.sample_diagnostics ( pmf, dataset, samples )
+
+    out = {'mcestimates': np.array( [ [samples.getEst ( i, par ) for par in xrange ( nparams ) ] for i in xrange ( nsamples )]),
+            'mcdeviance': np.array( [ samples.getdeviance ( i ) for i in xrange ( nsamples ) ] ),
+            'mcRpd':                    np.array ( [ samples.getRpd ( i ) for i in xrange ( nsamples ) ] ),
+            'mcRkd':                    np.array ( [ samples.getRkd ( i ) for i in xrange ( nsamples ) ] ),
+            'posterior_predictive_data': np.array ( [ samples.getppData ( i ) for i in xrange ( nsamples ) ] ),
+            'posterior_predictive_deviance': np.array ( [ samples.getppDeviance ( i ) for i in xrange ( nsamples ) ] ),
+            'posterior_predictive_Rpd': np.array ( [ samples.getppRpd ( i ) for i in xrange ( nsamples ) ] ),
+            'posterior_predictive_Rkd': np.array ( [ samples.getppRkd ( i ) for i in xrange ( nsamples ) ] ),
+            'logposterior_ratios':      np.array ( [ [samples.getlogratio ( i,j ) for j in xrange(len(data)) ] for i in xrange ( nsamples ) ] ),
+            'duplicates':               samples.get_accept_rate (),
+            'posterior_approximations_py': [posterior.get_posterior(i) for i in xrange ( nparams ) ],
+            'posterior_approximations_str': [r"$\mathcal{N}(%.2f,%.2f)$" % (posterior.get_posterior(0).getprm(0),posterior.get_posterior(0).getprm(1)),
+                r"$\mathrm{Gamma}(%.2f,%.2f)$" % (posterior.get_posterior(1).getprm(0),posterior.get_posterior(1).getprm(1)),
+                r"$\mathrm{Beta}(%.2f,%.2f)$" % (posterior.get_posterior(2).getprm(0),posterior.get_posterior(2).getprm(1))],
+            'posterior_grids':          [ posterior.get_grid ( i ) for i in xrange ( nparams ) ],
+            'posterior_margin':         [ posterior.get_margin ( i ) for i in xrange ( nparams ) ]
+            }
+    if nparams==4:
+        out['posterior_approximations_str'].append ( r"$\mathrm{Beta}(%.2f,%.2f)$" % (posterior.get_posterior(3).getprm(0),posterior.get_posterior(3).getprm(1)) )
+
+    return out

@@ -5,9 +5,37 @@ __doc__ = """This module gives default priors for bayesian estimation of psychom
 import numpy as np
 from scipy import stats, optimize
 
-def default_lapse ( ):
-    """Default prior for the lapse rate"""
-    return "Beta(2.5,12)"
+def default(x):
+    """ All default priors, with default settings.
+
+    :Parameters:
+        *x* :
+            array of stimulus intensities used in the experiment
+
+    :Returns:
+        tuple of 3 priors: m, w, lapse
+
+    """
+    return default_mid(x)[0], default_width(x)[0], default_lapse()[0]
+
+def default_lapse ( observer="normal" ):
+    """Default prior for the lapse rate
+
+    :Parameters:
+        *observer* :
+            Typically, animals have much higher lapse rates than humans.
+            The same is true for some clinical patient groups. Based on
+            simulation results, we suggest different priors for animals or
+            patients and for healthy adult humans. Thus, select either
+            observer='normal' for healthy adult humans or observer='lapse'
+            for an observer type with unusually high lapse rates.
+    """
+    if observer=="normal":
+        return "Beta(2,20)",0.,0.5
+    elif observer=="lapse":
+        return "Beta(2.5,12)",0.,0.5
+    else:
+        raise Exception, "Unknown observer %s" % (observer,)
 
 def default_width ( x, method="moments" ):
     """Default prior for the width of a psychometric function
@@ -24,8 +52,7 @@ def default_width ( x, method="moments" ):
     """
     xx = np.sort(x)
     wmin = np.min(np.diff(xx))
-    wmax = xx[-1]-xx[0]
-    print wmin,wmax
+    wmax = 2*(xx[-1]-xx[0])
     if method=='moments':
         wr = wmin/wmax
         k  = ((1+wr)/(1-wr))**2
@@ -40,7 +67,7 @@ def default_width ( x, method="moments" ):
                 return e
         k,th = optimize.fmin ( error, [1.,4.] )
 
-    return "Gamma(%g,%g)" % (k,th),k,th
+    return "Gamma(%g,%g)" % (k,th),wmin,wmax
 
 def default_mid ( x, method="moments" ):
     """Default prior for the midpoint (threshold) of a psychometric function
@@ -66,7 +93,7 @@ def default_mid ( x, method="moments" ):
         sg = (mmax-mmin)/(zmax-zmin)
         mu = mmin - sg*zmin
 
-    return "Gauss(%g,%g)" % (mu,sg), mu, sg
+    return "Gauss(%g,%g)" % (mu,sg), mmin, mmax
 
 if __name__ == "__main__":
     import pylab as pl
@@ -80,7 +107,7 @@ if __name__ == "__main__":
     # # pl.plot ( xx, [0]*len(xx), 'o', x, (x/th)**(k-1)*np.exp(-x/th) )
     # pl.plot ( xx, [0]*len(xx), 'o', x, stats.gamma.pdf ( x, k, scale=th ), x, stats.gamma.cdf ( x, k, scale=th ) )
 
-    g,mu,sg = default_mid ( xx )
-    print g
-    pl.plot ( xx, [0]*len(xx), 'o', x, stats.norm.pdf ( x, mu, scale=sg ) )
-    pl.show()
+    # g,mu,sg = default_mid ( xx )
+    # print g
+    # pl.plot ( xx, [0]*len(xx), 'o', x, stats.norm.pdf ( x, mu, scale=sg ) )
+    # pl.show()

@@ -52,4 +52,8 @@ class Matrix
 		bool symmetric ( void );                                     ///< check whether the matrix is symmetric
 };
 
+std::vector<double> leastsq ( const Matrix *A, const std::vector<double>& b );  ///< return the least squares solution to the problem Ax=b
+
+std::vector<double> leastsq ( const Matrix *M ); ///< return the least squares solution of the problem Ax=b, where M = [A,b]
+
 #endif

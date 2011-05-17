@@ -25,9 +25,14 @@ double safe_log ( double x );
 /** \brief logarithm of the gamma function */
 double gammaln ( double xx );
 
+/** \brief incomplete unnormalized gamma function */
+double gammainc ( double x, double a );
 
 /** beta function */
 double betaf ( double z, double w );
+
+/** regularized incomplete beta function based on continued fractions */
+double betainc ( double x, double al, double bt );
 
 /** psi function, i.e. d log Gamma / dx */
 double psi ( double z );
