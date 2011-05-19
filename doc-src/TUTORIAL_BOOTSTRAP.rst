@@ -109,7 +109,7 @@ cases, you may have to type ``psi.show()`` before you see the window).
 
 5. Top right: deviance residuals are plotted as a function of block index i.e. the sequence in which the data were acquired (WARNING: this graph can be properly interpreted only when stimulus intensities were fixed in separate blocks). If the observer was learning, the fitted linear correlation between residuals and block index should be positive.
 
-6. Bottom right: histrogram of bootstrapped correlation coefficients for the correlation between deviance residuals and block index (same logic applies as in panel 2 and 4).
+6. Bottom right: histogram of bootstrapped correlation coefficients for the correlation between deviance residuals and block index (same logic applies as in panel 2 and 4).
 
 More information about these parameters can also be found in the paper by [Fruend_et_al_2011]_.
 
