@@ -15,16 +15,58 @@ To get you started with pypsignifit, open a Python interpreter and type the foll
 
 >>> import pypsignifit as psi
 >>> dir(psi)
-['BayesInference', 'BootstrapInference', 'ConvergenceMCMC', 'GoodnessOfFit', 'ParameterPlot', 'ThresholdPlot', '__builtins__', '__doc__', '__docformat__', '__file__', '__name__', '__package__', '__path__', '__test__', '__version__', 'interface', 'plotInfluential', 'plotMultiplePMFs', 'plotSensitivity', 'psignidata', 'psignierrors', 'psigniplot', 'pygibbsit', 'set_seed', 'show', 'subprocess', 'sys', 'version']
+['ASIRInference',
+ 'BayesInference',
+ 'BootstrapInference',
+ 'ConvergenceMCMC',
+ 'GoodnessOfFit',
+ 'ParameterPlot',
+ 'ThresholdPlot',
+ '__builtins__',
+ '__doc__',
+ '__docformat__',
+ '__file__',
+ '__name__',
+ '__package__',
+ '__path__',
+ '__test__',
+ '__version__',
+ 'dump_info',
+ 'interface',
+ 'plotInfluential',
+ 'plotMultiplePMFs',
+ 'plotSensitivity',
+ 'psignidata',
+ 'psignierrors',
+ 'psigniplot',
+ 'psignipriors',
+ 'pygibbsit',
+ 'set_seed',
+ 'show',
+ 'subprocess',
+ 'sys',
+ 'version']
 
-With the first command you import the complete functionality of the Python module pypsignifit to your current workspace. Dir( module name ) provides you with a list of functions and data types that come with pypsignifit.
-To get help and documentation about one of these functions, you can use the online Python help by typing
-help ( function name ). For instance,
+With the first command you import the complete functionality of the Python
+module ``pypsignifit`` to your current workspace. ``dir( <module_name> )``
+provides you with a list of functions and data types that come with pypsignifit.
+To get help and documentation about one of these functions, you can use the
+online Python help by typing ``help( <object_name> )``. For instance,
 
 >>> help ( psi.BayesInference )
 
-will show you the documentation of the BayesInference object class.
+will show you the documentation of the ``BayesInference`` object.
 
+Hint: if you would like to copy and paste the examples from this website we
+recommend using the `IPython <http://ipython.scipy.org/moin/>`_ interpreter.
+This has a special magic command ``%cpaste`` which ignores prefixing ``>>>``
+from its input.
+
+If you want to obtain the version identifier (for inclusion in support requests
+and bug reports), type:
+
+>>> psi.version
+'snap-2011-05-17'
 
 Experimental scenario and data format
 =====================================

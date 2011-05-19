@@ -237,7 +237,7 @@ gumbel + log
 
 
 References
-==========
+----------
 .. [Graham_1989] Graham, NVS (1989): Visual Pattern Analyzers. New York: Oxford University.
 .. [Kuss_et_al_2005] Kuss, M and J√§kel, F and Wichmann, FA: Bayesian inference for psychometric functions
     Journal of Vision, 5, 478-492.
