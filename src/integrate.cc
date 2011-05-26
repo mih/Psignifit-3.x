@@ -722,11 +722,12 @@ MCMCList sample_posterior (
 		const PsiPsychometric *pmf,
 		const PsiData *data,
 		PsiIndependentPosterior& post,
-		unsigned int nsamples
+		unsigned int nsamples,
+		unsigned int propose
 		)
 {
 	unsigned int nprm ( pmf->getNparams() ), i, j, k;
-	unsigned int nproposals ( nsamples*25 );
+	unsigned int nproposals ( nsamples*propose );
 	MCMCList finalsamples ( nsamples, nprm, data->getNblocks() );
 	double q,p;
 	double nduplicate ( 0 );

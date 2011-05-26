@@ -123,7 +123,8 @@ MCMCList sample_posterior (
 		const PsiPsychometric *pmf,
 		const PsiData *data,
 		PsiIndependentPosterior& post,
-		unsigned int nsamples=600
+		unsigned int nsamples=600,
+		unsigned int propose=25
 		);
 
 void sample_diagnostics (
