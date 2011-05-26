@@ -1815,6 +1815,8 @@ class ASIRInference ( PsiInference ):
             *nsamples* :
                 typically 2000 samples will be drawn. If you feel that this is takes too long, you might want to reduce this
                 number
+            *propose* :
+                how much more samples should be proposed than will eventually be taken?
         """
         if check_kwargs ( kwargs, ASIRInference.__init__.__doc__ ):
             msg = "Unknown parameter '%s'. See docstring for valid arguments" % (check_kwargs(kwargs, ASIRInference.__init__.__doc__ ),)
@@ -1857,7 +1859,7 @@ class ASIRInference ( PsiInference ):
 
         self.__inference = interface.asir ( self.data, nsamples=kwargs.setdefault ( 'nsamples', 2000 ),
                 nafc=self.model['nafc'], sigmoid=self.model['sigmoid'], core=self.model['core'],
-                priors=self.model['priors'], gammaislambda=self.model['gammaislambda'] )
+                priors=self.model['priors'], gammaislambda=self.model['gammaislambda'], propose=kwargs.setdefault ( "propose", 25 ) )
         self._data,self._pmf,self.nparams = sfu.make_dataset_and_pmf (
                 self.data, self.model["nafc"], self.model["sigmoid"], self.model["core"], self.model["priors"], gammaislambda=self.model["gammaislambda"] )
 

@@ -207,11 +207,11 @@ def diagnostics(data, params, nafc=2, sigmoid='logistic', core='ab', cuts=None, 
         return predicted, deviance_residuals, deviance, thres, slope, rpd, rkd
 
 def asir ( data, nsamples=2000, nafc=2, sigmoid="logistic",
-        core="mw0.1", priors=None, gammaislambda=False ):
+        core="mw0.1", priors=None, gammaislambda=False, propose=25 ):
     dataset, pmf, nparams = sfu.make_dataset_and_pmf ( data, nafc, sigmoid, core, priors, gammaislambda=gammaislambda )
 
     posterior = sfr.independent_marginals ( pmf, dataset, 1, 7 )
-    samples   = sfr.sample_posterior ( pmf, dataset, posterior, nsamples )
+    samples   = sfr.sample_posterior ( pmf, dataset, posterior, nsamples, propose )
     sfr.sample_diagnostics ( pmf, dataset, samples )
 
     out = {'mcestimates': np.array( [ [samples.getEst ( i, par ) for par in xrange ( nparams ) ] for i in xrange ( nsamples )]),
