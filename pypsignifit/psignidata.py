@@ -1172,10 +1172,10 @@ class BayesInference ( PsiInference ):
                 return N.array(out)
             else:
                 if isinstance ( cut, float ):
-                    try:
+                    if cut in self.cuts:
                         cut = list(self.cuts).index(cut)
-                    except ValueError:
-                        raise ValueError, "cut is not in the list of requested cuts which would be necessary to determine cuts for slopes or thresholds"
+                    else:
+                        return p.prctile ( [ self._pmf.getThres ( theta, cut ) for theta in self.mcestimates ], 100*N.array(conf) )
                 return p.prctile ( mcdata[:,cut], 100*N.array(conf) )
         else:
             if param=="Rkd":
