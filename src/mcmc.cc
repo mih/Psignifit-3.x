@@ -24,7 +24,9 @@ MetropolisHastings::MetropolisHastings ( const PsiPsychometric * pmf, const PsiD
 	accept(0),
 	qold(-1e5)
 {
+#ifdef DEBUG_MCMC
 	std::cerr << "Hi my name is MetropolisHastings\n";
+#endif
 	setTheta ( currenttheta );
     currentdeviance = (pmf->deviance(currenttheta,dat));
 }
