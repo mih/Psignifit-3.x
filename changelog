@@ -1,3 +1,9 @@
+2011-06-07
+
+* Updating documentation
+* bugfix: no status messages any more to make matlab interface working
+* posterior oversampling factor for ASIRInference can be specified from python
+
 2011-05-17
 
 * New strategy for Bayesian inference: Numerical integration of posterior,
