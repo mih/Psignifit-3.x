@@ -14,11 +14,13 @@ installer should install psignifit3.0 on your system.
 Installing the command line interface (optional)
 -------------------------------------------------
 
-Download the file ``psignifit_cli_3_beta_installer.exe`` from
-`sourceforge <http://sourceforge.net/projects/psignifit/files/>`_ and run it.
-Follow the instructions on the screen. At the end of the installation, you will be asked whether
-you want to add psignifit-cli to your environment path. You should leave this box checked. You
-will not be able to use psignifit from within Matlab if you uncheck this box!
+Download the file ``psignifit_cli_3_beta_installer_<date of the snapshot>.exe``
+from `sourceforge <http://sourceforge.net/projects/psignifit/files/>`_ and run
+it.  This is a windows installer and can be installed as usual.  Follow the
+instructions on the screen. At the end of the installation, you will be asked
+whether you want to add psignifit-cli to your environment path. You should leave
+this box checked. You will not be able to use psignifit from within Matlab if
+you uncheck this box!
 
 
 Testing your installation
