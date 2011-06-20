@@ -99,12 +99,15 @@ systems.
 
 Currently this documentation only describes the installation of the Python version of Psignifit. 
 
-If you are looking for installation instructions for Matlab, see :doc:`INSTALL_MATLAB`. Installation instructions for R are going to follow as soon as these toolboxes are
-ready for use. 
-Unless you are an expert user, or want to use the Matlab version mpsignifit, you do not need to install the optional commandline interface, which is however required for the Matlab version mpsignifit. 
+If you are looking for installation instructions for Matlab, see
+:doc:`INSTALL_MATLAB`. Installation instructions for R are going to follow as
+soon as these toolboxes are ready for use.  Unless you are an expert user, or
+want to use the Matlab version mpsignifit, you do not need to install the
+optional commandline interface, which is however required for the Matlab version
+mpsignifit. 
 
-The C++ core of Psignifit does the real work. It is completely coded in C++ and does not require any
-additional libraries installed.
+The C++ core of Psignifit does the real work. It is completely coded in C++ and
+does not require any additional libraries installed.
 
 For additional information about the structure of the code, the build system, 
 version control and an extended list of dependencies  see: :doc:`CONTRIBUTING`.
