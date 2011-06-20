@@ -63,7 +63,7 @@ to this list.
 Authors and Contributors
 ************************
 
-Authors & Contributors¶
+Authors & Contributors
 
 The Psignifit3 core development team currently consists of:
 
