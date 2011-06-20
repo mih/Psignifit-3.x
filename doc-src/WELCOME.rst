@@ -90,12 +90,12 @@ Download the current version of Psignifit from:
 
     `<http://sourceforge.net/projects/psignifit/>`_
 
-In the following, installation instructions are provided for different operating systems. You can find a detailed listing of :doc:`INSTALL_REQUIRED_PACKAGES` at the end of this document, but the dependencies are also considered in the following sections:
+In the following, installation instructions are provided for different operating
+systems.
 
 * :doc:`INSTALL_LINUX`
 * :doc:`INSTALL_MAC`
 * :doc:`INSTALL_WINDOWS`
-* :doc:`INSTALL_WITHOUT`
 
 Currently this documentation only describes the installation of the Python version of Psignifit. 
 
@@ -106,5 +106,5 @@ Unless you are an expert user, or want to use the Matlab version mpsignifit, you
 The C++ core of Psignifit does the real work. It is completely coded in C++ and does not require any
 additional libraries installed.
 
-For additional information about the structure of the code, the build system and
-version control, see: :doc:`CONTRIBUTING`
+For additional information about the structure of the code, the build system, 
+version control and an extended list of dependencies  see: :doc:`CONTRIBUTING`.
