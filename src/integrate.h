@@ -8,87 +8,42 @@
 #include <vector>
 #include <algorithm>
 
-// #define DEBUG_INTEGRATE
-
-std::vector<double> raw_grid (
-		const PsiData *data,
-		const PsiPsychometric *pmf,
-		unsigned int prmindex,
-		unsigned int gridsize=7
-		);
-
-std::vector<double> cdf_grid (
-		const PsiPrior *fitted_dist, ///< fitted distribution
-		double pmin=0.1,       ///< minimum cumulative probability
-		double pmax=0.9,       ///< maximum cumulative probability
-		unsigned int gridsize=7///< number of gridpoints
-		);
-
+/** Produce a linearly spaced grid from xmin to xmax */
 std::vector<double> lingrid ( double xmin, double xmax, unsigned int gridsize );
 
-void normalize_margin ( std::vector<double>* margin );
+// Numerical integration
+void normalize_probability (
+		const std::vector<double>& x, ///< nodes at which the density has been evaluated
+		std::vector<double>& fx       ///< (unnormalized) density at the respective nodes.
+		);  ///< normalize a probability density (in place!)
 
-double sd ( const std::vector<double>& x );
+double numerical_mean (
+		const std::vector<double>& x,  ///< nodes at which the density has been evaluated
+		const std::vector<double>& fx  ///< normalized density at the respective nodes
+		);  ///< determine the 1d mean by evaluating the respective integral numerically
 
-void integrate_3d (
-		const PsiPsychometric *pmf,        ///< psychometric function model to be evaluated
-		const PsiData *data,               ///< data set to be evaluated
-		const std::vector<double>& grid1,  ///< grid points for first parameter
-		const std::vector<double>& grid2,  ///< grid points for second parameter
-		const std::vector<double>& grid3,  ///< grid points for third parameter
-		std::vector<double> *margin1,      ///< evaluated marginal for first parameter
-		std::vector<double> *margin2,      ///< evaluated marginal for second parameter
-		std::vector<double> *margin3       ///< evaluated marginal for third parameter
-		);  ///< integration on a three dimensional grid
+double numerical_variance (
+		const std::vector<double>& x,  ///< nodes at which the density has been evaluated
+		const std::vector<double>& fx, ///< normalized density at the respective nodes
+		double m                       ///< numerically evaluated mean
+		);  ///< determine the 1d variance by evaluating the respective integral numerically
 
-void integrate_4d (
-		const PsiPsychometric *pmf,        ///< psychometric function model to be evaluated
-		const PsiData *data,               ///< data set to be evaluated
-		const std::vector<double>& grid1,  ///< grid points for first parameter
-		const std::vector<double>& grid2,  ///< grid points for second parameter
-		const std::vector<double>& grid3,  ///< grid points for third parameter
-		const std::vector<double>& grid4,  ///< grid points for fourth parameter
-		std::vector<double> *margin1,      ///< evaluated marginal for first parameter
-		std::vector<double> *margin2,      ///< evaluated marginal for second parameter
-		std::vector<double> *margin3,      ///< evaluated marginal for third parameter
-		std::vector<double> *margin4       ///< evaluated marginal for fourth parameter
-		);  ///< integration on a four dimensional grid
+// Moment matching
+std::vector<double> match_gauss (
+		const std::vector<double>& x,  ///< nodes at which the density has been evaluated
+		const std::vector<double>& fx  ///< normalized density at the respective nodes
+		);  ///< determine parameters of a gaussian that matches with the first and second moments of the sampled density
+std::vector<double> match_gamma (
+		const std::vector<double>& x,  ///< nodes at which the density has been evaluated
+		const std::vector<double>& fx  ///< normalized density at the respective nodes
+		);  ///< determine parameters of a gamma distribution that matches with the first and second moments of the sampled density
+std::vector<double> match_beta (
+		const std::vector<double>& x,  ///< nodes at which the density has been evaluated
+		const std::vector<double>& fx  ///< normalized density at the respective nodes
+		);  ///< determine parameters of a beta distribution that matches the first and second moments of the sampled density
 
-void integrate_grid (
-		const PsiPsychometric *pmf,        ///< psychometric function model to be evaluated
-		const PsiData *data,               ///< data set to be evaluated
-		const std::vector< std::vector<double> >& grid,   ///< all grids to be evaluated
-		std::vector<double> *margin1,      ///< evaluated marginal for first parameter
-		std::vector<double> *margin2,      ///< evaluated marginal for second parameter
-		std::vector<double> *margin3,      ///< evaluated marginal for third parameter
-		std::vector<double> *margin4=NULL  ///< evaluated marginal for fourth parameter
-		) throw (PsiError);  ///< integration on a three or four dimensional grid (selects the appropriate integration function)
 
-std::vector<double> fit_posterior (
-		const std::vector<double>& x,
-		const std::vector<double>& fx,
-		const std::vector<double>& start,
-		unsigned int index
-		);
-
-double error_gauss (
-		const std::vector<double>& prm,
-		const std::vector<double>& x,
-		const std::vector<double>& fx
-		);
-
-double error_gamma (
-		const std::vector<double>& prm,
-		const std::vector<double>& x,
-		const std::vector<double>& fx
-		);
-
-double error_beta (
-		const std::vector<double>& prm,
-		const std::vector<double>& x,
-		const std::vector<double>& fx
-		);
-
+/** Independent approximation to the posterior distribution */
 class PsiIndependentPosterior {
 	private:
 		unsigned int nparams;
@@ -97,40 +52,37 @@ class PsiIndependentPosterior {
 		std::vector< std::vector<double> > margins;
 	public:
 		PsiIndependentPosterior (
-				unsigned int nprm,
-				std::vector<PsiPrior*> posteriors,
-				std::vector< std::vector<double> > x,
-				std::vector< std::vector<double> > fx
+				unsigned int nprm,                    ///< number of parameters in the model
+				std::vector<PsiPrior*> posteriors,    ///< determined best fitting distributions
+				std::vector< std::vector<double> > x, ///< grids for all parameters
+				std::vector< std::vector<double> > fx ///< densities for all parameters
 				);
-			// { unsigned int i; for (i=0; i<nparams; i++) fitted_posteriors[i] = new PsiPrior; }
 		PsiIndependentPosterior ( const PsiIndependentPosterior& post ) :
 			nparams ( post.nparams ), fitted_posteriors ( post.nparams ), grids ( post.grids ), margins ( post.margins )
 			{ unsigned int i; for ( i=0; i<nparams; i++ ) fitted_posteriors[i] = post.fitted_posteriors[i]->clone(); }
 		~PsiIndependentPosterior ( void ) { unsigned int i; for ( i=0; i<nparams; i++ ) delete fitted_posteriors[i]; }
-		PsiPrior *get_posterior ( unsigned int parameter ) { return fitted_posteriors[parameter]->clone(); }
-		std::vector<double> get_grid ( unsigned int parameter ) { return grids[parameter]; }
-		std::vector<double> get_margin ( unsigned int parameter ) { return margins[parameter]; }
+		PsiPrior *get_posterior ( unsigned int parameter ) { return fitted_posteriors[parameter]->clone(); } ///< get the fitted posterior distribution for a single parameter
+		std::vector<double> get_grid ( unsigned int parameter ) { return grids[parameter]; } ///< get the grid points of a single parameter
+		std::vector<double> get_margin ( unsigned int parameter ) { return margins[parameter]; } ///< get the (marginal) density of a single parameter
 };
 
 PsiIndependentPosterior independent_marginals (
-		const PsiPsychometric *pmf,
-		const PsiData *data,
-		unsigned int nrefinements=3,
-		unsigned int gridsize=7
-		);
+		const PsiPsychometric *pmf,    ///< psychometric function model
+		const PsiData *data            ///< dataset
+		);  ///< determine an approximation to the posterior distribution that approximates the posterior as a product of independent distributions for all parameters
 
 MCMCList sample_posterior (
-		const PsiPsychometric *pmf,
-		const PsiData *data,
-		PsiIndependentPosterior& post,
-		unsigned int nsamples=600,
-		unsigned int propose=25
-		);
+		const PsiPsychometric *pmf,    ///< psychometric function model
+		const PsiData *data,           ///< dataset
+		PsiIndependentPosterior& post, ///< posterior approximation
+		unsigned int nsamples=600,     ///< number of samples to be drawn
+		unsigned int propose=25        ///< oversampling factor for the proposals
+		);   ///< sample from the posterior using sampling importance resampling
 
 void sample_diagnostics (
-		const PsiPsychometric *pmf,
-		const PsiData *data,
-		MCMCList *samples
-		);
+		const PsiPsychometric *pmf,   ///< psychometric function model
+		const PsiData *data,          ///< dataset
+		MCMCList *samples             ///< parameter samples
+		);  ///< calculate sample diagnostics
 
 #endif
