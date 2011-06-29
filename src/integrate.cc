@@ -416,13 +416,16 @@ double error_gauss ( const std::vector<double>& prm, const std::vector<double>& 
 	// This should be in non log coordinates
 	for ( i=0; i<x.size(); i++ ) {
 		z = (x[i]-a)/b;
-		ee = exp(-0.5*z*z + Z) - fx[i];
+		// ee = exp(-0.5*z*z + Z) - fx[i];
+		ee = -0.5*z*z - log(fx[i]) + Z;
 		e += ee*ee;
 		m += x[i];
 	}
 	m /= double ( x.size() );
+	/*
 	e *= exp(0.001*(a-m)*(a-m));
 	e *= exp(0.001*b*b);
+	*/
 
 	return e;
 }
@@ -560,6 +563,102 @@ std::vector<double> start_beta ( const std::vector<double>& x, const std::vector
 	return start;
 }
 
+void normalize_probability ( const std::vector<double>& x, std::vector<double>& fx ) {
+	double Z(0);
+	unsigned int i;
+
+	std::cerr << "Normalize_probability\n";
+	std::cerr << "=====================\n";
+
+	for ( i=0; i<x.size(); i++ ) {
+		Z += fx[i];
+	}
+	std::cerr << "h = " << x[1]-x[0] << "\n";
+	Z *= x[1]-x[0];
+	std::cerr << "Z = " << Z << "\n";
+
+	for ( i=0; i<x.size(); i++ ) {
+		fx[i] /= Z;
+	}
+}
+
+double numerical_mean ( const std::vector<double>& x, const std::vector<double>& fx ) {
+	double m (0.);
+	unsigned int i;
+
+	std::cerr << "numerical_mean\n";
+	std::cerr << "==============\n";
+
+	for ( i=0; i<x.size(); i++ ) {
+		// Gaussian Quadrature
+		m += x[i]*fx[i];
+	}
+	std::cerr << "h = " << x[1]-x[0] << "\n";
+	m *= x[1]-x[0];
+	std::cerr << "m = " << m << "\n";
+
+	return m;
+}
+
+double numerical_variance ( const std::vector<double>& x, const std::vector<double>& fx, double m ) {
+	double v (0.);
+	unsigned int i;
+
+	std::cerr << "numerical_variance\n";
+	std::cerr << "==================\n";
+
+	for ( i=0; i<x.size(); i++ ) {
+		// Gaussian Quadrature
+		v += (x[i]-m)*(x[i]-m)*fx[i];
+	}
+	std::cerr << "h = " << x[1] - x[0] << "\n";
+	v *= x[1]-x[0];
+	std::cerr << "v = " << v << "\n";
+
+	return v;
+}
+
+// Moment matching ///////////////////////////
+std::vector<double> match_gauss ( const std::vector<double>& x, const std::vector<double>& fx ) {
+	std::vector<double> out ( 3 );
+
+	out[0] = numerical_mean ( x, fx );
+	out[1] = sqrt ( numerical_variance ( x, fx, out[0] ) );
+
+	return out;
+}
+
+std::vector<double> match_gamma ( const std::vector<double>& x, const std::vector<double>& fx ) {
+	double m ( numerical_mean ( x, fx ) );
+	double v ( numerical_variance ( x, fx, m ) );
+	std::vector<double> out (3);
+	double k, theta;
+
+	theta = v/m;
+	k = m/theta;
+
+	out[0] = k;
+	out[1] = theta;
+
+	return out;
+}
+
+std::vector<double> match_beta ( const std::vector<double>& x, const std::vector<double>& fx ) {
+	double m ( numerical_mean ( x, fx ) );
+	double v ( numerical_variance ( x, fx, m ) );
+	std::vector<double> out (3);
+	double al, bt;
+
+	al = m*((1-m)*m/v -1 );
+	bt = al/m - al;
+
+	out[0] = al;
+	out[1] = bt;
+
+	return out;
+}
+// End Moment matching ///////////////////////////
+
 PsiIndependentPosterior independent_marginals (
 		const PsiPsychometric *pmf,
 		const PsiData *data,
@@ -567,6 +666,10 @@ PsiIndependentPosterior independent_marginals (
 		unsigned int gridsize
 		)
 {
+#ifndef __INTEGRATE
+	gridsize = 1000;
+#endif
+
 	unsigned int nprm ( pmf->getNparams() ), i, j;
 	unsigned int maxntrials ( 0 );
 	double minp,minm,maxm,maxw,s;
@@ -578,6 +681,7 @@ PsiIndependentPosterior independent_marginals (
 	std::vector<double> maxprm (nprm);
 	std::vector<double> minprm (nprm);
 
+#ifdef __INTEGRATE
 	for ( j=0; j<data->getNblocks(); j++ ) {
 		if ( data->getNtrials(j) > maxntrials )
 			maxntrials = data->getNtrials(j);
@@ -609,7 +713,6 @@ PsiIndependentPosterior independent_marginals (
 				break;
 		}
 	}
-
 	for ( i=0; i<nprm; i++ ) {
 		switch (i) {
 			case 0:
@@ -626,7 +729,44 @@ PsiIndependentPosterior independent_marginals (
 				break;
 		}
 	}
+#else
+	PsiOptimizer * opt = new PsiOptimizer ( pmf, data );
+	std::vector<double> MAP ( opt->optimize ( pmf, data ) );
+	std::vector<double> prm ( MAP );
+	delete opt;
+	for ( i=0; i<nprm; i++ ) {
+		std::cerr << i << " "; std::cerr.flush();
+		parameter_range ( data, pmf, i, &minm, &maxm );
+		std::cerr << "prm " << i << ": " << minm << " -- " << maxm << "\n";
+		if ( i>1 ) { minm=0; maxm=1.; }
+		if ( i==1 ) { minm=0; maxm*=2; }
+		grids[i] = lingrid ( minm, maxm, gridsize );
+		for ( j=0; j<nprm; j++ ) { prm[j] = MAP[j]; }
+		for ( j=0; j<gridsize; j++ ) {
+			prm[i] = grids[i][j];
+			margin[i][j] = exp ( -pmf->neglpost ( prm, data ) );
+		}
+	}
+	for ( i=0; i<nprm; i++ ) {
+		normalize_probability ( grids[i], margin[i] );
+		switch (i) {
+			case 0:
+				distparams[i] = match_gauss ( grids[i], margin[i] );
+				fitted_posteriors[i] = new GaussPrior ( distparams[i][0], distparams[i][1] );
+				break;
+			case 1:
+				distparams[i] = match_gamma ( grids[i], margin[i] );
+				fitted_posteriors[i] = new GammaPrior ( distparams[i][0], distparams[i][1] );
+				break;
+			case 2: case 3:
+				distparams[i] = match_beta ( grids[i], margin[i] );
+				fitted_posteriors[i] = new BetaPrior ( distparams[i][0], distparams[i][1] );
+				break;
+		}
+	}
+#endif
 
+#ifdef __INTEGRATE
 	for ( j=0; j<nrefinements; j++ ) {
 		for ( i=0; i<nprm; i++ )
 			grids[i] = lingrid ( minprm[i], maxprm[i], gridsize );
@@ -714,6 +854,7 @@ PsiIndependentPosterior independent_marginals (
 		}
 
 	}
+#endif
 
 	return PsiIndependentPosterior ( nprm, fitted_posteriors, grids, margin );
 }
