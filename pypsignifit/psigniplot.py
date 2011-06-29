@@ -1074,11 +1074,11 @@ def plotJoint ( InferenceObject ):
         if InferenceObject.inference == "ASIR":
             gr  = InferenceObject.grids[i]
             mrg = InferenceObject.margins[i]
-            ax.plot ( gr, mrg, 'bo' )
+            ax.plot ( gr, mrg, 'b-.' )
             gn,gx = InferenceObject.getCI ( parnames[i], conf=(.01,.99) )
             x = p.mgrid[gn:gx:100j]
-            ax.plot ( x, InferenceObject.posterior_pdf ( i, x ), 'b-' )
-            ax.plot ( x, InferenceObject.prior_pdf ( i, x ), 'b:' )
+            ax.plot ( x, InferenceObject.posterior_pdf ( i, x ), 'b-', linewidth=2 )
+            ax.plot ( x, InferenceObject.prior_pdf ( i, x ), 'k:' )
             txt.append ( r"$%s\sim%s$" % (pr, InferenceObject.posterior_approximations[i].strip("$")) )
         ax.set_xlabel ( r"$"+pr+r"$" )
 
