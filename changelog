@@ -1,3 +1,11 @@
+2011-07-04
+
+* Various documentation changes
+* ASIR inference uses finer grid, moment matching and avoids numerical
+  integration in 3/4d.
+* Bugfix: Speed issues in psignifit-bootstrap -- jackknife used to call
+  getstart unnessessarily often.
+
 2011-06-07
 
 * Updating documentation
