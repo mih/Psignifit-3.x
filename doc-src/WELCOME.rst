@@ -63,7 +63,7 @@ to this list.
 Authors and Contributors
 ************************
 
-Authors & Contributors¶
+Authors & Contributors
 
 The Psignifit3 core development team currently consists of:
 
@@ -90,21 +90,24 @@ Download the current version of Psignifit from:
 
     `<http://sourceforge.net/projects/psignifit/>`_
 
-In the following, installation instructions are provided for different operating systems. You can find a detailed listing of :doc:`INSTALL_REQUIRED_PACKAGES` at the end of this document, but the dependencies are also considered in the following sections:
+In the following, installation instructions are provided for different operating
+systems.
 
 * :doc:`INSTALL_LINUX`
 * :doc:`INSTALL_MAC`
 * :doc:`INSTALL_WINDOWS`
-* :doc:`INSTALL_WITHOUT`
 
 Currently this documentation only describes the installation of the Python version of Psignifit. 
 
-If you are looking for installation instructions for Matlab, see :doc:`INSTALL_MATLAB`. Installation instructions for R are going to follow as soon as these toolboxes are
-ready for use. 
-Unless you are an expert user, or want to use the Matlab version mpsignifit, you do not need to install the optional commandline interface, which is however required for the Matlab version mpsignifit. 
+If you are looking for installation instructions for Matlab, see
+:doc:`INSTALL_MATLAB`. Installation instructions for R are going to follow as
+soon as these toolboxes are ready for use.  Unless you are an expert user, or
+want to use the Matlab version mpsignifit, you do not need to install the
+optional commandline interface, which is however required for the Matlab version
+mpsignifit. 
 
-The C++ core of Psignifit does the real work. It is completely coded in C++ and does not require any
-additional libraries installed.
+The C++ core of Psignifit does the real work. It is completely coded in C++ and
+does not require any additional libraries installed.
 
-For additional information about the structure of the code, the build system and
-version control, see: :doc:`CONTRIBUTING`
+For additional information about the structure of the code, the build system, 
+version control and an extended list of dependencies  see: :doc:`CONTRIBUTING`.

@@ -210,7 +210,7 @@ def asir ( data, nsamples=2000, nafc=2, sigmoid="logistic",
         core="mw0.1", priors=None, gammaislambda=False, propose=25 ):
     dataset, pmf, nparams = sfu.make_dataset_and_pmf ( data, nafc, sigmoid, core, priors, gammaislambda=gammaislambda )
 
-    posterior = sfr.independent_marginals ( pmf, dataset, 1, 7 )
+    posterior = sfr.independent_marginals ( pmf, dataset )
     samples   = sfr.sample_posterior ( pmf, dataset, posterior, nsamples, propose )
     sfr.sample_diagnostics ( pmf, dataset, samples )
 
