@@ -8,16 +8,17 @@
 #
 ######################################################################
 
-""" Merged unit tests for interface methods provided by both swignifit and psipy """
+""" Unit tests for interface methods provided by swignifit. """
 
 import numpy as np
 import unittest as ut
 import os
 import swignifit.swignifit_raw as sfr
 import swignifit.utility as sfu
+import swignifit.interface_methods as interface
 
 ################################################################################
-# swignifit tests
+# original swignifit tests
 
 x = [float(2*k) for k in xrange(6)]
 k = [34,32,40,48,50,48]
@@ -191,7 +192,7 @@ class TestDiagnostics(ut.TestCase):
         result = interface.diagnostics([], TestDiagnostics.prm)
 
 ################################################################################
-# psipy tests
+# old psipy tests, now also useful for swignifit
 
 
 #################### 2afc #########################
@@ -300,13 +301,5 @@ class TestPsipy_yn ( ut.TestCase ):
 
 
 if __name__ == "__main__":
-    interface_name = os.getenv("INTERFACE")
-    if interface_name == "swignifit":
-        import swignifit.interface_methods as interface
-    elif interface_name == "psipy":
-        import _psipy as interface
-    else:
-        raise Exception("No such interface: "+interface_name)
-
     ut.main()
 
