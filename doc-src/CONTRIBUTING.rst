@@ -26,12 +26,6 @@ The psignifit 3.x code base is logically split into several components:
 We refer to previous versions of psignifit (2.5.6 and before) as
 **psignifit-classic**.
 
-The following components are deprecated:
-
-:psipy:
-    Python interface to ``psi++`` written using the ``Python-C API``. The
-    predecessor of ``swignifit``.
-
 The following UML inspired diagram shows the individual components of Psignifit 3.x, and how they relate:
 
 .. image:: architecture.png
@@ -52,11 +46,9 @@ Compile-Time
 * `Gcc <http://gcc.gnu.org/>`_ (4:4.4.3-1)/
 * `Python <python http://www.python.org/>`_ (2.5.5-6)/
 * `Python/C API <http://docs.python.org/c-api/>`_ (2.5.5-2)
-    for compiling the ``psipy`` and ``swignifit`` interface for Python
-* `Numpy/C API <http://docs.scipy.org/doc/numpy/reference/c-api.html>`_ (1:1.3.0-3)
-    for compiling the ``psipy`` interface for Python
-* `Simplified Wrapper and Interface Generator (SWIG) <http://www.swig.org/>`_ (1.3.40-2)
     for compiling the ``swignifit`` interface for Python
+* `Simplified Wrapper and Interface Generator (SWIG) <http://www.swig.org/>`_ (1.3.40-2)
+    for generating the ``swignifit`` interface for Python
 
 Run-Time
 ........
@@ -110,12 +102,6 @@ There is a single ``setup.py`` file that can be used to compile and install
 ``pypsignifit`` including the ``swignifit`` interface. Since the source download
 we provide includes the already generated interface, this is the
 recommended method of installation for users.
-
-Previously, the default behaviour was to build both ``swignifit`` and ``psipy``, and you can
-still use the ``INTERFACE`` environment variable to build the deprecated one. For
-example::
-
-    INTERFACE="psipy" python setup.py build
 
 For more information about how to use the ``setup.py`` file, you may look at:
 `Installing Pyhon Modules <http://docs.python.org/install/>`_.
