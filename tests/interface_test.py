@@ -301,5 +301,6 @@ class TestPsipy_yn ( ut.TestCase ):
 
 
 if __name__ == "__main__":
-    ut.main()
+    suite = ut.TestLoader().loadTestsFromName("__main__")
+    ut.TextTestRunner(verbosity=2).run(suite)
 
