@@ -172,6 +172,7 @@ def diagnostics(data, params, nafc=2, sigmoid='logistic', core='ab', cuts=None, 
     # in order to remain compatible with psipy we must check for an empty
     # sequence here, and return a specially crafted return value in that case.
     # sorry..
+    # TODO after removal of psipy we can probably change this.
     if op.isSequenceType(data) and len(data) == 0:
         pmf, nparams =  sfu.make_pmf(sfr.PsiData([0],[0],[0],1), nafc, sigmoid, core, None, gammaislambda=gammaislambda )
         thres = np.array([pmf.getThres(params, cut) for cut in sfu.get_cuts(cuts)])
