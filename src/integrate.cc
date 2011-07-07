@@ -187,7 +187,7 @@ PsiIndependentPosterior independent_marginals (
 	PsiIndependentPosterior out ( nprm, fitted_posteriors, grids, margin );
 
 	for ( i=0; i<nprm; i++ ) {
-		// delete fitted_posteriors[i];
+		delete fitted_posteriors[i];
 	}
 
 	return out;
