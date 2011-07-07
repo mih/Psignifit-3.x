@@ -15,7 +15,110 @@ import operator as op
 
 def bootstrap(data, start=None, nsamples=2000, nafc=2, sigmoid="logistic",
         core="ab", priors=None, cuts=None, parametric=True, gammaislambda=False ):
+    """ Parametric bootstrap of a psychometric function.
 
+    Parameters
+    ----------
+
+    data : A list of lists or an array of data.
+        The first column should be stimulus intensity, the second column should
+        be number of correct responses (in 2AFC) or number of yes- responses (in
+        Yes/No), the third column should be number of trials. See also: the examples
+        section below.
+
+    start : sequence of floats of length number of model parameters
+        Generating values for the bootstrap samples. If this is None, the
+        generating value will be the MAP estimate. Length should be 4 for Yes/No
+        and 3 for nAFC.
+
+    nsamples : number
+        Number of bootstrap samples to be drawn.
+
+    nafc : int
+        Number of alternatives for nAFC tasks. If nafc==1 a Yes/No task is
+        assumed.
+
+    sigmoid : string
+        Name of the sigmoid to be fitted. Valid sigmoids include:
+                logistic
+                gauss
+                gumbel_l
+                gumbel_r
+        See `swignifit.utility.available_sigmoids()` for all available sigmoids.
+
+    core : string
+        \"core\"-type of the psychometric function. Valid choices include:
+                ab       (x-a)/b
+                mw%g     midpoint and width
+                linear   a+bx
+                log      a+b log(x)
+        See `swignifit.utility.available_cores()` for all available sigmoids.
+
+    priors : sequence of strings length number of parameters
+        Constraints on the likelihood estimation. These are expressed in the form of a list of
+        prior names. Valid prior choices include.
+                Uniform(%g,%g)
+                Gauss(%g,%g)
+                Beta(%g,%g)
+                Gamma(%g,%g)
+                nGamma(%g,%g)
+                if an invalid prior or `None` is selected, no constraints are imposed at all.
+        See `swignifit.utility.available_priors()` for all available sigmoids.
+
+    cuts : a single number or a sequence of numbers.
+        Cuts indicating the performances that should be considered 'threshold'
+        performances. This means that in a 2AFC task, cuts==0.5 the 'threshold'
+        is somewhere around 75%% correct performance, depending on the lapse
+        rate parametric boolean to indicate whether or not the bootstrap
+        procedure should be parametric or not.
+
+    Returns
+    -------
+
+    (samples,estimates,deviance,
+    threshold, th_bias, th_acceleration,
+    slope, slope_bias, slope_accelerateion
+    Rkd,Rpd,outliers,influential)
+
+    samples : numpy array, shape: (nsamples, nblocks)
+        the bootstrap sampled data
+    estimates : numpy array, shape: (nsamples, nblocks)
+        estimated parameters associated with the data sets
+    deviance : numpy array, length: nsamples
+        deviances for the bootstraped datasets
+    threshold : numpy array, shape: (nsamples, ncuts)
+        thresholds/cuts for each bootstraped datasets
+    th_bias : numpy array, shape: (nsamples, ncuts)
+        the bias term associated with the threshold for each bootstraped dataset
+    th_acc : numpy array, shape: (nsamples, ncuts)
+        the acceleration constant associated with the threshold for each
+        bootstraped dataset
+    slope
+    th_slope
+    th_acc
+    Rkd : numpy array, length: nsamples
+        correlations between block index and deviance residuals
+    Rpd : numpy array, length: nsamples
+        correlations between model prediction and deviance residuals
+    outliers : numpy array of booleans, length nblocks
+        points that are outliers
+    influential : numpy array of booleans, length nblocks
+        points that are influential observations
+
+    Example
+    -------
+    >>> x = [float(2*k) for k in xrange(6)]
+    >>> k = [34,32,40,48,50,48]
+    >>> n = [50]*6
+    >>> d = [[xx,kk,nn] for xx,kk,nn in zip(x,k,n)]
+    >>> priors = ('flat','flat','Uniform(0,0.1)')
+    >>> samples,est,D,thres,bias,acc,Rkd,Rpd,out,influ = bootstrap(d,nsamples=2000,priors=priors)
+    >>> mean(est[:,0])
+    2.7762481672120902
+    >>> mean(est[:,1])
+    1.4243919674602623
+
+    """
     dataset, pmf, nparams = sfu.make_dataset_and_pmf(data, nafc, sigmoid, core, priors, gammaislambda=gammaislambda)
 
     cuts = sfu.get_cuts(cuts)
