@@ -83,8 +83,8 @@ class TestMCMC(ut.TestCase):
         (estimates, deviance, posterior_predictive_data,
         posterior_predictive_deviances, posterior_predictive_Rpd,
         posterior_predictive_Rkd, logposterior_ratios, accept_rate) = interface.mcmc(d,nsamples=10000,priors=priors,stepwidths=stepwidths)
-        self.assertAlmostEqual( np.mean(estimates[:,0]), 2.52579214385 )
-        self.assertAlmostEqual( np.mean(estimates[:,1]), 7.30680631915 )
+        self.assertAlmostEqual( np.mean(estimates[:,0]), 2.5463005721317549)
+        self.assertAlmostEqual( np.mean(estimates[:,1]), 7.3364806105465297 )
 
     def test_start(self):
         interface.mcmc(data,nsamples=25, start=[0.1,0.2,0.3])
