@@ -183,7 +183,13 @@ PsiIndependentPosterior independent_marginals (
 		}
 	}
 
-	return PsiIndependentPosterior ( nprm, fitted_posteriors, grids, margin );
+	PsiIndependentPosterior out ( nprm, fitted_posteriors, grids, margin );
+
+	for ( i=0; i<nprm; i++ ) {
+		delete fitted_posteriors[i];
+	}
+
+	return out;
 }
 
 MCMCList sample_posterior (
@@ -333,4 +339,9 @@ void sample_diagnostics (
 		for ( j=0; j<nblocks; j++ )
 			samples->setlogratio ( i, j, pmf->neglpost(est,data) - pmf->neglpost(est,reduceddata[j]) );
 	}
+
+	for ( i=0; i<nblocks; i++ ) {
+		delete reduceddata[i];
+	}
+	delete localdata;
 }
