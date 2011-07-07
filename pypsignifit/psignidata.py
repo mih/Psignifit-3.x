@@ -1881,7 +1881,7 @@ class ASIRInference ( PsiInference ):
         self.Rkd = self._pmf.getRkd ( deviance_residuals, self._data )
 
         self.__meanestimate = self.__inference["mcestimates"].mean(0)
-        self.__meandeviance = self.__inference["mcdeviance"].mean(0)
+        self.__meandeviance    = self._pmf.deviance ( self.__meanestimate, self._data )
         self.devianceresiduals = self._pmf.getDevianceResiduals ( self.__meanestimate, self._data )
 
         self.conf = conf
@@ -2106,6 +2106,21 @@ class ASIRInference ( PsiInference ):
             if self.__posterior_median == None:
                 self.__posterior_median = N.median ( self.mcestimates, 0 )
             return self.__posterior_median
+
+    @Property
+    def deviance ():
+        """Deviance of the estimate.
+
+        If sampling has already occurred, this will be the deviance of the mean estimate. Otherwise it will be
+        the deviance of the mapestimate.
+        """
+        def fget (self):
+            if self.__meandeviance is None:
+                return self.mapdeviance
+            else:
+                return self.__meandeviance
+        def fset (self,v):
+            pass
 
     @Property
     def infl ():
