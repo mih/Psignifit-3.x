@@ -6,7 +6,7 @@ PsiIndependentPosterior::PsiIndependentPosterior ( unsigned int nprm,
 				std::vector<PsiPrior*> posteriors,
 				std::vector< std::vector<double> > x,
 				std::vector< std::vector<double> > fx
-				) : nparams (nprm), fitted_posteriors ( posteriors ), grids ( x ), margins ( fx ) {
+				) : nparams (nprm), fitted_posteriors ( posteriors.size() ), grids ( x ), margins ( fx ) {
 	unsigned int i,j;
 	std::vector<double> w;
 	Matrix M ( grids[0].size(), 2 );
@@ -15,6 +15,7 @@ PsiIndependentPosterior::PsiIndependentPosterior ( unsigned int nprm,
 		for ( j=0; j<grids[i].size(); j++ ) {
 			M(j,0) = margins[i][j];
 			M(j,1) = posteriors[i]->pdf ( grids[i][j] );
+			fitted_posteriors[i] = posteriors[i]->clone();
 		}
 		w = leastsq ( &M );
 #ifdef DEBUG_INTEGRATE
