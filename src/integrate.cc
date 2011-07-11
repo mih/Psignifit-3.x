@@ -311,7 +311,7 @@ void sample_diagnostics (
 	for ( i=0; i<nblocks; i++ ) {
 		j = 0;
 		for (k=0; k<nblocks; k++ ) {
-			if ( j!=k ) {
+			if ( i!=k ) {
 				reducedx[j] = data->getIntensity(k);
 				reducedk[j] = data->getNcorrect(k);
 				reducedn[j] = data->getNtrials(k);
