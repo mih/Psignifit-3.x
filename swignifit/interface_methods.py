@@ -56,7 +56,7 @@ def bootstrap(data, start=None, nsamples=2000, nafc=2, sigmoid="logistic",
 
     priors : sequence of strings length number of parameters
         Constraints on the likelihood estimation. These are expressed in the form of a list of
-        prior names. Valid prior choices include.
+        prior names. Valid prior choices include:
                 Uniform(%g,%g)
                 Gauss(%g,%g)
                 Beta(%g,%g)
@@ -71,6 +71,12 @@ def bootstrap(data, start=None, nsamples=2000, nafc=2, sigmoid="logistic",
         is somewhere around 75%% correct performance, depending on the lapse
         rate parametric boolean to indicate whether or not the bootstrap
         procedure should be parametric or not.
+
+    parametric : boolean
+        If `True` do parametric, otherwise do a non-parametric bootstrap.
+
+    gammaislambda : boolean
+        Set the gamma == lambda prior.
 
     Returns
     -------
@@ -93,6 +99,7 @@ def bootstrap(data, start=None, nsamples=2000, nafc=2, sigmoid="logistic",
     th_acc : numpy array, shape: (nsamples, ncuts)
         the acceleration constant associated with the threshold for each
         bootstraped dataset
+    # TODO: fix documentation
     slope
     th_slope
     th_acc
@@ -114,6 +121,7 @@ def bootstrap(data, start=None, nsamples=2000, nafc=2, sigmoid="logistic",
     >>> priors = ('flat','flat','Uniform(0,0.1)')
     >>> samples,est,D,thres,bias,acc,Rkd,Rpd,out,influ = bootstrap(d,nsamples=2000,priors=priors)
     >>> mean(est[:,0])
+    #TODO : fix values
     2.7762481672120902
     >>> mean(est[:,1])
     1.4243919674602623
