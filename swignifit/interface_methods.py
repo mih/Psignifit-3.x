@@ -184,6 +184,119 @@ def bootstrap(data, start=None, nsamples=2000, nafc=2, sigmoid="logistic",
 
 def mcmc( data, start=None, nsamples=10000, nafc=2, sigmoid='logistic',
         core='mw0.1', priors=None, stepwidths=None, sampler="MetropolisHastings", gammaislambda=False):
+    """ Markov Chain Monte Carlo sampling for a psychometric function.
+
+    Parameters
+    ----------
+
+    data : A list of lists or an array of data.
+        The first column should be stimulus intensity, the second column should
+        be number of correct responses (in 2AFC) or number of yes- responses (in
+        Yes/No), the third column should be number of trials. See also: the examples
+        section below.
+
+    start : sequence of floats of length number of model parameters
+        Starting values for the markov chain. If this is None, the MAP estimate
+        will be used.
+
+    nsamples : int
+        Number of samples to be taken from the posterior (note that due to
+        suboptimal sampling, this number may be much lower than the effective
+        number of samples.
+
+    nafc : int
+        Number of responses alternatives for nAFC tasks. If nafc==1 a Yes/No task is
+        assumed.
+
+    sigmoid : string
+        Name of the sigmoid to be fitted. Valid sigmoids include:
+                logistic
+                gauss
+                gumbel_l
+                gumbel_r
+        See `swignifit.utility.available_sigmoids()` for all available sigmoids.
+
+    priors : sequence of strings length number of parameters
+        Prior distributions on the parameters of the psychometric function.
+        These are expressed in the form of a list of prior names.
+        Valid prior choices include:
+                Uniform(%g,%g)
+                Gauss(%g,%g)
+                Beta(%g,%g)
+                Gamma(%g,%g)
+                nGamma(%g,%g)
+                if an invalid prior or `None` is selected, no constraints are imposed at all.
+        See `swignifit.utility.available_priors()` for all available sigmoids.
+
+        if an invalid prior is selected, no constraints are imposed on that
+        parameter resulting in an improper prior distribution.
+
+    stepwidths : sequence of floats of length number of model parameters
+        Standard deviations of the proposal distribution. The best choice is
+        sometimes a bit tricky here. However, as a rule of thumb we can
+        state: if the stepwidths are too small, the samples might not cover
+        the whole posterior, if the stepwidths are too large, most steps
+        will leave the area of high posterior density and will therefore be
+        rejected.  Thus, in general stepwidths should be somewhere in the
+        middle.
+
+    sampler : string
+        The type of MCMC sampler to use.
+        See: `sw.utility.available_samplers()` for a list of available samplers.
+
+    gammaislambda : boolean
+        Set the gamma == lambda prior.
+
+
+    Output
+    ------
+
+    (estimates, deviance, posterior_predictive_data,
+    posterior_predictive_deviances, posterior_predictive_Rpd,
+    posterior_predictive_Rkd, logposterior_ratios, accept_rate)
+
+    estimates : numpy array, shape: (nsamples, nparameters)
+        Parameters sampled from the posterior density of parameters given the data.
+
+    deviances : numpy array, length: nsamples
+        Associated deviances for each estimate
+
+    posterior_predictive_data : numpy array, shape (nsamples, nblocks)
+        Data that are simulated by sampling from the joint posterior of data and
+        parameters. They are important for model checking.
+
+    posterior_predictive_deviances : numpy array, length: nsamples
+        The deviances that are associated with the posterior predictive data. A
+        particular way of model checking could be to compare the deviances and the
+        posterior predicitive deviances. For a good model these should be relatively
+        similar.
+
+    # TODO check dimensions and comment on variables
+    posterior_predictive_Rpd : numpy array, length: nsamples
+
+    posterior_predictive_Rkd : numpy array, length: nsamples
+
+    logposterior_ratios :  numpy array, shape (nsamples, nblocks)
+
+    accept_rate : float
+
+
+    Example
+    -------
+    >>> x = [float(2*k) for k in xrange(6)]
+    >>> k = [34,32,40,48,50,48]
+    >>> n = [50]*6
+    >>> d = [[xx,kk,nn] for xx,kk,nn in zip(x,k,n)]
+    >>> priors = ('Gauss(0,1000)','Gauss(0,1000)','Beta(3,100)')
+    >>> stepwidths = (1.,1.,0.01)
+    >>> estimates,deviances =
+    mcmc(d,nsamples=10000,priors=priors,stepwidths=stepwidths)
+    # TODO fix values
+    >>> mean(estimates[:,0])
+    2.4881405291765764
+    >>> mean(estimates[:,1])
+    1.6920641469955848
+    """
 
     dataset, pmf, nparams = sfu.make_dataset_and_pmf(data, nafc, sigmoid, core, priors, gammaislambda=gammaislambda)
 
