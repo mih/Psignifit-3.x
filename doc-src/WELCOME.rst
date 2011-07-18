@@ -111,3 +111,49 @@ does not require any additional libraries installed.
 
 For additional information about the structure of the code, the build system, 
 version control and an extended list of dependencies  see: :doc:`CONTRIBUTING`.
+
+***********
+How to cite
+***********
+
+Please cite the following publication if you are using Psignifit3:
+
+Fründ, I, Haenel, NV, Wichmann, FA. *Inference for psychometric functions in the presence of nonstationary behavior.* Journal of Vision 2011
+
+It is available directly from Journal of Vision:
+`http://www.journalofvision.org/content/11/6/16
+<http://www.journalofvision.org/content/11/6/16>`_
+
+Bibtext entry::
+
+    @Article{FrundJOV2011,
+        author = "Fr{\"u}nd, I and Haenel, N V and Wichmann, F A", 
+        title = {Inference for psychometric functions in the presence of
+        nonstationary behavior},
+        abstract = {Measuring sensitivity is at the heart of psychophysics.
+        Often, sensitivity is derived from estimates of the psychometric
+        function. This function relates response probability to stimulus
+        intensity. In estimating these response probabilities, most studies
+        assume stationary observers: Responses are expected to be dependent only
+        on the intensity of a presented stimulus and not on other factors such
+        as stimulus sequence, duration of the experiment, or the responses on
+        previous trials. Unfortunately, a number of factors such as learning,
+        fatigue, or fluctuations in attention and motivation will typically
+        result in violations of this assumption. The severity of these
+        violations is yet unknown. We use Monte Carlo simulations to show that
+        violations of these assumptions can result in underestimation of
+        confidence intervals for parameters of the psychometric function. Even
+        worse, collecting more trials does not eliminate this misestimation of
+        confidence intervals. We present a simple adjustment of the confidence
+        intervals that corrects for the underestimation almost independently of
+        the number of trials and the particular type of violation.},
+        journal = "Journal of Vision",
+        year = "2011",
+        volume = "11",
+        number = "6",
+        pages = "",
+        month = "May",
+        pmid = "21606382",
+        url = "http://www.journalofvision.org/content/11/6/16"
+        doi = "10.1167/11.6.16"
+    }
