@@ -9,7 +9,7 @@
 #
 ######################################################################
 import numpy as np
-import swignifit_raw as sfr
+import swignifit.swignifit_raw as sfr
 import swignifit.utility as sfu
 import operator as op
 
