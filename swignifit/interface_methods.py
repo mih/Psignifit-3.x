@@ -575,19 +575,18 @@ def diagnostics(data, params, nafc=2, sigmoid='logistic', core='ab', cuts=None, 
 
     Example
     -------
-    #TODO fix numerical values
     >>> x = [float(2*k) for k in xrange(6)]
     >>> k = [34,32,40,48,50,48]
     >>> n = [50]*6
     >>> d = [[xx,kk,nn] for xx,kk,nn in zip(x,k,n)]
     >>> prm = [2.75, 1.45, 0.015]
-    >>> pred,di,D,thres,Rpd,Rkd = _psipy.diagnostics(d,prm)
+    >>> pred,di,D,thres,slope,Rpd,Rkd = diagnostics(d,prm)
     >>> D
     8.0748485860836254
     >>> di[0]
     1.6893279652591433
     >>> Rpd
-    -0.19344675783032761;
+    -0.19344675783032755
 
     """
 
