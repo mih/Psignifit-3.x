@@ -373,8 +373,96 @@ def mcmc( data, start=None, nsamples=10000, nafc=2, sigmoid='logistic',
 
 def mapestimate ( data, nafc=2, sigmoid='logistic', core='ab', priors=None,
         cuts = None, start=None, gammaislambda=False):
+    """ MAP or constrained maximum likelihood estimation for a psychometric function.
 
-    dataset, pmf, nparams = sfu.make_dataset_and_pmf(data, nafc, sigmoid, core, priors, gammaislambda=gammaislambda)
+    Parameters
+    ----------
+
+    data : A list of lists or an array of data.
+        The first column should be stimulus intensity, the second column should
+        be number of correct responses (in 2AFC) or number of yes- responses (in
+        Yes/No), the third column should be number of trials. See also: the examples
+        section below.
+
+    nafc : int
+        Number of responses alternatives for nAFC tasks. If nafc==1 a Yes/No task is
+        assumed.
+
+    sigmoid : string
+        Name of the sigmoid to be fitted. Valid sigmoids include:
+                logistic
+                gauss
+                gumbel_l
+                gumbel_r
+        See `swignifit.utility.available_sigmoids()` for all available sigmoids.
+
+    core : string
+        \"core\"-type of the psychometric function. Valid choices include:
+                ab       (x-a)/b
+                mw%g     midpoint and width
+                linear   a+bx
+                log      a+b log(x)
+        See `swignifit.utility.available_cores()` for all available sigmoids.
+
+    priors : sequence of strings length number of parameters
+        Prior distributions on the parameters of the psychometric function.
+        These are expressed in the form of a list of prior names.
+        Valid prior choices include:
+                Uniform(%g,%g)
+                Gauss(%g,%g)
+                Beta(%g,%g)
+                Gamma(%g,%g)
+                nGamma(%g,%g)
+                if an invalid prior or `None` is selected, no constraints are imposed at all.
+        See `swignifit.utility.available_priors()` for all available sigmoids.
+
+        if an invalid prior is selected, no constraints are imposed on that
+        parameter resulting in an improper prior distribution.
+
+    cuts : sequence of floats
+        Cuts at which thresholds should be determined.  That is if cuts =
+        (.25,.5,.75), thresholds (F^{-1} ( 0.25 ), F^{-1} ( 0.5 ), F^{-1} ( 0.75
+        )) are returned.  Here F^{-1} denotes the inverse of the function
+        specified by sigmoid. If cuts==None, this is modified to cuts=[0.5].
+
+    start : sequence of floats of length number of model parameters
+        Values at which to start the optimization, if None the starting value is
+        determined using a coarse grid search.
+
+    Output
+    ------
+
+    estimate, fisher, thres, slope, deviance
+
+    estimate : numpy array length nparams
+        the map/cml estimate
+    fisher : numpy array shape (nparams, nparams)
+        the fisher matrix
+    thres : numpy array length ncuts
+        the model prediction at the cuts
+    slope : numpy array length ncuts
+        the gradient of the psychometric function at the cuts
+    deviance : numpy array length 1
+        the deviance for the estimate
+
+    Example
+    -------
+    # TODO fix numerical values
+    >>> x = [float(2*k) for k in xrange(6)]
+    >>> k = [34,32,40,48,50,48]
+    >>> n = [50]*6
+    >>> d = [[xx,kk,nn] for xx,kk,nn in zip(x,k,n)]
+    >>> priors = ('flat','flat','Uniform(0,0.1)')
+    >>> estimate,deviance = mapestimate ( d, priors=priors )
+    >>> estimate
+    array([2.751768597693296, 1.4572372412562276, 0.015556356934318862], 'd')
+    >>> deviance
+    8.071331367479198;
+
+    """
+
+    dataset, pmf, nparams = sfu.make_dataset_and_pmf(data,
+            nafc, sigmoid, core, priors, gammaislambda=gammaislambda)
 
     cuts = sfu.get_cuts(cuts)
 
