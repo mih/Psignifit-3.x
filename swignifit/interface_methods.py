@@ -88,27 +88,37 @@ def bootstrap(data, start=None, nsamples=2000, nafc=2, sigmoid="logistic",
 
     samples : numpy array, shape: (nsamples, nblocks)
         the bootstrap sampled data
+
     estimates : numpy array, shape: (nsamples, nblocks)
         estimated parameters associated with the data sets
+
     deviance : numpy array, length: nsamples
         deviances for the bootstraped datasets
+
     threshold : numpy array, shape: (nsamples, ncuts)
         thresholds/cuts for each bootstraped datasets
+
     th_bias : numpy array, shape: (nsamples, ncuts)
         the bias term associated with the threshold for each bootstraped dataset
+
     th_acc : numpy array, shape: (nsamples, ncuts)
         the acceleration constant associated with the threshold for each
         bootstraped dataset
+
     # TODO: fix documentation
     slope
     th_slope
     th_acc
+
     Rkd : numpy array, length: nsamples
         correlations between block index and deviance residuals
+
     Rpd : numpy array, length: nsamples
         correlations between model prediction and deviance residuals
+
     outliers : numpy array of booleans, length nblocks
         points that are outliers
+
     influential : numpy array of booleans, length nblocks
         points that are influential observations
 
@@ -436,12 +446,16 @@ def mapestimate ( data, nafc=2, sigmoid='logistic', core='ab', priors=None,
 
     estimate : numpy array length nparams
         the map/cml estimate
+
     fisher : numpy array shape (nparams, nparams)
         the fisher matrix
+
     thres : numpy array length ncuts
         the model prediction at the cuts
+
     slope : numpy array length ncuts
         the gradient of the psychometric function at the cuts
+
     deviance : numpy array length 1
         the deviance for the estimate
 
