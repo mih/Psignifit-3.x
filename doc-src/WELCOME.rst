@@ -116,7 +116,8 @@ version control and an extended list of dependencies  see: :doc:`CONTRIBUTING`.
 How to cite
 ***********
 
-Please cite the following publication if you are using Psignifit3:
+The following reference currently (Jul 2011) provides the most detail on the
+implementation of Psignifit3:
 
 Fründ, I, Haenel, NV, Wichmann, FA. *Inference for psychometric functions in the presence of nonstationary behavior.* Journal of Vision 2011
 
