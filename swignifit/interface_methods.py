@@ -486,6 +486,97 @@ def mapestimate ( data, nafc=2, sigmoid='logistic', core='ab', priors=None,
     return estimate, fisher, thres, slope, deviance
 
 def diagnostics(data, params, nafc=2, sigmoid='logistic', core='ab', cuts=None, gammaislambda=False):
+    """ Some diagnostic statistics for a psychometric function fit.
+
+    This function is a bit messy since it has three functions depending on the
+    type of the `data` argument.
+
+    Parameters
+    ----------
+
+    data : variable
+        real data : A list of lists or an array of data.
+            The first column should be stimulus intensity, the second column should
+            be number of correct responses (in 2AFC) or number of yes- responses (in
+            Yes/No), the third column should be number of trials. See also: the examples
+            section below.
+        intensities : sequence of floats
+            The x-values of the psychometric function, then we obtain only the
+            predicted values.
+        no data : empty sequence
+            In this case we evaluate the psychometric function at the cuts. All
+            other return values are then irrelevant.
+
+    params : sequence of len nparams
+        parameter vector at which the diagnostic information should be evaluated
+
+    nafc : int
+        Number of responses alternatives for nAFC tasks. If nafc==1 a Yes/No task is
+        assumed.
+
+    sigmoid : string
+        Name of the sigmoid to be fitted. Valid sigmoids include:
+                logistic
+                gauss
+                gumbel_l
+                gumbel_r
+        See `swignifit.utility.available_sigmoids()` for all available sigmoids.
+
+    core : string
+        \"core\"-type of the psychometric function. Valid choices include:
+                ab       (x-a)/b
+                mw%g     midpoint and width
+                linear   a+bx
+                log      a+b log(x)
+        See `swignifit.utility.available_cores()` for all available sigmoids.
+
+    cuts : sequence of floats
+        Cuts at which thresholds should be determined.  That is if cuts =
+        (.25,.5,.75), thresholds (F^{-1} ( 0.25 ), F^{-1} ( 0.5 ), F^{-1} ( 0.75
+        )) are returned.  Here F^{-1} denotes the inverse of the function
+        specified by sigmoid. If cuts==None, this is modified to cuts=[0.5].
+
+    Output
+    ------
+
+    (predicted, deviance_residuals, deviance, thres, Rpd, Rkd)
+
+    predicted : numpy array of length nblocks
+        predicted values associated with the respective stimulus intensities
+
+    deviance_residuals : numpy array of length nblocks
+        deviance residuals of the data
+
+    deviance float
+        deviance of the data
+
+    thres : numpy array length ncuts
+        the model prediction at the cuts
+
+    Rpd : float
+        correlation between predicted performance and deviance residuals
+
+    Rkd : float
+        correlation between block index and deviance residuals
+
+    Example
+    -------
+    #TODO fix numerical values
+    >>> x = [float(2*k) for k in xrange(6)]
+    >>> k = [34,32,40,48,50,48]
+    >>> n = [50]*6
+    >>> d = [[xx,kk,nn] for xx,kk,nn in zip(x,k,n)]
+    >>> prm = [2.75, 1.45, 0.015]
+    >>> pred,di,D,thres,Rpd,Rkd = _psipy.diagnostics(d,prm)
+    >>> D
+    8.0748485860836254
+    >>> di[0]
+    1.6893279652591433
+    >>> Rpd
+    -0.19344675783032761;
+
+    """
+
     # here we need to hack stuff, since data can be either 'real' data, or just
     # a list of intensities, or just an empty sequence
 
