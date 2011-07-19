@@ -307,13 +307,14 @@ def mcmc( data, start=None, nsamples=10000, nafc=2, sigmoid='logistic',
     >>> d = [[xx,kk,nn] for xx,kk,nn in zip(x,k,n)]
     >>> priors = ('Gauss(0,1000)','Gauss(0,1000)','Beta(3,100)')
     >>> stepwidths = (1.,1.,0.01)
-    >>> estimates,deviances =
-    mcmc(d,nsamples=10000,priors=priors,stepwidths=stepwidths)
-    # TODO fix values
+    >>> (estimates, deviance, posterior_predictive_data,
+         posterior_predictive_deviances, posterior_predictive_Rpd,
+         posterior_predictive_Rkd, logposterior_ratios, accept_rate) \
+         = mcmc(d,nsamples=10000,priors=priors,stepwidths=stepwidths)
     >>> mean(estimates[:,0])
-    2.4881405291765764
+    2.4811791550665272
     >>> mean(estimates[:,1])
-    1.6920641469955848
+    7.4935217545849184
     """
 
     dataset, pmf, nparams = sfu.make_dataset_and_pmf(data, nafc, sigmoid, core, priors, gammaislambda=gammaislambda)
