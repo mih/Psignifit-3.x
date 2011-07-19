@@ -129,12 +129,12 @@ def bootstrap(data, start=None, nsamples=2000, nafc=2, sigmoid="logistic",
     >>> n = [50]*6
     >>> d = [[xx,kk,nn] for xx,kk,nn in zip(x,k,n)]
     >>> priors = ('flat','flat','Uniform(0,0.1)')
-    >>> samples,est,D,thres,bias,acc,Rkd,Rpd,out,influ = bootstrap(d,nsamples=2000,priors=priors)
-    >>> mean(est[:,0])
-    #TODO : fix values
-    2.7762481672120902
+    >>> samples,est,D,thres,thbias,thacc,slope,slbias,slacc,Rkd,Rpd,out,influ \
+            = bootstrap(d,nsamples=2000,priors=priors)
+    >>> np.mean(est[:,0])
+    2.7547034408466811
     >>> mean(est[:,1])
-    1.4243919674602623
+    1.4057297989923003
 
     """
     dataset, pmf, nparams = sfu.make_dataset_and_pmf(data, nafc, sigmoid, core, priors, gammaislambda=gammaislambda)
