@@ -216,6 +216,14 @@ def mcmc( data, start=None, nsamples=10000, nafc=2, sigmoid='logistic',
                 gumbel_r
         See `swignifit.utility.available_sigmoids()` for all available sigmoids.
 
+    core : string
+        \"core\"-type of the psychometric function. Valid choices include:
+                ab       (x-a)/b
+                mw%g     midpoint and width
+                linear   a+bx
+                log      a+b log(x)
+        See `swignifit.utility.available_cores()` for all available sigmoids.
+
     priors : sequence of strings length number of parameters
         Prior distributions on the parameters of the psychometric function.
         These are expressed in the form of a list of prior names.
