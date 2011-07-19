@@ -106,13 +106,24 @@ recommended method of installation for users.
 For more information about how to use the ``setup.py`` file, you may look at:
 `Installing Pyhon Modules <http://docs.python.org/install/>`_.
 
-Git-Repository
---------------
+Git-Repositories
+----------------
 
-We use `git <http://git-scm.com/>`_ for version control. Clone the repository
-with the following::
+We use `Git <http://git-scm.com/>`_ for version control. Our main repository is
+hosted at `Sourceforge <http://sourceforge.net/>`_ as `Psignifit
+<http://sourceforge.net/projects/psignifit/>`_. Clone the repository
+with the following command ::
 
     git clone git://psignifit.git.sourceforge.net/gitroot/psignifit/psignifit
+
+You can also `browse the Sourceforge repository online
+<http://psignifit.git.sourceforge.net/git/gitweb.cgi?p=psignifit/psignifit;a=summary>`_.
+
+We also provide a alternative repository on `Github <https://github.com/>`_:
+`https://github.com/esc/Psignifit-3.x <https://github.com/esc/Psignifit-3.x>`_.
+This is a mirror of the sourceforge which is updated daily. If you prefer to
+use the Github workflow (fork -> clone -> pull-request) please fork from this
+repository.
 
 Layout
 ......
