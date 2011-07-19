@@ -462,17 +462,16 @@ def mapestimate ( data, nafc=2, sigmoid='logistic', core='ab', priors=None,
 
     Example
     -------
-    # TODO fix numerical values
     >>> x = [float(2*k) for k in xrange(6)]
     >>> k = [34,32,40,48,50,48]
     >>> n = [50]*6
     >>> d = [[xx,kk,nn] for xx,kk,nn in zip(x,k,n)]
     >>> priors = ('flat','flat','Uniform(0,0.1)')
-    >>> estimate,deviance = mapestimate ( d, priors=priors )
+    >>> estimate, fisher, thres, slope, deviance = mapestimate ( d, priors=priors )
     >>> estimate
-    array([2.751768597693296, 1.4572372412562276, 0.015556356934318862], 'd')
+    array([ 2.75180624,  1.45717745,  0.01555658])
     >>> deviance
-    8.071331367479198;
+    array(8.0713313642328242)
 
     """
 
