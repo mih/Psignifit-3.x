@@ -282,7 +282,7 @@ def mcmc( data, start=None, nsamples=10000, nafc=2, sigmoid='logistic',
     deviances : numpy array, length: nsamples
         Associated deviances for each estimate
 
-    posterior_predictive_data : numpy array, shape (nsamples, nblocks)
+    posterior_predictive_data : numpy array, shape: (nsamples, nblocks)
         Data that are simulated by sampling from the joint posterior of data and
         parameters. They are important for model checking.
 
@@ -292,15 +292,21 @@ def mcmc( data, start=None, nsamples=10000, nafc=2, sigmoid='logistic',
         posterior predicitive deviances. For a good model these should be relatively
         similar.
 
-    # TODO check dimensions and comment on variables
     posterior_predictive_Rpd : numpy array, length: nsamples
+        Correlations between psychometric function and deviance residuals
+        associated with posterior predictive data
 
     posterior_predictive_Rkd : numpy array, length: nsamples
+        Correlations between block index and deviance residuals associated with
+        posterior predictive data.
 
-    logposterior_ratios :  numpy array, shape (nsamples, nblocks)
+    logposterior_ratios :  numpy array, shape: (nsamples, nblocks)
+        Ratios between the full posetrior and the posterior for a single block
+        for all samples. Used for calculating the KL-Divergence to detrmine
+        influential observations in the Bayesian paradigm.
 
     accept_rate : float
-
+        The number of proposed MCMC samples that were accepted.
 
     Example
     -------
