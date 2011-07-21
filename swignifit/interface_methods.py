@@ -98,17 +98,20 @@ def bootstrap(data, start=None, nsamples=2000, nafc=2, sigmoid="logistic",
     threshold : numpy array, shape: (nsamples, ncuts)
         thresholds/cuts for each bootstraped datasets
 
-    th_bias : numpy array, shape: (nsamples, ncuts)
-        the bias term associated with the threshold for each bootstraped dataset
+    th_bias : numpy array, shape: (ncuts)
+        the bias term associated with the threshold
 
-    th_acc : numpy array, shape: (nsamples, ncuts)
-        the acceleration constant associated with the threshold for each
-        bootstraped dataset
+    th_acc : numpy array, shape: (ncuts)
+        the acceleration constant associated with the threshold
 
-    # TODO: fix documentation
-    slope
-    th_slope
-    th_acc
+    slope : numpy array, shape: (nsamples, ncuts)
+        slope at each cuts for each bootstraped datasets
+
+    sl_bias : numpy array, shape: (ncuts)
+        bias term associated with the slope
+
+    sl_acc : numpy array, shape: (ncuts)
+        acceleration term associated with the slope
 
     Rkd : numpy array, length: nsamples
         correlations between block index and deviance residuals
