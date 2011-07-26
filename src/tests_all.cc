@@ -520,18 +520,18 @@ int BootstrapTest ( TestSuite * T ) {
 	// Check against psignifit results
 	// These values are subject to statistical variation. "equality" is defined relatively coarse
 	failures += T->isless(boots.getAcc_t(0),     0.018662,"Acceleration constant (threshold)");
-	failures += T->isequal(boots.getBias_t(0),  -0.118085,"Bias (threshold)",            .01);
-	failures += T->isequal(boots.getThres(.1,0), 2.58437,"th(.1)",                        .05);
-	failures += T->isequal(boots.getThres(.9,0), 3.83427,"th(.9)",                        .05);
+	failures += T->isequal(boots.getBias_t(0),  -0.0677307,"Bias (threshold)",            .01);
+	failures += T->isequal(boots.getThres(.1,0), 2.65266,"th(.1)",                        .05);
+	failures += T->isequal(boots.getThres(.9,0), 3.89757,"th(.9)",                        .05);
 
 	failures += T->isequal(boots.getAcc_s(0),    -0.000155314, "Acceleration constant (slope)", .01);
 	failures += T->isequal(boots.getBias_s(0),    -0.0325919,   "Bias (slope)",                  .01);
 	failures += T->isequal(boots.getSlope(0.1,0), 0.181289,    "sl(.1)",                        .01);
-	failures += T->isequal(boots.getSlope(0.9,0), 0.545639,    "sl(.9)",                        .01);
+	failures += T->isequal(boots.getSlope(0.9,0), 0.497512,    "sl(.9)",                        .01);
 
-	failures += T->isequal(boots.getDeviancePercentile(0.975),8.95713,"Deviance limits",.5);
+	failures += T->isequal(boots.getDeviancePercentile(0.975),9.67016,"Deviance limits",.5);
 	failures += T->isequal(boots.percRpd(.025), -0.451653, "Rpd( 2.5%)", .1); // Testing mean and standard error
-	failures += T->isequal(boots.percRpd(.975), 0.495472, "Rpd(97.5%)",  .1);
+	failures += T->isequal(boots.percRpd(.975), 0.632072, "Rpd(97.5%)",  .1);
 	failures += T->isequal(boots.percRkd(.025), -0.932597, "Rkd( 2.5%)", .1);
 	failures += T->isequal(boots.percRkd(.975), 0.601175, "Rkd(97.5%)",  .1);
 
