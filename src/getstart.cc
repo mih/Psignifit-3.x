@@ -310,6 +310,7 @@ void lm_range ( const PsiData* data, double *xmin, double *xmax ) {
 
 	// Heuristic:
 	// lm goes from 0 to twice the distance between 1 and the highest response probability
+	*xmin = 0;
 	for ( i=0; i<data->getNblocks(); i++ ) {
 		p = data->getPcorrect ( i );
 		if ( p > pmax ) {
@@ -327,6 +328,7 @@ void gm_range ( const PsiData* data, double *xmin, double *xmax ) {
 
 	// Heuristic:
 	// gm goes from 0 to twice the lowsest response probability
+	*xmin = 0;
 	for ( i=0; i<data->getNblocks(); i++ ) {
 		p = data->getPcorrect ( i );
 		if ( p<pmin ) {
@@ -343,9 +345,12 @@ void parameter_range ( const PsiData* data, const PsiPsychometric * pmf, unsigne
 	// Call the correct initial range function for the parameter
 	double mps,mms,s;
 	const PsiPrior *prior = pmf->getPrior( prmindex );
+	// incorporate information from prior
 	mps = mms = prior->mean();
 	s = prior->std();
+	// mean plus (+) std-deviation
 	mps += 2*s;
+	// mean minus (-) std-deviation
 	mms -= 2*s;
 
 	switch ( prmindex ) {
