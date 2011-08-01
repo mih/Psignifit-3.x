@@ -1154,10 +1154,10 @@ int GetstartTest ( TestSuite * T ) {
 	std::vector<double> start;
 	start = getstart ( pmf, data, 7, 3, 3 );
 
-	failures += T->isequal ( start[0], 3.49558,    "yes-no: Starting value for alpha", 1e-5 );
-	failures += T->isequal ( start[1], 0.898865,   "yes-no: Starting value for beta", 1e-5 );
-	failures += T->isequal ( start[2], 0.00555556, "yes-no: Starting value for lambda", 1e-5 );
-	failures += T->isequal ( start[3], 0.04444444, "yes-no: Starting value for gamma", 1e-5 );
+	failures += T->isequal ( start[0], 3.33333,    "yes-no: Starting value for alpha", 1e-5 );
+	failures += T->isequal ( start[1], 1.03704,   "yes-no: Starting value for beta", 1e-5 );
+	failures += T->isequal ( start[2], 0.00185185, "yes-no: Starting value for lambda", 1e-5 );
+	failures += T->isequal ( start[3], 0.0166667, "yes-no: Starting value for gamma", 1e-5 );
 
 	a_range ( data, &xmin, &xmax );
 	parameter_range ( data, pmf, 0, &ymin, &ymax );
