@@ -1167,10 +1167,10 @@ int GetstartTest ( TestSuite * T ) {
 	failures += T->isequal ( ymax, 10, "yes-no: maximum of alpha range", 1e-5 );
 	b_range ( data, &xmin, &xmax );
 	parameter_range ( data, pmf, 1, &ymin, &ymax );
-	failures += T->isequal ( xmin, 0.45512, "yes-no: minimum of beta range", 1e-5 );
-	failures += T->isequal ( xmax, 2.2756, "yes-no: maximum of beta range", 1e-5 );
-	failures += T->isequal ( ymin, 0.45512, "yes-no: minimum of beta range", 1e-5 );
-	failures += T->isequal ( ymax, 2.2756, "yes-no: maximum of beta range", 1e-5 );
+	failures += T->isequal ( xmin, 2.0, "yes-no: minimum of beta range", 1e-5 );
+	failures += T->isequal ( xmax, 10.0, "yes-no: maximum of beta range", 1e-5 );
+	failures += T->isequal ( ymin, 2.0, "yes-no: minimum of beta range", 1e-5 );
+	failures += T->isequal ( ymax, 10.0, "yes-no: maximum of beta range", 1e-5 );
 	lm_range ( data, &xmin, &xmax );
 	parameter_range ( data, pmf, 2, &ymin, &ymax );
 	failures += T->isequal ( xmin,  0, "yes-no: minimum of lambda range", 1e-5 );
