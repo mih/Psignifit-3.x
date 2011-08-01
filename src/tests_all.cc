@@ -1198,9 +1198,9 @@ int GetstartTest ( TestSuite * T ) {
 	pmf->setPrior( 2, prior );
 	start = getstart( pmf, data, 7, 3, 3);
 
-	failures += T->isequal ( start[0], 3.29584,  "2afc: Starting value for alpha", 1e-5 );
-	failures += T->isequal ( start[1], 0.988751, "2afc: Starting value for beta", 1e-5 );
-	failures += T->isequal ( start[2], 0.0185185, "2afc: Starting value for lambda", 1e-5 );
+	failures += T->isequal ( start[0], 3.33333,  "2afc: Starting value for alpha", 1e-5 );
+	failures += T->isequal ( start[1], 0.888889, "2afc: Starting value for beta", 1e-5 );
+	failures += T->isequal ( start[2], 0.0203704, "2afc: Starting value for lambda", 1e-5 );
 
 	a_range ( data, &xmin, &xmax );
 	parameter_range ( data, pmf, 0, &ymin, &ymax );
