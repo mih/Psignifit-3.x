@@ -149,8 +149,6 @@ def make_dataset_and_pmf(data, nafc, sigmoid, core, priors, gammaislambda=False 
         Model object.
     nparams : int
         Number of free parameters.
-    gammaislambda : bool
-        Constrain guessing rate and lapsing rate to be equal
 
     """
     dataset = make_dataset(data, nafc)
