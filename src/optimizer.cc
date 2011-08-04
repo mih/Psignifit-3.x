@@ -45,6 +45,17 @@ double lgit ( double p ) {
 	return log ( p/(1-p) );
 }
 
+void copy_lgst(const std::vector<double>& in, std::vector<double>& out, int nparameters){
+	int l;
+	for ( l=0; l<nparameters; l++ ) {
+		out[l] = in[l];
+		if ( l==2 || l==3 ) {
+			out[l] = lgst ( out[l] );
+		}
+	}
+}
+
+
 std::vector<double> PsiOptimizer::optimize ( const PsiPsychometric * model, const PsiData * data, const std::vector<double>* startingvalue )
 {
 	int k, l;
@@ -115,12 +126,7 @@ std::vector<double> PsiOptimizer::optimize ( const PsiPsychometric * model, cons
 			maxind = minind = 0;
 			for (k=0; k<nparameters+1; k++) {
 				if (modified[k]) {
-					for ( l=0; l<nparameters; l++ ) {
-						prm[l] = simplex[k][l];
-						if ( l==2 || l==3 ) {
-							prm[l] = lgst ( prm[l] );
-						}
-					}
+					copy_lgst(simplex[k], prm, nparameters);
 					fx[k] = model->neglpost(prm, data );
 					modified[k] = false;
 				}
@@ -140,11 +146,8 @@ std::vector<double> PsiOptimizer::optimize ( const PsiPsychometric * model, cons
 				if ( fx[k] == std::numeric_limits<double>::infinity() ) {
 					for ( l=0; l<nparameters; l++ ) {
 						simplex[k][l] = start[l];
-						prm[l] = simplex[k][l];
-						if ( l==2 || l==3 ) {
-							prm[l] = lgst ( prm[l] );
-						}
 					}
+					copy_lgst(simplex[k], prm, nparameters);
 					fx[k] = model->neglpost(prm, data );
 				}
 			}
@@ -188,12 +191,7 @@ std::vector<double> PsiOptimizer::optimize ( const PsiPsychometric * model, cons
 			for (k=0; k<nparameters; k++) xx[k] = x[k] - (simplex[maxind][k]-x[k]);
 
 			// Now check what to do
-			for ( l=0; l<nparameters; l++ ) {
-				prm[l] = xx[l];
-				if ( l==2 || l==3 ) {
-					prm[l] = lgst ( prm[l] );
-				}
-			}
+			copy_lgst(xx, prm, nparameters);
 			ffx = model->neglpost(prm,data);
 			// ffx = testfunction(xx);
 			if (ffx<fx[minind]) {
