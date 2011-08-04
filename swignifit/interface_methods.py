@@ -212,10 +212,11 @@ def asir ( data, nsamples=2000, nafc=2, sigmoid="logistic",
     dataset, pmf, nparams = sfu.make_dataset_and_pmf ( data, nafc, sigmoid, core, priors, gammaislambda=gammaislambda )
 
     posterior = sfr.independent_marginals ( pmf, dataset )
-    samples   = sfr.sample_posterior ( pmf, dataset, posterior, nsamples, propose )
-    sfr.sample_diagnostics ( pmf, dataset, samples )
+    if nsamples > 0:
+        samples   = sfr.sample_posterior ( pmf, dataset, posterior, nsamples, propose )
+        sfr.sample_diagnostics ( pmf, dataset, samples )
 
-    out = {'mcestimates': np.array( [ [samples.getEst ( i, par ) for par in xrange ( nparams ) ] for i in xrange ( nsamples )]),
+        out = {'mcestimates': np.array( [ [samples.getEst ( i, par ) for par in xrange ( nparams ) ] for i in xrange ( nsamples )]),
             'mcdeviance': np.array( [ samples.getdeviance ( i ) for i in xrange ( nsamples ) ] ),
             'mcRpd':                    np.array ( [ samples.getRpd ( i ) for i in xrange ( nsamples ) ] ),
             'mcRkd':                    np.array ( [ samples.getRkd ( i ) for i in xrange ( nsamples ) ] ),
@@ -232,6 +233,16 @@ def asir ( data, nsamples=2000, nafc=2, sigmoid="logistic",
             'posterior_grids':          [ posterior.get_grid ( i ) for i in xrange ( nparams ) ],
             'posterior_margin':         [ posterior.get_margin ( i ) for i in xrange ( nparams ) ]
             }
+
+    else:
+
+        out = {'posterior_approximations_py': [posterior.get_posterior(i) for i in xrange ( nparams ) ],
+            'posterior_approximations_str': [r"$\mathcal{N}(%.2f,%.2f)$" % (posterior.get_posterior(0).getprm(0),posterior.get_posterior(0).getprm(1)),
+            r"$\mathrm{Gamma}(%.2f,%.2f)$" % (posterior.get_posterior(1).getprm(0),posterior.get_posterior(1).getprm(1)),
+            r"$\mathrm{Beta}(%.2f,%.2f)$" % (posterior.get_posterior(2).getprm(0),posterior.get_posterior(2).getprm(1))],
+            'posterior_grids':          [ posterior.get_grid ( i ) for i in xrange ( nparams ) ],
+            'posterior_margin':         [ posterior.get_margin ( i ) for i in xrange ( nparams ) ] }
+
     if nparams==4:
         out['posterior_approximations_str'].append ( r"$\mathrm{Beta}(%.2f,%.2f)$" % (posterior.get_posterior(3).getprm(0),posterior.get_posterior(3).getprm(1)) )
 
