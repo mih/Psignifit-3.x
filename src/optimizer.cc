@@ -4,6 +4,7 @@
  */
 #include "optimizer.h"
 #include "getstart.h"
+#include <cmath>
 #include <limits>
 
 // #define DEBUG_OPTIMIZER
@@ -37,6 +38,13 @@ double testfunction(const std::vector<double>& x) {
 	return out;
 }
 
+double lgst ( double x ) {
+	return 1./(1+exp(-x));
+}
+double lgit ( double p ) {
+	return log ( p/(1-p) );
+}
+
 std::vector<double> PsiOptimizer::optimize ( const PsiPsychometric * model, const PsiData * data, const std::vector<double>* startingvalue )
 {
 	int k, l;
@@ -56,7 +64,6 @@ std::vector<double> PsiOptimizer::optimize ( const PsiPsychometric * model, cons
 			}
 		}
 	}
-
 
 	for ( k=0; k<nparameters+1; k++ ) {
 		for ( l=0; l<nparameters; l++)
@@ -81,6 +88,7 @@ std::vector<double> PsiOptimizer::optimize ( const PsiPsychometric * model, cons
 	int run;            // the model should be rerun after convergence
 	double d;
 	std::vector<double> output ( start );
+	std::vector<double> prm ( start );
 
 
 	for (run=0; run<2; run++) {
@@ -91,6 +99,15 @@ std::vector<double> PsiOptimizer::optimize ( const PsiPsychometric * model, cons
 				simplex[k][k-1] -= 2*d;
 			}
 		}
+
+		// transform starting values to logit
+		for ( k=0; k<nparameters+1; k++ ) {
+			simplex[k][2] = lgit ( simplex[k][2] );
+			if ( nparameters > 3 ) {
+				simplex[k][3] = lgit ( simplex[k][3] );
+			}
+		}
+
 		// for (k=1; k<nparameters+1; k++) simplex[k][k-1] += .05;
 		iter = 0;
 		while (1) {
@@ -98,7 +115,13 @@ std::vector<double> PsiOptimizer::optimize ( const PsiPsychometric * model, cons
 			maxind = minind = 0;
 			for (k=0; k<nparameters+1; k++) {
 				if (modified[k]) {
-					fx[k] = model->neglpost(simplex[k], data );
+					for ( l=0; l<nparameters; l++ ) {
+						prm[l] = simplex[k][l];
+						if ( l==2 || l==3 ) {
+							prm[l] = lgst ( prm[l] );
+						}
+					}
+					fx[k] = model->neglpost(prm, data );
 					modified[k] = false;
 				}
 				// fx[k] = testfunction(simplex[k]);
@@ -115,9 +138,14 @@ std::vector<double> PsiOptimizer::optimize ( const PsiPsychometric * model, cons
 			// Avoid inf
 			for ( k=0; k<nparameters+1; k++ ) {
 				if ( fx[k] == std::numeric_limits<double>::infinity() ) {
-					for ( l=0; l<nparameters; l++ )
+					for ( l=0; l<nparameters; l++ ) {
 						simplex[k][l] = start[l];
-					fx[k] = model->neglpost(simplex[k], data );
+						prm[l] = simplex[k][l];
+						if ( l==2 || l==3 ) {
+							prm[l] = lgst ( prm[l] );
+						}
+					}
+					fx[k] = model->neglpost(prm, data );
 				}
 			}
 
@@ -160,7 +188,13 @@ std::vector<double> PsiOptimizer::optimize ( const PsiPsychometric * model, cons
 			for (k=0; k<nparameters; k++) xx[k] = x[k] - (simplex[maxind][k]-x[k]);
 
 			// Now check what to do
-			ffx = model->neglpost(xx,data);
+			for ( l=0; l<nparameters; l++ ) {
+				prm[l] = xx[l];
+				if ( l==2 || l==3 ) {
+					prm[l] = lgst ( prm[l] );
+				}
+			}
+			ffx = model->neglpost(prm,data);
 			// ffx = testfunction(xx);
 			if (ffx<fx[minind]) {
 				// The reflected point is better than the previous worst point ~> Expand
@@ -193,19 +227,32 @@ std::vector<double> PsiOptimizer::optimize ( const PsiPsychometric * model, cons
 		minind = 0;
 		for (k=0; k<nparameters+1; k++) {
 			if (modified[k]) {
-				fx[k] = model->neglpost(simplex[k], data );
+				for ( l=0; l<nparameters; l++ ) {
+					prm[l] = simplex[k][l];
+					if ( l==2 || l==3 ) {
+						prm[l] = lgst ( prm[l] );
+					}
+				}
+				fx[k] = model->neglpost( prm, data );
 				modified[k] = false;
 			}
 			// fx[k] = testfunction(simplex[k]);
 			if (fx[k]<fx[minind]) minind = k;
 		}
 
-		for (k=0; k<nparameters; k++) {
-			output[k] = simplex[minind][k];
+		for ( k=0; k<nparameters+1; k++ ) {
+			simplex[k][2] = lgst ( simplex[k][2] );
+			if ( nparameters>3 ) {
+				simplex[k][3] = lgst ( simplex[k][3] );
+			}
+		}
+
+		for (l=0; l<nparameters; l++) {
+			output[l] = simplex[minind][l];
 			// output[k] = start[k];
-			simplex[minind][k] = simplex[minind][0];
-			simplex[0][k] = output[k];
-			modified[k] = true;
+			simplex[minind][l] = simplex[minind][0];
+			simplex[0][l] = output[l];
+			modified[l] = true;
 		}
 	}
 
