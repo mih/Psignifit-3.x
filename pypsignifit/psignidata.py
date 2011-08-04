@@ -1830,6 +1830,10 @@ class ASIRInference ( PsiInference ):
         self.plotprm.setdefault ( 'marker', "o" )
         PsiInference.__init__(self,self.plotprm)
 
+        self.Nsamples = kwargs.setdefault( 'nsamples', 2000 )
+        if self.Nsamples <= 0:
+            raise ValueError, "number of requested samples should be > 0"
+
         # Store basic data
         self.data = N.array(data,'d')
         if self.data[:,1].max() <= 1:
@@ -1857,7 +1861,7 @@ class ASIRInference ( PsiInference ):
                 self.model["priors"].append ( psignipriors.default_lapse() )
 
 
-        self.__inference = interface.asir ( self.data, nsamples=kwargs.setdefault ( 'nsamples', 2000 ),
+        self.__inference = interface.asir ( self.data, nsamples=self.Nsamples,
                 nafc=self.model['nafc'], sigmoid=self.model['sigmoid'], core=self.model['core'],
                 priors=self.model['priors'], gammaislambda=self.model['gammaislambda'], propose=kwargs.setdefault ( "propose", 25 ) )
         self._data,self._pmf,self.nparams = sfu.make_dataset_and_pmf (
@@ -1886,7 +1890,6 @@ class ASIRInference ( PsiInference ):
 
         self.conf = conf
 
-        self.Nsamples = kwargs.setdefault( 'nsamples', 2000 )
 
     def bayesian_p ( self, quantity="deviance" ):
         """Bayesian p value associated with a given quantity
