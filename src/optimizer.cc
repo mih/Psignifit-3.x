@@ -38,6 +38,37 @@ double testfunction(const std::vector<double>& x) {
 	return out;
 }
 
+/* While fixing broken unit tests we discovered that the Psignifit3
+ * optimizer sometimes has problems reaching the same optimum as the
+ * Psignifit2 optimizer. I particular this happens when lambda is near zero,
+ * since the simplex is very close to a region that gives an infinite value
+ * for the error function. This can be imagined as though the optimizer has
+ * trouble climbing down a straight wall imposed by the hard constraint that
+ * lambda must be in the open interval (0, 1). The problem is slight difference
+ * in deviance between the values.
+ *
+ * To circumvent this we use the following transformation of the lambda variable
+ * during optimization:
+ *
+ * lambda_hat = log(lambda/1-lambda)              <-------- logit
+ *
+ * lambda = (1/(1+exp(-lambda_hat)                <-------- logistic
+ *
+ * This effectively maps the value of lambda to lambda_hat and back. Lambda is
+ * in the open interval (0, 1), whereas lambda_hat is in the space of real
+ * numbers. This should make it much easier for the simplex, since no
+ * constraints are imposed on the value lambda_hat. Some initial testing shows
+ * that the Psignifit3 optimizer now approaches the Psignifit2  solution
+ * closer. The transformation lamda -> lambda_hat takes place at the beginning
+ * of the optimization run. The transformation lambda_hat -> lambda happens
+ * before each evaluation of the error function (negloglikelihood) and when
+ * returning the final value.
+ *
+ * While we were here, we did the same for gamma, since it is a rate it should
+ * also never be less than 0 or greater than 1.
+ *
+ */
+
 double lgst ( double x ) {
 	return 1./(1+exp(-x));
 }
