@@ -1294,12 +1294,13 @@ int GetstartTest ( TestSuite * T ) {
 	std::list< double > L;
 	evalgridpoints ( gridpoints, &bestprm, &L, data, pmf, 2 );
 
-	failures += T->isequal ( L.front(), 23.8999, "Best fit on grid", 1e-4 );
-	failures += T->isequal ( L.back(),  32.0023, "Second best fit on grid", 1e-4 );
-	failures += T->isequal ( bestprm.front()[0], .0,  "Best fitting alpha on grid" );
+
+	failures += T->isequal ( L.front(), 35.4381, "Best fit on grid", 1e-4 );
+	failures += T->isequal ( L.back(),  43.346 , "Second best fit on grid", 1e-4 );
+	failures += T->isequal ( bestprm.front()[0], .5,  "Best fitting alpha on grid" );
 	failures += T->isequal ( bestprm.front()[1], .5,  "Best fitting beta on grid" );
 	failures += T->isequal ( bestprm.front()[2], .05, "Best fitting lambda on grid" );
-	failures += T->isequal ( bestprm.back()[0], .5,   "Second best fitting alpha on grid" );
+	failures += T->isequal ( bestprm.back()[0], .0,   "Second best fitting alpha on grid" );
 	failures += T->isequal ( bestprm.back()[1], .5,   "Second best fitting beta on grid" );
 	failures += T->isequal ( bestprm.back()[2], .05,  "Second best fitting lambda on grid" );
 
@@ -1309,7 +1310,7 @@ int GetstartTest ( TestSuite * T ) {
 	updategridpoints ( grid, bestprm, &gridpoints, &newgrids );
 	for ( i=0, i_gp=gridpoints.begin(); i_gp!=gridpoints.end(); i_gp++, i++ ) {
 		sprintf ( txt, "gridpoint %d first param", i );
-		failures += T->isequal ( (*i_gp)[0], (i<4 ? -.25 : 0.25), txt );
+		failures += T->isequal ( (*i_gp)[0], (i<4 ? 0.25 : 0.75), txt );
 		sprintf ( txt, "gridpoint %d second param", i );
 		failures += T->isequal ( (*i_gp)[1], ((i/2)%2 == 0 ? .25 : 0.75), txt );
 		sprintf ( txt, "gridpoint %d third param", i );
