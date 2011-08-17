@@ -415,16 +415,16 @@ int OptimizerSolution ( TestSuite * T ) {
 
 	// Check against classical psignifit:
 	// tests/testdata_from_psignifit$ psignifit testprefs_yn test_yn.dat
-	failures += T->isequal(solution[0],3.43942,"OptimizerSolution Y/N alpha",5*1e-3);
+	failures += T->isequal(solution[0],3.43942,"OptimizerSolution Y/N alpha",1e-2);
 	failures += T->isequal(solution[1],0.988357,"OptimizerSolution Y/N beta", 5*1e-3);
 	failures += T->isequal(solution[2],3.61604e-8,"OptimizerSolution Y/N lambda",5*1e-3);
 	failures += T->isequal(solution[3],0.028935,"OptimizerSolution Y/N gamma",5*1e-3);
 
-	failures += T->isequal(pmf->deviance(solution,data),2.08172,"OptimizerSolution Y/N deviance",1e-3);
+	failures += T->isequal(pmf->deviance(solution,data),2.08172,"OptimizerSolution Y/N deviance",1e-2);
 	failures += T->isequal(pmf->deviance(solution,data),deviance,"OptimizerSolution Y/N deviance sum", 1e-7);
 
-	failures += T->isequal(pmf->getRpd(devianceresiduals,solution,data),0.217146,"OptimizerSolution Y/N Rpd",5*1e-3);
-	failures += T->isequal(pmf->getRkd(devianceresiduals,data),-0.477967,"OptimizerSolution Y/N Rkd",5*1e-3);
+	failures += T->isequal(pmf->getRpd(devianceresiduals,solution,data),0.217146,"OptimizerSolution Y/N Rpd",1e-2);
+	failures += T->isequal(pmf->getRkd(devianceresiduals,data),-0.477967,"OptimizerSolution Y/N Rkd",2e-2);
 
 	delete pmf;
 	delete opt;
