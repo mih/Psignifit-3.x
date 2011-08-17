@@ -437,9 +437,10 @@ int OptimizerSolution ( TestSuite * T ) {
 	pmf->setPrior( 2, prior);
 	solution = opt->optimize(pmf,data);
 	
-	failures += T->isequal ( solution[0], 3.32581, "Optimizer Solution gamma=lambda, alpha", 1e-3 );
-	failures += T->isequal ( solution[1], 1.06676, "Optimizer Solution gamma=lambda, beta", 1e-3 );
-	failures += T->isequal ( solution[2], 0.000506492, "Optimizer Solution gamma=lambda, lambda", 1e-5 );
+	failures += T->isequal ( solution[0], 3.3044829936747959, "Optimizer Solution Yes/No gamma=lambda, alpha", 1e-3 );
+	failures += T->isequal ( solution[1], 1.0698582800005716, "Optimizer Solution Yes/No gamma=lambda, beta", 1e-3 );
+	failures += T->isequal ( solution[2], 4.4302035660369048e-10, "Optimizer Solution Yes/No gamma=lambda, lambda", 1e-12 );
+	failures += T->isequal (pmf->deviance(solution,data),2.49387706984, "Optimizer Solution Yes/No gamma=lambda, deviance", 1e-2);
 
 	delete pmf;
 	delete data;
