@@ -1,3 +1,11 @@
+2011-08-18
+
+* Refactoring optimizer to be more robust
+* fixing segfaults in ASIR inference
+* fixing most unit tests
+* updates in documentation
+* removed psipy
+
 2011-07-04
 
 * Various documentation changes
