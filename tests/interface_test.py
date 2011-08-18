@@ -40,8 +40,8 @@ class TestBootstrap(ut.TestCase):
         priors = ('flat','flat','Uniform(0,0.1)')
         sfr.setSeed(1)
         samples,est,D,thres,thbias,thacc,slope,slbias,slacc,Rkd,Rpd,out,influ = interface.bootstrap(d,nsamples=2000,priors=priors)
-        self.assertAlmostEqual( np.mean(est[:,0]), 2.7544877500014899, places=3)
-        self.assertAlmostEqual( np.mean(est[:,1]), 1.4143967776376216, places=2)
+        self.assertAlmostEqual( np.mean(est[:,0]), 2.7537742610139397)
+        self.assertAlmostEqual( np.mean(est[:,1]), 1.4072288392075412)
 
     def test_start(self):
         interface.bootstrap(data, nsamples=25, start=[0.1, 0.2, 0.3])
