@@ -281,7 +281,9 @@ DefaultMCMC::DefaultMCMC ( const PsiPsychometric* Model, const PsiData* Data, Ps
 	MetropolisHastings ( Model, Data, new GaussRandom ),
 	proposaldistributions ( Model->getNparams () )
 {
+#ifdef DEBUG_MCMC
 	std::cerr << "Hi my name is DefaultMCMC\n";
+#endif
 }
 
 DefaultMCMC::~DefaultMCMC ( void ) {

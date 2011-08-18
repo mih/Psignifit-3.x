@@ -4,6 +4,7 @@
  */
 #include "optimizer.h"
 #include "getstart.h"
+#include <cmath>
 #include <limits>
 
 // #define DEBUG_OPTIMIZER
@@ -37,6 +38,55 @@ double testfunction(const std::vector<double>& x) {
 	return out;
 }
 
+/* While fixing broken unit tests we discovered that the Psignifit3
+ * optimizer sometimes has problems reaching the same optimum as the
+ * Psignifit2 optimizer. I particular this happens when lambda is near zero,
+ * since the simplex is very close to a region that gives an infinite value
+ * for the error function. This can be imagined as though the optimizer has
+ * trouble climbing down a straight wall imposed by the hard constraint that
+ * lambda must be in the open interval (0, 1). The problem is slight difference
+ * in deviance between the values.
+ *
+ * To circumvent this we use the following transformation of the lambda variable
+ * during optimization:
+ *
+ * lambda_hat = log(lambda/1-lambda)              <-------- logit
+ *
+ * lambda = (1/(1+exp(-lambda_hat)                <-------- logistic
+ *
+ * This effectively maps the value of lambda to lambda_hat and back. Lambda is
+ * in the open interval (0, 1), whereas lambda_hat is in the space of real
+ * numbers. This should make it much easier for the simplex, since no
+ * constraints are imposed on the value lambda_hat. Some initial testing shows
+ * that the Psignifit3 optimizer now approaches the Psignifit2  solution
+ * closer. The transformation lamda -> lambda_hat takes place at the beginning
+ * of the optimization run. The transformation lambda_hat -> lambda happens
+ * before each evaluation of the error function (negloglikelihood) and when
+ * returning the final value.
+ *
+ * While we were here, we did the same for gamma, since it is a rate it should
+ * also never be less than 0 or greater than 1.
+ *
+ */
+
+double lgst ( double x ) {
+	return 1./(1+exp(-x));
+}
+double lgit ( double p ) {
+	return log ( p/(1-p) );
+}
+
+void copy_lgst(const std::vector<double>& in, std::vector<double>& out, int nparameters){
+	int l;
+	for ( l=0; l<nparameters; l++ ) {
+		out[l] = in[l];
+		if ( l==2 || l==3 ) {
+			out[l] = lgst ( out[l] );
+		}
+	}
+}
+
+
 std::vector<double> PsiOptimizer::optimize ( const PsiPsychometric * model, const PsiData * data, const std::vector<double>* startingvalue )
 {
 	int k, l;
@@ -56,7 +106,6 @@ std::vector<double> PsiOptimizer::optimize ( const PsiPsychometric * model, cons
 			}
 		}
 	}
-
 
 	for ( k=0; k<nparameters+1; k++ ) {
 		for ( l=0; l<nparameters; l++)
@@ -81,6 +130,7 @@ std::vector<double> PsiOptimizer::optimize ( const PsiPsychometric * model, cons
 	int run;            // the model should be rerun after convergence
 	double d;
 	std::vector<double> output ( start );
+	std::vector<double> prm ( start );
 
 
 	for (run=0; run<2; run++) {
@@ -91,6 +141,15 @@ std::vector<double> PsiOptimizer::optimize ( const PsiPsychometric * model, cons
 				simplex[k][k-1] -= 2*d;
 			}
 		}
+
+		// transform starting values to logit
+		for ( k=0; k<nparameters+1; k++ ) {
+			simplex[k][2] = lgit ( simplex[k][2] );
+			if ( nparameters > 3 ) {
+				simplex[k][3] = lgit ( simplex[k][3] );
+			}
+		}
+
 		// for (k=1; k<nparameters+1; k++) simplex[k][k-1] += .05;
 		iter = 0;
 		while (1) {
@@ -98,7 +157,8 @@ std::vector<double> PsiOptimizer::optimize ( const PsiPsychometric * model, cons
 			maxind = minind = 0;
 			for (k=0; k<nparameters+1; k++) {
 				if (modified[k]) {
-					fx[k] = model->neglpost(simplex[k], data );
+					copy_lgst(simplex[k], prm, nparameters);
+					fx[k] = model->neglpost(prm, data );
 					modified[k] = false;
 				}
 				// fx[k] = testfunction(simplex[k]);
@@ -115,9 +175,11 @@ std::vector<double> PsiOptimizer::optimize ( const PsiPsychometric * model, cons
 			// Avoid inf
 			for ( k=0; k<nparameters+1; k++ ) {
 				if ( fx[k] == std::numeric_limits<double>::infinity() ) {
-					for ( l=0; l<nparameters; l++ )
+					for ( l=0; l<nparameters; l++ ) {
 						simplex[k][l] = start[l];
-					fx[k] = model->neglpost(simplex[k], data );
+					}
+					copy_lgst(simplex[k], prm, nparameters);
+					fx[k] = model->neglpost(prm, data );
 				}
 			}
 
@@ -160,7 +222,8 @@ std::vector<double> PsiOptimizer::optimize ( const PsiPsychometric * model, cons
 			for (k=0; k<nparameters; k++) xx[k] = x[k] - (simplex[maxind][k]-x[k]);
 
 			// Now check what to do
-			ffx = model->neglpost(xx,data);
+			copy_lgst(xx, prm, nparameters);
+			ffx = model->neglpost(prm,data);
 			// ffx = testfunction(xx);
 			if (ffx<fx[minind]) {
 				// The reflected point is better than the previous worst point ~> Expand
@@ -193,19 +256,32 @@ std::vector<double> PsiOptimizer::optimize ( const PsiPsychometric * model, cons
 		minind = 0;
 		for (k=0; k<nparameters+1; k++) {
 			if (modified[k]) {
-				fx[k] = model->neglpost(simplex[k], data );
+				for ( l=0; l<nparameters; l++ ) {
+					prm[l] = simplex[k][l];
+					if ( l==2 || l==3 ) {
+						prm[l] = lgst ( prm[l] );
+					}
+				}
+				fx[k] = model->neglpost( prm, data );
 				modified[k] = false;
 			}
 			// fx[k] = testfunction(simplex[k]);
 			if (fx[k]<fx[minind]) minind = k;
 		}
 
-		for (k=0; k<nparameters; k++) {
-			output[k] = simplex[minind][k];
+		for ( k=0; k<nparameters+1; k++ ) {
+			simplex[k][2] = lgst ( simplex[k][2] );
+			if ( nparameters>3 ) {
+				simplex[k][3] = lgst ( simplex[k][3] );
+			}
+		}
+
+		for (l=0; l<nparameters; l++) {
+			output[l] = simplex[minind][l];
 			// output[k] = start[k];
-			simplex[minind][k] = simplex[minind][0];
-			simplex[0][k] = output[k];
-			modified[k] = true;
+			simplex[minind][l] = simplex[minind][0];
+			simplex[0][l] = output[l];
+			modified[l] = true;
 		}
 	}
 

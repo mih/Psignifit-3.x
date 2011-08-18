@@ -11,6 +11,7 @@
 """ Unit tests for interface methods provided by swignifit. """
 
 import numpy as np
+import numpy.testing as npt
 import unittest as ut
 import os
 import swignifit.swignifit_raw as sfr
@@ -39,9 +40,8 @@ class TestBootstrap(ut.TestCase):
         priors = ('flat','flat','Uniform(0,0.1)')
         sfr.setSeed(1)
         samples,est,D,thres,thbias,thacc,slope,slbias,slacc,Rkd,Rpd,out,influ = interface.bootstrap(d,nsamples=2000,priors=priors)
-        self.assertAlmostEqual( np.mean(est[:,0]), 2.73478083464 )
-        self.assertAlmostEqual( np.mean(est[:,1]), 1.39777934668 )
-
+        self.assertAlmostEqual( np.mean(est[:,0]), 2.7537742610139397)
+        self.assertAlmostEqual( np.mean(est[:,1]), 1.4072288392075412)
 
     def test_start(self):
         interface.bootstrap(data, nsamples=25, start=[0.1, 0.2, 0.3])
@@ -84,8 +84,8 @@ class TestMCMC(ut.TestCase):
         (estimates, deviance, posterior_predictive_data,
         posterior_predictive_deviances, posterior_predictive_Rpd,
         posterior_predictive_Rkd, logposterior_ratios, accept_rate) = interface.mcmc(d,nsamples=10000,priors=priors,stepwidths=stepwidths)
-        self.assertAlmostEqual( np.mean(estimates[:,0]), 2.52579214385 )
-        self.assertAlmostEqual( np.mean(estimates[:,1]), 7.30680631915 )
+        self.assertAlmostEqual( np.mean(estimates[:,0]), 2.5463976926832483)
+        self.assertAlmostEqual( np.mean(estimates[:,1]), 7.335732619111738)
 
     def test_start(self):
         interface.mcmc(data,nsamples=25, start=[0.1,0.2,0.3])
@@ -129,10 +129,9 @@ class TestMapestimate(ut.TestCase):
         d = [[xx,kk,nn] for xx,kk,nn in zip(x,k,n)]
         priors = ('flat','flat','Uniform(0,0.1)')
         estimate, fisher, thres, slope, deviance = interface.mapestimate ( d, priors=priors )
-        for i,value in enumerate([ 2.75183178, 1.45728231, 0.01555514]):
-            self.assertAlmostEqual(value, estimate[i])
-        self.assertAlmostEqual(2.75183178, thres)
-        self.assertAlmostEqual(8.0713313969, deviance)
+        npt.assert_almost_equal(np.array([ 2.7517523 ,  1.45728454,  0.01555464]), estimate)
+        self.assertAlmostEqual(2.7517523000189286, thres[0])
+        self.assertAlmostEqual(8.07133136423, deviance)
 
     def test_nafc(self):
         interface.mapestimate(data, nafc=23)
@@ -301,5 +300,6 @@ class TestPsipy_yn ( ut.TestCase ):
 
 
 if __name__ == "__main__":
-    ut.main()
+    suite = ut.TestLoader().loadTestsFromName("__main__")
+    ut.TextTestRunner(verbosity=2).run(suite)
 

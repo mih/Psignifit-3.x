@@ -1830,6 +1830,10 @@ class ASIRInference ( PsiInference ):
         self.plotprm.setdefault ( 'marker', "o" )
         PsiInference.__init__(self,self.plotprm)
 
+        self.Nsamples = kwargs.setdefault( 'nsamples', 2000 )
+        if self.Nsamples <= 0:
+            raise ValueError, "number of requested samples should be > 0"
+
         # Store basic data
         self.data = N.array(data,'d')
         if self.data[:,1].max() <= 1:
@@ -1857,7 +1861,7 @@ class ASIRInference ( PsiInference ):
                 self.model["priors"].append ( psignipriors.default_lapse() )
 
 
-        self.__inference = interface.asir ( self.data, nsamples=kwargs.setdefault ( 'nsamples', 2000 ),
+        self.__inference = interface.asir ( self.data, nsamples=self.Nsamples,
                 nafc=self.model['nafc'], sigmoid=self.model['sigmoid'], core=self.model['core'],
                 priors=self.model['priors'], gammaislambda=self.model['gammaislambda'], propose=kwargs.setdefault ( "propose", 25 ) )
         self._data,self._pmf,self.nparams = sfu.make_dataset_and_pmf (
@@ -1881,12 +1885,11 @@ class ASIRInference ( PsiInference ):
         self.Rkd = self._pmf.getRkd ( deviance_residuals, self._data )
 
         self.__meanestimate = self.__inference["mcestimates"].mean(0)
-        self.__meandeviance = self.__inference["mcdeviance"].mean(0)
+        self.__meandeviance    = self._pmf.deviance ( self.__meanestimate, self._data )
         self.devianceresiduals = self._pmf.getDevianceResiduals ( self.__meanestimate, self._data )
 
         self.conf = conf
 
-        self.Nsamples = kwargs.setdefault( 'nsamples', 2000 )
 
     def bayesian_p ( self, quantity="deviance" ):
         """Bayesian p value associated with a given quantity
@@ -2106,6 +2109,21 @@ class ASIRInference ( PsiInference ):
             if self.__posterior_median == None:
                 self.__posterior_median = N.median ( self.mcestimates, 0 )
             return self.__posterior_median
+
+    @Property
+    def deviance ():
+        """Deviance of the estimate.
+
+        If sampling has already occurred, this will be the deviance of the mean estimate. Otherwise it will be
+        the deviance of the mapestimate.
+        """
+        def fget (self):
+            if self.__meandeviance is None:
+                return self.mapdeviance
+            else:
+                return self.__meandeviance
+        def fset (self,v):
+            pass
 
     @Property
     def infl ():

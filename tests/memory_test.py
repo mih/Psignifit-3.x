@@ -15,7 +15,7 @@ valgrind --tool=memcheck --leak-check=full /usr/bin/python memory_test.py
 to detect memory leaks in the python interface."""
 
 from pypsignifit.psigobservers import Observer
-import interface
+import swignifit.interface_methods as interface
 import os
 import pylab
 

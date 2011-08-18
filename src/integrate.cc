@@ -15,6 +15,7 @@ PsiIndependentPosterior::PsiIndependentPosterior ( unsigned int nprm,
 		for ( j=0; j<grids[i].size(); j++ ) {
 			M(j,0) = margins[i][j];
 			M(j,1) = posteriors[i]->pdf ( grids[i][j] );
+			// fitted_posteriors[i] = posteriors[i]->clone();
 		}
 		w = leastsq ( &M );
 #ifdef DEBUG_INTEGRATE
@@ -183,7 +184,13 @@ PsiIndependentPosterior independent_marginals (
 		}
 	}
 
-	return PsiIndependentPosterior ( nprm, fitted_posteriors, grids, margin );
+	PsiIndependentPosterior out ( nprm, fitted_posteriors, grids, margin );
+
+	for ( i=0; i<nprm; i++ ) {
+		// delete fitted_posteriors[i];
+	}
+
+	return out;
 }
 
 MCMCList sample_posterior (
@@ -200,6 +207,7 @@ MCMCList sample_posterior (
 	double q,p;
 	double nduplicate ( 0 );
 	PsiRandom rng;
+	PsiPrior * posteri;
 	std::vector < PsiPrior* > posteriors ( nprm );
 	double H(0),N(0);
 
@@ -209,7 +217,7 @@ MCMCList sample_posterior (
 	std::vector<double> rnumbers ( nsamples );
 
 	for ( j=0; j<nprm; j++ )
-		posteriors[j] = post.get_posterior (j)->clone();
+		posteriors[j] = post.get_posterior (j);
 
 	for ( i=0; i<nproposals; i++ ) {
 		// Propose
@@ -217,8 +225,11 @@ MCMCList sample_posterior (
 			proposed[i][j] = posteriors[j]->rand();
 		// determine weight
 		q = 1.;
-        for ( j=0; j<nprm; j++ )
-            q *= post.get_posterior (j)->pdf ( proposed[i][j] );
+        for ( j=0; j<nprm; j++ ) {
+			posteri = post.get_posterior(j);
+            q *= posteri->pdf ( proposed[i][j] );
+			delete posteri;
+		}
         p = exp ( - pmf->neglpost ( proposed[i], data ) );
         weights[i] = p/q;
 
@@ -277,7 +288,6 @@ MCMCList sample_posterior (
 	for ( i=0; i<nprm; i++ )
 		delete posteriors[i];
 
-
 	return finalsamples;
 }
 
@@ -301,7 +311,7 @@ void sample_diagnostics (
 	for ( i=0; i<nblocks; i++ ) {
 		j = 0;
 		for (k=0; k<nblocks; k++ ) {
-			if ( j!=k ) {
+			if ( i!=k ) {
 				reducedx[j] = data->getIntensity(k);
 				reducedk[j] = data->getNcorrect(k);
 				reducedn[j] = data->getNtrials(k);
@@ -333,4 +343,9 @@ void sample_diagnostics (
 		for ( j=0; j<nblocks; j++ )
 			samples->setlogratio ( i, j, pmf->neglpost(est,data) - pmf->neglpost(est,reduceddata[j]) );
 	}
+
+	for ( i=0; i<nblocks; i++ ) {
+		delete reduceddata[i];
+	}
+	delete localdata;
 }
