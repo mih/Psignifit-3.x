@@ -11,6 +11,7 @@
 """ Unit tests for interface methods provided by swignifit. """
 
 import numpy as np
+import numpy.testing as npt
 import unittest as ut
 import os
 import swignifit.swignifit_raw as sfr
@@ -128,9 +129,8 @@ class TestMapestimate(ut.TestCase):
         d = [[xx,kk,nn] for xx,kk,nn in zip(x,k,n)]
         priors = ('flat','flat','Uniform(0,0.1)')
         estimate, fisher, thres, slope, deviance = interface.mapestimate ( d, priors=priors )
-        for i,value in enumerate([ 2.7518062397096972, 1.4571774451639288, 0.015556583567131001]):
-            self.assertAlmostEqual(value, estimate[i])
-        self.assertAlmostEqual(2.75180624, thres[0])
+        npt.assert_almost_equal(np.array([ 2.7517523 ,  1.45728454,  0.01555464]), estimate)
+        self.assertAlmostEqual(2.7517523000189286, thres[0])
         self.assertAlmostEqual(8.07133136423, deviance)
 
     def test_nafc(self):
