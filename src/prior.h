@@ -159,7 +159,7 @@ class GammaPrior : public PsiPrior
 		double normalization;
 		GammaRandom rng;
 	public:
-		GammaPrior ( double shape, double scale ) : k(shape), theta(scale), rng(shape, scale) { normalization = pow(scale,shape)*exp(gammaln(shape));}                         ///< Initialize a gamma prior
+		GammaPrior ( double shape, double scale ) : k(shape), theta(scale), rng(shape, scale) { normalization = exp(gammaln(shape) + shape*log(scale));}                         ///< Initialize a gamma prior
         GammaPrior ( const GammaPrior& original ) : k(original.k),
                                                     theta(original.theta),
                                                     normalization(original.normalization),
