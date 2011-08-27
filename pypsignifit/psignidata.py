@@ -558,22 +558,30 @@ class BootstrapInference ( PsiInference ):
 
                     # If this confidence interval is larger than the original one, we expand the CI
                     if thresholdCI[0]<self.__expandedCI_th[l,pp,0]:
+                        if verbose:
+                            sys.stderr.write("th_l- (%g,%g):\n" % (cut,prob))
+                            sys.stderr.write("   %g -> %g\n" % \
+                                    (self.__expandedCI_th[l,pp,0]+self.thres[l], thresholdCI[0]+self.thres[l]) )
                         self.__expandedCI_th[l,pp,0] = thresholdCI[0]
-                        if verbose:
-                            sys.stderr.write("l- ")
                     if thresholdCI[1]>self.__expandedCI_th[l,pp,1]:
-                        self.__expandedCI_th[l,pp,1] = thresholdCI[1]
                         if verbose:
-                            sys.stderr.write("u+ ")
+                            sys.stderr.write("th_u+ (%g,%g):\n" % (cut,prob))
+                            sys.stderr.write("   %g -> %g\n" % \
+                                    (self.__expandedCI_th[l,pp,1]+self.thres[l], thresholdCI[1]+self.thres[l]) )
+                        self.__expandedCI_th[l,pp,1] = thresholdCI[1]
 
                     if slopeCI[0]<self.__expandedCI_sl[l,pp,0]:
-                        self.__expandedCI_th[l,pp,0] = slopeCI[0]
                         if verbose:
-                            sys.stderr.write("l- ")
+                            sys.stderr.write("sl_l- (%g,%g):\n" % (cut,prob))
+                            sys.stderr.write("   %g -> %g\n" % \
+                                    (self.__expandedCI_sl[l,pp,0]+self.slope[l], slopeCI[0]+self.slope[l]) )
+                        self.__expandedCI_sl[l,pp,0] = slopeCI[0]
                     if slopeCI[1]>self.__expandedCI_sl[l,pp,1]:
-                        self.__expandedCI_sl[l,pp,1] = slopeCI[1]
                         if verbose:
-                            sys.stderr.write("u+ ")
+                            sys.stderr.write("sl_u+ (%g,%g):\n" % (cut,prob))
+                            sys.stderr.write("   %g -> %g\n" % \
+                                    (self.__expandedCI_sl[l,pp,1]+self.slope[l], slopeCI[1]+self.slope[l]) )
+                        self.__expandedCI_sl[l,pp,1] = slopeCI[1]
 
 
             if verbose:
