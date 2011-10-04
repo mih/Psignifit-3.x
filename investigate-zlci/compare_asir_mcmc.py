@@ -62,6 +62,8 @@ def compare_on_dataset ( d, nafc=2, nruns=3 ):
         result += "%g %g %g %g " % (Mm025,Mm975,Mmm,Mms)
         result += "%g %g %g %g " % (Mw025,Mw975,Mwm,Mws)
         result += "%g %g %g" % (M.Rhat(0),M.Rhat(1),M.Rhat(2))
+        result += "%g %g " % (A._ASIRInference__inference["resampling-entropy"],
+                A._ASIRInference__inference["duplicates"])
 
         results.append ( result )
 
@@ -102,7 +104,7 @@ def run_single_simulation ( prm, outf ):
 if __name__ == "__main__":
     conditions = assemble_conditions ( blocks, blocksizes, wgen, nafc )
     outf = open ( "test", "w" )
-    outf.write ( "nblocks ntrials nafc wgen Am025_1 Am975_1 Amm_1 Ams_1 Aw025_1 Aw975_1 Awm_1 Aws_1 Mm025_1 Mm975_1 Mmm_1 Mms_1 Mw025_1 Mw975_1 Mwm_1 Mws_1 Rm_1 Rw_1 Rl_1 Am025_2 Am975_2 Amm_2 Ams_2 Aw025_2 Aw975_2 Awm_2 Aws_2 Mm025_2 Mm975_2 Mmm_2 Mms_2 Mw025_2 Mw975_2 Mwm_2 Mws_2 Rm_2 Rw_2 Rl_2 Am025_3 Am975_3 Amm_3 Ams_3 Aw025_3 Aw975_3 Awm_3 Aws_3 Mm025_3 Mm975_3 Mmm_3 Mms_3 Mw025_3 Mw975_3 Mwm_3 Mws_3 Rm_3 Rw_3 Rl_3\n" )
+    outf.write ( "nblocks ntrials nafc wgen Am025_1 Am975_1 Amm_1 Ams_1 Aw025_1 Aw975_1 Awm_1 Aws_1 Mm025_1 Mm975_1 Mmm_1 Mms_1 Mw025_1 Mw975_1 Mwm_1 Mws_1 Rm_1 Rw_1 Rl_1 H_1 dup_1 Am025_2 Am975_2 Amm_2 Ams_2 Aw025_2 Aw975_2 Awm_2 Aws_2 Mm025_2 Mm975_2 Mmm_2 Mms_2 Mw025_2 Mw975_2 Mwm_2 Mws_2 Rm_2 Rw_2 Rl_2 H_2 dup_2 Am025_3 Am975_3 Amm_3 Ams_3 Aw025_3 Aw975_3 Awm_3 Aws_3 Mm025_3 Mm975_3 Mmm_3 Mms_3 Mw025_3 Mw975_3 Mwm_3 Mws_3 Rm_3 Rw_3 Rl_3 H_3 dup_3\n" )
 
     for cond in conditions:
         run_single_simulation ( cond, outf )
