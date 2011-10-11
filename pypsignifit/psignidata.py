@@ -809,7 +809,7 @@ class BayesInference ( PsiInference ):
         # print self._steps
 
         self._maxnsamples = kwargs.setdefault ( 'maxnsamples', None )
-        assert self._maxnsamples > 0 or not self._maxnsamples is None
+        assert self._maxnsamples > 0 or self._maxnsamples is None
 
         if automatic:
             self.__determineoptimalsampling (verbose=kwargs.setdefault("verbose",False))
