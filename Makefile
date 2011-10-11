@@ -16,6 +16,7 @@ SPHINX_DOCOUT=doc-html
 EPYDOC_DCOOUT=api
 PSIPP_DOCOUT=psipp-api
 PSIPP_SRC=src
+LIBRARY_PATH=/usr/lib/
 PYTHON=python
 CLI_SRC=cli
 TODAY=`date +%d-%m-%G`
@@ -105,8 +106,11 @@ python-version:
 
 #################### PSIPP COMMANDS ################### {{{
 
-psipp:
+psipp-build:
 	cd $(PSIPP_SRC) && $(MAKE)
+
+psipp-install: psipp-build
+	cp $(PSIPP_SRC)/build/libpsipp.so $(LIBRARY_PATH)/
 
 psipp-doc:
 	doxygen
@@ -114,6 +118,9 @@ psipp-doc:
 psipp-clean:
 	cd $(PSIPP_SRC) && $(MAKE) clean
 	-rm -rv $(SPHINX_DOCOUT)/$(PSIPP_DOCOUT)
+
+psipp-uninstall:
+	rm $(LIBRARY_PATH)/libpsipp.so
 
 psipp-test:
 	cd $(PSIPP_SRC) && $(MAKE) test
