@@ -61,7 +61,7 @@ def compare_on_dataset ( d, nafc=2, nruns=3 ):
         result += "%g %g %g %g " % (Aw025,Aw975,Awm,Aws)
         result += "%g %g %g %g " % (Mm025,Mm975,Mmm,Mms)
         result += "%g %g %g %g " % (Mw025,Mw975,Mwm,Mws)
-        result += "%g %g %g" % (M.Rhat(0),M.Rhat(1),M.Rhat(2))
+        result += "%g %g %g " % (M.Rhat(0),M.Rhat(1),M.Rhat(2))
         result += "%g %g " % (A._ASIRInference__inference["resampling-entropy"],
                 A._ASIRInference__inference["duplicates"])
 
@@ -71,7 +71,8 @@ def compare_on_dataset ( d, nafc=2, nruns=3 ):
 
 def sampling_scheme ( observer, nblocks ):
     if observer.model["nafc"] == 2:
-        B = Beta ( 1.5,.6 )
+        B = Beta ( 3.5, 1.5 )
+        # B = Beta ( 1.5,.6 )
     elif observer.model["nafc"] == 1:
         B = Beta ( .5,.5 )
     Fx = B.ppf ( np.mgrid[.025:.975:nblocks*1j] )
