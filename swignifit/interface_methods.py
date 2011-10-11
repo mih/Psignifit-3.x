@@ -665,7 +665,7 @@ def asir ( data, nsamples=2000, nafc=2, sigmoid="logistic",
                 r"$\mathrm{Beta}(%.2f,%.2f)$" % (posterior.get_posterior(2).getprm(0),posterior.get_posterior(2).getprm(1))],
             'posterior_grids':          [ posterior.get_grid ( i ) for i in xrange ( nparams ) ],
             'posterior_margin':         [ posterior.get_margin ( i ) for i in xrange ( nparams ) ],
-            'resampling-entropy':       posterior.get_entropy ()
+            'resampling-entropy':       samples.get_entropy ()
             }
 
     else:
