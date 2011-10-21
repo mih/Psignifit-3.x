@@ -176,8 +176,8 @@ def bootstrap(data, start=None, nsamples=2000, nafc=2, sigmoid="logistic",
     for cut in xrange(ncuts):
         thacc[cut] = bs_list.getAcc_t(cut)
         thbias[cut] = bs_list.getBias_t(cut)
-        slacc[cut] = bs_list.getAcc_t(cut)
-        slbias[cut] = bs_list.getBias_t(cut)
+        slacc[cut] = bs_list.getAcc_s(cut)
+        slbias[cut] = bs_list.getBias_s(cut)
 
     ci_lower = sfr.vector_double(nparams)
     ci_upper = sfr.vector_double(nparams)
