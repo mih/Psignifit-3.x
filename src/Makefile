@@ -18,6 +18,7 @@ TESTS=tests_all
 
 library: $(OBJECTS) $(HEADERS)
 	$(CC) -shared $(LFLAGS) $(OBJECTS) -o $(BUILD)/libpsipp.so
+	$(CC) -static $(LFLAGS) $(OBJECTS) -o $(BUILD)/libpsipp.a
 
 tests_all: tests_all.cc $(HEADERS) library testing.h
 	$(CC) -c $(CFLAGS) tests_all.cc -o $(BUILD)/tests_all.o
