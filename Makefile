@@ -79,7 +79,7 @@ test: swignifit-test psipp-test
 python-install: swig python-version
 	$(PYTHON) setup.py install
 
-python-build: swignifit python-version
+python-build: | psipp-build swignifit python-version
 
 clean-python: swignifit-clean
 	-rm -rv build
