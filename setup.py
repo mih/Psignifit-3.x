@@ -29,6 +29,7 @@ packages = ["pypsignifit", "swignifit"]
 swignifit_sources = ["swignifit/swignifit_raw.cxx"]
 swignifit = Extension('swignifit._swignifit_raw',
         sources = swignifit_sources,
+        library_dirs=['src/build'],
         libraries=['psipp'],
         include_dirs=["src"])
 ext_modules = [swignifit]
