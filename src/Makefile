@@ -22,11 +22,11 @@ libpsipp.so: $(OBJECTS) $(HEADERS)
 libpsipp.a: $(OBJECTS) $(HEADERS)
 	$(CC) -static $(LFLAGS) $(OBJECTS) -o $(BUILD)/libpsipp.a
 
-tests_all: tests_all.cc $(HEADERS) library testing.h
+tests_all: tests_all.cc $(HEADERS) libpsipp.so testing.h
 	$(CC) -c $(CFLAGS) tests_all.cc -o $(BUILD)/tests_all.o
 	$(CC) $(BUILD)/tests_all.o -L$(BUILD) $(LFLAGS) -lpsipp -o tests_all
 
-test: tests_all library
+test: tests_all libpsipp.so
 	LD_LIBRARY_PATH=build ./tests_all 
 
 play: $(OBJECTS) play.cc $(HEADERS)
