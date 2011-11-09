@@ -11,6 +11,8 @@
 %{
 #define SWIG_FILE_WITH_INIT
 #include "psipp.h"
+
+using std::ptrdiff_t;
 %}
 
 // custom exception handler
