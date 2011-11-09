@@ -1,3 +1,8 @@
+From: Michael Hanke <mih@debian.org>
+Subject: Set RPATH for Python extension
+
+The extensions use a private shared library installed into /usr/lib/psignifit.
+
 --- /dev/null
 +++ b/setup.cfg
 @@ -0,0 +1,2 @@
