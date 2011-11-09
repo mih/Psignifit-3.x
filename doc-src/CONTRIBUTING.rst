@@ -169,7 +169,7 @@ base we worked on:
 Merging
 .......
 
-For easy tracking of what changes were absorbed during merge, we advice to
+For easy tracking of what changes were absorbed during merge, we advise you to
 enable merge summary within git::
 
     git-config merge.summary true
