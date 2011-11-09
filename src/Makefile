@@ -8,7 +8,7 @@
 # Makefile for targets in the src subdirectory
 
 CC=g++
-CFLAGS=-pg -ggdb -Wall
+CFLAGS=-pg -ggdb -Wall -fPIC
 LFLAGS=-lm -pg
 
 BUILD=build
