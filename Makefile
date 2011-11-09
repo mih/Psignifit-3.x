@@ -201,7 +201,7 @@ mpsignifit-version:
 	fi
 
 mpsignifit-clean:
-	rm $(MPSIGNIFIT_VERSION)
+	-rm $(MPSIGNIFIT_VERSION)
 
 # }}}
 
