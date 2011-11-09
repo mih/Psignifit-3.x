@@ -1,17 +1,20 @@
 Source: psignifit3
 Section: science
 Priority: extra
-Maintainer: Valentin Haenel <psignifit-users@lists.sourceforge.net>
+Maintainer: Valentin Haenel <valentin@haenel.co>
 Uploaders: Michael Hanke <mih@debian.org>
-Build-Depends: debhelper (>= 7.0.50~), python-all-dev, octave3.2-headers | octave3.0-headers, swig (>= 2.0.0~)
+Build-Depends: debhelper (>= 7.0.50~), python-all-dev, swig (>= 1.3.40~),
+  python-support (>= 0.6), python-nose, python-numpy, python-matplotlib,
+  python-scipy
 Standards-Version: 3.9.2
 Homepage: http://psignifit.sourceforge.net
-#Vcs-Git: git://git.debian.org/collab-maint/psignifit3.git
-#Vcs-Browser: http://git.debian.org/?p=collab-maint/psignifit3.git;a=summary
+Vcs-Git: git://psignifit.git.sf.net/gitroot/psignifit/psignifit
+Vcs-Browser: http://psignifit.git.sf.net/git/gitweb-index.cgi
 
-Package: python-psignifit3
+Package: python-pypsignifit
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}, python-numpy,
+  python-matplotlib, python-scipy
 Description: psychometric analysis of psychophysics data in Python
  Psignifit allows fitting of psychometric functions to datasets while
  maintaining full control over a large number of parameters. Psignifit
@@ -24,71 +27,3 @@ Description: psychometric analysis of psychophysics data in Python
   * flexible shape definition of the psychometric function
  .
  This package provides the Python bindings.
-
-
-Package: octave-psignifit3
-Architecture: all
-Depends: ${misc:Depends}, ${octave:Depends}
-Description: psychometric analysis of psychophysics data in Octave
- Psignifit allows fitting of psychometric functions to datasets while
- maintaining full control over a large number of parameters. Psignifit
- performs the calculation of confidence intervals as well as goodness-of-fit
- tests. In addition it offers:
- .
-  * full Bayesian treatment of psychometric functions including Bayesian
-    model selection and goodness of fit assessment
-  * identification of influential observations and outlier detection
-  * flexible shape definition of the psychometric function
- .
- This package provides the Octave bindings.
-
-
-Package: libpsignifit0
-Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: library for psychometric analysis of psychophysics data
- Psignifit allows fitting of psychometric functions to datasets while
- maintaining full control over a large number of parameters. Psignifit
- performs the calculation of confidence intervals as well as goodness-of-fit
- tests. In addition it offers:
- .
-  * full Bayesian treatment of psychometric functions including Bayesian
-    model selection and goodness of fit assessment
-  * identification of influential observations and outlier detection
-  * flexible shape definition of the psychometric function
- .
- This package provides the shared library.
-
-
-Package: libpsignifit-dev
-Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: development files for libpsignifit
- Psignifit allows fitting of psychometric functions to datasets while
- maintaining full control over a large number of parameters. Psignifit
- performs the calculation of confidence intervals as well as goodness-of-fit
- tests. In addition it offers:
- .
-  * full Bayesian treatment of psychometric functions including Bayesian
-    model selection and goodness of fit assessment
-  * identification of influential observations and outlier detection
-  * flexible shape definition of the psychometric function
- .
- This package provides the header files for libpsignifit.
-
-
-Package: psignifit3-cli
-Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: psychometric analysis of psychophysics data
- Psignifit allows fitting of psychometric functions to datasets while
- maintaining full control over a large number of parameters. Psignifit
- performs the calculation of confidence intervals as well as goodness-of-fit
- tests. In addition it offers:
- .
-  * full Bayesian treatment of psychometric functions including Bayesian
-    model selection and goodness of fit assessment
-  * identification of influential observations and outlier detection
-  * flexible shape definition of the psychometric function
- .
- This package provides the command line tools.
