@@ -526,7 +526,7 @@ int BootstrapTest ( TestSuite * T ) {
 	failures += T->isequal(boots.getThres(.9,0), 3.89757,"th(.9)",                        .05);
 
 	failures += T->isequal(boots.getAcc_s(0),    -0.000155314, "Acceleration constant (slope)", .01);
-	failures += T->isequal(boots.getBias_s(0),    -0.0501536,   "Bias (slope)",                  .01);
+	failures += T->isequal(boots.getBias_s(0),    -0.0351,   "Bias (slope)",                  .01);
 	failures += T->isequal(boots.getSlope(0.1,0), 0.181289,    "sl(.1)",                        .01);
 	failures += T->isequal(boots.getSlope(0.9,0), 0.497512,    "sl(.9)",                        .01);
 
