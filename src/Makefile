@@ -8,7 +8,7 @@
 # Makefile for targets in the src subdirectory
 
 CC=g++
-CFLAGS=-pg -ggdb -Wall
+CFLAGS=-pg -ggdb -Wall -fPIC
 LFLAGS=-lm -pg
 
 BUILD=build
@@ -16,12 +16,16 @@ HEADERS=core.h data.h errors.h optimizer.h prior.h psychometric.h sigmoid.h boot
 OBJECTS= $(addprefix $(BUILD)/, core.o data.o optimizer.o psychometric.o sigmoid.o bootstrap.o mclist.o special.o mcmc.o rng.o linalg.o getstart.o prior.o integrate.o)
 TESTS=tests_all
 
-tests_all: tests_all.cc $(HEADERS) $(OBJECTS) testing.h
-	$(CC) -c $(CFLAGS) tests_all.cc -o $(BUILD)/tests_all.o
-	$(CC) $(OBJECTS) $(BUILD)/tests_all.o $(LFLAGS) -o tests_all
+library: $(OBJECTS) $(HEADERS)
+	$(CC) -shared $(LFLAGS) $(OBJECTS) -o $(BUILD)/libpsipp.so
+	$(CC) -static $(LFLAGS) $(OBJECTS) -o $(BUILD)/libpsipp.a
 
-test: tests_all
-	./tests_all
+tests_all: tests_all.cc $(HEADERS) library testing.h
+	$(CC) -c $(CFLAGS) tests_all.cc -o $(BUILD)/tests_all.o
+	$(CC) $(BUILD)/tests_all.o -L$(BUILD) $(LFLAGS) -lpsipp -o tests_all
+
+test: tests_all library
+	LD_LIBRARY_PATH=build ./tests_all 
 
 play: $(OBJECTS) play.cc $(HEADERS)
 	$(CC) -c $(CFLAGS) play.cc -o $(BUILD)/play.o

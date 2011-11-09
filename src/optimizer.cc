@@ -140,7 +140,15 @@ std::vector<double> PsiOptimizer::optimize ( const PsiPsychometric * model, cons
 			if ( model->evalPrior ( k-1, simplex[k][k-1] ) > 1000 ) {
 				simplex[k][k-1] -= 2*d;
 			}
+#ifdef DEBUG_OPTIMIZER
+			std::cout << "Start (regular," << k << "): " << simplex[k][0] << " " << simplex[k][1] << " " << simplex[k][2];
+			if (nparameters>3)
+				std::cout << " " << simplex[k][3];
+			std::cout << "\n";
+#endif
 		}
+
+
 
 		// transform starting values to logit
 		for ( k=0; k<nparameters+1; k++ ) {
@@ -149,6 +157,13 @@ std::vector<double> PsiOptimizer::optimize ( const PsiPsychometric * model, cons
 				simplex[k][3] = lgit ( simplex[k][3] );
 			}
 		}
+
+#ifdef DEBUG_OPTIMIZER
+		std::cout << "Start (logit): " << simplex[0][0] << " " << simplex[0][1] << " " << simplex[0][2];
+		if (nparameters>3)
+			std::cout << " " << simplex[0][3];
+		std::cout << "\n";
+#endif
 
 		// for (k=1; k<nparameters+1; k++) simplex[k][k-1] += .05;
 		iter = 0;
@@ -269,6 +284,13 @@ std::vector<double> PsiOptimizer::optimize ( const PsiPsychometric * model, cons
 			if (fx[k]<fx[minind]) minind = k;
 		}
 
+#ifdef DEBUG_OPTIMIZER
+		std::cout << "Stop (logit): " << simplex[minind][0] << " " << simplex[minind][1] << " " << simplex[minind][2];
+		if (nparameters>3)
+			std::cout << " " << simplex[minind][3];
+		std::cout << "\n";
+#endif
+
 		for ( k=0; k<nparameters+1; k++ ) {
 			simplex[k][2] = lgst ( simplex[k][2] );
 			if ( nparameters>3 ) {
@@ -276,10 +298,17 @@ std::vector<double> PsiOptimizer::optimize ( const PsiPsychometric * model, cons
 			}
 		}
 
+#ifdef DEBUG_OPTIMIZER
+		std::cout << "Stop (regular): " << simplex[minind][0] << " " << simplex[minind][1] << " " << simplex[minind][2];
+		if (nparameters>3)
+			std::cout << " " << simplex[minind][3];
+		std::cout << "\n";
+#endif
+
 		for (l=0; l<nparameters; l++) {
 			output[l] = simplex[minind][l];
 			// output[k] = start[k];
-			simplex[minind][l] = simplex[minind][0];
+			// simplex[minind][l] = simplex[minind][0];
 			simplex[0][l] = output[l];
 			modified[l] = true;
 		}

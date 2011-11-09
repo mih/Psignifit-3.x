@@ -207,6 +207,7 @@ class MCMCList : public PsiMClist
 		std::vector<double> posterior_predictive_Rkd;
 		std::vector< std::vector<double> > logratios;       // log ratios of the unnormalized posteriors for the full model and the models with one block omitted
 		double accept_rate;
+		double H;
 	public:
 		MCMCList (
 			unsigned int N,                                                ///< number of samples to be drawn
@@ -241,6 +242,8 @@ class MCMCList : public PsiMClist
 		double getlogratio ( unsigned int i, unsigned int j ) const;                       ///< get the log posterior ratio for sample i and block j
 		void set_accept_rate(double rate) {accept_rate = rate; }  ///< set the acceptance rate
 		double get_accept_rate(void) const {return accept_rate; } ///< get the acceptance rate
+		void set_entropy ( double entropy ) { H = entropy; } ///< set the entropy if needed
+		double get_entropy ( void ) const { return H; }
 };
 
 void newsample ( const PsiData * data, const std::vector<double>& p, std::vector<int> * sample );

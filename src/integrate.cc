@@ -284,6 +284,7 @@ MCMCList sample_posterior (
 	}
 
 	finalsamples.set_accept_rate ( double(nduplicate)/nsamples );
+	finalsamples.set_entropy ( H );
 
 	for ( i=0; i<nprm; i++ )
 		delete posteriors[i];

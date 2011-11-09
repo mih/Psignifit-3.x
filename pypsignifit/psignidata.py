@@ -696,6 +696,8 @@ class BayesInference ( PsiInference ):
                 (or suggested prior).
             *stepwidths* :
                 stepwidths for the sampler, a pilot sample, or the proposal distributions for independence sampling
+            *maxnsamples* :
+                limit the number of samples to this value
 
         :Example:
         Use MCMC to estimate a psychometric function from some example data and derive posterior
@@ -805,6 +807,9 @@ class BayesInference ( PsiInference ):
         # estimated parameters
         self._steps = 0.1*self.mapestimate * 500/N.sum(self.data[:,2])
         # print self._steps
+
+        self._maxnsamples = kwargs.setdefault ( 'maxnsamples', None )
+        assert self._maxnsamples > 0 or self._maxnsamples is None
 
         if automatic:
             self.__determineoptimalsampling (verbose=kwargs.setdefault("verbose",False))
@@ -1590,6 +1595,8 @@ class BayesInference ( PsiInference ):
                 Nmin = pygibbsit.gibbsit ( q=q )["Nmin"]
                 NN = max(NN,Nmin)
             self.nsamples = NN
+            if not self._maxnsamples is None and self.nsamples > self._maxnsamples:
+                self.nsamples = self._maxnsamples
 
         a = self.__roughvariance ()
         # a = 0.1*self.mapestimate
@@ -1641,6 +1648,8 @@ class BayesInference ( PsiInference ):
                 break
             else:
                 oldburnin,oldthin,oldnsamples = self.burnin,self.thin,self.nsamples
+            if not self._maxnsamples is None and self.nsamples > self._maxnsamples:
+                self.nsamples = self._maxnsamples
         self.mcmcpars = mcmcpars
         self._steps = a
         if verbose:

@@ -176,8 +176,8 @@ def bootstrap(data, start=None, nsamples=2000, nafc=2, sigmoid="logistic",
     for cut in xrange(ncuts):
         thacc[cut] = bs_list.getAcc_t(cut)
         thbias[cut] = bs_list.getBias_t(cut)
-        slacc[cut] = bs_list.getAcc_t(cut)
-        slbias[cut] = bs_list.getBias_t(cut)
+        slacc[cut] = bs_list.getAcc_s(cut)
+        slbias[cut] = bs_list.getBias_s(cut)
 
     ci_lower = sfr.vector_double(nparams)
     ci_upper = sfr.vector_double(nparams)
@@ -664,7 +664,8 @@ def asir ( data, nsamples=2000, nafc=2, sigmoid="logistic",
                 r"$\mathrm{Gamma}(%.2f,%.2f)$" % (posterior.get_posterior(1).getprm(0),posterior.get_posterior(1).getprm(1)),
                 r"$\mathrm{Beta}(%.2f,%.2f)$" % (posterior.get_posterior(2).getprm(0),posterior.get_posterior(2).getprm(1))],
             'posterior_grids':          [ posterior.get_grid ( i ) for i in xrange ( nparams ) ],
-            'posterior_margin':         [ posterior.get_margin ( i ) for i in xrange ( nparams ) ]
+            'posterior_margin':         [ posterior.get_margin ( i ) for i in xrange ( nparams ) ],
+            'resampling-entropy':       samples.get_entropy ()
             }
 
     else:
