@@ -1,5 +1,5 @@
-psignifit3 (0.0.20110827.1-1) unstable; urgency=low
+psignifit (3.0~beta.20111109.1-1) unstable; urgency=low
 
   * Initial release (Closes: #580499)
 
- -- Valentin Haenel <psignifit-users@lists.sourceforge.net>  Sun, 28 Aug 2011 11:25:57 +0200
+ -- Michael Hanke <mih@debian.org>  Wed, 09 Nov 2011 14:19:32 +0100

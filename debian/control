@@ -1,4 +1,4 @@
-Source: psignifit3
+Source: psignifit
 Section: science
 Priority: extra
 Maintainer: Valentin Haenel <valentin@haenel.co>
@@ -12,6 +12,7 @@ Vcs-Git: git://psignifit.git.sf.net/gitroot/psignifit/psignifit
 Vcs-Browser: http://psignifit.git.sf.net/git/gitweb-index.cgi
 
 Package: python-pypsignifit
+Section: python
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}, python-numpy,
   python-matplotlib, python-scipy
